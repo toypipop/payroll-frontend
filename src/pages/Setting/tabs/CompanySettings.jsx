@@ -7,9 +7,10 @@ import InputField from "../../../components/common/InputField";
 
 const CompanySettings = () => {
     const [companies, setCompanies] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [editingId, setEditingId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    /* --- Form data state (English Comment) --- */
     const [formData, setFormData] = useState({
         name: "",
         tax_id: "",
@@ -17,11 +18,13 @@ const CompanySettings = () => {
         phone: "",
     });
 
+    const [editingId, setEditingId] = useState(null);
+
     const fetchCompanies = async () => {
         try {
             setLoading(true);
-            const res = await api.get("/v1/companies");
-            setCompanies(res.data);
+            const response = await api.get("/companies");
+            setCompanies(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -36,27 +39,20 @@ const CompanySettings = () => {
     const handleSubmit = async () => {
         try {
             if (editingId) {
-                await api.put(`/v1/companies/${editingId}`, formData);
+                await api.put(`/companies/${editingId}`, formData);
             } else {
-                await api.post("/v1/companies", formData);
+                await api.post("/companies", formData);
             }
             fetchCompanies();
             closeModal();
-            // eslint-disable-next-line no-unused-vars
         } catch (err) {
-            alert("Save failed");
+            alert(err.response?.data?.error || "Save Failed");
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Delete this company?")) {
-            await api.delete(`/v1/companies/${id}`);
-            fetchCompanies();
-        }
-    };
-
+    /* --- Update handleEdit (English Comment) --- */
     const handleEdit = (item) => {
-        setEditingId(item.id);
+        setEditingId(item.ID); // Changed from item.id to item.ID
         setFormData({
             name: item.name,
             tax_id: item.tax_id,
@@ -66,12 +62,27 @@ const CompanySettings = () => {
         setIsModalOpen(true);
     };
 
+    /* --- Update handleDelete (English Comment) --- */
+    const handleDelete = async (id) => {
+        // If id is passed as row.ID, this will now have a value
+        if (!id) return;
+
+        if (window.confirm("Are you sure you want to delete this company?")) {
+            try {
+                await api.delete(`/companies/${id}`);
+                fetchCompanies();
+            } catch (err) {
+                alert(err.response?.data?.error || "Delete Failed");
+            }
+        }
+    };
+
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
         setFormData({ name: "", tax_id: "", address: "", phone: "" });
     };
-
+    /* --- Update Table Columns (English Comment) --- */
     const columns = [
         { label: "Company Name", key: "name" },
         { label: "Tax ID", key: "tax_id" },
@@ -89,7 +100,7 @@ const CompanySettings = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => handleDelete(row.ID)} // Changed from row.id to row.ID
                         style={smallBtn}
                     >
                         Delete
@@ -100,16 +111,24 @@ const CompanySettings = () => {
     ];
 
     return (
-        <div>
+        <>
             <div
                 style={{
                     display: "flex",
                     justifyContent: "space-between",
+                    alignItems: "center",
                     marginBottom: "20px",
                 }}
             >
-                <h3 style={{ fontSize: "16px", color: "#1e293b" }}>
-                    Company List
+                <h3
+                    style={{
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        color: "#1e293b",
+                        margin: 0,
+                    }}
+                >
+                    Company Management
                 </h3>
                 <Button
                     onClick={() => setIsModalOpen(true)}
@@ -120,7 +139,9 @@ const CompanySettings = () => {
             </div>
 
             {loading ? (
-                <p>Loading...</p>
+                <div style={{ padding: "40px", textAlign: "center" }}>
+                    Loading...
+                </div>
             ) : (
                 <Table columns={columns} data={companies} />
             )}
@@ -128,7 +149,7 @@ const CompanySettings = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                title={editingId ? "Edit Company" : "Add Company"}
+                title={editingId ? "Edit Company" : "Add New Company"}
                 footer={
                     <>
                         <Button
@@ -142,13 +163,13 @@ const CompanySettings = () => {
                             onClick={handleSubmit}
                             style={{ width: "auto" }}
                         >
-                            Save
+                            {editingId ? "Update" : "Save"}
                         </Button>
                     </>
                 }
             >
                 <InputField
-                    label="Name"
+                    label="Company Name"
                     value={formData.name}
                     onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -169,17 +190,17 @@ const CompanySettings = () => {
                     }
                 />
                 <InputField
-                    label="Phone"
+                    label="Phone Number"
                     value={formData.phone}
                     onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
                     }
                 />
             </Modal>
-        </div>
+        </>
     );
 };
 
-const smallBtn = { padding: "4px 8px", fontSize: "12px" };
+const smallBtn = { padding: "6px 12px", fontSize: "12px" };
 
 export default CompanySettings;

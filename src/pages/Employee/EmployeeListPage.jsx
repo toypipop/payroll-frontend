@@ -146,14 +146,14 @@ const EmployeeListPage = () => {
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button
                         variant="ghost"
-                        onClick={() => handleEdit(row)}
+                        onClick={() => handleEdit(row.ID)}
                         style={smallBtn}
                     >
                         Edit
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => handleDelete(row.ID)}
                         style={smallBtn}
                     >
                         Delete

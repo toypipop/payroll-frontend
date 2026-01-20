@@ -1,31 +1,28 @@
 import React, { useState } from "react";
-import MainLayout from "../../components/layouts/MainLayout";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
+import CompanySettings from "./tabs/CompanySettings";
 import DepartmentSettings from "./tabs/DepartmentSettings";
 import PositionSettings from "./tabs/PositionSettings";
-import CompanySettings from "./tabs/CompanySettings";
 
 const SettingsPage = () => {
     const [activeTab, setActiveTab] = useState("company");
 
     const tabs = [
-        { id: "company", label: "Company Info" },
-        { id: "department", label: "Departments" },
-        { id: "position", label: "Positions" },
+        { id: "company", label: "Company" },
+        { id: "department", label: "Department" },
+        { id: "position", label: "Position" },
     ];
 
     return (
         <>
             <PageHeader title="System Settings" />
-
-            {/* --- Tab Navigation --- */}
             <div
                 style={{
                     display: "flex",
-                    gap: "24px",
+                    gap: "20px",
                     marginBottom: "20px",
-                    borderBottom: "1px solid #e2e8f0",
+                    borderBottom: "1px solid #eee",
                 }}
             >
                 {tabs.map((tab) => (
@@ -33,26 +30,22 @@ const SettingsPage = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         style={{
-                            padding: "12px 4px",
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            color: activeTab === tab.id ? "#3b82f6" : "#64748b",
+                            padding: "10px 15px",
+                            cursor: "pointer",
                             border: "none",
                             background: "none",
+                            color: activeTab === tab.id ? "#3b82f6" : "#666",
                             borderBottom:
                                 activeTab === tab.id
                                     ? "2px solid #3b82f6"
                                     : "2px solid transparent",
-                            cursor: "pointer",
-                            transition: "all 0.2s",
+                            fontWeight: activeTab === tab.id ? "600" : "400",
                         }}
                     >
                         {tab.label}
                     </button>
                 ))}
             </div>
-
-            {/* --- Tab Content --- */}
             <Card>
                 {activeTab === "company" && <CompanySettings />}
                 {activeTab === "department" && <DepartmentSettings />}
