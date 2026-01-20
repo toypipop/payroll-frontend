@@ -4,11 +4,11 @@ import {
     Route,
     Navigate,
 } from "react-router-dom";
+import MainLayout from "./components/layouts/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeeListPage from "./pages/Employee/EmployeeListPage";
-import MainLayout from "./components/layouts/MainLayout";
-import SettingsPage from "./pages/Settings/SettingsPage";
+import SettingsPage from "./pages/Setting/SettingsPage";
 
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem("token");
