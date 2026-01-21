@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
@@ -9,24 +13,42 @@ import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 
+/* --- 1. Validation Schema (English Comment) --- */
+const employeeSchema = z.object({
+    employee_code: z.string().min(2, "Employee code is required"),
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    dept_id: z.string().min(1, "Please select a department"),
+    pos_id: z.string().min(1, "Please select a position"),
+});
+
 const EmployeeListPage = () => {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    /* --- Form data state (English Comment) --- */
-    const [formData, setFormData] = useState({
-        first_name: "",
-        last_name: "",
-        email: "",
-        dept_id: "",
-        pos_id: "",
-        employee_code: "",
-    });
-
     const [editingId, setEditingId] = useState(null);
     const [masterDepts, setMasterDepts] = useState([]);
     const [masterPos, setMasterPos] = useState([]);
+
+    /* --- 2. Initialize Hook Form (English Comment) --- */
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(employeeSchema),
+        defaultValues: {
+            employee_code: "",
+            first_name: "",
+            last_name: "",
+            email: "",
+            dept_id: "",
+            pos_id: "",
+        },
+    });
 
     const fetchEmployees = async () => {
         try {
@@ -47,7 +69,6 @@ const EmployeeListPage = () => {
                     api.get("/departments"),
                     api.get("/positions"),
                 ]);
-                // Map data to match SelectField requirements
                 setMasterDepts(
                     deptRes.data.map((d) => ({ id: d.id, name: d.dept_name })),
                 );
@@ -63,12 +84,13 @@ const EmployeeListPage = () => {
         fetchEmployees();
     }, []);
 
-    const handleSubmit = async () => {
+    /* --- 3. Refactored Submit Handler (English Comment) --- */
+    const onSubmit = async (data) => {
         try {
             const payload = {
-                ...formData,
-                dept_id: parseInt(formData.dept_id),
-                pos_id: parseInt(formData.pos_id),
+                ...data,
+                dept_id: parseInt(data.dept_id),
+                pos_id: parseInt(data.pos_id),
             };
 
             if (editingId) {
@@ -84,26 +106,23 @@ const EmployeeListPage = () => {
     };
 
     const handleEdit = (emp) => {
-        setEditingId(emp.id);
-        setFormData({
-            first_name: emp.first_name,
-            last_name: emp.last_name,
-            email: emp.email,
-            dept_id: emp.dept_id,
-            pos_id: emp.pos_id,
-            employee_code: emp.employee_code,
-        });
+        setEditingId(emp.ID || emp.id);
+        // Map values to form (English Comment)
+        setValue("employee_code", emp.employee_code);
+        setValue("first_name", emp.first_name);
+        setValue("last_name", emp.last_name);
+        setValue("email", emp.email);
+        setValue("dept_id", emp.dept_id?.toString() || "");
+        setValue("pos_id", emp.pos_id?.toString() || "");
         setIsModalOpen(true);
     };
 
-    /* --- DELETE: Remove employee (English Comment) --- */
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this employee?")) {
             try {
                 await api.delete(`/employees/${id}`);
-                fetchEmployees(); // Refresh the list
+                fetchEmployees();
             } catch (err) {
-                console.error("Delete Error:", err);
                 alert(err.response?.data?.error || "Delete Failed");
             }
         }
@@ -112,14 +131,7 @@ const EmployeeListPage = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        setFormData({
-            first_name: "",
-            last_name: "",
-            email: "",
-            dept_id: "",
-            pos_id: "",
-            employee_code: "",
-        });
+        reset(); // Clear form and errors
     };
 
     const columns = [
@@ -128,10 +140,7 @@ const EmployeeListPage = () => {
             label: "Full Name",
             render: (row) => `${row.first_name} ${row.last_name}`,
         },
-        {
-            label: "Position",
-            render: (row) => row.position?.pos_name || "N/A",
-        },
+        { label: "Position", render: (row) => row.position?.pos_name || "N/A" },
         {
             label: "Department",
             render: (row) => row.department?.dept_name || "N/A",
@@ -146,14 +155,14 @@ const EmployeeListPage = () => {
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button
                         variant="ghost"
-                        onClick={() => handleEdit(row.ID)}
+                        onClick={() => handleEdit(row)}
                         style={smallBtn}
                     >
                         Edit
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.ID)}
+                        onClick={() => handleDelete(row.ID || row.id)}
                         style={smallBtn}
                     >
                         Delete
@@ -185,6 +194,7 @@ const EmployeeListPage = () => {
                     <Table columns={columns} data={employees} />
                 )}
             </Card>
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={closeModal}
@@ -198,8 +208,9 @@ const EmployeeListPage = () => {
                         >
                             Cancel
                         </Button>
+                        {/* 4. Use handleSubmit from Hook Form (English Comment) */}
                         <Button
-                            onClick={handleSubmit}
+                            onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
                         >
                             {editingId ? "Update" : "Save"}
@@ -207,59 +218,44 @@ const EmployeeListPage = () => {
                     </>
                 }
             >
-                {/* Stacked Layout for better readability */}
+                {/* 5. Inputs using register (English Comment) */}
                 <InputField
                     label="Employee Code"
-                    value={formData.employee_code}
-                    onChange={(e) =>
-                        setFormData({
-                            ...formData,
-                            employee_code: e.target.value,
-                        })
-                    }
+                    {...register("employee_code")}
+                    error={errors.employee_code?.message}
                 />
 
                 <InputField
                     label="First Name"
-                    value={formData.first_name}
-                    onChange={(e) =>
-                        setFormData({ ...formData, first_name: e.target.value })
-                    }
+                    {...register("first_name")}
+                    error={errors.first_name?.message}
                 />
 
                 <InputField
                     label="Last Name"
-                    value={formData.last_name}
-                    onChange={(e) =>
-                        setFormData({ ...formData, last_name: e.target.value })
-                    }
+                    {...register("last_name")}
+                    error={errors.last_name?.message}
                 />
 
                 <InputField
                     label="Email Address"
                     type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                    }
+                    {...register("email")}
+                    error={errors.email?.message}
                 />
 
                 <SelectField
                     label="Department"
-                    value={formData.dept_id}
                     options={masterDepts}
-                    onChange={(e) =>
-                        setFormData({ ...formData, dept_id: e.target.value })
-                    }
+                    {...register("dept_id")}
+                    error={errors.dept_id?.message}
                 />
 
                 <SelectField
                     label="Position"
-                    value={formData.pos_id}
                     options={masterPos}
-                    onChange={(e) =>
-                        setFormData({ ...formData, pos_id: e.target.value })
-                    }
+                    {...register("pos_id")}
+                    error={errors.pos_id?.message}
                 />
             </Modal>
         </>

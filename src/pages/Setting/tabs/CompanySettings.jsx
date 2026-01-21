@@ -1,24 +1,46 @@
 import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
 import api from "../../../api/axiosInstance";
 import Table from "../../../components/common/Table";
 import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 
+/* --- 1. Define Company Schema (English Comment) --- */
+const companySchema = z.object({
+    name: z.string().min(1, "Company name is required"),
+    tax_id: z
+        .string()
+        .length(13, "Tax ID must be exactly 13 digits")
+        .regex(/^\d+$/, "Tax ID must contain only numbers"),
+    address: z.string().min(5, "Address must be at least 5 characters"),
+    phone: z
+        .string()
+        .min(9, "Phone number is too short")
+        .max(10, "Phone number is too long")
+        .regex(/^\d+$/, "Phone must contain only numbers"),
+});
+
 const CompanySettings = () => {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    /* --- Form data state (English Comment) --- */
-    const [formData, setFormData] = useState({
-        name: "",
-        tax_id: "",
-        address: "",
-        phone: "",
-    });
-
     const [editingId, setEditingId] = useState(null);
+
+    /* --- 2. Initialize Hook Form (English Comment) --- */
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(companySchema),
+        defaultValues: { name: "", tax_id: "", address: "", phone: "" },
+    });
 
     const fetchCompanies = async () => {
         try {
@@ -36,12 +58,13 @@ const CompanySettings = () => {
         fetchCompanies();
     }, []);
 
-    const handleSubmit = async () => {
+    /* --- 3. Handle Submit with Data from Hook Form (English Comment) --- */
+    const onSubmit = async (data) => {
         try {
             if (editingId) {
-                await api.put(`/companies/${editingId}`, formData);
+                await api.put(`/companies/${editingId}`, data);
             } else {
-                await api.post("/companies", formData);
+                await api.post("/companies", data);
             }
             fetchCompanies();
             closeModal();
@@ -50,23 +73,18 @@ const CompanySettings = () => {
         }
     };
 
-    /* --- Update handleEdit (English Comment) --- */
     const handleEdit = (item) => {
-        setEditingId(item.ID); // Changed from item.id to item.ID
-        setFormData({
-            name: item.name,
-            tax_id: item.tax_id,
-            address: item.address,
-            phone: item.phone,
-        });
+        setEditingId(item.ID);
+        // Map current data to form fields (English Comment)
+        setValue("name", item.name);
+        setValue("tax_id", item.tax_id);
+        setValue("address", item.address);
+        setValue("phone", item.phone);
         setIsModalOpen(true);
     };
 
-    /* --- Update handleDelete (English Comment) --- */
     const handleDelete = async (id) => {
-        // If id is passed as row.ID, this will now have a value
         if (!id) return;
-
         if (window.confirm("Are you sure you want to delete this company?")) {
             try {
                 await api.delete(`/companies/${id}`);
@@ -80,9 +98,9 @@ const CompanySettings = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        setFormData({ name: "", tax_id: "", address: "", phone: "" });
+        reset(); // Clear form and error states
     };
-    /* --- Update Table Columns (English Comment) --- */
+
     const columns = [
         { label: "Company Name", key: "name" },
         { label: "Tax ID", key: "tax_id" },
@@ -100,7 +118,7 @@ const CompanySettings = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.ID)} // Changed from row.id to row.ID
+                        onClick={() => handleDelete(row.ID || row.id)}
                         style={smallBtn}
                     >
                         Delete
@@ -160,7 +178,7 @@ const CompanySettings = () => {
                             Cancel
                         </Button>
                         <Button
-                            onClick={handleSubmit}
+                            onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
                         >
                             {editingId ? "Update" : "Save"}
@@ -168,33 +186,26 @@ const CompanySettings = () => {
                     </>
                 }
             >
+                {/* 4. Connect Fields with register (English Comment) */}
                 <InputField
                     label="Company Name"
-                    value={formData.name}
-                    onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                    }
+                    {...register("name")}
+                    error={errors.name?.message}
                 />
                 <InputField
-                    label="Tax ID"
-                    value={formData.tax_id}
-                    onChange={(e) =>
-                        setFormData({ ...formData, tax_id: e.target.value })
-                    }
+                    label="Tax ID (13 Digits)"
+                    {...register("tax_id")}
+                    error={errors.tax_id?.message}
                 />
                 <InputField
                     label="Address"
-                    value={formData.address}
-                    onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
-                    }
+                    {...register("address")}
+                    error={errors.address?.message}
                 />
                 <InputField
                     label="Phone Number"
-                    value={formData.phone}
-                    onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                    }
+                    {...register("phone")}
+                    error={errors.phone?.message}
                 />
             </Modal>
         </>
