@@ -25,7 +25,7 @@ const companySchema = z.object({
 });
 
 const CompanySettings = () => {
-    const [companies, setCompanies] = useState([]);
+    const [company, setCompany] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -35,18 +35,17 @@ const CompanySettings = () => {
         register,
         handleSubmit,
         reset,
-        setValue,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(companySchema),
         defaultValues: { name: "", tax_id: "", address: "", phone: "" },
     });
 
-    const fetchCompanies = async () => {
+    const fetchCompany = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/companies");
-            setCompanies(response.data);
+            const response = await api.get("/company");
+            setCompany(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -55,18 +54,18 @@ const CompanySettings = () => {
     };
 
     useEffect(() => {
-        fetchCompanies();
+        fetchCompany();
     }, []);
 
     /* --- 3. Handle Submit with Data from Hook Form (English Comment) --- */
     const onSubmit = async (data) => {
         try {
             if (editingId) {
-                await api.put(`/companies/${editingId}`, data);
+                await api.put(`/company/${editingId}`, data);
             } else {
-                await api.post("/companies", data);
+                await api.post("/company", data);
             }
-            fetchCompanies();
+            fetchCompany();
             closeModal();
         } catch (err) {
             alert(err.response?.data?.error || "Save Failed");
@@ -74,12 +73,14 @@ const CompanySettings = () => {
     };
 
     const handleEdit = (item) => {
-        setEditingId(item.ID);
-        // Map current data to form fields (English Comment)
-        setValue("name", item.name);
-        setValue("tax_id", item.tax_id);
-        setValue("address", item.address);
-        setValue("phone", item.phone);
+        setEditingId(item.ID || item.id);
+        // Use reset to fill the entire form with item data (English Comment)
+        reset({
+            name: item.name,
+            tax_id: item.tax_id,
+            address: item.address,
+            phone: item.phone,
+        });
         setIsModalOpen(true);
     };
 
@@ -87,8 +88,8 @@ const CompanySettings = () => {
         if (!id) return;
         if (window.confirm("Are you sure you want to delete this company?")) {
             try {
-                await api.delete(`/companies/${id}`);
-                fetchCompanies();
+                await api.delete(`/company/${id}`);
+                fetchCompany();
             } catch (err) {
                 alert(err.response?.data?.error || "Delete Failed");
             }
@@ -98,7 +99,7 @@ const CompanySettings = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset(); // Clear form and error states
+        reset({ name: "", tax_id: "", address: "", phone: "" }); // Reset to default empty values
     };
 
     const columns = [
@@ -149,7 +150,11 @@ const CompanySettings = () => {
                     Company Management
                 </h3>
                 <Button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => {
+                        setEditingId(null); // Ensure it's not in edit mode
+                        reset({ name: "", tax_id: "", address: "", phone: "" }); // Clear form
+                        setIsModalOpen(true);
+                    }}
                     style={{ width: "auto" }}
                 >
                     + Add Company
@@ -161,7 +166,7 @@ const CompanySettings = () => {
                     Loading...
                 </div>
             ) : (
-                <Table columns={columns} data={companies} />
+                <Table columns={columns} data={company} />
             )}
 
             <Modal
