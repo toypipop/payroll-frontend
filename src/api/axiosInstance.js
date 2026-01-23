@@ -4,12 +4,16 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 });
 
-// Request Interceptor: Attach JWT Token before every request
+/* --- Update api.js (English Comment) --- */
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            // Use set method or direct assignment (English Comment)
+            config.headers = {
+                ...config.headers,
+                Authorization: `Bearer ${token}`,
+            };
         }
         return config;
     },
