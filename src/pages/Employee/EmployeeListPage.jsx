@@ -12,6 +12,7 @@ import Badge from "../../components/common/Badge";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
+import CheckboxField from "../../components/common/CheckboxField";
 
 /* --- 1. Validation Schema (English Comment) --- */
 const employeeSchema = z.object({
@@ -21,6 +22,13 @@ const employeeSchema = z.object({
     email: z.string().email("Invalid email address"),
     dept_id: z.string().min(1, "Please select a department"),
     pos_id: z.string().min(1, "Please select a position"),
+    role_id: z.string().min(1, "Please select a role"),
+    is_active: z.boolean().default(true),
+    password: z
+        .string()
+        .min(6, "Password must be at least 6 characters")
+        .optional()
+        .or(z.literal("")),
 });
 
 const EmployeeListPage = () => {
@@ -30,6 +38,7 @@ const EmployeeListPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [masterDepts, setMasterDepts] = useState([]);
     const [masterPos, setMasterPos] = useState([]);
+    const [masterRoles, setMasterRoles] = useState([]);
 
     /* --- 2. Initialize Hook Form (English Comment) --- */
     const {
@@ -47,6 +56,9 @@ const EmployeeListPage = () => {
             email: "",
             dept_id: "",
             pos_id: "",
+            role_id: "",
+            is_active: true,
+            password: "",
         },
     });
 
@@ -65,19 +77,34 @@ const EmployeeListPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [deptRes, posRes] = await Promise.all([
+                const [deptRes, posRes, roleRes] = await Promise.all([
                     api.get("/departments"),
                     api.get("/positions"),
+                    api.get("/roles"),
                 ]);
+
+                // Ensure the property names (d.dept_name, p.pos_name, r.role_name)
+                // match your Backend JSON response (English Comment)
                 setMasterDepts(
-                    deptRes.data.map((d) => ({ id: d.id, name: d.dept_name })),
+                    deptRes.data.map((d) => ({
+                        id: d.id,
+                        name: d.dept_name || d.name,
+                    })),
                 );
                 setMasterPos(
-                    posRes.data.map((p) => ({ id: p.id, name: p.pos_name })),
+                    posRes.data.map((p) => ({
+                        id: p.id,
+                        name: p.pos_name || p.name,
+                    })),
                 );
-                // eslint-disable-next-line no-unused-vars
+                setMasterRoles(
+                    roleRes.data.map((r) => ({
+                        id: r.id,
+                        name: r.role_name || r.name,
+                    })),
+                );
             } catch (err) {
-                console.error("Master Data Load Error");
+                console.error("Master Data Load Error", err);
             }
         };
         fetchMasterData();
@@ -91,6 +118,7 @@ const EmployeeListPage = () => {
                 ...data,
                 dept_id: parseInt(data.dept_id),
                 pos_id: parseInt(data.pos_id),
+                role_id: parseInt(data.role_id),
             };
 
             if (editingId) {
@@ -114,6 +142,7 @@ const EmployeeListPage = () => {
         setValue("email", emp.email);
         setValue("dept_id", emp.dept_id?.toString() || "");
         setValue("pos_id", emp.pos_id?.toString() || "");
+        setValue("role_id", emp.role_id?.toString() || "");
         setIsModalOpen(true);
     };
 
@@ -147,7 +176,11 @@ const EmployeeListPage = () => {
         },
         {
             label: "Status",
-            render: (row) => <Badge status={row.status}>{row.status}</Badge>,
+            render: (row) => (
+                <Badge status={row.is_active}>
+                    {row.is_active ? "Active" : "Inactive"}
+                </Badge>
+            ),
         },
         {
             label: "Actions",
@@ -244,6 +277,17 @@ const EmployeeListPage = () => {
                     error={errors.email?.message}
                 />
 
+                <InputField
+                    label="Password"
+                    type="password"
+                    {...register("password")}
+                    error={errors.password?.message}
+                    placeholder={
+                        editingId
+                            ? "Leave blank to keep same"
+                            : "Required (min 6 chars)"
+                    }
+                />
                 <SelectField
                     label="Department"
                     options={masterDepts}
@@ -256,6 +300,19 @@ const EmployeeListPage = () => {
                     options={masterPos}
                     {...register("pos_id")}
                     error={errors.pos_id?.message}
+                />
+
+                <SelectField
+                    label="System Role"
+                    options={masterRoles}
+                    {...register("role_id")}
+                    error={errors.role_id?.message}
+                />
+                <CheckboxField
+                    label="Account Active"
+                    id="is_active"
+                    {...register("is_active")}
+                    error={errors.is_active?.message}
                 />
             </Modal>
         </>
