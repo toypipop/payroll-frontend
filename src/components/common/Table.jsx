@@ -67,7 +67,7 @@ const Table = ({ columns, data = [] }) => {
                                 {columns.map((col, colIndex) => (
                                     <td key={colIndex} style={styles.td}>
                                         {col.render
-                                            ? col.render(row)
+                                            ? col.render(row, rowIndex)
                                             : row[col.key]}
                                     </td>
                                 ))}

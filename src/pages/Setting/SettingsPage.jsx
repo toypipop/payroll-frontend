@@ -4,6 +4,7 @@ import Card from "../../components/common/Card";
 import CompanySettings from "./tabs/CompanySettings";
 import DepartmentSettings from "./tabs/DepartmentSettings";
 import PositionSettings from "./tabs/PositionSettings";
+import PermissionSettings from "./tabs/PermissionSettings";
 
 const SettingsPage = () => {
     const [activeTab, setActiveTab] = useState("company");
@@ -12,6 +13,7 @@ const SettingsPage = () => {
         { id: "company", label: "Company" },
         { id: "department", label: "Department" },
         { id: "position", label: "Position" },
+        { id: "permission", label: "Permission" },
     ];
 
     return (
@@ -50,6 +52,7 @@ const SettingsPage = () => {
                 {activeTab === "company" && <CompanySettings />}
                 {activeTab === "department" && <DepartmentSettings />}
                 {activeTab === "position" && <PositionSettings />}
+                {activeTab === "permission" && <PermissionSettings />}
             </Card>
         </>
     );
