@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
-import CompanySettings from "./tabs/CompanySettings";
+import CompaniesSettings from "./tabs/CompaniesSettings";
 import DepartmentSettings from "./tabs/DepartmentSettings";
 import PositionSettings from "./tabs/PositionSettings";
 import PermissionSettings from "./tabs/PermissionSettings";
 
 const SettingsPage = () => {
-    const [activeTab, setActiveTab] = useState("company");
+    const [activeTab, setActiveTab] = useState("companies");
 
     const tabs = [
-        { id: "company", label: "Company" },
+        { id: "companies", label: "Companies" },
         { id: "department", label: "Department" },
         { id: "position", label: "Position" },
         { id: "permission", label: "Permission" },
@@ -49,7 +49,7 @@ const SettingsPage = () => {
                 ))}
             </div>
             <Card>
-                {activeTab === "company" && <CompanySettings />}
+                {activeTab === "companies" && <CompaniesSettings />}
                 {activeTab === "department" && <DepartmentSettings />}
                 {activeTab === "position" && <PositionSettings />}
                 {activeTab === "permission" && <PermissionSettings />}

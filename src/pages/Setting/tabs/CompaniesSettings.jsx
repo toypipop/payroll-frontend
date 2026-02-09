@@ -9,9 +9,9 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 
-/* --- 1. Define Company Schema (English Comment) --- */
-const companySchema = z.object({
-    name: z.string().min(1, "Company name is required"),
+/* --- 1. Define Companies Schema (English Comment) --- */
+const companiesSchema = z.object({
+    name: z.string().min(1, "Companies name is required"),
     tax_id: z
         .string()
         .length(13, "Tax ID must be exactly 13 digits")
@@ -24,8 +24,8 @@ const companySchema = z.object({
         .regex(/^\d+$/, "Phone must contain only numbers"),
 });
 
-const CompanySettings = () => {
-    const [company, setCompany] = useState([]);
+const CompaniesSettings = () => {
+    const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -37,15 +37,15 @@ const CompanySettings = () => {
         reset,
         formState: { errors },
     } = useForm({
-        resolver: zodResolver(companySchema),
+        resolver: zodResolver(companiesSchema),
         defaultValues: { name: "", tax_id: "", address: "", phone: "" },
     });
 
-    const fetchCompany = async () => {
+    const fetchCompanies = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/company");
-            setCompany(response.data);
+            const response = await api.get("/companies/all");
+            setCompanies(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -54,18 +54,18 @@ const CompanySettings = () => {
     };
 
     useEffect(() => {
-        fetchCompany();
+        fetchCompanies();
     }, []);
 
     /* --- 3. Handle Submit with Data from Hook Form (English Comment) --- */
     const onSubmit = async (data) => {
         try {
             if (editingId) {
-                await api.put(`/company/${editingId}`, data);
+                await api.put(`/companies/${editingId}`, data);
             } else {
-                await api.post("/company", data);
+                await api.post("/companies", data);
             }
-            fetchCompany();
+            fetchCompanies();
             closeModal();
         } catch (err) {
             alert(err.response?.data?.error || "Save Failed");
@@ -86,10 +86,10 @@ const CompanySettings = () => {
 
     const handleDelete = async (id) => {
         if (!id) return;
-        if (window.confirm("Are you sure you want to delete this company?")) {
+        if (window.confirm("Are you sure you want to delete this companies?")) {
             try {
-                await api.delete(`/company/${id}`);
-                fetchCompany();
+                await api.delete(`/companies/${id}`);
+                fetchCompanies();
             } catch (err) {
                 alert(err.response?.data?.error || "Delete Failed");
             }
@@ -103,7 +103,7 @@ const CompanySettings = () => {
     };
 
     const columns = [
-        { label: "Company Name", key: "name" },
+        { label: "Companies Name", key: "name" },
         { label: "Tax ID", key: "tax_id" },
         { label: "Phone", key: "phone" },
         {
@@ -147,7 +147,7 @@ const CompanySettings = () => {
                         margin: 0,
                     }}
                 >
-                    Company Management
+                    Companies Management
                 </h3>
                 <Button
                     onClick={() => {
@@ -157,7 +157,7 @@ const CompanySettings = () => {
                     }}
                     style={{ width: "auto" }}
                 >
-                    + Add Company
+                    + Add Companies
                 </Button>
             </div>
 
@@ -166,13 +166,13 @@ const CompanySettings = () => {
                     Loading...
                 </div>
             ) : (
-                <Table columns={columns} data={company} />
+                <Table columns={columns} data={companies} />
             )}
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                title={editingId ? "Edit Company" : "Add New Company"}
+                title={editingId ? "Edit Companies" : "Add New Companies"}
                 footer={
                     <>
                         <Button
@@ -193,7 +193,7 @@ const CompanySettings = () => {
             >
                 {/* 4. Connect Fields with register (English Comment) */}
                 <InputField
-                    label="Company Name"
+                    label="Companies Name"
                     {...register("name")}
                     error={errors.name?.message}
                 />
@@ -219,4 +219,4 @@ const CompanySettings = () => {
 
 const smallBtn = { padding: "6px 12px", fontSize: "12px" };
 
-export default CompanySettings;
+export default CompaniesSettings;
