@@ -13,6 +13,7 @@ const PermissionSettings = () => {
     const [permissions, setPermissions] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const dataScopeOptions = [
         { id: "OWN", name: "Own Data Only" },
         { id: "DEPARTMENT", name: "Department Scope" },
@@ -84,65 +85,61 @@ const PermissionSettings = () => {
             alert(err.response?.data?.error || "Save error");
         }
     };
-
-    // Use useMemo to prevent stale closures in Table render (English Comment)
+    // Use useMemo to prevent stale closures in Table render
     const columns = useMemo(
         () => [
-            { label: "Module", key: "module_name" },
+            { label: "MODULE", key: "module_name", width: "30%" }, 
             {
-                label: "View",
+                label: "VIEW",
+                width: "8%", // Reduced from 10%
                 render: (row, idx) => (
-                    <CheckboxField
-                        checked={permissions[idx]?.can_view || false}
-                        onChange={(e) =>
-                            handleUpdateLocal(idx, "can_view", e.target.checked)
-                        }
-                    />
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <CheckboxField
+                            checked={permissions[idx]?.can_view || false}
+                            onChange={(e) => handleUpdateLocal(idx, "can_view", e.target.checked)}
+                        />
+                    </div>
                 ),
             },
             {
-                label: "Create",
+                label: "CREATE",
+                width: "8%", // Reduced from 10%
                 render: (row, idx) => (
-                    <CheckboxField
-                        checked={permissions[idx]?.can_create || false}
-                        onChange={(e) =>
-                            handleUpdateLocal(
-                                idx,
-                                "can_create",
-                                e.target.checked,
-                            )
-                        }
-                    />
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <CheckboxField
+                            checked={permissions[idx]?.can_create || false}
+                            onChange={(e) => handleUpdateLocal(idx, "can_create", e.target.checked)}
+                        />
+                    </div>
                 ),
             },
             {
-                label: "Edit",
+                label: "EDIT",
+                width: "8%",
                 render: (row, idx) => (
-                    <CheckboxField
-                        checked={permissions[idx]?.can_edit || false}
-                        onChange={(e) =>
-                            handleUpdateLocal(idx, "can_edit", e.target.checked)
-                        }
-                    />
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <CheckboxField
+                            checked={permissions[idx]?.can_edit || false}
+                            onChange={(e) => handleUpdateLocal(idx, "can_edit", e.target.checked)}
+                        />
+                    </div>
                 ),
             },
             {
-                label: "Delete",
+                label: "DELETE",
+                width: "8%",
                 render: (row, idx) => (
-                    <CheckboxField
-                        checked={permissions[idx]?.can_delete || false}
-                        onChange={(e) =>
-                            handleUpdateLocal(
-                                idx,
-                                "can_delete",
-                                e.target.checked,
-                            )
-                        }
-                    />
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <CheckboxField
+                            checked={permissions[idx]?.can_delete || false}
+                            onChange={(e) => handleUpdateLocal(idx, "can_delete", e.target.checked)}
+                        />
+                    </div>
                 ),
             },
             {
-                label: "Data Scope",
+                label: "DATA SCOPE",
+                width: "38%", // Increased to fill remaining space
                 render: (row, idx) => (
                     <SelectField
                         options={dataScopeOptions}
@@ -156,7 +153,7 @@ const PermissionSettings = () => {
             },
         ],
         [dataScopeOptions, permissions],
-    ); // Recalculate when permissions change (English Comment)
+    );
 
     return (
         <div className="permission-settings">

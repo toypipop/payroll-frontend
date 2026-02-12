@@ -1,16 +1,21 @@
 import React from "react";
 
 const Table = ({ columns, data = [] }) => {
-    /* --- Styles defined inside component (English Comment) --- */
     const styles = {
+        tableContainer: {
+            width: "100%",
+            overflowX: "auto",
+            // Keep the container clean (English Comment)
+        },
         table: {
             width: "100%",
-            borderCollapse: "collapse",
+            // Change collapse to separate to fix border bleed at corners (English Comment)
+            borderCollapse: "separate",
+            borderSpacing: 0,
             textAlign: "left",
         },
         thead: {
             backgroundColor: "#f8fafc",
-            borderBottom: "1px solid var(--border-color)",
         },
         th: {
             padding: "16px 24px",
@@ -19,6 +24,7 @@ const Table = ({ columns, data = [] }) => {
             color: "var(--text-muted)",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
+            borderBottom: "1px solid var(--border-color)",
         },
         td: {
             padding: "16px 24px",
@@ -34,11 +40,10 @@ const Table = ({ columns, data = [] }) => {
         },
     };
 
-    // Prevent error if data is null or undefined (English Comment)
     const safeData = data || [];
 
     return (
-        <div style={{ overflowX: "auto" }}>
+        <div style={styles.tableContainer}>
             <table style={styles.table}>
                 <thead style={styles.thead}>
                     <tr>
@@ -51,37 +56,35 @@ const Table = ({ columns, data = [] }) => {
                 </thead>
                 <tbody>
                     {safeData.length > 0 ? (
-                        safeData.map((row, rowIndex) => (
-                            <tr
-                                key={rowIndex}
-                                style={styles.tr}
-                                onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor =
-                                        styles.trHover.backgroundColor)
-                                }
-                                onMouseLeave={(e) =>
-                                    (e.currentTarget.style.backgroundColor =
-                                        "transparent")
-                                }
-                            >
-                                {columns.map((col, colIndex) => (
-                                    <td key={colIndex} style={styles.td}>
-                                        {col.render
-                                            ? col.render(row, rowIndex)
-                                            : row[col.key]}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))
+                        safeData.map((row, rowIndex) => {
+                            const isLastRow = rowIndex === safeData.length - 1;
+                            return (
+                                <tr
+                                    key={rowIndex}
+                                    style={styles.tr}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.trHover.backgroundColor)}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                >
+                                    {columns.map((col, colIndex) => (
+                                        <td 
+                                            key={colIndex} 
+                                            style={{
+                                                ...styles.td,
+                                                // Remove bottom border for the last row to prevent double borders or cut-offs at corners (English Comment)
+                                                borderBottom: isLastRow ? "none" : styles.td.borderBottom
+                                            }}
+                                        >
+                                            {col.render ? col.render(row, rowIndex) : row[col.key]}
+                                        </td>
+                                    ))}
+                                </tr>
+                            );
+                        })
                     ) : (
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                style={{
-                                    ...styles.td,
-                                    textAlign: "center",
-                                    padding: "40px",
-                                }}
+                                style={{ ...styles.td, textAlign: "center", padding: "40px", borderBottom: "none" }}
                             >
                                 No data available
                             </td>

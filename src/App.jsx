@@ -7,8 +7,9 @@ import {
 import MainLayout from "./components/layouts/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import EmployeeListPage from "./pages/Employee/EmployeeListPage";
+import EmployeeListPage from "./pages/EmployeeListPage";
 import SettingsPage from "./pages/Setting/SettingsPage";
+import SalariesStructurePage from "./pages/SalariesStructurePage";
 
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem("token");
@@ -46,13 +47,23 @@ function App() {
                     }
                 />
 
-                {/* 2. Add Settings Route */}
                 <Route
                     path="/settings"
                     element={
                         <ProtectedRoute>
                             <MainLayout pageTitle="System Settings">
                                 <SettingsPage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                
+                <Route
+                    path="/salaries"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout pageTitle="Salaries Structure">
+                                <SalariesStructurePage />
                             </MainLayout>
                         </ProtectedRoute>
                     }
