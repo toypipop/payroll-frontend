@@ -7,7 +7,7 @@ import {
 import MainLayout from "./components/layouts/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import EmployeeListPage from "./pages/EmployeeListPage";
+import EmployeesListPage from "./pages/EmployeesListPage";
 import SettingsPage from "./pages/Setting/SettingsPage";
 import SalariesStructurePage from "./pages/SalariesStructurePage";
 
@@ -40,8 +40,8 @@ function App() {
                     path="/employees"
                     element={
                         <ProtectedRoute>
-                            <MainLayout pageTitle="Employee List">
-                                <EmployeeListPage />
+                            <MainLayout pageTitle="Employees List">
+                                <EmployeesListPage />
                             </MainLayout>
                         </ProtectedRoute>
                     }

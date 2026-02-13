@@ -27,7 +27,7 @@ const LoginPage = () => {
         // 2. Save user details for UI display (Navbar)
         const userPayload = {
           fullName: response.data.full_name,
-          role: response.data.role
+          roles: response.data.roles
         };
         localStorage.setItem('user', JSON.stringify(userPayload));
 

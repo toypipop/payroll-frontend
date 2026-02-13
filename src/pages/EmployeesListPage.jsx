@@ -15,14 +15,14 @@ import SelectField from "../components/common/SelectField";
 import CheckboxField from "../components/common/CheckboxField";
 
 /* --- 1. Validation Schema (English Comment) --- */
-const employeeSchema = z.object({
-    employee_code: z.string().min(2, "Employee code is required"),
+const employeesSchema = z.object({
+    employees_code: z.string().min(2, "Employees code is required"),
     first_name: z.string().min(1, "First name is required"),
     last_name: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     dept_id: z.string().min(1, "Please select a department"),
     pos_id: z.string().min(1, "Please select a position"),
-    role_id: z.string().min(1, "Please select a role"),
+    roles_id: z.string().min(1, "Please select a roles"),
     is_active: z.boolean().default(true),
     password: z
         .string()
@@ -31,7 +31,7 @@ const employeeSchema = z.object({
         .or(z.literal("")),
 });
 
-const EmployeeListPage = () => {
+const EmployeesListPage = () => {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,15 +48,15 @@ const EmployeeListPage = () => {
         setValue,
         formState: { errors },
     } = useForm({
-        resolver: zodResolver(employeeSchema),
+        resolver: zodResolver(employeesSchema),
         defaultValues: {
-            employee_code: "",
+            employees_code: "",
             first_name: "",
             last_name: "",
             email: "",
             dept_id: "",
             pos_id: "",
-            role_id: "",
+            roles_id: "",
             is_active: true,
             password: "",
         },
@@ -77,13 +77,13 @@ const EmployeeListPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [deptRes, posRes, roleRes] = await Promise.all([
+                const [deptRes, posRes, rolesRes] = await Promise.all([
                     api.get("/departments"),
                     api.get("/positions"),
                     api.get("/roles"),
                 ]);
 
-                // Ensure the property names (d.dept_name, p.pos_name, r.role_name)
+                // Ensure the property names (d.dept_name, p.pos_name, r.roles_name)
                 // match your Backend JSON response (English Comment)
                 setMasterDepts(
                     deptRes.data.map((d) => ({
@@ -98,9 +98,9 @@ const EmployeeListPage = () => {
                     })),
                 );
                 setMasterRoles(
-                    roleRes.data.map((r) => ({
+                    rolesRes.data.map((r) => ({
                         id: r.id,
-                        name: r.role_name || r.name,
+                        name: r.roles_name || r.name,
                     })),
                 );
             } catch (err) {
@@ -118,7 +118,7 @@ const EmployeeListPage = () => {
                 ...data,
                 dept_id: parseInt(data.dept_id),
                 pos_id: parseInt(data.pos_id),
-                role_id: parseInt(data.role_id),
+                roles_id: parseInt(data.roles_id),
             };
 
             if (editingId) {
@@ -136,18 +136,18 @@ const EmployeeListPage = () => {
     const handleEdit = (emp) => {
         setEditingId(emp.ID || emp.id);
         // Map values to form (English Comment)
-        setValue("employee_code", emp.employee_code);
+        setValue("employees_code", emp.employees_code);
         setValue("first_name", emp.first_name);
         setValue("last_name", emp.last_name);
         setValue("email", emp.email);
         setValue("dept_id", emp.dept_id?.toString() || "");
         setValue("pos_id", emp.pos_id?.toString() || "");
-        setValue("role_id", emp.role_id?.toString() || "");
+        setValue("roles_id", emp.roles_id?.toString() || "");
         setIsModalOpen(true);
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this employee?")) {
+        if (window.confirm("Are you sure you want to delete this employees?")) {
             try {
                 await api.delete(`/employees/${id}`);
                 fetchEmployees();
@@ -164,7 +164,7 @@ const EmployeeListPage = () => {
     };
 
     const columns = [
-        { label: "Code", key: "employee_code" },
+        { label: "Code", key: "employees_code" },
         {
             label: "Full Name",
             render: (row) => `${row.first_name} ${row.last_name}`,
@@ -208,13 +208,13 @@ const EmployeeListPage = () => {
     return (
         <>
             <PageHeader
-                title="Employee Directory"
+                title="Employees Directory"
                 actionButton={
                     <Button
                         onClick={() => setIsModalOpen(true)}
                         style={{ width: "auto" }}
                     >
-                        + Add Employee
+                        + Add Employees
                     </Button>
                 }
             />
@@ -231,7 +231,7 @@ const EmployeeListPage = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                title={editingId ? "Edit Employee" : "Add New Employee"}
+                title={editingId ? "Edit Employees" : "Add New Employees"}
                 footer={
                     <>
                         <Button
@@ -253,9 +253,9 @@ const EmployeeListPage = () => {
             >
                 {/* 5. Inputs using register (English Comment) */}
                 <InputField
-                    label="Employee Code"
-                    {...register("employee_code")}
-                    error={errors.employee_code?.message}
+                    label="Employees Code"
+                    {...register("employees_code")}
+                    error={errors.employees_code?.message}
                 />
 
                 <InputField
@@ -303,10 +303,10 @@ const EmployeeListPage = () => {
                 />
 
                 <SelectField
-                    label="System Role"
+                    label="System Roles"
                     options={masterRoles}
-                    {...register("role_id")}
-                    error={errors.role_id?.message}
+                    {...register("roles_id")}
+                    error={errors.roles_id?.message}
                 />
                 <CheckboxField
                     label="Account Active"
@@ -321,4 +321,4 @@ const EmployeeListPage = () => {
 
 const smallBtn = { padding: "6px 12px", fontSize: "12px" };
 
-export default EmployeeListPage;
+export default EmployeesListPage;

@@ -10,16 +10,19 @@ import Table from "../components/common/Table";
 import Button from "../components/common/Button";
 import Modal from "../components/common/Modal";
 import InputField from "../components/common/InputField";
+import CheckboxField from "../components/common/CheckboxField";
+import Badge from "../components/common/Badge";
 
 /* --- 1. Validation Schema (English Comment) --- */
 const salariesSchema = z.object({
-    employee_id: z.number(),
+    employees_id: z.number(),
     base_salaries: z.preprocess(
         (val) => parseFloat(val),
         z.number().min(0, "Salaries must be a positive number")
     ),
     // Validate that effective_date is a valid string (English Comment)
     effective_date: z.string().min(1, "Effective date is required"),
+    is_enabled: z.boolean().default(true),
 });
 
 const SalariesStructurePage = () => {
@@ -31,6 +34,7 @@ const SalariesStructurePage = () => {
     // Get today's date in YYYY-MM-DD format for default value (English Comment)
     const today = new Date().toISOString().split("T")[0];
 
+    // ใน SalariesStructurePage.jsx (English Comment)
     const {
         register,
         handleSubmit,
@@ -41,6 +45,7 @@ const SalariesStructurePage = () => {
         resolver: zodResolver(salariesSchema),
         defaultValues: {
             effective_date: today,
+            is_enabled: true,
         },
     });
 
@@ -73,26 +78,35 @@ const SalariesStructurePage = () => {
 
     const handleEditSalaries = (emp) => {
         setSelectedEmp(emp);
-        setValue("employee_id", emp.ID || emp.id);
+        setValue("employees_id", emp.ID || emp.id);
         setValue("base_salaries", emp.salaries_structure?.base_salaries || 0);
-        
-        // If employee has an existing effective date, format it for input type="date" (English Comment)
-        const existingDate = emp.salaries_structure?.effective_date 
-            ? new Date(emp.salaries_structure.effective_date).toISOString().split("T")[0]
-            : today;
-            
-        setValue("effective_date", existingDate);
+
+        const existingDate = emp.salaries_structure?.effective_date;
+        let finalDate = today;
+
+        // Use existing date only if it's not a zero date (English Comment)
+        if (existingDate && !existingDate.startsWith("0001")) {
+            try {
+                finalDate = new Date(existingDate).toISOString().split("T")[0];
+                // eslint-disable-next-line no-unused-vars
+            } catch (e) {
+                finalDate = today;
+            }
+        }
+        setValue("effective_date", finalDate);
+        setValue("is_enabled", emp.salaries_structure?.is_enabled ?? true);
+
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedEmp(null);
-        reset({ effective_date: today }); // Reset with default date
+        reset({ effective_date: today, is_enabled: true });
     };
 
     const columns = [
-        { label: "Code", key: "employee_code" },
+        { label: "Code", key: "employees_code" },
         {
             label: "Full Name",
             render: (row) => `${row.first_name} ${row.last_name}`,
@@ -109,7 +123,25 @@ const SalariesStructurePage = () => {
             label: "Effective Date",
             render: (row) => {
                 const date = row.salaries_structure?.effective_date;
-                return date ? new Date(date).toLocaleDateString() : "-";
+                if (!date || date.startsWith("0001")) return "-";
+                try {
+                    return new Date(date).toLocaleDateString();
+                    // eslint-disable-next-line no-unused-vars
+                } catch (e) {
+                    return "-";
+                }
+            },
+        },
+        {
+            label: "Salary Status",
+            render: (row) => {
+                const isEnabled = row.salaries_structure?.is_enabled ?? false;
+                if (!row.salaries_structure) return <span style={{ color: "#9ca3af" }}>-</span>;
+                return (
+                    <Badge status={isEnabled}>
+                        {isEnabled ? "Enabled" : "Disabled"}
+                    </Badge>
+                );
             },
         },
         {
@@ -159,7 +191,7 @@ const SalariesStructurePage = () => {
                     {...register("base_salaries")}
                     error={errors.base_salaries?.message}
                 />
-                
+
                 {/* Added Effective Date Field (English Comment) */}
                 <InputField
                     label="Effective Date"
@@ -171,6 +203,12 @@ const SalariesStructurePage = () => {
                 <p style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
                     * Adjustments will be applied to payroll calculations from this date onwards.
                 </p>
+                <CheckboxField
+                    label="Enable Salary Structure"
+                    id="is_enabled"
+                    {...register("is_enabled")}
+                    error={errors.is_enabled?.message}
+                />
             </Modal>
         </>
     );
