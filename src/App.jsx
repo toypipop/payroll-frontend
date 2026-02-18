@@ -7,9 +7,9 @@ import {
 import MainLayout from "./components/layouts/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import EmployeesListPage from "./pages/EmployeesListPage";
+import AttendancePage from "./pages/Attendance/AttendancePage";
 import SettingsPage from "./pages/Setting/SettingsPage";
-import SalariesStructurePage from "./pages/SalariesStructurePage";
+import EmployeesPage from "./pages/Employees/EmployeesPage";
 
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem("token");
@@ -41,7 +41,18 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <MainLayout pageTitle="Employees List">
-                                <EmployeesListPage />
+                                <EmployeesPage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/attendance"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout pageTitle="Attendance">
+                                <AttendancePage />
                             </MainLayout>
                         </ProtectedRoute>
                     }
@@ -53,17 +64,6 @@ function App() {
                         <ProtectedRoute>
                             <MainLayout pageTitle="System Settings">
                                 <SettingsPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                
-                <Route
-                    path="/salaries"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout pageTitle="Salaries Structure">
-                                <SalariesStructurePage />
                             </MainLayout>
                         </ProtectedRoute>
                     }

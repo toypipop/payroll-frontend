@@ -14,9 +14,10 @@ const PermissionSettings = () => {
     const [loading, setLoading] = useState(false);
 
     const dataScopeOptions = useMemo(() => [
-        { id: "OWN", name: "Own Data Only" },
-        { id: "DEPARTMENT", name: "Department Scope" },
-        { id: "ALL", name: "Full Organization" },
+        { id: "Own", name: "Own Data Only" },
+        { id: "Department", name: "Department Scope" },
+        { id: "Company", name: "Full Company" },
+        { id: "All", name: "Full Organization" },
     ], []);
 
     const handleSelectRoles = useCallback(async (role) => {
