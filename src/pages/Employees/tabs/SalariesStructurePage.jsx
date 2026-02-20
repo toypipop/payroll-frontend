@@ -34,7 +34,6 @@ const SalariesStructurePage = () => {
     // Get today's date in YYYY-MM-DD format for default value (English Comment)
     const today = new Date().toISOString().split("T")[0];
 
-    // ใน SalariesStructurePage.jsx (English Comment)
     const {
         register,
         handleSubmit,

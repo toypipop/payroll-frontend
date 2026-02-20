@@ -10,6 +10,7 @@ import DashboardPage from "./pages/DashboardPage";
 import AttendancePage from "./pages/Attendance/AttendancePage";
 import SettingsPage from "./pages/Setting/SettingsPage";
 import EmployeesPage from "./pages/Employees/EmployeesPage";
+import CompaniesPage from "./pages/CompaniesPage";
 
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem("token");
@@ -64,6 +65,17 @@ function App() {
                         <ProtectedRoute>
                             <MainLayout pageTitle="System Settings">
                                 <SettingsPage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/companies"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout pageTitle="Companies">
+                                <CompaniesPage />
                             </MainLayout>
                         </ProtectedRoute>
                     }

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import api from "../../api/axiosInstance"; 
+import api from "../../api/axiosInstance";
 
 const Sidebar = () => {
     const [menuItems, setMenuItems] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const Icons = {
         Dashboard: (color) => (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -35,10 +34,25 @@ const Sidebar = () => {
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
         ),
+        Companies: (color) => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                <path d="M9 22v-4h6v4"></path>
+                <path d="M8 6h.01"></path>
+                <path d="M16 6h.01"></path>
+                <path d="M12 6h.01"></path>
+                <path d="M12 10h.01"></path>
+                <path d="M12 14h.01"></path>
+                <path d="M16 10h.01"></path>
+                <path d="M16 14h.01"></path>
+                <path d="M8 10h.01"></path>
+                <path d="M8 14h.01"></path>
+            </svg>
+        ),
         Default: (color) => (
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-             </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            </svg>
         )
     };
 
@@ -46,7 +60,7 @@ const Sidebar = () => {
         const fetchModules = async () => {
             try {
                 const response = await api.get("/modules");
-                
+
                 const sortedModules = response.data.sort((a, b) => a.order - b.order);
                 setMenuItems(sortedModules);
             } catch (error) {
@@ -125,7 +139,7 @@ const Sidebar = () => {
 
             <nav style={{ flexGrow: 1 }}>
                 {loading ? (
-                    <div style={{padding: "20px", color: "#94a3b8", fontSize: "14px"}}>Loading...</div>
+                    <div style={{ padding: "20px", color: "#94a3b8", fontSize: "14px" }}>Loading...</div>
                 ) : (
                     menuItems.map((item) => {
                         const IconComponent = Icons[item.icon] || Icons.Default;
@@ -133,7 +147,7 @@ const Sidebar = () => {
                         return (
                             <NavLink
                                 key={item.id}
-                                to={item.route_path} 
+                                to={item.route_path}
                                 style={({ isActive }) => ({
                                     ...styles.navLink,
                                     backgroundColor: isActive
@@ -153,7 +167,7 @@ const Sidebar = () => {
                                                     : "#94a3b8"
                                             )}
                                         </div>
-                                        {item.module_name} 
+                                        {item.module_name}
                                     </>
                                 )}
                             </NavLink>

@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import api from "../../../api/axiosInstance";
-import Table from "../../../components/common/Table";
-import Button from "../../../components/common/Button";
-import Modal from "../../../components/common/Modal";
-import InputField from "../../../components/common/InputField";
+import api from "../api/axiosInstance";
+import Table from "../components/common/Table";
+import Button from "../components/common/Button";
+import Modal from "../components/common/Modal";
+import InputField from "../components/common/InputField";
+import Card from "../components/common/Card";
 
-/* --- 1. Define Companies Schema (English Comment) --- */
 const companiesSchema = z.object({
     name: z.string().min(1, "Companies name is required"),
     tax_id: z
@@ -24,13 +24,12 @@ const companiesSchema = z.object({
         .regex(/^\d+$/, "Phone must contain only numbers"),
 });
 
-const CompaniesSettings = () => {
+const CompaniesPage = () => {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
-    /* --- 2. Initialize Hook Form (English Comment) --- */
     const {
         register,
         handleSubmit,
@@ -57,7 +56,6 @@ const CompaniesSettings = () => {
         fetchCompanies();
     }, []);
 
-    /* --- 3. Handle Submit with Data from Hook Form (English Comment) --- */
     const onSubmit = async (data) => {
         try {
             if (editingId) {
@@ -74,7 +72,6 @@ const CompaniesSettings = () => {
 
     const handleEdit = (item) => {
         setEditingId(item.ID || item.id);
-        // Use reset to fill the entire form with item data (English Comment)
         reset({
             name: item.name,
             tax_id: item.tax_id,
@@ -99,7 +96,7 @@ const CompaniesSettings = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ name: "", tax_id: "", address: "", phone: "" }); // Reset to default empty values
+        reset({ name: "", tax_id: "", address: "", phone: "" });
     };
 
     const columns = [
@@ -131,43 +128,45 @@ const CompaniesSettings = () => {
 
     return (
         <>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "20px",
-                }}
-            >
-                <h3
+            <Card>
+                <div
                     style={{
-                        fontSize: "16px",
-                        fontWeight: "600",
-                        color: "#1e293b",
-                        margin: 0,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "20px",
                     }}
                 >
-                    Companies Management
-                </h3>
-                <Button
-                    onClick={() => {
-                        setEditingId(null); // Ensure it's not in edit mode
-                        reset({ name: "", tax_id: "", address: "", phone: "" }); // Clear form
-                        setIsModalOpen(true);
-                    }}
-                    style={{ width: "auto" }}
-                >
-                    + Add Companies
-                </Button>
-            </div>
-
-            {loading ? (
-                <div style={{ padding: "40px", textAlign: "center" }}>
-                    Loading...
+                    <h3
+                        style={{
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            color: "#1e293b",
+                            margin: 0,
+                        }}
+                    >
+                        Companies Management
+                    </h3>
+                    <Button
+                        onClick={() => {
+                            setEditingId(null);
+                            reset({ name: "", tax_id: "", address: "", phone: "" });
+                            setIsModalOpen(true);
+                        }}
+                        style={{ width: "auto" }}
+                    >
+                        + Add Companies
+                    </Button>
                 </div>
-            ) : (
-                <Table columns={columns} data={companies} />
-            )}
+
+                {loading ? (
+                    <div style={{ padding: "40px", textAlign: "center" }}>
+                        Loading...
+                    </div>
+                ) : (
+                    <Table columns={columns} data={companies} />
+                )}
+            </Card>
 
             <Modal
                 isOpen={isModalOpen}
@@ -191,7 +190,6 @@ const CompaniesSettings = () => {
                     </>
                 }
             >
-                {/* 4. Connect Fields with register (English Comment) */}
                 <InputField
                     label="Companies Name"
                     {...register("name")}
@@ -219,4 +217,4 @@ const CompaniesSettings = () => {
 
 const smallBtn = { padding: "6px 12px", fontSize: "12px" };
 
-export default CompaniesSettings;
+export default CompaniesPage;

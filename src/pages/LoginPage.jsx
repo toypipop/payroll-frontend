@@ -41,7 +41,7 @@ const LoginPage = () => {
             console.error("Login Error:", err);
             
             if (err.code === "ERR_NETWORK") {
-                setError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (เช็ค CORS หรือ API URL)");
+                setError("Can't Connect To Server");
             } else {
                 setError(err.response?.data?.error || 'Invalid credentials');
             }
