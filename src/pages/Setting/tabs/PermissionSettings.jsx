@@ -16,7 +16,7 @@ const PermissionSettings = () => {
     const dataScopeOptions = useMemo(() => [
         { id: "Own", name: "Own Data Only" },
         { id: "Department", name: "Department Scope" },
-        { id: "Company", name: "Full Company" },
+        { id: "Companies", name: "Full Companies" },
         { id: "All", name: "Full Organization" },
     ], []);
 
@@ -31,6 +31,7 @@ const PermissionSettings = () => {
                 return {
                     module_id: m.id,
                     module_name: m.module_name,
+                    companies_name: role.companies?.name || "System",
                     can_view: Boolean(access?.can_view),
                     can_create: Boolean(access?.can_create),
                     can_edit: Boolean(access?.can_edit),
@@ -81,11 +82,21 @@ const PermissionSettings = () => {
         }
     };
 
+    const emptyStateStyle = {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "300px",
+        padding: "40px",
+        color: "#9ca3af",
+        textAlign: "center"
+    };
     const columns = useMemo(() => [
-        { label: "MODULE", key: "module_name", width: "30%" },
+        { label: "MODULE", key: "module_name", width: "40%" },
         {
             label: "VIEW",
-            width: "8%",
+            width: "7%",
             render: (_, idx) => (
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <CheckboxField
@@ -97,7 +108,7 @@ const PermissionSettings = () => {
         },
         {
             label: "CREATE",
-            width: "8%",
+            width: "7%",
             render: (_, idx) => (
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <CheckboxField
@@ -109,7 +120,7 @@ const PermissionSettings = () => {
         },
         {
             label: "EDIT",
-            width: "8%",
+            width: "7%",
             render: (_, idx) => (
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <CheckboxField
@@ -121,7 +132,7 @@ const PermissionSettings = () => {
         },
         {
             label: "DELETE",
-            width: "8%",
+            width: "7%",
             render: (_, idx) => (
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <CheckboxField
@@ -133,7 +144,7 @@ const PermissionSettings = () => {
         },
         {
             label: "DATA SCOPE",
-            width: "38%",
+            width: "32%",
             render: (_, idx) => (
                 <SelectField
                     options={dataScopeOptions}
@@ -177,10 +188,13 @@ const PermissionSettings = () => {
                                     <div style={{ fontWeight: "600", color: "#1f2937" }}>
                                         {role.roles_name}
                                     </div>
+                                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                                        🏢 {role.companies?.name || "Global / System"}
+                                    </div>
                                 </div>
                             ))
                         ) : (
-                            <div style={{ textAlign: "center", padding: "20px", color: "#9ca3af" }}>
+                            <div style={emptyStateStyle}>
                                 No roles found.
                             </div>
                         )}
@@ -190,11 +204,13 @@ const PermissionSettings = () => {
                 {/* Right Panel: Mapping Matrix */}
                 <Card title={`Mapping: ${selectedRoles?.roles_name || ""}`} style={{ padding: 0 }}>
                     {loading ? (
-                        <div style={{ padding: "40px", textAlign: "center" }}>Loading Matrix...</div>
+                        <div style={emptyStateStyle} >
+                            Loading Matrix...
+                        </div>
                     ) : selectedRoles ? (
                         <Table columns={columns} data={permissions} />
                     ) : (
-                        <div style={{ padding: "40px", textAlign: "center", color: "#9ca3af" }}>
+                        <div style={emptyStateStyle}>
                             Select a role to manage permissions.
                         </div>
                     )}

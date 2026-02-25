@@ -5,6 +5,7 @@ import api from "../../api/axiosInstance";
 const Sidebar = () => {
     const [menuItems, setMenuItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    
     const Icons = {
         Dashboard: (color) => (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -26,6 +27,13 @@ const Sidebar = () => {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        ),
+        Timelog: (color) => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="14" r="8"></circle>
+                <line x1="12" y1="2" x2="12" y2="6"></line>
+                <line x1="8" y1="2" x2="16" y2="2"></line>
             </svg>
         ),
         Settings: (color) => (
@@ -60,7 +68,6 @@ const Sidebar = () => {
         const fetchModules = async () => {
             try {
                 const response = await api.get("/modules");
-
                 const sortedModules = response.data.sort((a, b) => a.order - b.order);
                 setMenuItems(sortedModules);
             } catch (error) {
