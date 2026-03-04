@@ -3,21 +3,22 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import api from "../../../api/axiosInstance";
-import Table from "../../../components/common/Table";
-import Button from "../../../components/common/Button";
-import Modal from "../../../components/common/Modal";
-import InputField from "../../../components/common/InputField";
-import SelectField from "../../../components/common/SelectField";
+import api from "../api/axiosInstance";
+import Table from "../components/common/Table";
+import Button from "../components/common/Button";
+import Modal from "../components/common/Modal";
+import InputField from "../components/common/InputField";
+import SelectField from "../components/common/SelectField";
+import PageHeader from "../components/common/PageHeader";
+import Card from "../components/common/Card";
 
-/* --- 1. Define Department Schema (English Comment) --- */
-const departmentSchema = z.object({
-    dept_name: z.string().min(1, "Department name is required"),
+const positionSchema = z.object({
+    pos_name: z.string().min(1, "Position name is required"),
     companies_id: z.coerce.number().min(1, "Please select a companies"),
 });
 
-const DepartmentSettings = () => {
-    const [departments, setDepartments] = useState([]);
+const PositionSettings = () => {
+    const [positions, setPositions] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,18 +30,18 @@ const DepartmentSettings = () => {
         reset,
         formState: { errors },
     } = useForm({
-        resolver: zodResolver(departmentSchema),
-        defaultValues: { dept_name: "", companies_id: "" },
+        resolver: zodResolver(positionSchema),
+        defaultValues: { pos_name: "", companies_id: "" },
     });
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [deptRes, compRes] = await Promise.all([
-                api.get("/departments"),
+            const [posRes, compRes] = await Promise.all([
+                api.get("/positions"),
                 api.get("/companies/options"),
             ]);
-            setDepartments(deptRes.data || []);
+            setPositions(posRes.data || []);
             setCompanies(compRes.data || []);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -56,9 +57,9 @@ const DepartmentSettings = () => {
     const onSubmit = async (data) => {
         try {
             if (editingId) {
-                await api.put(`/departments/${editingId}`, data);
+                await api.put(`/positions/${editingId}`, data);
             } else {
-                await api.post("/departments", data);
+                await api.post("/positions", data);
             }
             fetchData();
             closeModal();
@@ -68,10 +69,9 @@ const DepartmentSettings = () => {
     };
 
     const handleEdit = (item) => {
-        // Use id from your backend response (English Comment)
         setEditingId(item.id || item.ID);
         reset({
-            dept_name: item.dept_name,
+            pos_name: item.pos_name,
             companies_id: item.companies_id,
         });
         setIsModalOpen(true);
@@ -80,14 +80,14 @@ const DepartmentSettings = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ dept_name: "", companies_id: "" });
+        reset({ pos_name: "", companies_id: "" });
     };
 
     const handleDelete = async (id) => {
         if (!id) return;
-        if (window.confirm("Are you sure you want to delete this department?")) {
+        if (window.confirm("Are you sure you want to delete this position?")) {
             try {
-                await api.delete(`/departments/${id}`);
+                await api.delete(`/positions/${id}`);
                 fetchData();
             } catch (err) {
                 alert(err.response?.data?.error || "Delete Failed");
@@ -95,12 +95,15 @@ const DepartmentSettings = () => {
         }
     };
 
-    /* --- 2. Table Column Definition (English Comment) --- */
+    /* --- Updated Table Columns: Removed ID (English Comment) --- */
     const columns = [
-        { label: "Department Name", key: "dept_name" },
-        { 
-            label: "Companies", 
-            render: (row) => row.companies?.name || "N/A" 
+        {
+            label: "Position Name",
+            key: "pos_name"
+        },
+        {
+            label: "Companies",
+            render: (row) => row.companies?.name || "N/A"
         },
         {
             label: "Actions",
@@ -119,33 +122,35 @@ const DepartmentSettings = () => {
 
     return (
         <>
-            {/* --- 3. Header Section (English Comment) --- */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#1e293b", margin: 0 }}>
-                    Department Management
-                </h3>
-                <Button
-                    onClick={() => {
-                        setEditingId(null);
-                        reset({ dept_name: "", companies_id: "" });
-                        setIsModalOpen(true);
-                    }}
-                    style={{ width: "auto" }}
-                >
-                    + Add Department
-                </Button>
-            </div>
-
-            {loading ? (
-                <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
-            ) : (
-                <Table columns={columns} data={departments} />
-            )}
+            <PageHeader
+                title="Position Management"
+                actionButton={
+                    <Button
+                        onClick={() => {
+                            setEditingId(null);
+                            reset({ pos_name: "", companies_id: "" });
+                            setIsModalOpen(true);
+                        }}
+                        style={{ width: "auto" }}
+                    >
+                        + Add Position
+                    </Button>
+                }
+            />
+            <Card style={{ padding: "0px" }}>
+                {loading ? (
+                    <div style={{ padding: "40px", textAlign: "center" }}>
+                        Loading...
+                    </div>
+                ) : (
+                    <Table columns={columns} data={positions} />
+                )}
+            </Card>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                title={editingId ? "Edit Department" : "Add New Department"}
+                title={editingId ? "Edit Position" : "Add New Position"}
                 footer={
                     <>
                         <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>
@@ -157,22 +162,19 @@ const DepartmentSettings = () => {
                     </>
                 }
             >
-                {/* --- 4. Form Fields using your SelectField props (English Comment) --- */}
                 <SelectField
                     label="Companies"
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
-                    /* Mapping data to match your SelectField's opt.id and opt.name */
                     options={companies.map((c) => ({
                         id: c.id || c.ID,
                         name: c.name
                     }))}
                 />
-
                 <InputField
-                    label="Department Name"
-                    {...register("dept_name")}
-                    error={errors.dept_name?.message}
+                    label="Position Name"
+                    {...register("pos_name")}
+                    error={errors.pos_name?.message}
                 />
             </Modal>
         </>
@@ -181,4 +183,4 @@ const DepartmentSettings = () => {
 
 const smallBtn = { padding: "6px 12px", fontSize: "12px" };
 
-export default DepartmentSettings;
+export default PositionSettings;

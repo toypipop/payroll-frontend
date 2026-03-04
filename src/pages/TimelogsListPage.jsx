@@ -3,32 +3,37 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import api from "../../../api/axiosInstance";
-import PageHeader from "../../../components/common/PageHeader";
-import Card from "../../../components/common/Card";
-import Table from "../../../components/common/Table";
-import Button from "../../../components/common/Button";
-import Modal from "../../../components/common/Modal";
-import InputField from "../../../components/common/InputField";
-import SelectField from "../../../components/common/SelectField";
+import api from "../api/axiosInstance";
+import PageHeader from "../components/common/PageHeader";
+import Card from "../components/common/Card";
+import Table from "../components/common/Table";
+import Button from "../components/common/Button";
+import Modal from "../components/common/Modal";
+import InputField from "../components/common/InputField";
+import DateField from "../components/common/DateField";
+import DateTimeField from "../components/common/DateTimeField";
+import SelectField from "../components/common/SelectField";
+import { Controller } from "react-hook-form";
 
 /* --- 1. Validation Schema (English Comment) --- */
 const timeLogSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
-    work_date: z.string().min(1, "Work date is required"),
-    check_in: z.string().optional().or(z.literal("")),
-    check_out: z.string().optional().or(z.literal("")),
+    check_in: z.date({
+        required_error: "Check-in time is required",
+        invalid_type_error: "That's not a valid date",
+    }),
+    check_out: z.date().nullable().optional(),
     status: z.string().min(1, "Status is required"),
     location_in: z.string().optional(),
     remark: z.string().optional(),
 });
 
-const TimelogListPage = () => {
+const TimelogsListPage = () => {
     const [timeLogs, setTimeLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    
+
     // Master data for dropdown
     const [masterEmployees, setMasterEmployees] = useState([]);
 
@@ -38,15 +43,15 @@ const TimelogListPage = () => {
         handleSubmit,
         reset,
         setValue,
+        control,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(timeLogSchema),
         defaultValues: {
             employees_id: "",
-            work_date: new Date().toISOString().split("T")[0], // Default to today
-            check_in: "",
-            check_out: "",
-            status: "On-time",
+            check_in: new Date(),
+            check_out: null,
+            status: "on_time",
             location_in: "",
             remark: "",
         },
@@ -55,7 +60,7 @@ const TimelogListPage = () => {
     const fetchTimeLogs = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/time-logs");
+            const response = await api.get("/timelogs");
             setTimeLogs(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -86,23 +91,17 @@ const TimelogListPage = () => {
     /* --- 3. Submit Handler with Time Conversion (English Comment) --- */
     const onSubmit = async (data) => {
         try {
-            // Helper to combine Date + Time into ISO String
-            const formatDateTime = (dateStr, timeStr) => {
-                if (!timeStr) return null;
-                return new Date(`${dateStr}T${timeStr}`).toISOString();
-            };
-
             const payload = {
                 ...data,
-                employees_id: parseInt(data.employees_id), // Convert string to uint for Go
-                check_in: formatDateTime(data.work_date, data.check_in),
-                check_out: formatDateTime(data.work_date, data.check_out),
+                check_in: data.check_in ? new Date(data.check_in).toISOString() : null,
+                check_out: data.check_out ? new Date(data.check_out).toISOString() : null,
+                employees_id: parseInt(data.employees_id),
             };
 
             if (editingId) {
-                await api.put(`/time-logs/${editingId}`, payload);
+                await api.put(`/timelogs/${editingId}`, payload);
             } else {
-                await api.post("/time-logs", payload);
+                await api.post("/timelogs", payload);
             }
             fetchTimeLogs();
             closeModal();
@@ -113,37 +112,28 @@ const TimelogListPage = () => {
 
     const handleEdit = (log) => {
         setEditingId(log.ID || log.id);
-        
         setValue("employees_id", log.employees_id?.toString());
-        
-        // Extract YYYY-MM-DD from ISO string
-        const wDate = log.work_date ? log.work_date.split("T")[0] : "";
-        setValue("work_date", wDate);
 
-        // Extract HH:mm from ISO string for Input type="time"
-        // Note: This depends on browser locale, usually manually parsing or using a library like dayjs is safer
-        // But for basic usage:
-        const getTimeStr = (isoString) => {
-            if (!isoString) return "";
-            const d = new Date(isoString);
-            const hours = String(d.getHours()).padStart(2, '0');
-            const minutes = String(d.getMinutes()).padStart(2, '0');
-            return `${hours}:${minutes}`;
+        // Helper to ensure we have a valid Date object or null (English Comment)
+        const parseDate = (isoString) => {
+            return isoString ? new Date(isoString) : null;
         };
 
-        setValue("check_in", getTimeStr(log.check_in));
-        setValue("check_out", getTimeStr(log.check_out));
+        // Use Date objects instead of time strings (English Comment)
+        setValue("check_in", parseDate(log.check_in));
+        setValue("check_out", parseDate(log.check_out));
+
         setValue("status", log.status);
         setValue("location_in", log.location_in || "");
         setValue("remark", log.remark || "");
-        
+
         setIsModalOpen(true);
     };
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this log?")) {
             try {
-                await api.delete(`/time-logs/${id}`);
+                await api.delete(`/timelogs/${id}`);
                 fetchTimeLogs();
             } catch (err) {
                 alert(err.response?.data?.error || "Delete Failed");
@@ -158,20 +148,17 @@ const TimelogListPage = () => {
     };
 
     const columns = [
-        { label: "Date", render: (row) => row.work_date?.split("T")[0] },
-        { 
-            label: "Employee", 
-            // Assuming your backend API joins employee table, or you map it manually.
-            // If backend doesn't join, you might see just ID.
-            render: (row) => row.employee_name || `ID: ${row.employees_id}` 
+        {
+            label: "Employee",
+            render: (row) => row.employees?.first_name + ' ' + row.employees?.last_name
         },
-        { 
-            label: "Check In", 
-            render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) : "-" 
+        {
+            label: "Date",
+            render: (row) => row.check_in ? new Date(row.check_in).toLocaleDateString() : "-"
         },
-        { 
-            label: "Check Out", 
-            render: (row) => row.check_out ? new Date(row.check_out).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) : "-" 
+        {
+            label: "Time In",
+            render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"
         },
         { label: "Status", key: "status" },
         {
@@ -243,7 +230,7 @@ const TimelogListPage = () => {
                 }
             >
                 {/* 5. Inputs for TimeLog (English Comment) */}
-                
+
                 <SelectField
                     label="Employee"
                     options={masterEmployees}
@@ -251,36 +238,40 @@ const TimelogListPage = () => {
                     error={errors.employees_id?.message}
                 />
 
-                <InputField
-                    label="Work Date"
-                    type="date"
-                    {...register("work_date")}
-                    error={errors.work_date?.message}
+                <Controller
+                    control={control}
+                    name="check_in"
+                    render={({ field }) => (
+                        <DateTimeField
+                            label="Check In"
+                            value={field.value}
+                            onChange={field.onChange}
+                            error={errors.check_in?.message}
+                        />
+                    )}
                 />
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <InputField
-                        label="Check In"
-                        type="time"
-                        {...register("check_in")}
-                        error={errors.check_in?.message}
-                    />
-                    <InputField
-                        label="Check Out"
-                        type="time"
-                        {...register("check_out")}
-                        error={errors.check_out?.message}
-                    />
-                </div>
+                <Controller
+                    control={control}
+                    name="check_out"
+                    render={({ field }) => (
+                        <DateTimeField
+                            label="Check In"
+                            value={field.value}
+                            onChange={field.onChange}
+                            error={errors.check_out?.message}
+                        />
+                    )}
+                />
 
                 <SelectField
                     label="Status"
                     options={[
-                        { id: "On-time", name: "On-time" },
-                        { id: "Late", name: "Late" },
-                        { id: "Absent", name: "Absent" },
-                        { id: "Leave", name: "Leave" },
-                        { id: "Holiday", name: "Holiday" }
+                        { id: "on_time", name: "On-time" },
+                        { id: "late", name: "Late" },
+                        { id: "absent", name: "Absent" },
+                        { id: "leave", name: "Leave" },
+                        { id: "holiday", name: "Holiday" }
                     ]}
                     {...register("status")}
                     error={errors.status?.message}
@@ -299,4 +290,4 @@ const TimelogListPage = () => {
 
 const smallBtn = { padding: "6px 12px", fontSize: "12px" };
 
-export default TimelogListPage;
+export default TimelogsListPage;

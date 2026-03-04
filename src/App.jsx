@@ -1,89 +1,82 @@
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Navigate,
-} from "react-router-dom";
+import React, { useEffect, useState, Suspense, lazy } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import api from "../src/api/axiosInstance";
 import MainLayout from "./components/layouts/MainLayout";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import AttendancePage from "./pages/Attendance/AttendancePage";
-import SettingsPage from "./pages/Setting/SettingsPage";
-import EmployeesPage from "./pages/Employees/EmployeesPage";
-import CompaniesPage from "./pages/CompaniesPage";
+import LoginPage from "../src/pages/LoginPage";
+
+const pages = import.meta.glob("./pages/*.jsx");
 
 const ProtectedRoute = ({ children }) => {
-    const token = localStorage.getItem("token");
-    if (!token) return <Navigate to="/login" />;
-    return children;
+    return localStorage.getItem("token") ? children : <Navigate to="/login" replace />;
 };
 
+
 function App() {
+    const [routes, setRoutes] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRoutes = async () => {
+            try {
+                const res = await api.get("/modules");
+                const flatList = [];
+                const extract = (items) => {
+                    items.forEach(item => {
+                        if (item.route_path && !item.is_category) {
+                            flatList.push(item);
+                        }
+                        if (item.children?.length > 0) extract(item.children);
+                    });
+                };
+                extract(res.data);
+                setRoutes(flatList);
+            } catch (err) {
+                console.error("Fetch routes error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRoutes();
+    }, []);
+
+    if (loading) return null;
+
     return (
         <Router>
-            <Routes>
-                {/* Public Routes */}
-                <Route path="/login" element={<LoginPage />} />
+            <Suspense fallback={null}>
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
 
-                {/* Private Routes */}
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout pageTitle="Dashboard">
-                                <DashboardPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+                    {routes.map((m) => {
+                        const pagePath = `./pages/${m.module_key}.jsx`;
+                        const importFunc = pages[pagePath];
 
-                <Route
-                    path="/employees"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout pageTitle="Employees List">
-                                <EmployeesPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+                        if (!importFunc) {
+                            console.warn(`⚠️ Route skipped: File ${pagePath} not found in src/pages/`);
+                            return null;
+                        }
 
-                <Route
-                    path="/attendance"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout pageTitle="Attendance">
-                                <AttendancePage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+                        const Page = lazy(importFunc);
 
-                <Route
-                    path="/settings"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout pageTitle="System Settings">
-                                <SettingsPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+                        return (
+                            <Route
+                                key={m.id}
+                                path={m.route_path}
+                                element={
+                                    <ProtectedRoute>
+                                        <MainLayout pageTitle={m.module_name}>
+                                            <Page />
+                                        </MainLayout>
+                                    </ProtectedRoute>
+                                }
+                            />
+                        );
+                    })}
 
-                <Route
-                    path="/companies"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout pageTitle="Companies">
-                                <CompaniesPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-
-                {/* Default redirect */}
-                <Route path="/" element={<Navigate to="/dashboard" />} />
-            </Routes>
+                    <Route path="/" element={<Navigate to="/dashboard" />} />
+                    <Route path="*" element={<Navigate to="/dashboard" />} />
+                </Routes>
+            </Suspense>
         </Router>
     );
 }

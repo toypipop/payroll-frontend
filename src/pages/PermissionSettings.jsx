@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import api from "../../../api/axiosInstance";
-import PageHeader from "../../../components/common/PageHeader";
-import Card from "../../../components/common/Card";
-import Table from "../../../components/common/Table";
-import Button from "../../../components/common/Button";
-import CheckboxField from "../../../components/common/CheckboxField";
-import SelectField from "../../../components/common/SelectField";
+import api from "../api/axiosInstance";
+import PageHeader from "../components/common/PageHeader";
+import Card from "../components/common/Card";
+import Table from "../components/common/Table";
+import Button from "../components/common/Button";
+import CheckboxField from "../components/common/CheckboxField";
+import SelectField from "../components/common/SelectField";
 
 const PermissionSettings = () => {
     const [roles, setRoles] = useState([]);
@@ -155,7 +155,7 @@ const PermissionSettings = () => {
             ),
         },
     ], [dataScopeOptions, permissions]);
-
+    
     return (
         <div className="permission-settings">
             <PageHeader

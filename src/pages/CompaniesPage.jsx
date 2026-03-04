@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
+import PageHeader from "../components/common/PageHeader";
 import api from "../api/axiosInstance";
 import Table from "../components/common/Table";
 import Button from "../components/common/Button";
@@ -128,25 +129,10 @@ const CompaniesPage = () => {
 
     return (
         <>
-            <Card>
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "20px",
-                    }}
-                >
-                    <h3
-                        style={{
-                            fontSize: "16px",
-                            fontWeight: "600",
-                            color: "#1e293b",
-                            margin: 0,
-                        }}
-                    >
-                        Companies Management
-                    </h3>
+
+            <PageHeader
+                title="Employees Directory"
+                actionButton={
                     <Button
                         onClick={() => {
                             setEditingId(null);
@@ -157,8 +143,9 @@ const CompaniesPage = () => {
                     >
                         + Add Companies
                     </Button>
-                </div>
-
+                }
+            />
+            <Card style={{ padding: "0px" }}>
                 {loading ? (
                     <div style={{ padding: "40px", textAlign: "center" }}>
                         Loading...
@@ -167,6 +154,7 @@ const CompaniesPage = () => {
                     <Table columns={columns} data={companies} />
                 )}
             </Card>
+
 
             <Modal
                 isOpen={isModalOpen}
