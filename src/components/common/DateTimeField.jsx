@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
+const YEARS = Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 10 + i);
+const MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
 
 const DateTimeField = React.forwardRef(({ label, error, value, onChange, id, ...props }, ref) => {
     const styles = {
@@ -24,6 +30,20 @@ const DateTimeField = React.forwardRef(({ label, error, value, onChange, id, ...
         }
     };
 
+    const timeValue = useMemo(() => {
+        if (!value) return "00:00";
+        const d = new Date(value);
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }, [value]);
+
+    const handleTimeChange = (e) => {
+        const [hours, minutes] = e.target.value.split(":");
+        const newDate = value ? new Date(value) : new Date();
+        newDate.setHours(parseInt(hours, 10));
+        newDate.setMinutes(parseInt(minutes, 10));
+        onChange(newDate);
+    };
+
     return (
         <div style={styles.container}>
             {label && <label htmlFor={id} style={styles.label}>{label}</label>}
@@ -32,15 +52,45 @@ const DateTimeField = React.forwardRef(({ label, error, value, onChange, id, ...
                 ref={ref}
                 selected={value}
                 onChange={onChange}
-                showTimeInput
                 dateFormat="yyyy-MM-dd HH:mm"
                 id={id}
                 className={`custom-date-input ${error ? 'error' : ''}`}
                 placeholderText="Select date and time"
                 autoComplete="off"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
+                renderCustomHeader={({
+                    date,
+                    changeYear,
+                    changeMonth,
+                    decreaseMonth,
+                    increaseMonth,
+                    prevMonthButtonDisabled,
+                    nextMonthButtonDisabled,
+                }) => (
+                    <div className="custom-header-container">
+                        <div className="nav-row">
+                            <button type="button" onClick={decreaseMonth} disabled={prevMonthButtonDisabled} className="nav-btn">{"<"}</button>
+                            <div className="selectors">
+                                <select value={date.getFullYear()} onChange={({ target: { value } }) => changeYear(Number(value))}>
+                                    {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                                <select value={MONTHS[date.getMonth()]} onChange={({ target: { value } }) => changeMonth(MONTHS.indexOf(value))}>
+                                    {MONTHS.map((m) => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                            </div>
+                            <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled} className="nav-btn">{">"}</button>
+                        </div>
+                        
+                        <div className="time-row">
+                            <span className="time-label">Time:</span>
+                            <input
+                                type="time"
+                                value={timeValue}
+                                onChange={handleTimeChange}
+                                className="header-time-input"
+                            />
+                        </div>
+                    </div>
+                )}
                 {...props}
             />
 
@@ -58,74 +108,81 @@ const DateTimeField = React.forwardRef(({ label, error, value, onChange, id, ...
                     transition: all 0.2s;
                     box-sizing: border-box;
                 }
-                .custom-date-input:focus {
-                    border-color: #3b82f6;
-                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-                }
-                .custom-date-input.error {
-                    border-color: #ef4444;
-                }
-
-                .react-datepicker__header__dropdown {
-                    margin-top: 10px;
+                .custom-header-container {
+                    padding: 10px;
                     display: flex;
-                    justify-content: center;
-                    gap: 8px;
+                    flex-direction: column;
+                    gap: 10px;
+                    background: #fff;
+                    border-bottom: 1px solid #f1f5f9;
                 }
-
-                .react-datepicker__month-select,
-                .react-datepicker__year-select {
-                    padding: 4px 8px;
-                    border-radius: 6px;
+                .nav-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .selectors {
+                    display: flex;
+                    gap: 5px;
+                }
+                .selectors select {
+                    padding: 4px;
+                    border-radius: 4px;
                     border: 1px solid #e2e8f0;
-                    background-color: #f8fafc;
                     font-size: 13px;
-                    cursor: pointer;
                 }
-
-                .react-datepicker__input-time-container {
-                    margin: 10px 0 5px 0 !important;
-                    padding: 8px;
-                    border-top: 1px solid #f1f5f9;
+                .nav-btn {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    font-weight: bold;
+                    color: #64748b;
+                    padding: 0 8px;
+                }
+                .time-row {
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     gap: 10px;
+                    padding-top: 5px;
+                    border-top: 1px dashed #e2e8f0;
                 }
-
-                .react-datepicker-time__caption {
-                    font-size: 13px;
+                .time-label {
+                    font-size: 12px;
                     font-weight: 600;
                     color: #64748b;
                 }
-
-                .react-datepicker-time__input-container .react-datepicker-time__input input {
-                    border: 1px solid #cbd5e1 !important;
-                    border-radius: 4px !important;
-                    padding: 4px 8px !important;
-                    outline: none !important;
+                .header-time-input {
+                    border: 1px solid #cbd5e1;
+                    border-radius: 4px;
+                    padding: 2px 4px;
+                    font-size: 13px;
+                    outline: none;
                     color: #334155;
-                    width: 85px; /* Fixed width for consistency */
+                    text-align: center; 
+                    width: 90px; 
+                    box-sizing: border-box; 
                 }
-
-                /* Hide Native Time Picker Icon (English Comment) */
-                .react-datepicker-time__input input::-webkit-calendar-picker-indicator {
+                .header-time-input::-webkit-calendar-picker-indicator,
+                .header-time-input::-webkit-clear-button {
                     display: none !important;
                     -webkit-appearance: none;
+                    margin: 0;
                 }
-
+                .header-time-input {
+                    appearance: none;
+                    -moz-appearance: textfield;
+                }
                 .react-datepicker {
-                    font-family: inherit;
                     border-radius: 12px;
                     border: none;
                     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                    padding: 4px;
+                    overflow: hidden;
                 }
                 .react-datepicker__header {
                     background-color: #ffffff;
                     border-bottom: none;
-                    border-top-left-radius: 12px;
-                    border-top-right-radius: 12px;
+                    padding: 0;
                 }
                 .react-datepicker__day--selected {
                     background-color: #3b82f6 !important;

@@ -26,6 +26,14 @@ const timeLogSchema = z.object({
     status: z.string().min(1, "Status is required"),
     location_in: z.string().optional(),
     remark: z.string().optional(),
+}).refine((data) => {
+    if (data.check_in && data.check_out) {
+        return new Date(data.check_out) >= new Date(data.check_in);
+    }
+    return true;
+}, {
+    message: "Check-out must be after check-in",
+    path: ["check_out"],
 });
 
 const TimelogsListPage = () => {

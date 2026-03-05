@@ -51,7 +51,7 @@ const SalariesStructurePage = () => {
     const fetchSalaries = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/employees");
+            const response = await api.get("/salaries");
             setSalariesData(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -108,7 +108,7 @@ const SalariesStructurePage = () => {
         { label: "Code", key: "employees_code" },
         {
             label: "Full Name",
-            render: (row) => `${row.first_name} ${row.last_name}`,
+            render: (row) => `${row.employees?.first_name} ${row.last_name}`,
         },
         { label: "Department", render: (row) => row.department?.dept_name || "N/A" },
         {

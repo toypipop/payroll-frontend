@@ -1,17 +1,18 @@
 import React from "react";
 
 const Badge = ({ children, status = "default" }) => {
-    // 1. Map various status types to internal colors (English Comment)
     const statusColors = {
-        active: { bg: "#ecfdf5", text: "#10b981" }, // Green
-        true: { bg: "#ecfdf5", text: "#10b981" }, // Support boolean true
-        inactive: { bg: "#fef2f2", text: "#ef4444" }, // Red
-        false: { bg: "#fef2f2", text: "#ef4444" }, // Support boolean false
-        pending: { bg: "#fffbeb", text: "#f59e0b" }, // Yellow
-        default: { bg: "#f1f5f9", text: "#64748b" }, // Slate
+        active: { bg: "#ecfdf5", text: "#10b981" },
+        true: { bg: "#ecfdf5", text: "#10b981" },
+        approved: { bg: "#ecfdf5", text: "#10b981" }, 
+        inactive: { bg: "#fef2f2", text: "#ef4444" },
+        false: { bg: "#fef2f2", text: "#ef4444" },
+        rejected: { bg: "#fef2f2", text: "#ef4444" },
+        cancelled: { bg: "#f1f5f9", text: "#94a3b8" },
+        pending: { bg: "#fffbeb", text: "#f59e0b" },
+        default: { bg: "#f1f5f9", text: "#64748b" },
     };
 
-    // 2. Convert status to string for safe mapping (English Comment)
     const statusKey = String(status).toLowerCase();
     const colors = statusColors[statusKey] || statusColors.default;
 
@@ -26,6 +27,7 @@ const Badge = ({ children, status = "default" }) => {
             backgroundColor: colors.bg,
             color: colors.text,
             textTransform: "capitalize",
+            whiteSpace: "nowrap",
         },
     };
 
