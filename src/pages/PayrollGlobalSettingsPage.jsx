@@ -24,7 +24,7 @@ const PayrollGlobalSettingsPage = () => {
     const [configs, setConfigs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedCompany, setSelectedCompany] = useState(null);
+    const [selectedCompanie, setSelectedCompanie] = useState(null);
 
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(payrollConfigSchema),
@@ -58,25 +58,25 @@ const PayrollGlobalSettingsPage = () => {
         }
     };
 
-    const handleEditConfig = (company) => {
-        setSelectedCompany(company);
-        setValue("companies_id", company.ID || company.id);
-        setValue("sso_rate", company.payroll_config?.sso_rate || 5.0);
-        setValue("sso_max_amount", company.payroll_config?.sso_max_amount || 750);
-        setValue("sso_min_salary", company.payroll_config?.sso_min_salary || 1650);
-        setValue("tax_calculation", company.payroll_config?.tax_calculation || "Progressive");
+    const handleEditConfig = (companie) => {
+        setSelectedCompanie(companie);
+        setValue("companies_id", companie.ID || companie.id);
+        setValue("sso_rate", companie.payroll_config?.sso_rate || 5.0);
+        setValue("sso_max_amount", companie.payroll_config?.sso_max_amount || 750);
+        setValue("sso_min_salary", companie.payroll_config?.sso_min_salary || 1650);
+        setValue("tax_calculation", companie.payroll_config?.tax_calculation || "Progressive");
 
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setSelectedCompany(null);
+        setSelectedCompanie(null);
         reset();
     };
 
     const columns = [
-        { label: "Company Name", key: "name" }, // Now 'name' is directly in the row (English Comment)
+        { label: "Companie Name", key: "name" }, // Now 'name' is directly in the row (English Comment)
         {
             label: "SSO Rate",
             render: (row) => row.payroll_config ? `${row.payroll_config.sso_rate}%` : <span style={{ color: '#94a3b8' }}>Not Set</span>
@@ -109,7 +109,7 @@ const PayrollGlobalSettingsPage = () => {
             <Modal
     isOpen={isModalOpen}
     onClose={closeModal}
-    title={`Payroll Setup: ${selectedCompany?.name}`}
+    title={`Payroll Setup: ${selectedCompanie?.name}`}
     footer={
         <>
             <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>Cancel</Button>

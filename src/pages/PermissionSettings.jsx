@@ -25,7 +25,7 @@ const PermissionSettings = () => {
         setSelectedRoles(role);
         setLoading(true);
         try {
-            const res = await api.get(`/roles/${role.id}/permissions`);
+            const res = await api.get(`/permissions/${role.id}`);
             const matrixData = res.data.modules.map((m) => {
                 const access = res.data.access.find((a) => a.module_id === m.id);
                 return {
@@ -75,7 +75,7 @@ const PermissionSettings = () => {
     const onSave = async () => {
         if (!selectedRoles) return;
         try {
-            await api.post(`/roles/${selectedRoles.id}/permissions`, permissions);
+            await api.post(`/permissions/${selectedRoles.id}`, permissions);
             alert("Permissions saved successfully!");
         } catch (err) {
             alert(err.response?.data?.error || "Save error");

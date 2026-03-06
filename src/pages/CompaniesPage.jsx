@@ -131,7 +131,7 @@ const CompaniesPage = () => {
         <>
 
             <PageHeader
-                title="Employees Directory"
+                title="Companies Directory"
                 actionButton={
                     <Button
                         onClick={() => {
