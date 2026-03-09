@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import api from "../src/api/axiosInstance";
 import MainLayout from "./components/layouts/MainLayout";
 import LoginPage from "../src/pages/LoginPage";
+import DashboardPage from "../src/pages/DashboardPage";
 
 const pages = import.meta.glob("./pages/*.jsx");
 
@@ -21,6 +22,7 @@ function App() {
                 const res = await api.get("/modules");
                 const flatList = [];
                 const extract = (items) => {
+                    if (!Array.isArray(items)) return;
                     items.forEach(item => {
                         if (item.route_path && !item.is_category) {
                             flatList.push(item);
@@ -46,6 +48,16 @@ function App() {
             <Suspense fallback={null}>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <MainLayout pageTitle="Dashboard">
+                                    <DashboardPage />
+                                </MainLayout>
+                            </ProtectedRoute>
+                        }
+                    />
 
                     {routes.map((m) => {
                         const pagePath = `./pages/${m.module_key}.jsx`;
@@ -74,7 +86,7 @@ function App() {
                     })}
 
                     <Route path="/" element={<Navigate to="/dashboard" />} />
-                    <Route path="*" element={<Navigate to="/dashboard" />} />
+                    <Route path="*" element={<Navigate to="/login" />} />
                 </Routes>
             </Suspense>
         </Router>
