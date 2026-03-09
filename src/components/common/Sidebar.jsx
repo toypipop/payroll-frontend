@@ -51,6 +51,9 @@ const Sidebar = () => {
             </svg>
         ),
         ManageAccounts: (color) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>,
+        Sync: (color) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>,
+        PlayCircle: (color) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>,
+        Description: (color) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>,
         Default: (color) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
     };
 
@@ -81,7 +84,7 @@ const Sidebar = () => {
     }, []);
 
     const styles = {
-        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", backgroundColor: "#ffffff", borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", padding: "32px 16px", zIndex: 1000 },
+        sidebarContainer: { width: "280px", height: "100vh", position: "fixed", backgroundColor: "#ffffff", borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", padding: "32px 16px", zIndex: 1000 },
         logoSection: { display: "flex", alignItems: "center", padding: "0 16px", marginBottom: "40px", gap: "12px" },
         categoryLabel: { fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", padding: "16px 16px 8px 16px" },
         navLink: { display: "flex", alignItems: "center", padding: "10px 16px", borderRadius: "10px", textDecoration: "none", fontSize: "14px", fontWeight: "500", marginBottom: "2px", transition: "all 0.2s ease" },
@@ -116,7 +119,7 @@ const Sidebar = () => {
                         <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
                             {IconComponent(isActive ? "var(--primary-color)" : "#94a3b8")}
                         </div>
-                        <span style={{ fontWeight: isActive ? "600" : "500" }}>
+                        <span style={{ fontWeight: isActive ? "600" : "500", whiteSpace: "nowrap" }}>
                             {item.module_name}
                         </span>
                     </>

@@ -36,7 +36,7 @@ const PermissionSettings = () => {
                     can_create: Boolean(access?.can_create),
                     can_edit: Boolean(access?.can_edit),
                     can_delete: Boolean(access?.can_delete),
-                    data_scope: access?.data_scope || "OWN",
+                    data_scope: access?.data_scope || "Own",
                 };
             });
             setPermissions(matrixData);

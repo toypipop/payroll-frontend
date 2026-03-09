@@ -12,11 +12,11 @@ const MainLayout = ({ children, pageTitle }) => {
     mainContent: {
       flexGrow: 1,
       /* 1. Use the exact width of your Sidebar */
-      marginLeft: '260px', 
+      marginLeft: '280px', 
       display: 'flex',
       flexDirection: 'column',
       /* 2. Ensure content doesn't overflow the screen width */
-      width: 'calc(100% - 260px)', 
+      width: 'calc(100% - 280px)', 
     },
     contentArea: {
       /* 3. Padding for the whole page */

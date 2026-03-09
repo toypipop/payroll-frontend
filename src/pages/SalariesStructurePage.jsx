@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -10,6 +10,7 @@ import Table from "../components/common/Table";
 import Button from "../components/common/Button";
 import Modal from "../components/common/Modal";
 import InputField from "../components/common/InputField";
+import DateField from "../components/common/DateField";
 import CheckboxField from "../components/common/CheckboxField";
 import Badge from "../components/common/Badge";
 
@@ -20,8 +21,7 @@ const salariesSchema = z.object({
         (val) => parseFloat(val),
         z.number().min(0, "Salaries must be a positive number")
     ),
-    // Validate that effective_date is a valid string (English Comment)
-    effective_date: z.string().min(1, "Effective date is required"),
+    effective_date: z.date({ required_error: "Effective date is required" }),
     is_enabled: z.boolean().default(true),
 });
 
@@ -31,19 +31,17 @@ const SalariesStructurePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmp, setSelectedEmp] = useState(null);
 
-    // Get today's date in YYYY-MM-DD format for default value (English Comment)
-    const today = new Date().toISOString().split("T")[0];
-
     const {
         register,
         handleSubmit,
         reset,
         setValue,
+        control,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(salariesSchema),
         defaultValues: {
-            effective_date: today,
+            effective_date: new Date(),
             is_enabled: true,
         },
     });
@@ -66,8 +64,10 @@ const SalariesStructurePage = () => {
 
     const onSubmit = async (data) => {
         try {
-            // Send both salaries and effective date to backend (English Comment)
-            await api.post("/salaries", data);
+            await api.post("/salaries", {
+                ...data,
+                effective_date: data.effective_date instanceof Date ? data.effective_date.toISOString() : data.effective_date,
+            });
             fetchSalaries();
             closeModal();
         } catch (err) {
@@ -81,15 +81,14 @@ const SalariesStructurePage = () => {
         setValue("base_salaries", emp.salaries_structure?.base_salaries || 0);
 
         const existingDate = emp.salaries_structure?.effective_date;
-        let finalDate = today;
+        let finalDate = new Date();
 
-        // Use existing date only if it's not a zero date (English Comment)
         if (existingDate && !existingDate.startsWith("0001")) {
             try {
-                finalDate = new Date(existingDate).toISOString().split("T")[0];
+                finalDate = new Date(existingDate);
                 // eslint-disable-next-line no-unused-vars
             } catch (e) {
-                finalDate = today;
+                finalDate = new Date();
             }
         }
         setValue("effective_date", finalDate);
@@ -101,7 +100,7 @@ const SalariesStructurePage = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedEmp(null);
-        reset({ effective_date: today, is_enabled: true });
+        reset({ effective_date: new Date(), is_enabled: true });
     };
 
     const columns = [
@@ -191,12 +190,17 @@ const SalariesStructurePage = () => {
                     error={errors.base_salaries?.message}
                 />
 
-                {/* Added Effective Date Field (English Comment) */}
-                <InputField
-                    label="Effective Date"
-                    type="date"
-                    {...register("effective_date")}
-                    error={errors.effective_date?.message}
+                <Controller
+                    name="effective_date"
+                    control={control}
+                    render={({ field }) => (
+                        <DateField
+                            label="Effective Date"
+                            value={field.value}
+                            onChange={field.onChange}
+                            error={errors.effective_date?.message}
+                        />
+                    )}
                 />
 
                 <p style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
