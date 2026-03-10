@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 
 /* --- Wrap with forwardRef to connect with React Hook Form (English Comment) --- */
 const SelectField = forwardRef(
-    ({ label, options = [], error, placeholder, style, ...props }, ref) => {
+    ({ label, options = [], error, placeholder, style, containerStyle, ...props }, ref) => {
         const styles = {
             container: {
                 marginBottom: "20px",
@@ -49,7 +49,7 @@ const SelectField = forwardRef(
         };
 
         return (
-            <div style={styles.container}>
+            <div style={{ ...styles.container, ...containerStyle }}>
                 {label && <label style={styles.label}>{label}</label>}
 
                 <div style={styles.selectWrapper}>

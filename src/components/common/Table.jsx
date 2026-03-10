@@ -1,6 +1,6 @@
 import React from "react";
 
-const Table = ({ columns, data = [] }) => {
+const Table = ({ columns, data = [], onRowClick }) => {
     const styles = {
         tableContainer: {
             width: "100%",
@@ -61,9 +61,13 @@ const Table = ({ columns, data = [] }) => {
                             return (
                                 <tr
                                     key={rowIndex}
-                                    style={styles.tr}
+                                    style={{
+                                        ...styles.tr,
+                                        cursor: onRowClick ? "pointer" : "default",
+                                    }}
                                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.trHover.backgroundColor)}
                                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                    onClick={() => onRowClick && onRowClick(row)}
                                 >
                                     {columns.map((col, colIndex) => (
                                         <td 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,6 +27,7 @@ const formatDate = (d) =>
     new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
 const PayrollCyclesPage = () => {
+    const navigate = useNavigate();
     const [cycles, setCycles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,15 +111,25 @@ const PayrollCyclesPage = () => {
         {
             label: "Actions",
             render: (row) => (
-                !row.is_closed && (
-                    <Button
-                        variant="danger"
-                        onClick={() => handleClose(row.id, row.cycle_name)}
-                        style={{ fontSize: "12px", padding: "6px 14px" }}
-                    >
-                        Close Cycle
-                    </Button>
-                )
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    {row.is_closed ? (
+                        <Button
+                            variant="ghost"
+                            onClick={() => navigate(`/transactions?cycle_id=${row.id}`)}
+                            style={{ fontSize: "12px", padding: "6px 14px" }}
+                        >
+                            View Transactions
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="danger"
+                            onClick={() => handleClose(row.id, row.cycle_name)}
+                            style={{ fontSize: "12px", padding: "6px 14px" }}
+                        >
+                            Close Cycle
+                        </Button>
+                    )}
+                </div>
             ),
         },
     ];

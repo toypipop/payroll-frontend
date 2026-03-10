@@ -5,6 +5,7 @@ import Card from "../components/common/Card";
 import Table from "../components/common/Table";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
+import SelectField from "../components/common/SelectField";
 
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -12,7 +13,6 @@ const formatCurrency = (val) =>
 const RunPayrollPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [selectedCycle, setSelectedCycle] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [loadingCycles, setLoadingCycles] = useState(true);
     const [loadingTx, setLoadingTx] = useState(false);
@@ -41,7 +41,6 @@ const RunPayrollPage = () => {
             setLoadingTx(true);
             setCalcResult(null);
             const res = await api.get(`/payroll/transactions/${cycleId}`);
-            setSelectedCycle(res.data.cycle);
             setTransactions(res.data.transactions || []);
         } catch (err) {
             setTransactions([]);
@@ -151,27 +150,18 @@ const RunPayrollPage = () => {
             <Card style={{ marginBottom: "20px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
                     <div style={{ flex: 1, minWidth: "220px" }}>
-                        <label style={{ fontSize: "13px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
-                            Select Open Cycle
-                        </label>
                         {loadingCycles ? (
                             <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
                         ) : cycles.length === 0 ? (
                             <div style={{ color: "#94a3b8", fontSize: "14px" }}>No open cycles available.</div>
                         ) : (
-                            <select
+                            <SelectField
+                                label="Select Open Cycle"
+                                options={cycles.map((c) => ({ id: c.id, name: c.cycle_name }))}
                                 value={selectedCycleId}
                                 onChange={(e) => setSelectedCycleId(e.target.value)}
-                                style={{
-                                    padding: "10px 14px", borderRadius: "8px",
-                                    border: "1px solid #e2e8f0", fontSize: "14px",
-                                    outline: "none", minWidth: "240px", cursor: "pointer",
-                                }}
-                            >
-                                {cycles.map((c) => (
-                                    <option key={c.id} value={c.id}>{c.cycle_name}</option>
-                                ))}
-                            </select>
+                                containerStyle={{ marginBottom: 0 }}
+                            />
                         )}
                     </div>
 

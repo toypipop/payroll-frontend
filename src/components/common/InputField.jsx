@@ -9,6 +9,7 @@ const InputField = forwardRef(
             placeholder,
             error,
             style, // Allow external style overrides
+            containerStyle, // Allow overriding container-level styles
             ...props // This includes name, onChange, onBlur from register()
         },
         ref,
@@ -44,7 +45,7 @@ const InputField = forwardRef(
         };
 
         return (
-            <div style={styles.container}>
+            <div style={{ ...styles.container, ...containerStyle }}>
                 {label && <label style={styles.label}>{label}</label>}
                 <input
                     ref={ref} // Attach the ref here

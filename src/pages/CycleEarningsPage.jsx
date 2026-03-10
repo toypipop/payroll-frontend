@@ -182,24 +182,14 @@ const CycleEarningsPage = () => {
             {/* Cycle selector */}
             <Card style={{ marginBottom: "16px", padding: "16px 24px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                    <label style={{ fontWeight: "600", fontSize: "14px", color: "#374151", whiteSpace: "nowrap" }}>
-                        Payroll Cycle
-                    </label>
-                    <select
+                    <SelectField
+                        label="Payroll Cycle"
+                        options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name ?? `Cycle #${c.id}`} ${c.is_closed ? "(Closed)" : "(Open)"}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        style={{
-                            padding: "8px 12px", borderRadius: "8px", border: "1px solid #e2e8f0",
-                            fontSize: "14px", minWidth: "280px", backgroundColor: "#fff",
-                        }}
-                    >
-                        <option value="">— Select a cycle —</option>
-                        {cycles.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.cycle_name ?? `Cycle #${c.id}`} {c.is_closed ? "(Closed)" : "(Open)"}
-                            </option>
-                        ))}
-                    </select>
+                        placeholder="— Select a cycle —"
+                        containerStyle={{ minWidth: "280px", marginBottom: 0 }}
+                    />
                     {selectedCycleLabel && (
                         <span style={{ fontSize: "13px", color: "#64748b" }}>
                             {selectedCycleLabel.start_date?.slice(0, 10)} → {selectedCycleLabel.end_date?.slice(0, 10)}
