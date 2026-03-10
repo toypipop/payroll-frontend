@@ -1,33 +1,75 @@
 /* src/index.css */
-
-/* Import Inter Font from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
+/* ─── Design Tokens ─────────────────────────────────── */
 :root {
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --bg-body: #f8fafc;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
+  /* Brand */
+  --primary-color:     #450a0a;   /* accent — buttons, highlights, active */
+  --primary-hover:     #6b1111;   /* accent hover */
+  --primary-subtle:    #fff1f1;   /* accent tint for hover states */
+
+  /* Chrome */
+  --sidebar-bg:        #1e293b;   /* dark navy — sidebar & top-bar */
+  --sidebar-border:    #273447;   /* subtle sidebar divider */
+
+  /* Surfaces */
+  --bg-body:           #f8fafc;
+  --bg-card:           #ffffff;
+
+  /* Text */
+  --text-main:         #0f172a;
+  --text-secondary:    #475569;
+  --text-muted:        #94a3b8;
+
+  /* Borders */
+  --border-color:      #e2e8f0;
+  --border-light:      #f1f5f9;
+
+  /* Elevation */
+  --shadow-card:       0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Layout */
+  --sidebar-width: 260px;
 }
 
-/* Base Reset */
-* {
+/* ─── Reset ─────────────────────────────────────────── */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ─── Base ───────────────────────────────────────────── */
 body {
-  /* Set Inter as the primary font with system fallbacks */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--bg-body);
   color: var(--text-main);
-  /* Smoothing for a more professional look */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-size: 14px;
 }
 
-/* ... existing scrollbar and utility styles ... */
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+/* ─── Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ─── Focus ──────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+input:focus, select:focus, textarea:focus { outline: none; }
+
+/* ─── Print ──────────────────────────────────────────── */
+@media print { body { background: #fff; } }

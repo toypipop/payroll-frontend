@@ -87,11 +87,11 @@ const Sidebar = () => {
     }, []);
 
     const styles = {
-        sidebarContainer: { width: "280px", height: "100vh", position: "fixed", backgroundColor: "#ffffff", borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", padding: "32px 16px", zIndex: 1000 },
-        logoSection: { display: "flex", alignItems: "center", padding: "0 16px", marginBottom: "40px", gap: "12px" },
-        categoryLabel: { fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", padding: "16px 16px 8px 16px" },
-        navLink: { display: "flex", alignItems: "center", padding: "10px 16px", borderRadius: "10px", textDecoration: "none", fontSize: "14px", fontWeight: "500", marginBottom: "2px", transition: "all 0.2s ease" },
-        subLink: { paddingLeft: "44px" }
+        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", backgroundColor: "var(--sidebar-bg)", borderRight: "1px solid var(--sidebar-border)", display: "flex", flexDirection: "column", padding: "24px 12px", zIndex: 1000 },
+        logoSection: { display: "flex", alignItems: "center", padding: "0 12px", marginBottom: "32px", gap: "10px" },
+        categoryLabel: { fontSize: "10px", fontWeight: "700", color: "#4a6080", textTransform: "uppercase", letterSpacing: "0.09em", padding: "14px 12px 6px 12px" },
+        navLink: { display: "flex", alignItems: "center", padding: "9px 12px", borderRadius: "8px", textDecoration: "none", fontSize: "13px", fontWeight: "500", marginBottom: "1px", transition: "all 0.15s ease" },
+        subLink: { paddingLeft: "36px" }
     };
 
     const renderMenuItem = (item, isSub = false) => {
@@ -112,17 +112,17 @@ const Sidebar = () => {
                 to={item.route_path}
                 style={({ isActive }) => ({
                     ...styles.navLink,
-                    paddingLeft: isSub ? "24px" : "16px",
-                    backgroundColor: isActive ? "#f1f5f9" : "transparent",
-                    color: isActive ? "var(--primary-color)" : "#64748b",
+                    paddingLeft: isSub ? "20px" : "12px",
+                    backgroundColor: isActive ? "rgba(69,10,10,0.18)" : "transparent",
+                    color: isActive ? "#ffffff" : "#94a3b8",
                 })}
             >
                 {({ isActive }) => (
                     <>
                         <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
-                            {IconComponent(isActive ? "var(--primary-color)" : "#94a3b8")}
+                            {IconComponent(isActive ? "#fca5a5" : "#64748b")}
                         </div>
-                        <span style={{ fontWeight: isActive ? "600" : "500", whiteSpace: "nowrap" }}>
+                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
                             {item.module_name}
                         </span>
                     </>
@@ -134,8 +134,8 @@ const Sidebar = () => {
     return (
         <div style={styles.sidebarContainer}>
             <div style={styles.logoSection}>
-                <div style={{ width: "32px", height: "32px", backgroundColor: "#0f172a", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: "bold" }}>P</div>
-                <span style={{ fontSize: "19px", fontWeight: "700", color: "#0f172a" }}>PayrollPro</span>
+                <div style={{ width: "28px", height: "28px", backgroundColor: "#450a0a", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontWeight: "800", fontSize: "13px", letterSpacing: "0.02em" }}>P</div>
+                <span style={{ fontSize: "17px", fontWeight: "700", color: "#f1f5f9", letterSpacing: "-0.01em" }}>PayrollPro</span>
             </div>
 
             <nav style={{ flexGrow: 1, overflowY: "auto" }}>

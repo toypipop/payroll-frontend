@@ -10,45 +10,47 @@ const Button = ({
     const [isHovered, setIsHovered] = React.useState(false);
     const [isActive, setIsActive] = React.useState(false);
 
-    // Define styles for each variant
     const variants = {
         primary: {
-            backgroundColor: "var(--primary-color)",
-            color: "white",
+            backgroundColor: "#450a0a",
+            color: "#ffffff",
+            border: "none",
         },
         danger: {
             backgroundColor: "#fee2e2",
-            color: "#ef4444",
+            color: "#dc2626",
+            border: "none",
         },
         ghost: {
             backgroundColor: "transparent",
-            color: "var(--primary-color)",
+            color: "#450a0a",
+            border: "1px solid var(--border-color)",
         },
     };
 
     const defaultStyle = {
-        padding: "10px 16px",
-        border: "none",
+        padding: "9px 16px",
         borderRadius: "8px",
-        fontSize: "14px",
+        fontSize: "13px",
         fontWeight: "600",
         cursor: "pointer",
-        display: "flex",
+        display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        transition: "all 0.2s ease-in-out",
-        ...variants[variant], // Apply variant style
+        gap: "6px",
+        letterSpacing: "0.01em",
+        lineHeight: "1",
+        transition: "all 0.15s ease",
+        ...variants[variant],
         ...style,
     };
 
-    // Hover and Active logic based on variant
     const hoverStyle =
         variant === "primary"
-            ? { backgroundColor: "var(--primary-hover)" }
-            : {
-                  opacity: 0.8,
-                  backgroundColor: variant === "danger" ? "#fecaca" : "#f1f5f9",
-              };
+            ? { backgroundColor: "#6b1111" }
+            : variant === "danger"
+            ? { backgroundColor: "#fecaca" }
+            : { backgroundColor: "#fff1f1", borderColor: "#fca5a5", color: "#450a0a" };
 
     return (
         <button
@@ -57,7 +59,7 @@ const Button = ({
             style={{
                 ...defaultStyle,
                 ...(isHovered ? hoverStyle : {}),
-                ...(isActive ? { transform: "scale(0.98)" } : {}),
+                ...(isActive ? { transform: "scale(0.98)", opacity: 0.9 } : {}),
             }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => {

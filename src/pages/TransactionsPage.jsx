@@ -151,6 +151,13 @@ const TransactionsPage = () => {
         },
     ];
 
+    const StatCard = ({ label, value, color = '#0f172a' }) => (
+        <Card style={{ minWidth: '155px', flex: 1 }}>
+            <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+            <div style={{ marginTop: '6px', fontSize: '22px', fontWeight: '800', color, fontVariantNumeric: 'tabular-nums', lineHeight: '1' }}>{value}</div>
+        </Card>
+    );
+
     return (
         <>
             <PageHeader title="Transactions" />
@@ -189,23 +196,11 @@ const TransactionsPage = () => {
             </Card>
 
             {selectedCycleId && (
-                <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
-                    <Card style={{ minWidth: "180px", flex: 1 }}>
-                        <div style={{ fontSize: "12px", color: "#94a3b8" }}>Transactions</div>
-                        <div style={{ marginTop: "4px", fontSize: "20px", fontWeight: 700 }}>{filteredTransactions.length}</div>
-                    </Card>
-                    <Card style={{ minWidth: "180px", flex: 1 }}>
-                        <div style={{ fontSize: "12px", color: "#94a3b8" }}>Total Earning</div>
-                        <div style={{ marginTop: "4px", fontSize: "20px", fontWeight: 700, color: "#10b981" }}>฿{formatCurrency(totals.earning)}</div>
-                    </Card>
-                    <Card style={{ minWidth: "180px", flex: 1 }}>
-                        <div style={{ fontSize: "12px", color: "#94a3b8" }}>Total Deduction</div>
-                        <div style={{ marginTop: "4px", fontSize: "20px", fontWeight: 700, color: "#ef4444" }}>฿{formatCurrency(totals.deduction)}</div>
-                    </Card>
-                    <Card style={{ minWidth: "180px", flex: 1 }}>
-                        <div style={{ fontSize: "12px", color: "#94a3b8" }}>Total Net Pay</div>
-                        <div style={{ marginTop: "4px", fontSize: "20px", fontWeight: 700, color: "#0f172a" }}>฿{formatCurrency(totals.net)}</div>
-                    </Card>
+                <div style={{ display: "flex", gap: "14px", marginBottom: "16px", flexWrap: "wrap" }}>
+                    <StatCard label="Transactions"   value={filteredTransactions.length} />
+                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   color="#10b981" />
+                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} color="#ef4444" />
+                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        color="#0f172a" />
                 </div>
             )}
 

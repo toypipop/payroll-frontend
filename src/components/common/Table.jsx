@@ -5,11 +5,9 @@ const Table = ({ columns, data = [], onRowClick }) => {
         tableContainer: {
             width: "100%",
             overflowX: "auto",
-            // Keep the container clean (English Comment)
         },
         table: {
             width: "100%",
-            // Change collapse to separate to fix border bleed at corners (English Comment)
             borderCollapse: "separate",
             borderSpacing: 0,
             textAlign: "left",
@@ -18,25 +16,21 @@ const Table = ({ columns, data = [], onRowClick }) => {
             backgroundColor: "#f8fafc",
         },
         th: {
-            padding: "16px 24px",
-            fontSize: "13px",
-            fontWeight: "600",
-            color: "var(--text-muted)",
+            padding: "11px 20px",
+            fontSize: "11px",
+            fontWeight: "700",
+            color: "#64748b",
             textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            borderBottom: "1px solid var(--border-color)",
+            letterSpacing: "0.07em",
+            borderBottom: "1px solid #e2e8f0",
+            whiteSpace: "nowrap",
         },
         td: {
-            padding: "16px 24px",
-            fontSize: "15px",
+            padding: "13px 20px",
+            fontSize: "14px",
             color: "var(--text-main)",
-            borderBottom: "1px solid var(--border-color)",
-        },
-        tr: {
-            transition: "background-color 0.2s",
-        },
-        trHover: {
-            backgroundColor: "#f1f5f9",
+            borderBottom: "1px solid #e2e8f0",
+            lineHeight: "1.55",
         },
     };
 
@@ -58,24 +52,25 @@ const Table = ({ columns, data = [], onRowClick }) => {
                     {safeData.length > 0 ? (
                         safeData.map((row, rowIndex) => {
                             const isLastRow = rowIndex === safeData.length - 1;
+                            const isEven = rowIndex % 2 === 0;
                             return (
                                 <tr
                                     key={rowIndex}
                                     style={{
-                                        ...styles.tr,
+                                        backgroundColor: isEven ? "#ffffff" : "#f8fafc",
                                         cursor: onRowClick ? "pointer" : "default",
+                                        transition: "background-color 0.1s",
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = styles.trHover.backgroundColor)}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff1f1")}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isEven ? "#ffffff" : "#f8fafc")}
                                     onClick={() => onRowClick && onRowClick(row)}
                                 >
                                     {columns.map((col, colIndex) => (
-                                        <td 
-                                            key={colIndex} 
+                                        <td
+                                            key={colIndex}
                                             style={{
                                                 ...styles.td,
-                                                // Remove bottom border for the last row to prevent double borders or cut-offs at corners (English Comment)
-                                                borderBottom: isLastRow ? "none" : styles.td.borderBottom
+                                                borderBottom: isLastRow ? "none" : styles.td.borderBottom,
                                             }}
                                         >
                                             {col.render ? col.render(row, rowIndex) : row[col.key]}
@@ -88,7 +83,7 @@ const Table = ({ columns, data = [], onRowClick }) => {
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                style={{ ...styles.td, textAlign: "center", padding: "40px", borderBottom: "none" }}
+                                style={{ ...styles.td, textAlign: "center", padding: "44px", color: "#94a3b8", borderBottom: "none" }}
                             >
                                 No data available
                             </td>

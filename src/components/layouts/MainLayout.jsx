@@ -7,24 +7,21 @@ const MainLayout = ({ children, pageTitle }) => {
     layoutContainer: {
       display: 'flex',
       minHeight: '100vh',
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'var(--bg-body)',
     },
     mainContent: {
       flexGrow: 1,
-      /* 1. Use the exact width of your Sidebar */
-      marginLeft: '280px', 
+      marginLeft: 'var(--sidebar-width, 260px)',
       display: 'flex',
       flexDirection: 'column',
-      /* 2. Ensure content doesn't overflow the screen width */
-      width: 'calc(100% - 280px)', 
+      width: 'calc(100% - var(--sidebar-width, 260px))',
+      minWidth: 0,
     },
     contentArea: {
-      /* 3. Padding for the whole page */
-      padding: '40px',
+      padding: '28px 32px',
       flexGrow: 1,
     },
     innerContainer: {
-      /* 4. Center the container using margin auto, not alignItems center */
       maxWidth: '1200px',
       margin: '0 auto',
       width: '100%',

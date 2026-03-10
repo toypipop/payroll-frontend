@@ -6,13 +6,16 @@ const PageHeader = ({ title, actionButton }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '24px',
+      marginBottom: '22px',
+      paddingBottom: '16px',
+      borderBottom: '1px solid #f1f5f9',
     },
     title: {
-      fontSize: '24px',
-      fontWeight: '700',
+      fontSize: '21px',
+      fontWeight: '800',
       color: 'var(--text-main)',
-      letterSpacing: '-0.02em',
+      letterSpacing: '-0.025em',
+      lineHeight: '1.2',
     }
   };
 
