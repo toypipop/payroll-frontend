@@ -10,11 +10,14 @@ import Table from "../components/common/Table";
 import Button from "../components/common/Button";
 import Modal from "../components/common/Modal";
 import InputField from "../components/common/InputField";
+import CheckboxField from "../components/common/CheckboxField";
 
 const attendanceConfigSchema = z.object({
     companies_id: z.number(),
     late_rate_per_minute: z.preprocess((val) => parseFloat(val), z.number().min(0, "Invalid rate")),
     absent_rate_per_day: z.preprocess((val) => parseFloat(val), z.number().min(0, "Invalid rate")),
+    is_late_deduction_enabled: z.boolean(),
+    is_absent_deduction_enabled: z.boolean(),
     work_start_hour: z.preprocess((val) => parseInt(val), z.number().min(0).max(23, "Must be 0-23")),
     work_start_min: z.preprocess((val) => parseInt(val), z.number().min(0).max(59, "Must be 0-59")),
 });
@@ -30,6 +33,8 @@ const AttendanceSettingsPage = () => {
         defaultValues: {
             late_rate_per_minute: 5.0,
             absent_rate_per_day: 300.0,
+            is_late_deduction_enabled: true,
+            is_absent_deduction_enabled: true,
             work_start_hour: 9,
             work_start_min: 0,
         },
@@ -64,6 +69,8 @@ const AttendanceSettingsPage = () => {
         setValue("companies_id", companie.ID || companie.id);
         setValue("late_rate_per_minute", companie.attendance_config?.late_rate_per_minute ?? 5.0);
         setValue("absent_rate_per_day", companie.attendance_config?.absent_rate_per_day ?? 300.0);
+        setValue("is_late_deduction_enabled", companie.attendance_config?.is_late_deduction_enabled ?? true);
+        setValue("is_absent_deduction_enabled", companie.attendance_config?.is_absent_deduction_enabled ?? true);
         setValue("work_start_hour", companie.attendance_config?.work_start_hour ?? 9);
         setValue("work_start_min", companie.attendance_config?.work_start_min ?? 0);
         setIsModalOpen(true);
@@ -95,11 +102,27 @@ const AttendanceSettingsPage = () => {
                     : <span style={{ color: "#94a3b8" }}>Not Set</span>,
         },
         {
+            label: "Late Amount",
+            render: (row) => {
+                const enabled = row.attendance_config?.is_late_deduction_enabled;
+                if (enabled === undefined) return <span style={{ color: "#94a3b8" }}>Not Set</span>;
+                return enabled ? <span style={{ color: "#16a34a", fontWeight: 600 }}>ON</span> : <span style={{ color: "#ef4444", fontWeight: 600 }}>OFF</span>;
+            },
+        },
+        {
             label: "Absent Rate (/ day)",
             render: (row) =>
                 row.attendance_config
                     ? `฿${row.attendance_config.absent_rate_per_day}`
                     : <span style={{ color: "#94a3b8" }}>Not Set</span>,
+        },
+        {
+            label: "Absent Amount",
+            render: (row) => {
+                const enabled = row.attendance_config?.is_absent_deduction_enabled;
+                if (enabled === undefined) return <span style={{ color: "#94a3b8" }}>Not Set</span>;
+                return enabled ? <span style={{ color: "#16a34a", fontWeight: 600 }}>ON</span> : <span style={{ color: "#ef4444", fontWeight: 600 }}>OFF</span>;
+            },
         },
         {
             label: "Actions",
@@ -158,12 +181,20 @@ const AttendanceSettingsPage = () => {
                         {...register("late_rate_per_minute")}
                         error={errors.late_rate_per_minute?.message}
                     />
+                    <CheckboxField
+                        label="Late Amount Deduction (ON/OFF)"
+                        {...register("is_late_deduction_enabled")}
+                    />
                     <InputField
                         label="Absent Rate per Day (฿)"
                         type="number"
                         step="0.01"
                         {...register("absent_rate_per_day")}
                         error={errors.absent_rate_per_day?.message}
+                    />
+                    <CheckboxField
+                        label="Absent Amount Deduction (ON/OFF)"
+                        {...register("is_absent_deduction_enabled")}
                     />
                 </div>
             </Modal>
