@@ -12,8 +12,8 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: 'var(--sidebar-bg)',
-      borderBottom: '1px solid var(--sidebar-border)',
+      backgroundColor: '#ffffff',
+      borderBottom: '1px solid #e2e8f0',
       position: 'sticky',
       top: 0,
       zIndex: 100,
@@ -24,10 +24,10 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
       alignItems: 'center',
       gap: '7px',
       fontSize: '13px',
-      color: '#4a6080',
+      color: '#64748b',
     },
     pageTitle: {
-      color: '#e2e8f0',
+      color: '#1e293b',
       fontWeight: '600',
     },
     userArea: {
@@ -39,7 +39,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
       width: '30px',
       height: '30px',
       borderRadius: '50%',
-      backgroundColor: '#450a0a',
+      backgroundColor: '#6259ca',
       color: '#fff',
       display: 'flex',
       alignItems: 'center',
@@ -52,12 +52,12 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
     userName: {
       fontSize: '13px',
       fontWeight: '600',
-      color: '#e2e8f0',
+      color: '#1e293b',
     },
     separator: {
       width: '1px',
       height: '16px',
-      backgroundColor: '#273447',
+      backgroundColor: '#e2e8f0',
     },
   };
 
@@ -65,7 +65,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
     <nav style={styles.navbar}>
       <div style={styles.breadcrumb}>
         <span>System</span>
-        <span style={{ color: '#273447' }}>/</span>
+        <span style={{ color: '#cbd5e1' }}>/</span>
         <span style={styles.pageTitle}>{pageTitle}</span>
       </div>
 
@@ -81,7 +81,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
           style={{
             color: '#64748b',
             background: 'none',
-            border: '1px solid #273447',
+            border: '1px solid #e2e8f0',
             borderRadius: '6px',
             cursor: 'pointer',
             fontSize: '12px',
@@ -90,8 +90,8 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
             fontFamily: 'inherit',
             transition: 'all 0.15s',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#fca5a5'; e.currentTarget.style.color = '#fca5a5'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#273447'; e.currentTarget.style.color = '#64748b'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6259ca'; e.currentTarget.style.color = '#6259ca'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
         >
           Sign out
         </button>

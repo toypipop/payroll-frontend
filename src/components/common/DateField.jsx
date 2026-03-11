@@ -8,13 +8,12 @@ const DateField = React.forwardRef(({ label, error, value, onChange, id, ...prop
             display: "flex",
             flexDirection: "column",
             gap: "6px",
-            marginTop: "16px",
             marginBottom: "20px",
         },
         label: {
-            fontWeight: "600",
-            fontSize: "14px",
-            color: "#1e293b",
+            fontWeight: "500",
+            fontSize: "13px",
+            color: "#64748b",
         },
         error: {
             color: "#ef4444",
@@ -47,19 +46,21 @@ const DateField = React.forwardRef(({ label, error, value, onChange, id, ...prop
 
             <style>{`
                 .custom-date-input {
-                    padding: 10px 12px;
+                    height: 40px;
+                    padding: 10px 14px;
                     border-radius: 8px;
                     border: 1px solid #e2e8f0;
                     font-size: 14px;
                     outline: none;
                     width: 100%;
-                    color: #334155;
+                    color: #1e293b;
+                    background-color: #f8fafc;
                     transition: all 0.2s;
                     box-sizing: border-box;
                 }
                 .custom-date-input:focus {
-                    border-color: #3b82f6;
-                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+                    border-color: #6259ca;
+                    box-shadow: 0 0 0 3px rgba(98,89,202,0.12);
                 }
                 .custom-date-input.error {
                     border-color: #ef4444;

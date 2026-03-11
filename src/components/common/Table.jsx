@@ -61,7 +61,7 @@ const Table = ({ columns, data = [], onRowClick }) => {
                                         cursor: onRowClick ? "pointer" : "default",
                                         transition: "background-color 0.1s",
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fff1f1")}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0effe")}
                                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isEven ? "#ffffff" : "#f8fafc")}
                                     onClick={() => onRowClick && onRowClick(row)}
                                 >

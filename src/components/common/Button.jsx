@@ -12,7 +12,7 @@ const Button = ({
 
     const variants = {
         primary: {
-            backgroundColor: "#450a0a",
+            backgroundColor: "#6259ca",
             color: "#ffffff",
             border: "none",
         },
@@ -23,7 +23,7 @@ const Button = ({
         },
         ghost: {
             backgroundColor: "transparent",
-            color: "#450a0a",
+            color: "#6259ca",
             border: "1px solid var(--border-color)",
         },
     };
@@ -47,10 +47,10 @@ const Button = ({
 
     const hoverStyle =
         variant === "primary"
-            ? { backgroundColor: "#6b1111" }
+            ? { backgroundColor: "#5148b2" }
             : variant === "danger"
             ? { backgroundColor: "#fecaca" }
-            : { backgroundColor: "#fff1f1", borderColor: "#fca5a5", color: "#450a0a" };
+            : { backgroundColor: "#f0effe", borderColor: "#a78bfa", color: "#6259ca" };
 
     return (
         <button

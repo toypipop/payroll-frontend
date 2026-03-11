@@ -59,21 +59,22 @@ const DashboardPage = () => {
 
             {/* Welcome banner */}
             <div style={{
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)',
+                background: '#ffffff',
                 borderRadius: '10px',
                 padding: '22px 28px',
                 marginBottom: '18px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                border: '1px solid #1e3a5f',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 1px 3px rgba(15,23,42,0.06)',
             }}>
                 <div>
-                    <div style={{ color: '#64748b', fontSize: '12px', marginBottom: '4px' }}>Welcome back,</div>
-                    <div style={{ color: '#f8fafc', fontSize: '20px', fontWeight: '800' }}>
+                    <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '4px' }}>Welcome back,</div>
+                    <div style={{ color: '#0f172a', fontSize: '20px', fontWeight: '800' }}>
                         {storedUser.fullName || 'Administrator'}
                     </div>
-                    <div style={{ color: '#475569', fontSize: '12px', marginTop: '5px' }}>
+                    <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '5px' }}>
                         {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>
                 </div>

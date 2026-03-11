@@ -4,13 +4,13 @@
 /* ─── Design Tokens ─────────────────────────────────── */
 :root {
   /* Brand */
-  --primary-color:     #450a0a;   /* accent — buttons, highlights, active */
-  --primary-hover:     #6b1111;   /* accent hover */
-  --primary-subtle:    #fff1f1;   /* accent tint for hover states */
+  --primary-color:     #6259ca;   /* accent — buttons, highlights, active */
+  --primary-hover:     #5148b2;   /* accent hover */
+  --primary-subtle:    #f0effe;   /* accent tint for hover states */
 
   /* Chrome */
-  --sidebar-bg:        #1e293b;   /* dark navy — sidebar & top-bar */
-  --sidebar-border:    #273447;   /* subtle sidebar divider */
+  --sidebar-bg:        #1e2139;   /* dark navy-purple — sidebar */
+  --sidebar-border:    #2a2d4a;   /* subtle sidebar divider */
 
   /* Surfaces */
   --bg-body:           #f8fafc;

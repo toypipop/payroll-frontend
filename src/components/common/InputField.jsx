@@ -19,22 +19,26 @@ const InputField = forwardRef(
                 display: "flex",
                 flexDirection: "column",
                 gap: "6px",
-                marginBottom: "16px",
+                marginBottom: "20px",
                 width: "100%",
             },
             label: {
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "var(--text-main)",
+                fontSize: "13px",
+                fontWeight: "500",
+                color: "#64748b",
             },
             input: {
+                height: "40px",
                 padding: "10px 14px",
                 borderRadius: "8px",
                 border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
-                fontSize: "15px",
+                fontSize: "14px",
                 outline: "none",
                 transition: "border-color 0.2s",
                 fontFamily: "inherit",
+                backgroundColor: "#f8fafc",
+                color: "#1e293b",
+                boxSizing: "border-box",
                 ...style, // Merge external styles
             },
             errorText: {
@@ -56,7 +60,7 @@ const InputField = forwardRef(
                     {...props}
                     onFocus={(e) => {
                         if (!error)
-                            e.target.style.borderColor = "var(--primary-color)";
+                            e.target.style.borderColor = "#6259ca";
                         if (props.onFocus) props.onFocus(e);
                     }}
                     onBlur={(e) => {
