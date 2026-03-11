@@ -20,6 +20,15 @@ const schema = z.object({
     amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
 });
 
+const formatDate = (value) => {
+    if (!value) return "-";
+    return new Date(value).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    });
+};
+
 const CycleDeductionsPage = () => {
     const [items, setItems] = useState([]);
     const [cycles, setCycles] = useState([]);
@@ -150,6 +159,10 @@ const CycleDeductionsPage = () => {
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
@@ -179,18 +192,18 @@ const CycleDeductionsPage = () => {
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                     <SelectField
                         label="Payroll Cycle"
-                        options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name ?? `Cycle #${c.id}`} ${c.is_closed ? "(Closed)" : "(Open)"}` }))}
+                        options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
                         placeholder="- Select a cycle -"
                         containerStyle={{ minWidth: "280px", marginBottom: 0 }}
                     />
-                    {selectedCycleLabel && (
-                        <span style={{ fontSize: "13px", color: "#64748b" }}>
-                            {selectedCycleLabel.start_date?.slice(0, 10)} to {selectedCycleLabel.end_date?.slice(0, 10)}
-                        </span>
-                    )}
                 </div>
+                {selectedCycleLabel && (                    
+                    <div style={{ marginTop: "12px", fontSize: "13px", color: "#64748b" }}>
+                        Period: {formatDate(selectedCycleLabel.start_date)} - {formatDate(selectedCycleLabel.end_date)}
+                    </div>
+                )}
                 <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "#94a3b8" }}>
                     Variable deductions are one-time per cycle and will be subtracted from net pay during payroll calculation.
                 </p>
@@ -231,7 +244,7 @@ const CycleDeductionsPage = () => {
                         error={errors.cycle_id?.message}
                         options={cycles.map((c) => ({
                             id: c.id,
-                            name: `${c.cycle_name ?? `Cycle #${c.id}`} ${c.is_closed ? "(Closed)" : "(Open)"}`,
+                            name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
                         }))}
                     />
                     <SelectField

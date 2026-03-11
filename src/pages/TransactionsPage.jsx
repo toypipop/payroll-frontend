@@ -98,6 +98,10 @@ const TransactionsPage = () => {
             ),
         },
         {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
+        },
+        {
             label: "Cycle",
             render: () => (
                 <span style={{ fontSize: "13px", color: "#475569" }}>
@@ -166,7 +170,7 @@ const TransactionsPage = () => {
                 <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "end" }}>
                     <SelectField
                         label="Closed Payroll Cycle"
-                        options={cycles.map((c) => ({ id: c.id, name: c.cycle_name }))}
+                        options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
                         placeholder="Select a closed cycle"

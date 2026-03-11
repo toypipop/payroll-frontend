@@ -83,7 +83,7 @@ const AttendanceSettingsPage = () => {
     };
 
     const columns = [
-        { label: "Company Name", key: "name" },
+        { label: "Companies", key: "name" },
         {
             label: "Work Start",
             render: (row) => {

@@ -84,6 +84,10 @@ const RunPayrollPage = () => {
             ),
         },
         {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
+        },
+        {
             label: "Position",
             render: (row) => (
                 <span style={{ fontSize: "13px", color: "#475569" }}>
@@ -157,7 +161,7 @@ const RunPayrollPage = () => {
                         ) : (
                             <SelectField
                                 label="Select Open Cycle"
-                                options={cycles.map((c) => ({ id: c.id, name: c.cycle_name }))}
+                                options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                                 value={selectedCycleId}
                                 onChange={(e) => setSelectedCycleId(e.target.value)}
                                 containerStyle={{ marginBottom: 0 }}

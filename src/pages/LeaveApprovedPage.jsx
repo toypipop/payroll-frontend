@@ -88,6 +88,10 @@ const LeaveApprovedPage = () => {
             )
         },
         {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
+        },
+        {
             label: "Decision",
             render: (row) => (
                 <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>

@@ -143,6 +143,10 @@ const SalariesStructurePage = () => {
             },
         },
         {
+            label: "Companies",
+            render: (row) => row.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <Button

@@ -123,6 +123,10 @@ const EarningTypesPage = () => {
             render: (row) => row.is_permanent ? "Fixed" : "Variable"
         },
         {
+            label: "Companies",
+            render: (row) => row.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
@@ -159,9 +163,9 @@ const EarningTypesPage = () => {
                 }
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    {/* Companie Dropdown (English Comment) */}
+                    {/* Companies Dropdown (English Comment) */}
                     <SelectField 
-                        label="Companie"
+                        label="Companies"
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}

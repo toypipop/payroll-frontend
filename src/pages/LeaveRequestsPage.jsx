@@ -191,6 +191,10 @@ const LeaveRequestsPage = () => {
             ),
         },
         {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>

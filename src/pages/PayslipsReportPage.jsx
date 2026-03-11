@@ -321,6 +321,7 @@ const PayslipsReportPage = () => {
             ),
         },
         {
+
             label: "Department",
             render: (row) => (
                 <span style={{ fontSize: "13px" }}>{row.employees?.department?.dept_name || "—"}</span>
@@ -347,6 +348,10 @@ const PayslipsReportPage = () => {
                     ฿{formatCurrency(row.net_pay)}
                 </span>
             ),
+        },
+        {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "",
@@ -378,7 +383,7 @@ const PayslipsReportPage = () => {
                     <>
                         <SelectField
                             label="Select Closed Payroll Cycle"
-                            options={cycles.map((c) => ({ id: c.id, name: c.cycle_name }))}
+                            options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
                             containerStyle={{ marginBottom: 0 }}

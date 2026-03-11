@@ -105,7 +105,7 @@ const RolesPage = () => {
     const columns = [
         { label: "Role Name", key: "roles_name" },
         { 
-            label: "Companie", 
+            label: "Companies", 
             render: (row) => row.companies?.name || "N/A"
         },
         {
@@ -163,7 +163,7 @@ const RolesPage = () => {
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField 
-                        label="Companie"
+                        label="Companies"
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}

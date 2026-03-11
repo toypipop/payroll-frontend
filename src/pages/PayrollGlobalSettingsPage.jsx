@@ -76,7 +76,7 @@ const PayrollGlobalSettingsPage = () => {
     };
 
     const columns = [
-        { label: "Companie Name", key: "name" }, // Now 'name' is directly in the row (English Comment)
+        { label: "Companies", key: "name" }, // Now 'name' is directly in the row (English Comment)
         {
             label: "SSO Rate",
             render: (row) => row.payroll_config ? `${row.payroll_config.sso_rate}%` : <span style={{ color: '#94a3b8' }}>Not Set</span>

@@ -111,6 +111,10 @@ const EmployeeEarningsPage = () => {
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
+            label: "Companies",
+            render: (row) => row.employees?.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>

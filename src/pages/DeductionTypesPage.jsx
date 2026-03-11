@@ -114,6 +114,10 @@ const DeductionTypesPage = () => {
             render: (row) => <Badge status={row.is_sso_deductible}>{row.is_sso_deductible ? "Yes" : "No"}</Badge>
         },
         {
+            label: "Companies",
+            render: (row) => row.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
@@ -154,7 +158,7 @@ const DeductionTypesPage = () => {
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField 
-                        label="Companie"
+                        label="Companies"
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}

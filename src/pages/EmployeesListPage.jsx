@@ -183,6 +183,10 @@ const EmployeesListPage = () => {
             ),
         },
         {
+            label: "Companies",
+            render: (row) => row.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>

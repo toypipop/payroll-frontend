@@ -48,6 +48,7 @@ const AttendanceSummaryPage = () => {
     const columns = [
         { label: "Code", key: "employees_code" },
         { label: "Full Name", key: "full_name" },
+        { label: "Companies", key: "company_name" },
         {
             label: "Late (min)",
             render: (row) => (
