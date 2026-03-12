@@ -30,7 +30,7 @@ const A4PND1 = ({ data }) => {
         >
             {/* Header */}
             <div style={{ textAlign: "center", marginBottom: "18px", paddingBottom: "14px", borderBottom: "3px solid #0f172a" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px" }}>ภ.ง.ด.1 / PND.1 — Monthly Withholding Tax Form (Section 50 Bis)</div>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px" }}>PND.1 — Monthly Withholding Tax Form (Section 50 Bis)</div>
                 <div style={{ fontSize: "22px", fontWeight: "900", color: "#0f172a", marginTop: "6px" }}>{company?.name || "—"}</div>
                 <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Tax ID: {company?.tax_id || "—"} &nbsp;|&nbsp; {company?.address || ""}</div>
                 <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
@@ -99,7 +99,7 @@ const A4Tawi50 = ({ data }) => {
             }}
         >
             <div style={{ textAlign: "center", marginBottom: "14px" }}>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px", fontWeight: "700" }}>หนังสือรับรองการหักภาษี ณ ที่จ่าย (ใบ 50 ทวิ)</div>
+                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px", fontWeight: "700" }}>Withholding Tax Certificate (Form 50 Tawi)</div>
                 <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", letterSpacing: "1px" }}>Withholding Tax Certificate — Form 50 Tawi</div>
                 <div style={{ fontSize: "20px", fontWeight: "900", color: "#0f172a", marginTop: "6px" }}>{company?.name || "—"}</div>
                 <div style={{ fontSize: "12px", color: "#64748b" }}>Tax ID: {company?.tax_id || "—"}</div>
@@ -306,17 +306,10 @@ const TaxFormsReportPage = () => {
             </Card>
 
             {/* Tab buttons */}
-            {pnd1Data && (
+            {pnd1Data && pnd1Data.rows?.length > 0 && (
                 <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
                     <Button
-                        variant={viewMode === "pnd1" ? "primary" : "secondary"}
-                        onClick={() => setViewMode("pnd1")}
-                        style={{ width: "auto", padding: "9px 18px" }}
-                    >
-                        ภ.ง.ด.1 / PND.1 List
-                    </Button>
-                    <Button
-                        variant="secondary"
+                        variant={viewMode === "pnd1-print" ? "primary" : "ghost"}
                         onClick={() => setViewMode("pnd1-print")}
                         style={{ width: "auto", padding: "9px 18px" }}
                     >

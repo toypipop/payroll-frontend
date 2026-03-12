@@ -24,7 +24,7 @@ const timeLogSchema = z.object({
     }),
     check_out: z.date().nullable().optional(),
     status: z.string().min(1, "Status is required"),
-    location_in: z.string().optional(),
+    work_location_id: z.coerce.number().optional().nullable(),
     remark: z.string().optional(),
 }).refine((data) => {
     if (data.check_in && data.check_out) {
@@ -44,6 +44,7 @@ const TimelogsListPage = () => {
 
     // Master data for dropdown
     const [masterEmployees, setMasterEmployees] = useState([]);
+    const [masterWorkLocations, setMasterWorkLocations] = useState([]);
 
     /* --- 2. Initialize Hook Form (English Comment) --- */
     const {
@@ -60,7 +61,7 @@ const TimelogsListPage = () => {
             check_in: new Date(),
             check_out: null,
             status: "on_time",
-            location_in: "",
+            work_location_id: "",
             remark: "",
         },
     });
@@ -81,13 +82,17 @@ const TimelogsListPage = () => {
         const fetchMasterData = async () => {
             try {
                 // Fetch employees to show in dropdown
-                const empRes = await api.get("/employees");
+                const [empRes, locRes] = await Promise.all([
+                    api.get("/employees"),
+                    api.get("/master/work-locations").catch(() => ({ data: [] })),
+                ]);
                 setMasterEmployees(
                     empRes.data.map((e) => ({
                         id: e.id || e.ID,
                         name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
                     }))
                 );
+                setMasterWorkLocations((locRes.data || []).map((l) => ({ id: l.id, name: l.name })));
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -104,6 +109,7 @@ const TimelogsListPage = () => {
                 check_in: data.check_in ? new Date(data.check_in).toISOString() : null,
                 check_out: data.check_out ? new Date(data.check_out).toISOString() : null,
                 employees_id: parseInt(data.employees_id),
+                work_location_id: data.work_location_id ? parseInt(data.work_location_id) : null,
             };
 
             if (editingId) {
@@ -132,7 +138,7 @@ const TimelogsListPage = () => {
         setValue("check_out", parseDate(log.check_out));
 
         setValue("status", log.status);
-        setValue("location_in", log.location_in || "");
+        setValue("work_location_id", log.work_location_id?.toString() || "");
         setValue("remark", log.remark || "");
 
         setIsModalOpen(true);
@@ -289,8 +295,15 @@ const TimelogsListPage = () => {
                     error={errors.status?.message}
                 />
 
+                <SelectField
+                    label="Work Location"
+                    options={[{ id: "", name: "— Select Location —" }, ...masterWorkLocations]}
+                    {...register("work_location_id")}
+                    error={errors.work_location_id?.message}
+                />
+
                 <InputField
-                    label="Location / Remark"
+                    label="Remark"
                     {...register("remark")}
                     error={errors.remark?.message}
                     placeholder="Optional remark"

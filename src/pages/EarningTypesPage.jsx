@@ -19,6 +19,7 @@ const earningSchema = z.object({
     // Convert string value from SelectField to number for Backend (English Comment)
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
     name: z.string().min(1, "Name is required"),
+    category_id: z.coerce.number().optional().nullable(),
     is_taxable: z.boolean().default(true),
     is_sso: z.boolean().default(true),
     is_permanent: z.boolean().default(false),
@@ -27,6 +28,7 @@ const earningSchema = z.object({
 const EarningTypesPage = () => {
     const [earnings, setEarnings] = useState([]);
     const [companies, setCompanies] = useState([]);
+    const [earningCategories, setEarningCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,6 +39,7 @@ const EarningTypesPage = () => {
         resolver: zodResolver(earningSchema),
         defaultValues: {
             companies_id: defaultCompanieId,
+            category_id: "",
             is_taxable: true,
             is_sso: true,
             is_permanent: false,
@@ -49,12 +52,14 @@ const EarningTypesPage = () => {
         try {
             setLoading(true);
             // Fetch both earnings and companie options (English Comment)
-            const [earningsRes, companiesRes] = await Promise.all([
+            const [earningsRes, companiesRes, catRes] = await Promise.all([
                 api.get("/earning-types"),
-                api.get("/companies/options")
+                api.get("/companies/options"),
+                api.get("/master/earning-categories").catch(() => ({ data: [] })),
             ]);
             setEarnings(earningsRes.data);
             setCompanies(companiesRes.data);
+            setEarningCategories((catRes.data || []).map((c) => ({ id: c.id, name: c.name })));
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -101,7 +106,8 @@ const EarningTypesPage = () => {
         setIsModalOpen(false);
         reset({ 
             id: undefined, 
-            companies_id: defaultCompanieId, 
+            companies_id: defaultCompanieId,
+            category_id: "",
             is_taxable: true, 
             is_sso: true, 
             is_permanent: false 
@@ -110,6 +116,10 @@ const EarningTypesPage = () => {
 
     const columns = [
         { label: "Name", key: "name" },
+        {
+            label: "Category",
+            render: (row) => row.category?.name || "—",
+        },
         {
             label: "Taxable",
             render: (row) => <Badge status={row.is_taxable}>{row.is_taxable ? "Yes" : "No"}</Badge>
@@ -170,6 +180,15 @@ const EarningTypesPage = () => {
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
                     />
+
+                    {earningCategories.length > 0 && (
+                        <SelectField
+                            label="Category"
+                            {...register("category_id")}
+                            error={errors.category_id?.message}
+                            options={[{ id: "", name: "— Select Category —" }, ...earningCategories]}
+                        />
+                    )}
 
                     <InputField label="Earning Name" {...register("name")} error={errors.name?.message} />
 

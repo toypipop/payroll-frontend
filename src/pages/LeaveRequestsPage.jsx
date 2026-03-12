@@ -19,9 +19,7 @@ import { Controller } from "react-hook-form";
 /* --- 1. Validation Schema (English Comment) --- */
 const leaveSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
-    leave_type: z.enum(["Sick", "Personal", "Annual", "Unpaid"], {
-        errorMap: () => ({ message: "Please select leave type" }),
-    }),
+    leave_type_id: z.string().min(1, "Please select leave type"),
     // Change from z.string() to z.any() or z.date() to accept Date objects from DateTimeField
     start_date: z.date({
         required_error: "Start date is required",
@@ -49,6 +47,7 @@ const LeaveRequestsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [masterEmployees, setMasterEmployees] = useState([]);
+    const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
 
     /* --- 2. Initialize Hook Form (English Comment) --- */
     const {
@@ -62,7 +61,7 @@ const LeaveRequestsPage = () => {
         resolver: zodResolver(leaveSchema),
         defaultValues: {
             employees_id: "",
-            leave_type: "Sick",
+            leave_type_id: "",
             start_date: new Date(),
             end_date: new Date(),
             reason: "",
@@ -84,13 +83,17 @@ const LeaveRequestsPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const empRes = await api.get("/employees");
+                const [empRes, ltRes] = await Promise.all([
+                    api.get("/employees"),
+                    api.get("/master/leave-types").catch(() => ({ data: [] })),
+                ]);
                 setMasterEmployees(
                     empRes.data.map((e) => ({
                         id: e.id || e.ID,
                         name: `${e.first_name} ${e.last_name}`,
                     }))
                 );
+                setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ id: lt.id, name: lt.name })));
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -104,6 +107,7 @@ const LeaveRequestsPage = () => {
             const payload = {
                 ...data,
                 employees_id: parseInt(data.employees_id),
+                leave_type_id: parseInt(data.leave_type_id),
                 companies_id: 1,
                 // Ensure dates are converted to ISO string for Go time.Time
                 start_date: data.start_date.toISOString(),
@@ -124,7 +128,7 @@ const LeaveRequestsPage = () => {
     const handleEdit = (req) => {
         setEditingId(req.id || req.ID);
         setValue("employees_id", req.employees_id?.toString() || "");
-        setValue("leave_type", req.leave_type);
+        setValue("leave_type_id", req.leave_type_id?.toString() || "");
         // Convert string from API back to Date object for DateTimeField
         setValue("start_date", req.start_date ? new Date(req.start_date) : null);
         setValue("end_date", req.end_date ? new Date(req.end_date) : null);
@@ -149,8 +153,7 @@ const LeaveRequestsPage = () => {
         reset();
     };
     const columns = [
-        {
-            label: "Employee",
+        { label: "Employee",
             render: (row) => (
                 <div style={{ whiteSpace: "nowrap" }}>
                     <div style={{ fontWeight: "600" }}>
@@ -162,7 +165,7 @@ const LeaveRequestsPage = () => {
                 </div>
             )
         },
-        { label: "Type", key: "leave_type" },
+        { label: "Type", render: (row) => row.leave_type_master?.name || row.leave_type || "—" },
         {
             label: "Duration",
             render: (row) => {
@@ -257,14 +260,9 @@ const LeaveRequestsPage = () => {
 
                 <SelectField
                     label="Leave Type"
-                    options={[
-                        { id: "Sick", name: "Sick Leave" },
-                        { id: "Personal", name: "Personal Leave" },
-                        { id: "Annual", name: "Annual Leave" },
-                        { id: "Unpaid", name: "Unpaid Leave" },
-                    ]}
-                    {...register("leave_type")}
-                    error={errors.leave_type?.message}
+                    options={[{ id: "", name: "— Select —" }, ...masterLeaveTypes]}
+                    {...register("leave_type_id")}
+                    error={errors.leave_type_id?.message}
                 />
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>

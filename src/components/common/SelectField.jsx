@@ -160,7 +160,7 @@ const SelectField = forwardRef(
                     <select
                         ref={setRefs}
                         name={name}
-                        defaultValue={internalValue}
+                        value={displayValue}
                         disabled={disabled}
                         onBlur={onBlur}
                         onChange={() => {}}
