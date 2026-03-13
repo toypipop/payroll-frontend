@@ -2,10 +2,10 @@ import React, { useEffect, useState, Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import api from "../src/api/axiosInstance";
 import MainLayout from "./components/layouts/MainLayout";
-import LoginPage from "../src/pages/LoginPage";
-import DashboardPage from "../src/pages/DashboardPage";
+import LoginPage from "./pages/auth/LoginPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
 
-const pages = import.meta.glob("./pages/*.jsx");
+const pages = import.meta.glob("./pages/**/*.jsx");
 
 const ProtectedRoute = ({ children }) => {
     return localStorage.getItem("token") ? children : <Navigate to="/login" replace />;
@@ -60,8 +60,9 @@ function App() {
                     />
 
                     {routes.map((m) => {
-                        const pagePath = `./pages/${m.module_key}.jsx`;
-                        const importFunc = pages[pagePath];
+                        const importFunc = Object.entries(pages).find(
+                            ([path]) => path.endsWith(`/${m.module_key}.jsx`)
+                        )?.[1];
 
                         if (!importFunc) {
                             console.warn(`⚠️ Route skipped: File ${pagePath} not found in src/pages/`);
