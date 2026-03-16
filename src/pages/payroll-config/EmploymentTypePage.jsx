@@ -3,13 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import api from "../api/axiosInstance";
-import Table from "../components/common/Table";
-import Button from "../components/common/Button";
-import Modal from "../components/common/Modal";
-import InputField from "../components/common/InputField";
-import PageHeader from "../components/common/PageHeader";
-import Card from "../components/common/Card";
+import api from "../../api/axiosInstance";
+import Table from "../../components/common/Table";
+import Button from "../../components/common/Button";
+import Modal from "../../components/common/Modal";
+import InputField from "../../components/common/InputField";
+import PageHeader from "../../components/common/PageHeader";
+import Card from "../../components/common/Card";
 
 const schema = z.object({
     name: z.string().min(1, "Name is required"),

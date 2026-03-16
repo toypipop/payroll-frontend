@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosInstance';
-import PageHeader from '../components/common/PageHeader';
-import Card from '../components/common/Card';
-import Badge from '../components/common/Badge';
+import api from '../../api/axiosInstance';
+import PageHeader from '../../components/common/PageHeader';
+import Card from '../../components/common/Card';
+import Badge from '../../components/common/Badge';
 
 const StatCard = ({ label, value, sub, color = '#0f172a', loading }) => (
     <Card style={{ flex: 1, minWidth: '150px' }}>

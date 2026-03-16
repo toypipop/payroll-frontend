@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosInstance';
-import Card from '../components/common/Card';
-import InputField from '../components/common/InputField';
-import Button from '../components/common/Button';
+import api from '../../api/axiosInstance';
+import Card from '../../components/common/Card';
+import InputField from '../../components/common/InputField';
+import Button from '../../components/common/Button';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
