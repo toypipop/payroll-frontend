@@ -2,14 +2,16 @@ import React, { forwardRef, useState, useRef, useEffect, useCallback } from "rea
 import { createPortal } from "react-dom";
 
 const SelectField = forwardRef(
-    ({ label, options = [], error, placeholder, style, containerStyle, value, onChange, onBlur, name, disabled, ...props }, ref) => {
+    ({ label, options = [], error, placeholder, style, containerStyle, value, onChange, onBlur, name, disabled, searchable = true, ...props }, ref) => {
         const [open, setOpen] = useState(false);
         const [hovered, setHovered] = useState(null);
+        const [searchTerm, setSearchTerm] = useState("");
         const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
         // Internal state handles both controlled (value prop) and RHF register (no value prop)
         const [internalValue, setInternalValue] = useState(value ?? "");
         const triggerRef = useRef(null);
         const hiddenRef = useRef(null);
+        const searchInputRef = useRef(null);
 
         // Sync when controlled value changes from outside
         useEffect(() => {
@@ -28,6 +30,10 @@ const SelectField = forwardRef(
         const selectedOption = options.find((o) => String(o.id) === String(displayValue));
         const displayText = selectedOption ? selectedOption.name : (placeholder || `Select ${label || ""}`);
         const isEmpty = !selectedOption;
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const filteredOptions = normalizedSearch
+            ? options.filter((opt) => String(opt.name ?? "").toLowerCase().includes(normalizedSearch))
+            : options;
 
         // Recalculate dropdown position from trigger rect
         const updatePosition = useCallback(() => {
@@ -43,12 +49,17 @@ const SelectField = forwardRef(
         const handleOpen = () => {
             if (disabled) return;
             updatePosition();
-            setOpen((p) => !p);
+            setOpen((p) => {
+                const nextOpen = !p;
+                if (nextOpen) setSearchTerm("");
+                return nextOpen;
+            });
         };
 
         // Close on outside click and reposition on scroll/resize
         useEffect(() => {
             if (!open) return;
+
             const handleClose = (e) => {
                 if (
                     triggerRef.current && !triggerRef.current.contains(e.target) &&
@@ -63,6 +74,9 @@ const SelectField = forwardRef(
             document.addEventListener("mousedown", handleClose);
             window.addEventListener("scroll", handleReposition, true);
             window.addEventListener("resize", handleReposition);
+            window.requestAnimationFrame(() => {
+                searchInputRef.current?.focus();
+            });
             return () => {
                 document.removeEventListener("mousedown", handleClose);
                 window.removeEventListener("scroll", handleReposition, true);
@@ -73,6 +87,7 @@ const SelectField = forwardRef(
         const handleSelect = (optId) => {
             const strVal = String(optId);
             setInternalValue(strVal);
+            setSearchTerm("");
 
             // Update hidden native select so RHF can read it via ref
             if (hiddenRef.current) {
@@ -101,48 +116,78 @@ const SelectField = forwardRef(
                     boxShadow: "0 8px 24px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.07)",
                     zIndex: 99999,
                     maxHeight: "220px",
-                    overflowY: "auto",
                     padding: "4px",
                 }}
             >
-                {options.length === 0 ? (
-                    <div style={{ padding: "10px 12px", fontSize: "13px", color: "#94a3b8", textAlign: "center" }}>
-                        No options
+                {searchable && (
+                    <div style={{ padding: "4px 4px 8px" }}>
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                                if (e.key === "Escape") {
+                                    e.preventDefault();
+                                    setOpen(false);
+                                }
+                            }}
+                            placeholder={`Search ${label || "options"}`}
+                            style={{
+                                width: "100%",
+                                height: "36px",
+                                padding: "0 12px",
+                                fontSize: "13.5px",
+                                borderRadius: "8px",
+                                border: "1px solid #e2e8f0",
+                                backgroundColor: "#f8fafc",
+                                color: "#1e293b",
+                            }}
+                        />
                     </div>
-                ) : (
-                    options.map((opt) => {
-                        const isSelected = String(opt.id) === String(displayValue);
-                        const isHov = hovered === opt.id;
-                        return (
-                            <div
-                                key={opt.id}
-                                onMouseEnter={() => setHovered(opt.id)}
-                                onMouseLeave={() => setHovered(null)}
-                                onMouseDown={(e) => { e.preventDefault(); handleSelect(opt.id); }}
-                                style={{
-                                    padding: "9px 12px",
-                                    fontSize: "13.5px",
-                                    borderRadius: "7px",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    backgroundColor: isSelected ? "#f0effe" : isHov ? "#f8f7ff" : "transparent",
-                                    color: isSelected ? "#6259ca" : "#1e293b",
-                                    fontWeight: isSelected ? "600" : "400",
-                                    transition: "background-color 0.1s",
-                                }}
-                            >
-                                <span>{opt.name}</span>
-                                {isSelected && (
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6259ca" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                )}
-                            </div>
-                        );
-                    })
                 )}
+
+                <div style={{ maxHeight: searchable ? "168px" : "212px", overflowY: "auto" }}>
+                    {filteredOptions.length === 0 ? (
+                        <div style={{ padding: "10px 12px", fontSize: "13px", color: "#94a3b8", textAlign: "center" }}>
+                            {options.length === 0 ? "No options" : "No matches found"}
+                        </div>
+                    ) : (
+                        filteredOptions.map((opt) => {
+                            const isSelected = String(opt.id) === String(displayValue);
+                            const isHov = hovered === opt.id;
+                            return (
+                                <div
+                                    key={opt.id}
+                                    onMouseEnter={() => setHovered(opt.id)}
+                                    onMouseLeave={() => setHovered(null)}
+                                    onMouseDown={(e) => { e.preventDefault(); handleSelect(opt.id); }}
+                                    style={{
+                                        padding: "9px 12px",
+                                        fontSize: "13.5px",
+                                        borderRadius: "7px",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        backgroundColor: isSelected ? "#f0effe" : isHov ? "#f8f7ff" : "transparent",
+                                        color: isSelected ? "#6259ca" : "#1e293b",
+                                        fontWeight: isSelected ? "600" : "400",
+                                        transition: "background-color 0.1s",
+                                    }}
+                                >
+                                    <span>{opt.name}</span>
+                                    {isSelected && (
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6259ca" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
             </div>,
             document.body
         );
@@ -178,6 +223,24 @@ const SelectField = forwardRef(
                     <div
                         ref={triggerRef}
                         onClick={handleOpen}
+                        onKeyDown={(e) => {
+                            if (disabled) return;
+                            if (["Enter", " ", "ArrowDown"].includes(e.key)) {
+                                e.preventDefault();
+                                if (!open) {
+                                    updatePosition();
+                                    setSearchTerm("");
+                                    setOpen(true);
+                                }
+                            }
+                            if (e.key === "Escape") {
+                                setOpen(false);
+                            }
+                        }}
+                        role="button"
+                        tabIndex={disabled ? -1 : 0}
+                        aria-expanded={open}
+                        aria-haspopup="listbox"
                         style={{
                             display: "flex",
                             alignItems: "center",
