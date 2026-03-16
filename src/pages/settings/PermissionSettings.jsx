@@ -5,6 +5,7 @@ import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
+import Table from "../../components/common/Table";
 
 const PermissionSettings = () => {
     const [roles, setRoles] = useState([]);
@@ -192,105 +193,17 @@ const PermissionSettings = () => {
                     ) : !selectedRoles ? (
                         <div style={emptyStateStyle}>Select a role to manage permissions.</div>
                     ) : (
-                        <div style={{ width: "100%", overflowX: "auto" }}>
-                            <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, textAlign: "left" }}>
-                                <thead style={{ backgroundColor: "#f8fafc" }}>
-                                    <tr>
-                                        <th style={thStyle}>MODULE</th>
-                                        <th style={{ ...thStyle, textAlign: "center", width: "7%" }}>VIEW</th>
-                                        <th style={{ ...thStyle, textAlign: "center", width: "7%" }}>CREATE</th>
-                                        <th style={{ ...thStyle, textAlign: "center", width: "7%" }}>EDIT</th>
-                                        <th style={{ ...thStyle, textAlign: "center", width: "7%" }}>DELETE</th>
-                                        <th style={{ ...thStyle, width: "32%" }}>DATA SCOPE</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {groupedPermissions.map((group, gi) => (
-                                        <React.Fragment key={gi}>
-                                            {group.categoryName && (
-                                                <tr>
-                                                    <td colSpan={6} style={categoryRowStyle}>
-                                                        {group.categoryName}
-                                                    </td>
-                                                </tr>
-                                            )}
-                                            {group.items.map((item, itemIdx) => {
-                                                const isLast = gi === groupedPermissions.length - 1 && itemIdx === group.items.length - 1;
-                                                const isEven = itemIdx % 2 === 0;
-                                                return (
-                                                    <tr
-                                                        key={item.module_id}
-                                                        style={{ backgroundColor: isEven ? "#ffffff" : "#f8fafc", transition: "background-color 0.1s" }}
-                                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f0effe"}
-                                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = isEven ? "#ffffff" : "#f8fafc"}
-                                                    >
-                                                        <td style={{ ...tdStyle, borderBottom: isLast ? "none" : tdStyle.borderBottom }}>
-                                                            {item.module_name}
-                                                        </td>
-                                                        <td style={{ ...tdStyle, textAlign: "center", borderBottom: isLast ? "none" : tdStyle.borderBottom }}>
-                                                            <CheckboxField
-                                                                checked={permissions[item._flatIdx]?.can_view || false}
-                                                                onChange={e => handleUpdateLocal(item._flatIdx, "can_view", e.target.checked)}
-                                                            />
-                                                        </td>
-                                                        <td style={{ ...tdStyle, textAlign: "center", borderBottom: isLast ? "none" : tdStyle.borderBottom }}>
-                                                            <CheckboxField
-                                                                checked={permissions[item._flatIdx]?.can_create || false}
-                                                                onChange={e => handleUpdateLocal(item._flatIdx, "can_create", e.target.checked)}
-                                                            />
-                                                        </td>
-                                                        <td style={{ ...tdStyle, textAlign: "center", borderBottom: isLast ? "none" : tdStyle.borderBottom }}>
-                                                            <CheckboxField
-                                                                checked={permissions[item._flatIdx]?.can_edit || false}
-                                                                onChange={e => handleUpdateLocal(item._flatIdx, "can_edit", e.target.checked)}
-                                                            />
-                                                        </td>
-                                                        <td style={{ ...tdStyle, textAlign: "center", borderBottom: isLast ? "none" : tdStyle.borderBottom }}>
-                                                            <CheckboxField
-                                                                checked={permissions[item._flatIdx]?.can_delete || false}
-                                                                onChange={e => handleUpdateLocal(item._flatIdx, "can_delete", e.target.checked)}
-                                                            />
-                                                        </td>
-                                                        <td style={{ ...tdStyle, borderBottom: isLast ? "none" : tdStyle.borderBottom }}>
-                                                            <SelectField
-                                                                options={dataScopeOptions}
-                                                                value={permissions[item._flatIdx]?.data_scope || "Own"}
-                                                                onChange={e => handleUpdateLocal(item._flatIdx, "data_scope", e.target.value)}
-                                                                style={{ marginBottom: 0 }}
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </React.Fragment>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <PermissionMatrix 
+                            permissions={permissions}
+                            groupedPermissions={groupedPermissions}
+                            dataScopeOptions={dataScopeOptions}
+                            handleUpdateLocal={handleUpdateLocal}
+                        />
                     )}
                 </Card>
             </div>
         </div>
     );
-};
-
-const thStyle = {
-    padding: "11px 20px",
-    fontSize: "11px",
-    fontWeight: "700",
-    color: "#64748b",
-    textTransform: "uppercase",
-    letterSpacing: "0.07em",
-    borderBottom: "1px solid #e2e8f0",
-    whiteSpace: "nowrap",
-};
-
-const tdStyle = {
-    padding: "13px 20px",
-    fontSize: "14px",
-    color: "var(--text-main)",
-    borderBottom: "1px solid #e2e8f0",
-    lineHeight: "1.55",
 };
 
 const categoryRowStyle = {
@@ -303,6 +216,98 @@ const categoryRowStyle = {
     letterSpacing: "0.08em",
     borderBottom: "1px solid #e2e8f0",
     borderTop: "1px solid #e2e8f0",
+};
+
+// Permission Matrix component using table structure similar to Table component
+const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, handleUpdateLocal }) => {
+    const flatItems = groupedPermissions.flatMap((group) =>
+        (group.items || []).map((item, idx) => ({
+            ...item,
+            _categoryName: group.categoryName,
+            _categoryStart: Boolean(group.categoryName) && idx === 0,
+        }))
+    );
+
+    const columns = [
+        {
+            label: "Module",
+            render: (item) => item.module_name,
+        },
+        {
+            label: "View",
+            headerStyle: { textAlign: "center", width: "7%" },
+            cellStyle: { textAlign: "center" },
+            render: (item) => (
+                <CheckboxField
+                    checked={permissions[item._flatIdx]?.can_view || false}
+                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_view", e.target.checked)}
+                />
+            ),
+        },
+        {
+            label: "Create",
+            headerStyle: { textAlign: "center", width: "7%" },
+            cellStyle: { textAlign: "center" },
+            render: (item) => (
+                <CheckboxField
+                    checked={permissions[item._flatIdx]?.can_create || false}
+                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_create", e.target.checked)}
+                />
+            ),
+        },
+        {
+            label: "Edit",
+            headerStyle: { textAlign: "center", width: "7%" },
+            cellStyle: { textAlign: "center" },
+            render: (item) => (
+                <CheckboxField
+                    checked={permissions[item._flatIdx]?.can_edit || false}
+                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_edit", e.target.checked)}
+                />
+            ),
+        },
+        {
+            label: "Delete",
+            headerStyle: { textAlign: "center", width: "7%" },
+            cellStyle: { textAlign: "center" },
+            render: (item) => (
+                <CheckboxField
+                    checked={permissions[item._flatIdx]?.can_delete || false}
+                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_delete", e.target.checked)}
+                />
+            ),
+        },
+        {
+            label: "Data Scope",
+            headerStyle: { width: "32%" },
+            render: (item) => (
+                <SelectField
+                    options={dataScopeOptions}
+                    value={permissions[item._flatIdx]?.data_scope || "Own"}
+                    onChange={(e) => handleUpdateLocal(item._flatIdx, "data_scope", e.target.value)}
+                    style={{ marginBottom: 0 }}
+                />
+            ),
+        },
+    ];
+
+    return (
+        <Table
+            columns={columns}
+            data={flatItems}
+            getRowKey={(row) => row.module_id}
+            renderBeforeRow={(row) => {
+                if (!row._categoryStart) return null;
+                return (
+                    <tr>
+                        <td colSpan={columns.length} style={categoryRowStyle}>
+                            {row._categoryName}
+                        </td>
+                    </tr>
+                );
+            }}
+        />
+    );
 };
 
 export default PermissionSettings;

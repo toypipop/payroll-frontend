@@ -11,7 +11,7 @@ const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const formatDate = (d) => {
-    if (!d) return "—";
+    if (!d) return "ï¿½";
     return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 
@@ -23,19 +23,35 @@ const A4Payslip = ({ slip, cycle, company }) => {
     const deductions = slip.details?.filter((d) => d.type === "deduction") || [];
     const totalDeductions = deductions.reduce((s, d) => s + (d.amount || 0), 0);
 
-    const row = (label, amount, color, parens = false) => (
-        <tr>
-            <td style={{ padding: "7px 14px", borderBottom: "1px solid #f1f5f9", fontSize: "13px" }}>
-                {label}
-            </td>
-            <td style={{
-                padding: "7px 14px", textAlign: "right", fontFamily: "monospace",
-                fontWeight: "600", fontSize: "13px", borderBottom: "1px solid #f1f5f9", color,
-            }}>
-                {parens ? `(${formatCurrency(amount)})` : formatCurrency(amount)}
-            </td>
-        </tr>
-    );
+    const earningsColumns = [
+        {
+            label: "Earning",
+            render: (item) => item.item_name,
+        },
+        {
+            label: "Amount",
+            render: (item) => (
+                <span style={{ fontFamily: "monospace", color: "#059669", fontWeight: "600" }}>
+                    {formatCurrency(item.amount)}
+                </span>
+            ),
+        },
+    ];
+
+    const deductionsColumns = [
+        {
+            label: "Deduction",
+            render: (item) => item.item_name,
+        },
+        {
+            label: "Amount",
+            render: (item) => (
+                <span style={{ fontFamily: "monospace", color: "#dc2626", fontWeight: "600" }}>
+                    ({formatCurrency(item.amount)})
+                </span>
+            ),
+        },
+    ];
 
     return (
         <div id="payslip-a4" style={{
@@ -56,7 +72,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
             }}>
                 <div>
                     <div style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", lineHeight: 1.2 }}>
-                        {company?.name || "—"}
+                        {company?.name || "ï¿½"}
                     </div>
                     {company?.address && (
                         <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>{company.address}</div>
@@ -79,7 +95,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
                         {cycle?.cycle_name}
                     </div>
                     <div style={{ color: "#64748b", fontSize: "12px" }}>
-                        {formatDate(cycle?.start_date)} — {formatDate(cycle?.end_date)}
+                        {formatDate(cycle?.start_date)} ï¿½ {formatDate(cycle?.end_date)}
                     </div>
                     <div style={{
                         marginTop: "6px", display: "inline-block",
@@ -100,11 +116,11 @@ const A4Payslip = ({ slip, cycle, company }) => {
             }}>
                 {[
                     ["Employee Name", `${slip.employees?.first_name || ""} ${slip.employees?.last_name || ""}`],
-                    ["Employee Code", slip.employees?.employees_code || "—"],
-                    ["Department", slip.employees?.department?.dept_name || "—"],
-                    ["Position", slip.employees?.position?.pos_name || "—"],
-                    ["Base Salary", `ß${formatCurrency(slip.salaries_at_time)}`],
-                    ["Pay Period", `${formatDate(cycle?.start_date)} — ${formatDate(cycle?.end_date)}`],
+                    ["Employee Code", slip.employees?.employees_code || "ï¿½"],
+                    ["Department", slip.employees?.department?.dept_name || "ï¿½"],
+                    ["Position", slip.employees?.position?.pos_name || "ï¿½"],
+                    ["Base Salary", `ï¿½${formatCurrency(slip.salaries_at_time)}`],
+                    ["Pay Period", `${formatDate(cycle?.start_date)} ï¿½ ${formatDate(cycle?.end_date)}`],
                 ].map(([label, value], i) => (
                     <div key={i} style={{
                         padding: "10px 14px",
@@ -132,22 +148,19 @@ const A4Payslip = ({ slip, cycle, company }) => {
                     }}>
                         Earnings
                     </div>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                            {earnings.map((item) => row(item.item_name, item.amount, "#059669"))}
-                            <tr style={{ backgroundColor: "#ecfdf5" }}>
-                                <td style={{ padding: "9px 14px", fontWeight: "800", fontSize: "13px" }}>
-                                    Total Earnings
-                                </td>
-                                <td style={{
-                                    padding: "9px 14px", textAlign: "right", fontFamily: "monospace",
-                                    fontWeight: "800", fontSize: "14px", color: "#059669",
-                                }}>
-                                    {formatCurrency(slip.total_earning)}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <Table columns={earningsColumns} data={earnings} />
+                    <div style={{
+                        display: "grid", gridTemplateColumns: "1fr auto",
+                        padding: "9px 14px", backgroundColor: "#ecfdf5", fontWeight: "800", fontSize: "13px"
+                    }}>
+                        <div>Total Earnings</div>
+                        <div style={{
+                            fontFamily: "monospace",
+                            fontSize: "14px", color: "#059669",
+                        }}>
+                            {formatCurrency(slip.total_earning)}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Deductions */}
@@ -159,22 +172,19 @@ const A4Payslip = ({ slip, cycle, company }) => {
                     }}>
                         Deductions
                     </div>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                            {deductions.map((item) => row(item.item_name, item.amount, "#dc2626", true))}
-                            <tr style={{ backgroundColor: "#fef2f2" }}>
-                                <td style={{ padding: "9px 14px", fontWeight: "800", fontSize: "13px" }}>
-                                    Total Deductions
-                                </td>
-                                <td style={{
-                                    padding: "9px 14px", textAlign: "right", fontFamily: "monospace",
-                                    fontWeight: "800", fontSize: "14px", color: "#dc2626",
-                                }}>
-                                    ({formatCurrency(totalDeductions)})
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <Table columns={deductionsColumns} data={deductions} />
+                    <div style={{
+                        display: "grid", gridTemplateColumns: "1fr auto",
+                        padding: "9px 14px", backgroundColor: "#fef2f2", fontWeight: "800", fontSize: "13px"
+                    }}>
+                        <div>Total Deductions</div>
+                        <div style={{
+                            fontFamily: "monospace",
+                            fontSize: "14px", color: "#dc2626",
+                        }}>
+                            ({formatCurrency(totalDeductions)})
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -188,12 +198,12 @@ const A4Payslip = ({ slip, cycle, company }) => {
                         Net Pay
                     </div>
                     <div style={{ fontSize: "28px", fontWeight: "900", fontFamily: "monospace", marginTop: "4px" }}>
-                        ß{formatCurrency(slip.net_pay)}
+                        ï¿½{formatCurrency(slip.net_pay)}
                     </div>
                 </div>
                 <div style={{ textAlign: "right", fontSize: "12px", color: "#94a3b8", lineHeight: "1.8" }}>
-                    <div>Gross Earnings &nbsp;&nbsp; ß{formatCurrency(slip.total_earning)}</div>
-                    <div>Total Deductions &nbsp; (ß{formatCurrency(totalDeductions)})</div>
+                    <div>Gross Earnings &nbsp;&nbsp; ï¿½{formatCurrency(slip.total_earning)}</div>
+                    <div>Total Deductions &nbsp; (ï¿½{formatCurrency(totalDeductions)})</div>
                 </div>
             </div>
 
@@ -211,7 +221,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
             </div>
             {/* Footer note */}
             <div style={{ marginTop: "16px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
-                This payslip is computer-generated. Payroll cycle: {cycle?.cycle_name} — Records are immutable once the cycle is closed.
+                This payslip is computer-generated. Payroll cycle: {cycle?.cycle_name} ï¿½ Records are immutable once the cycle is closed.
             </div>
         </div>
     );
@@ -324,20 +334,20 @@ const PayslipsReportPage = () => {
 
             label: "Department",
             render: (row) => (
-                <span style={{ fontSize: "13px" }}>{row.employees?.department?.dept_name || "—"}</span>
+                <span style={{ fontSize: "13px" }}>{row.employees?.department?.dept_name || "ï¿½"}</span>
             ),
         },
         {
             label: "Position",
             render: (row) => (
-                <span style={{ fontSize: "13px" }}>{row.employees?.position?.pos_name || "—"}</span>
+                <span style={{ fontSize: "13px" }}>{row.employees?.position?.pos_name || "ï¿½"}</span>
             ),
         },
         {
             label: "Gross Earnings",
             render: (row) => (
                 <span style={{ fontFamily: "monospace", color: "#059669", fontWeight: "600" }}>
-                    ß{formatCurrency(row.total_earning)}
+                    ï¿½{formatCurrency(row.total_earning)}
                 </span>
             ),
         },
@@ -345,7 +355,7 @@ const PayslipsReportPage = () => {
             label: "Net Pay",
             render: (row) => (
                 <span style={{ fontFamily: "monospace", fontWeight: "700", color: "#0f172a", fontSize: "14px" }}>
-                    ß{formatCurrency(row.net_pay)}
+                    ï¿½{formatCurrency(row.net_pay)}
                 </span>
             ),
         },
@@ -390,7 +400,7 @@ const PayslipsReportPage = () => {
                         />
                         {selectedCycle && (
                             <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
-                                Period: <strong>{formatDate(selectedCycle.start_date)}</strong> —&nbsp;
+                                Period: <strong>{formatDate(selectedCycle.start_date)}</strong> ï¿½&nbsp;
                                 <strong>{formatDate(selectedCycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                             </div>
@@ -421,7 +431,7 @@ const PayslipsReportPage = () => {
                     backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000,
                     overflowY: "auto",
                 }}>
-                    {/* Toolbar — hidden on print */}
+                    {/* Toolbar ï¿½ hidden on print */}
                     <div id="payslip-toolbar" style={{
                         position: "sticky", top: 0, zIndex: 1,
                         backgroundColor: "#1e293b",

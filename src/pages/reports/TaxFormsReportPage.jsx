@@ -19,6 +19,32 @@ const fd = (d) => {
 const A4PND1 = ({ data }) => {
     if (!data) return null;
     const { cycle, company, rows = [], total_gross, total_tax, total_sso } = data;
+
+    const printColumns = [
+        { label: "#", render: (r, i) => i + 1 },
+        { label: "Companies", render: (r) => r.companies_name },
+        { label: "Code", render: (r) => r.employees_code },
+        { label: "Employee Name", render: (r) => `${r.first_name} ${r.last_name}` },
+        {
+            label: "Gross Income",
+            headerStyle: { textAlign: "right" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace" },
+            render: (r) => `฿${fc(r.gross_income)}`,
+        },
+        {
+            label: "SSO (Emp)",
+            headerStyle: { textAlign: "right" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace" },
+            render: (r) => fc(r.sso_amount),
+        },
+        {
+            label: "Tax Withheld",
+            headerStyle: { textAlign: "right" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "#dc2626" },
+            render: (r) => fc(r.tax_withheld),
+        },
+    ];
+
     return (
         <div
             id="pnd1-a4"
@@ -38,36 +64,22 @@ const A4PND1 = ({ data }) => {
                 </div>
             </div>
             {/* Table */}
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                <thead>
-                    <tr style={{ backgroundColor: "#1e293b", color: "#fff" }}>
-                        {["#", "Companies", "Code", "Employee Name", "Gross Income", "SSO (Emp)", "Tax Withheld"].map((h) => (
-                            <th key={h} style={{ padding: "8px 10px", textAlign: h.startsWith("Gross") || h.startsWith("SSO") || h.startsWith("Tax") ? "right" : "left", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows.map((r, i) => (
-                        <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#fff" : "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
-                            <td style={{ padding: "7px 10px" }}>{i + 1}</td>
-                            <td style={{ padding: "7px 10px" }}>{r.companies_name}</td>
-                            <td style={{ padding: "7px 10px" }}>{r.employees_code}</td>
-                            <td style={{ padding: "7px 10px" }}>{r.first_name} {r.last_name}</td>
-                            <td style={{ padding: "7px 10px", textAlign: "right", fontFamily: "monospace" }}>฿{fc(r.gross_income)}</td>
-                            <td style={{ padding: "7px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(r.sso_amount)}</td>
-                            <td style={{ padding: "7px 10px", textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "#dc2626" }}>{fc(r.tax_withheld)}</td>
+            <Table
+                columns={printColumns}
+                data={rows}
+                density="compact"
+                renderAfterRow={(row, rowIndex, allRows) => {
+                    if (rowIndex !== allRows.length - 1) return null;
+                    return (
+                        <tr style={{ backgroundColor: "#0f172a", color: "#fff", fontWeight: "800" }}>
+                            <td colSpan={4} style={{ padding: "10px 10px" }}>Total</td>
+                            <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>฿{fc(total_gross)}</td>
+                            <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_sso)}</td>
+                            <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_tax)}</td>
                         </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr style={{ backgroundColor: "#0f172a", color: "#fff", fontWeight: "800" }}>
-                        <td colSpan={4} style={{ padding: "10px 10px" }}>Total</td>
-                        <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>฿{fc(total_gross)}</td>
-                        <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_sso)}</td>
-                        <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_tax)}</td>
-                    </tr>
-                </tfoot>
-            </table>
+                    );
+                }}
+            />
             {/* Signature */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #e2e8f0" }}>
                 {["HR / Payroll Officer", "Authorised Signatory"].map((l) => (

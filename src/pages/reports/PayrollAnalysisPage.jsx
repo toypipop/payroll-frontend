@@ -212,62 +212,30 @@ const PayrollAnalysisPage = () => {
         },
     ];
 
-    // Build extended table rows with inline detail expansion
-    const expandedRows = useMemo(() => {
-        const result = [];
-        transactions.forEach((tx) => {
-            result.push({ ...tx, _type: "tx" });
-            if (expandedTx === tx.id) {
-                result.push({ ...tx, _type: "detail" });
-            }
-        });
-        return result;
-    }, [transactions, expandedTx]);
-
-    // Custom register table with expandable rows
-    const RegisterTable = () => (
-        <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, textAlign: "left" }}>
-                <thead style={{ backgroundColor: "#f8fafc" }}>
-                    <tr>
-                        {registerColumns.map((col, i) => (
-                            <th key={i} style={{ padding: "11px 20px", fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.07em", borderBottom: "1px solid #e2e8f0", whiteSpace: "nowrap" }}>
-                                {col.label}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {expandedRows.map((row, rowIndex) => {
-                        if (row._type === "detail") {
-                            return (
-                                <tr key={`detail-${row.id}`}>
-                                    <td colSpan={registerColumns.length} style={{ padding: 0, borderBottom: "1px solid #e2e8f0" }}>
-                                        <DetailPanel tx={row} />
-                                    </td>
-                                </tr>
-                            );
-                        }
-                        const isEven = rowIndex % 2 === 0;
-                        return (
-                            <tr
-                                key={row.id}
-                                style={{ backgroundColor: isEven ? "#ffffff" : "#f8fafc" }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0effe")}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isEven ? "#ffffff" : "#f8fafc")}
+    // Custom register table wrapper component
+    const RegisterTable = () => {
+        return (
+            <Table
+                columns={registerColumns}
+                data={transactions}
+                getRowKey={(row) => row.id}
+                renderAfterRow={(row, rowIndex, allRows) => {
+                    if (expandedTx !== row.id) return null;
+                    const isLastRow = rowIndex === allRows.length - 1;
+                    return (
+                        <tr style={{ backgroundColor: "#f8fafc" }}>
+                            <td
+                                colSpan={registerColumns.length}
+                                style={{ padding: 0, borderBottom: isLastRow ? "none" : "1px solid #e2e8f0" }}
                             >
-                                {registerColumns.map((col, ci) => (
-                                    <td key={ci} style={{ padding: "13px 20px", fontSize: "14px", color: "#1e293b", borderBottom: "1px solid #e2e8f0", lineHeight: "1.55" }}>
-                                        {col.render ? col.render(row) : null}
-                                    </td>
-                                ))}
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div>
-    );
+                                <DetailPanel tx={row} />
+                            </td>
+                        </tr>
+                    );
+                }}
+            />
+        );
+    };
 
     return (
         <>

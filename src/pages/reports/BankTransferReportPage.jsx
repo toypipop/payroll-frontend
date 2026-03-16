@@ -46,6 +46,24 @@ const exportCSV = (rows, company, cycle) => {
 const A4BankSummary = ({ data }) => {
     if (!data) return null;
     const { cycle, company, rows = [], total_net_pay } = data;
+
+    const summaryColumns = [
+        { label: "#", render: (r, i) => i + 1 },
+        { label: "Companies", render: (r) => r.companies_name },
+        { label: "Code", render: (r) => r.employees_code },
+        { label: "Employee Name", render: (r) => `${r.first_name} ${r.last_name}` },
+        { label: "Bank", render: (r) => r.bank_name || "—" },
+        { label: "Account No", render: (r) => <span style={{ fontFamily: "monospace" }}>{r.account_no || "—"}</span> },
+        {
+            label: "Net Pay",
+            render: (r) => (
+                <span style={{ fontFamily: "monospace", fontWeight: "600", color: "#0f172a" }}>
+                    ฿{fc(r.net_pay)}
+                </span>
+            ),
+        },
+    ];
+
     return (
         <div
             id="bank-summary-a4"
@@ -69,34 +87,17 @@ const A4BankSummary = ({ data }) => {
                 </div>
             </div>
             {/* Table */}
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                <thead>
-                    <tr style={{ backgroundColor: "#f1f5f9" }}>
-                        {["#", "Companies", "Code", "Employee Name", "Bank", "Account No", "Net Pay"].map((h) => (
-                            <th key={h} style={{ padding: "7px 10px", textAlign: "left", fontWeight: "700", color: "#64748b", borderBottom: "2px solid #e2e8f0", fontSize: "11px", textTransform: "uppercase" }}>{h}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows.map((r, i) => (
-                        <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#fff" : "#f8fafc" }}>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9" }}>{i + 1}</td>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9" }}>{r.companies_name}</td>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9" }}>{r.employees_code}</td>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9" }}>{r.first_name} {r.last_name}</td>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9" }}>{r.bank_name || "—"}</td>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9", fontFamily: "monospace" }}>{r.account_no || "—"}</td>
-                            <td style={{ padding: "7px 10px", borderBottom: "1px solid #f1f5f9", textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "#0f172a" }}>฿{fc(r.net_pay)}</td>
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr style={{ backgroundColor: "#0f172a", color: "#fff" }}>
-                        <td colSpan={6} style={{ padding: "10px 10px", fontWeight: "800", fontSize: "13px" }}>Total Net Pay</td>
-                        <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace", fontWeight: "900", fontSize: "15px" }}>฿{fc(total_net_pay)}</td>
-                    </tr>
-                </tfoot>
-            </table>
+            <Table columns={summaryColumns} data={rows} />
+            <div style={{
+                display: "grid", gridTemplateColumns: "1fr auto",
+                backgroundColor: "#0f172a", color: "#fff",
+                padding: "10px",
+            }}>
+                <div style={{ fontWeight: "800", fontSize: "13px" }}>Total Net Pay</div>
+                <div style={{ textAlign: "right", fontFamily: "monospace", fontWeight: "900", fontSize: "15px" }}>
+                    ฿{fc(total_net_pay)}
+                </div>
+            </div>
             <div style={{ marginTop: "40px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
                 Bank Transfer Summary — {company?.name} — {cycle?.cycle_name} — Records are immutable once the cycle is closed.
             </div>
