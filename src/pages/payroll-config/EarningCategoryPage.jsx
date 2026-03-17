@@ -114,7 +114,7 @@ const EarningCategoryPage = () => {
 
             <Card style={{ marginBottom: "24px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                    <span style={sectionTitle}>Earning Categories</span>
+                    <span style={sectionTitle}>Earning & Deduction</span>
                     <Button onClick={() => openCreateModal("earning")} style={{ width: "auto" }}>+ Add</Button>
                 </div>
                 {loading ? <div style={{ padding: "20px", textAlign: "center" }}>Loading...</div> : <Table columns={makeColumns("earning")} data={earningCats} />}

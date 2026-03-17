@@ -7,17 +7,11 @@ const SelectField = forwardRef(
         const [hovered, setHovered] = useState(null);
         const [searchTerm, setSearchTerm] = useState("");
         const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
-        // Internal state handles both controlled (value prop) and RHF register (no value prop)
         const [internalValue, setInternalValue] = useState(value ?? "");
         const triggerRef = useRef(null);
         const hiddenRef = useRef(null);
         const searchInputRef = useRef(null);
-
-        // Sync when controlled value changes from outside
-        useEffect(() => {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            if (value !== undefined) setInternalValue(value);
-        }, [value]);
+        const pollIntervalRef = useRef(null);
 
         // Merge RHF ref with our internal ref
         const setRefs = (el) => {
@@ -25,6 +19,38 @@ const SelectField = forwardRef(
             if (typeof ref === "function") ref(el);
             else if (ref) ref.current = el;
         };
+
+        // When value prop changes (controlled mode), update internal state
+        useEffect(() => {
+            if (value !== undefined) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setInternalValue(String(value));
+            }
+        }, [value]);
+
+        // Watch the hidden ref's value when using React Hook Form (uncontrolled)
+        useEffect(() => {
+            if (value === undefined && hiddenRef.current) {
+                // Initial sync from ref
+                const refVal = hiddenRef.current.value;
+                if (refVal) {
+                    setInternalValue(refVal);
+                }
+
+                // Poll for changes from React Hook Form's setValue()
+                if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = setInterval(() => {
+                    if (hiddenRef.current) {
+                        const currentRefVal = hiddenRef.current.value;
+                        setInternalValue((prev) => currentRefVal || prev);
+                    }
+                }, 50);
+
+                return () => {
+                    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+                };
+            }
+        }, [value]);
 
         const displayValue = value !== undefined ? value : internalValue;
         const selectedOption = options.find((o) => String(o.id) === String(displayValue));
@@ -205,7 +231,6 @@ const SelectField = forwardRef(
                     <select
                         ref={setRefs}
                         name={name}
-                        value={displayValue}
                         disabled={disabled}
                         onBlur={onBlur}
                         onChange={() => {}}

@@ -13,9 +13,12 @@ const formatCurrency = (val) =>
 const RunPayrollPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
+    const [selectedCycle, setSelectedCycle] = useState(null);  // FIX Issue 1: Track full cycle object (includes companies_id)
     const [transactions, setTransactions] = useState([]);
+    const [payrollConfig, setPayrollConfig] = useState(null);  // FIX: Store cycle's config
     const [loadingCycles, setLoadingCycles] = useState(true);
     const [loadingTx, setLoadingTx] = useState(false);
+    const [loadingConfig, setLoadingConfig] = useState(false);  // FIX: Track config loading state
     const [calculating, setCalculating] = useState(false);
     const [calcResult, setCalcResult] = useState(null);
 
@@ -26,7 +29,8 @@ const RunPayrollPage = () => {
             const open = (res.data || []).filter((c) => !c.is_closed);
             setCycles(open);
             if (open.length > 0) {
-                setSelectedCycleId(open[0].id);
+                setSelectedCycleId(String(open[0].id));
+                setSelectedCycle(open[0]);  // FIX: Store the cycle object
             }
         } catch (err) {
             console.error(err);
@@ -39,9 +43,9 @@ const RunPayrollPage = () => {
         if (!cycleId) return;
         try {
             setLoadingTx(true);
-            setCalcResult(null);
             const res = await api.get(`/payroll/transactions/${cycleId}`);
-            setTransactions(res.data.transactions || []);
+            // FIX Issue 2: Create new array reference to trigger React re-render (immutability)
+            setTransactions([...(res.data.transactions || [])]);
         } catch (err) {
             setTransactions([]);
             if (err.response?.status !== 404) console.error(err);
@@ -50,17 +54,67 @@ const RunPayrollPage = () => {
         }
     };
 
+    // FIX Issue 1: New function to fetch payroll config for the SELECTED CYCLE'S COMPANY
+    // This ensures we use the cycle's company config, not the current user's company config
+    const fetchPayrollConfigForCycle = async (cycle) => {
+        if (!cycle?.id) {
+            console.warn("Cannot fetch config: cycle object missing or invalid", cycle);
+            setPayrollConfig(null);
+            return;
+        }
+        try {
+            setLoadingConfig(true);
+            console.log("Fetching config for cycle:", cycle.id, "Company:", cycle.companies?.name || cycle.companies_id);
+            const res = await api.get(`/payroll/config/${cycle.id}`);
+            console.log("Config response:", res.data);
+            if (res.data?.config) {
+                setPayrollConfig(res.data.config);
+                console.log("Config set successfully:", res.data.config);
+            } else {
+                console.warn("Config response missing config field:", res.data);
+                setPayrollConfig(null);
+            }
+        } catch (err) {
+            console.error("Failed to fetch payroll config:", err.response?.data || err.message);
+            setPayrollConfig(null);
+        } finally {
+            setLoadingConfig(false);
+        }
+    };
+
     useEffect(() => { fetchCycles(); }, []);
-    useEffect(() => { fetchTransactions(selectedCycleId); }, [selectedCycleId]);
+
+    // FIX Issue 1: When cycle ID changes, find the cycle object and fetch its config
+    useEffect(() => {
+        if (selectedCycleId && cycles.length > 0) {
+            const cycle = cycles.find((c) => String(c.id) === String(selectedCycleId));
+            if (cycle) {
+                setSelectedCycle(cycle);
+                fetchTransactions(selectedCycleId);
+                // CRITICAL FIX: Fetch config for THIS cycle's company (not current user's company)
+                fetchPayrollConfigForCycle(cycle);
+            }
+        }
+    }, [selectedCycleId, cycles]);
 
     const handleCalculate = async () => {
-        if (!selectedCycleId) return;
-        if (!window.confirm("Run payroll calculation for this cycle? Existing results will be recalculated.")) return;
+        if (!selectedCycleId || !selectedCycle) return;
+        if (!window.confirm("Run payroll calculation for this cycle? Existing results will be recalculated with current SSO parameters.")) return;
         try {
             setCalculating(true);
             setCalcResult(null);
+            setTransactions([]);  // Clear existing data for fresh re-render
+
+            // FIX Issue 1: Refresh config before calculation to ensure latest values
+            // This guarantees the "Current SSO Parameters" display matches calculation
+            await fetchPayrollConfigForCycle(selectedCycle);
+
+            // Send calculation request
             const res = await api.post(`/payroll/calculate/${selectedCycleId}`);
             setCalcResult(res.data);
+
+            // FIX Issue 2: Fetch transactions AND ensure table re-renders
+            // Using new array reference to trigger React re-render
             await fetchTransactions(selectedCycleId);
         } catch (err) {
             alert(err.response?.data?.error || "Calculation failed");
@@ -163,7 +217,13 @@ const RunPayrollPage = () => {
                                 label="Select Open Cycle"
                                 options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                                 value={selectedCycleId}
-                                onChange={(e) => setSelectedCycleId(e.target.value)}
+                                onChange={(e) => {
+                                    const cycleId = e.target.value;
+                                    setSelectedCycleId(cycleId);
+                                    // FIX: Immediately update selectedCycle object from cycles array
+                                    const cycle = cycles.find((c) => String(c.id) === String(cycleId));
+                                    if (cycle) setSelectedCycle(cycle);
+                                }}
                                 containerStyle={{ marginBottom: 0 }}
                             />
                         )}
@@ -181,6 +241,49 @@ const RunPayrollPage = () => {
                         {calculating ? "⏳ Calculating..." : "▶ Run Calculation"}
                     </Button>
                 </div>
+
+                {/* FIX Issue 1: Display Current SSO Parameters - Uses Cycle's Company Config */}
+                {loadingConfig ? (
+                    <div style={{
+                        marginTop: "16px", padding: "12px 14px",
+                        borderRadius: "6px", backgroundColor: "#f3f4f6",
+                        border: "1px solid #d1d5db", color: "#6b7280", fontSize: "12px",
+                    }}>
+                        ⏳ Loading SSO parameters for {selectedCycle?.companies?.name || "selected company"}...
+                    </div>
+                ) : !selectedCycle ? (
+                    <div style={{
+                        marginTop: "16px", padding: "12px 14px",
+                        borderRadius: "6px", backgroundColor: "#fef3c7",
+                        border: "1px solid #f59e0b", color: "#78350f", fontSize: "12px",
+                    }}>
+                        ℹ️ Select a payroll cycle to view SSO parameters
+                    </div>
+                ) : !payrollConfig ? (
+                    <div style={{
+                        marginTop: "16px", padding: "12px 14px",
+                        borderRadius: "6px", backgroundColor: "#fee2e2",
+                        border: "1px solid #fca5a5", color: "#991b1b", fontSize: "12px",
+                    }}>
+                        ⚠️ Unable to load SSO configuration for <strong>{selectedCycle?.companies?.name || "this company"}</strong>. Please verify Payroll Setup has been configured.
+                    </div>
+                ) : payrollConfig ? (
+                    <div style={{
+                        marginTop: "16px", padding: "12px 14px",
+                        borderRadius: "6px", backgroundColor: "#fef3c7",
+                        border: "2px solid #f59e0b", color: "#78350f", fontSize: "12px", fontWeight: "600",
+                    }}>
+                        <div style={{ marginBottom: "8px" }}>
+                            📊 <strong>CURRENT SSO PARAMETERS FOR {selectedCycle?.companies?.name?.toUpperCase() || "CYCLE"}</strong>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "10px", fontSize: "11px", fontWeight: "400" }}>
+                            <div>Rate: <strong>{payrollConfig.sso_rate}%</strong></div>
+                            <div>Max: <strong>฿{formatCurrency(payrollConfig.sso_max_amount)}</strong></div>
+                            <div>Min Salary: <strong>฿{formatCurrency(payrollConfig.sso_min_salary)}</strong></div>
+                            <div>Tax: <strong>{payrollConfig.tax_calculation || "Progressive"}</strong></div>
+                        </div>
+                    </div>
+                ) : null}
 
                 {/* Calculation result banner */}
                 {calcResult && (
