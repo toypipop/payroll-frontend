@@ -105,7 +105,7 @@ const A4BankSummary = ({ data }) => {
     );
 };
 
-/* ── Page Component ─────────────────────────────────────────────────────── */
+// Page component
 const BankTransferReportPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");

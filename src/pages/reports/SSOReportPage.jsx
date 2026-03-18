@@ -139,7 +139,7 @@ const exportEFiling = (data) => {
     URL.revokeObjectURL(url);
 };
 
-/* ── Page Component ─────────────────────────────────────────────────────── */
+// Page component
 const SSOReportPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");

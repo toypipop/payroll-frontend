@@ -156,7 +156,7 @@ const A4Tawi50 = ({ data }) => {
     );
 };
 
-/* ── Page Component ─────────────────────────────────────────────────────── */
+// Page component
 const TaxFormsReportPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
@@ -249,11 +249,9 @@ const TaxFormsReportPage = () => {
         },
     ];
 
-    // The PND1 table has employees_id via the row — but the API returns EmployeesCode not ID.
-    // We need to find the transaction ID to fetch 50 Tawi. Enrich rows from pnd1Data:
-    // Actually, GetTax50Tawi takes transaction_id, not employees_id.
-    // We need to fetch the transaction list too. Let's use a simpler approach:
-    // fetch the normal transactions list and store tx IDs keyed by employees_code.
+    // PND1 has employees via transaction
+    // API returns EmployeesCode not ID
+    // Fetch transaction list, store IDs by code
     const [txMap, setTxMap] = useState({}); // employees_code -> tx.id
 
     useEffect(() => {

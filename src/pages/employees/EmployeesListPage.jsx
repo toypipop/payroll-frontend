@@ -14,7 +14,7 @@ import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
 
-/* --- 1. Validation Schema (English Comment) --- */
+// Validation schema for employee
 const createEmployeesSchema = (isEditing, requireCompany) => z.object({
     employees_code: z.string().min(2, "Employees code is required"),
     first_name: z.string().min(1, "First name is required"),
@@ -44,14 +44,14 @@ const EmployeesListPage = () => {
     const [masterCompanies, setMasterCompanies] = useState([]);
     const [masterBanks, setMasterBanks] = useState([]);
     const [masterEmploymentTypes, setMasterEmploymentTypes] = useState([]);
-    // Bank account state (controlled separately from react-hook-form)
+    // Bank account state separate from form
     const [bankData, setBankData] = useState({ bank_id: "", account_name: "", account_no: "" });
     const [bankLoading, setBankLoading] = useState(false);
     const [bankErrors, setBankErrors] = useState({ bank_id: "", account_name: "", account_no: "" });
 
     // Ref to skip cascade-reset during edit initialization
     const isEditLoading = useRef(false);
-    // Refs for dynamic resolver (avoids stale closures in useCallback)
+    // Refs for dynamic resolver
     const editingIdRef = useRef(null);
     const requireCompanyRef = useRef(false);
 
@@ -63,7 +63,7 @@ const EmployeesListPage = () => {
         []
     );
 
-    /* --- 2. Initialize Hook Form (English Comment) --- */
+    // Initialize form with hook form
     const {
         register,
         handleSubmit,
@@ -91,7 +91,7 @@ const EmployeesListPage = () => {
     // Watch selected company to drive cascading filter
     const selectedCompaniesId = watch("companies_id");
 
-    // Cascade filter: when company changes (user action only), clear dependent fields
+    // Clear dependent fields on company change
     useEffect(() => {
         if (isEditLoading.current) return;
         if (masterCompanies.length > 0 && selectedCompaniesId) {
@@ -101,7 +101,7 @@ const EmployeesListPage = () => {
         }
     }, [selectedCompaniesId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Filtered options — only apply when super-admin (masterCompanies visible) and a company is chosen
+    // Apply filters for super-admin only
     const filteredDepts = masterCompanies.length > 0 && selectedCompaniesId
         ? masterDepts.filter((d) => String(d.companies_id) === String(selectedCompaniesId))
         : masterDepts;
@@ -137,7 +137,7 @@ const EmployeesListPage = () => {
                 setMasterBanks((banksRes.data || []).map((b) => ({ id: b.id, name: `${b.bank_code} — ${b.bank_name}` })));
                 setMasterEmploymentTypes((empTypesRes.data || []).map((t) => ({ id: t.id, name: t.name })));
 
-                // Ensure the property names (d.dept_name, p.pos_name, r.roles_name)
+                // Check property names from API
                 // match your Backend JSON response (English Comment)
                 setMasterDepts(
                     deptRes.data.map((d) => ({
@@ -170,14 +170,14 @@ const EmployeesListPage = () => {
                 setMasterCompanies(companiesData);
                 requireCompanyRef.current = companiesData.length > 0;
             } catch {
-                // Non-super-admin users may not have permission — handled gracefully
+                // Non-admins handled gracefully
             }
         };
         fetchMasterData();
         fetchEmployees();
     }, []);
 
-    /* --- 3. Refactored Submit Handler (English Comment) --- */
+    // Submit handler for form
     const validateBank = () => {
         const { bank_id, account_name, account_no } = bankData;
         const errs = {
@@ -238,7 +238,7 @@ const EmployeesListPage = () => {
         setValue("roles_id", emp.roles_id?.toString() || "");
         setValue("companies_id", emp.companies_id?.toString() || "");
         setValue("employment_type_id", emp.employment_type_id?.toString() || "");
-        // Allow cascade effect to run freely after all values are set
+        // Allow cascade to run after all values set
         setTimeout(() => { isEditLoading.current = false; }, 0);
         // Load existing bank account
         setBankLoading(true);

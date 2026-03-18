@@ -12,7 +12,7 @@ import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
-/* --- 1. Define Department Schema (English Comment) --- */
+// Department schema definition
 const departmentSchema = z.object({
     dept_name: z.string().min(1, "Department name is required"),
     companies_id: z.coerce.number().min(1, "Please select a companies"),
@@ -97,7 +97,7 @@ const DepartmentSettings = () => {
         }
     };
 
-    /* --- 2. Table Column Definition (English Comment) --- */
+    // Table columns configuration
     const columns = [
         { label: "Department Name", key: "dept_name" },
         { 
@@ -161,12 +161,12 @@ const DepartmentSettings = () => {
                     </>
                 }
             >
-                {/* --- 4. Form Fields using your SelectField props (English Comment) --- */}
+                // Form fields with SelectField
                 <SelectField
                     label="Companies"
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
-                    /* Mapping data to match your SelectField's opt.id and opt.name */
+                    // Map data to SelectField format
                     options={companies.map((c) => ({
                         id: c.id || c.ID,
                         name: c.name

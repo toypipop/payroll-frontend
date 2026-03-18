@@ -15,7 +15,7 @@ import DateTimeField from "../../components/common/DateTimeField";
 import SelectField from "../../components/common/SelectField";
 import { Controller } from "react-hook-form";
 
-/* --- 1. Validation Schema (English Comment) --- */
+// Validation schema for timelog form
 const timeLogSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
     check_in: z.date({
@@ -46,7 +46,7 @@ const TimelogsListPage = () => {
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterWorkLocations, setMasterWorkLocations] = useState([]);
 
-    /* --- 2. Initialize Hook Form (English Comment) --- */
+    // Initialize form with hook form
     const {
         register,
         handleSubmit,
@@ -101,7 +101,7 @@ const TimelogsListPage = () => {
         fetchTimeLogs();
     }, []);
 
-    /* --- 3. Submit Handler with Time Conversion (English Comment) --- */
+    // Submit handler with time conversion
     const onSubmit = async (data) => {
         try {
             const payload = {
@@ -128,7 +128,7 @@ const TimelogsListPage = () => {
         setEditingId(log.ID || log.id);
         setValue("employees_id", log.employees_id?.toString());
 
-        // Helper to ensure we have a valid Date object or null (English Comment)
+        // Ensure valid Date object or null
         const parseDate = (isoString) => {
             return isoString ? new Date(isoString) : null;
         };

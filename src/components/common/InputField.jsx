@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 
-/* --- Wrap with forwardRef to allow React Hook Form to control the input (English Comment) --- */
+// Wrap with forwardRef for React Hook Form
 const InputField = forwardRef(
     (
         {
@@ -56,7 +56,7 @@ const InputField = forwardRef(
                     type={type}
                     placeholder={placeholder}
                     style={styles.input}
-                    /* --- Extract handlers from props or use default behavior (English Comment) --- */
+                    // Extract handlers or use defaults
                     {...props}
                     onFocus={(e) => {
                         if (!error)

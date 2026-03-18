@@ -13,7 +13,7 @@ const formatCurrency = (val) =>
 const RunPayrollPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [selectedCycle, setSelectedCycle] = useState(null);  // FIX Issue 1: Track full cycle object (includes companies_id)
+    const [selectedCycle, setSelectedCycle] = useState(null); // Track cycle object
     const [transactions, setTransactions] = useState([]);
     const [payrollConfig, setPayrollConfig] = useState(null);  // FIX: Store cycle's config
     const [loadingCycles, setLoadingCycles] = useState(true);
@@ -44,7 +44,7 @@ const RunPayrollPage = () => {
         try {
             setLoadingTx(true);
             const res = await api.get(`/payroll/transactions/${cycleId}`);
-            // FIX Issue 2: Create new array reference to trigger React re-render (immutability)
+            // Trigger React re-render via immutability
             setTransactions([...(res.data.transactions || [])]);
         } catch (err) {
             setTransactions([]);
@@ -54,8 +54,7 @@ const RunPayrollPage = () => {
         }
     };
 
-    // FIX Issue 1: New function to fetch payroll config for the SELECTED CYCLE'S COMPANY
-    // This ensures we use the cycle's company config, not the current user's company config
+    // Fetch config for selected cycle's company
     const fetchPayrollConfigForCycle = async (cycle) => {
         if (!cycle?.id) {
             console.warn("Cannot fetch config: cycle object missing or invalid", cycle);
@@ -84,14 +83,14 @@ const RunPayrollPage = () => {
 
     useEffect(() => { fetchCycles(); }, []);
 
-    // FIX Issue 1: When cycle ID changes, find the cycle object and fetch its config
+    // Load cycle and fetch its config
     useEffect(() => {
         if (selectedCycleId && cycles.length > 0) {
             const cycle = cycles.find((c) => String(c.id) === String(selectedCycleId));
             if (cycle) {
                 setSelectedCycle(cycle);
                 fetchTransactions(selectedCycleId);
-                // CRITICAL FIX: Fetch config for THIS cycle's company (not current user's company)
+                // Fetch config for this cycle's company
                 fetchPayrollConfigForCycle(cycle);
             }
         }
@@ -105,15 +104,14 @@ const RunPayrollPage = () => {
             setCalcResult(null);
             setTransactions([]);  // Clear existing data for fresh re-render
 
-            // FIX Issue 1: Refresh config before calculation to ensure latest values
-            // This guarantees the "Current SSO Parameters" display matches calculation
+            // Refresh config before calculation
             await fetchPayrollConfigForCycle(selectedCycle);
 
             // Send calculation request
             const res = await api.post(`/payroll/calculate/${selectedCycleId}`);
             setCalcResult(res.data);
 
-            // FIX Issue 2: Fetch transactions AND ensure table re-renders
+            // Fetch transactions and re-render
             // Using new array reference to trigger React re-render
             await fetchTransactions(selectedCycleId);
         } catch (err) {

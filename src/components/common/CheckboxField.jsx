@@ -1,6 +1,6 @@
 import React from "react";
 
-// Use forwardRef to work seamlessly with react-hook-form (English Comment)
+// Use forwardRef for React Hook Form
 const CheckboxField = React.forwardRef(
     ({ label, error, id, ...props }, ref) => {
         const styles = {

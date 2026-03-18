@@ -15,7 +15,7 @@ const fd = (d) => {
     return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-/* ── Excel / CSV Export ─────────────────────────────────────────────────── */
+// Excel/CSV export utilities
 const exportExcel = (data) => {
     if (!data?.transactions?.length) return;
     const { cycle, company, transactions, summary } = data;
@@ -106,7 +106,7 @@ const DetailPanel = ({ tx }) => {
     );
 };
 
-/* ── Page Component ─────────────────────────────────────────────────────── */
+// Page component
 const PayrollAnalysisPage = () => {
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");

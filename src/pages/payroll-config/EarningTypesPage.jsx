@@ -16,7 +16,7 @@ import Badge from "../../components/common/Badge";
 
 const earningSchema = z.object({
     id: z.number().optional(),
-    // Convert string value from SelectField to number for Backend (English Comment)
+    // Convert SelectField string to number
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
     name: z.string().min(1, "Name is required"),
     category_id: z.coerce.number().optional().nullable(),

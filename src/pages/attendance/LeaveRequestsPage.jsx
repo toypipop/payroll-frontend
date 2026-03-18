@@ -16,11 +16,11 @@ import DateTimeField from "../../components/common/DateTimeField";
 
 import { Controller } from "react-hook-form";
 
-/* --- 1. Validation Schema (English Comment) --- */
+// Validation schema for leave requests
 const leaveSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
     leave_type_id: z.string().min(1, "Please select leave type"),
-    // Change from z.string() to z.any() or z.date() to accept Date objects from DateTimeField
+    // Accept Date from date-time field
     start_date: z.date({
         required_error: "Start date is required",
         invalid_type_error: "Start date is required",
@@ -49,7 +49,7 @@ const LeaveRequestsPage = () => {
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
 
-    /* --- 2. Initialize Hook Form (English Comment) --- */
+    // Initialize form with hook form
     const {
         register,
         handleSubmit,
@@ -129,7 +129,7 @@ const LeaveRequestsPage = () => {
         setEditingId(req.id || req.ID);
         setValue("employees_id", req.employees_id?.toString() || "");
         setValue("leave_type_id", req.leave_type_id?.toString() || "");
-        // Convert string from API back to Date object for DateTimeField
+        // Convert API string to Date for field
         setValue("start_date", req.start_date ? new Date(req.start_date) : null);
         setValue("end_date", req.end_date ? new Date(req.end_date) : null);
         setValue("reason", req.reason || "");

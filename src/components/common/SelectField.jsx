@@ -20,7 +20,7 @@ const SelectField = forwardRef(
             else if (ref) ref.current = el;
         };
 
-        // When value prop changes (controlled mode), update internal state
+        // Update internal state on value change
         useEffect(() => {
             if (value !== undefined) {
                 // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -28,7 +28,7 @@ const SelectField = forwardRef(
             }
         }, [value]);
 
-        // Watch the hidden ref's value when using React Hook Form (uncontrolled)
+        // Watch hidden ref in uncontrolled mode
         useEffect(() => {
             if (value === undefined && hiddenRef.current) {
                 // Initial sync from ref

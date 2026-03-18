@@ -15,7 +15,7 @@ const formatDate = (d) => {
     return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-/* A4 Payslip document */
+// A4 payslip document
 const A4Payslip = ({ slip, cycle, company }) => {
     if (!slip) return null;
 

@@ -60,9 +60,9 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
         },
     };
     return (
-        /* --- 1. Remove onClick from overlay to prevent accidental closing (English Comment) --- */
+        // Remove onClick from overlay
         <div style={styles.overlay}>
-            {/* 2. No need for e.stopPropagation() anymore if overlay has no onClick (English Comment) */}
+            // No onClick so overlay doesn't close
             <div style={styles.modalBox}>
                 <div style={styles.header}>
                     <h3 style={styles.title}>{title}</h3>

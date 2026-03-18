@@ -5,7 +5,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 });
 
-/* --- Request Interceptor (English Comment) --- */
+// Request interceptor
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
@@ -22,23 +22,22 @@ api.interceptors.request.use(
     },
 );
 
-/* --- Response Interceptor for handling 401 (English Comment) --- */
-/* --- Response Interceptor for handling 401 (English Comment) --- */
+// Response interceptor for 401 errors
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         const { response } = error;
 
         if (response && response.status === 401) {
-            // Check if we are already on the login page to prevent infinite loop (English Comment)
+	            // Prevent infinite redirect loop on login page
             const isLoginPage = window.location.pathname === "/login";
 
             if (!isLoginPage) {
-                // Clear local storage (English Comment)
+                // Clear stored auth tokens
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
 
-                // Redirect only if not already on login page (English Comment)
+	                // Redirect to login if not already there
                 window.location.href = "/login";
             }
         }

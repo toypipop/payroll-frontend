@@ -95,7 +95,7 @@ const PositionSettings = () => {
         }
     };
 
-    /* --- Updated Table Columns: Removed ID (English Comment) --- */
+    // Updated table columns without ID
     const columns = [
         {
             label: "Position Name",

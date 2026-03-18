@@ -218,7 +218,7 @@ const categoryRowStyle = {
     borderTop: "1px solid #e2e8f0",
 };
 
-// Permission Matrix component using table structure similar to Table component
+// Permission matrix with table structure
 const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, handleUpdateLocal }) => {
     const flatItems = groupedPermissions.flatMap((group) =>
         (group.items || []).map((item, idx) => ({
