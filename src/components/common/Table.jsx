@@ -139,7 +139,3 @@ const Table = ({
 };
 
 export default Table;
-
-
-
-// กหฟสก่ทหฟกหฟ
