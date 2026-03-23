@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
     // Use the environment variable from .env file
-    baseURL: `${import.meta.env.VITE_API_URL}`,
+    baseURL: import.meta.env.VITE_API_URL,
 });
 
 // Request interceptor
@@ -29,7 +29,7 @@ api.interceptors.response.use(
         const { response } = error;
 
         if (response && response.status === 401) {
-            // Prevent infinite redirect loop on login page
+	            // Prevent infinite redirect loop on login page
             const isLoginPage = window.location.pathname === "/login";
 
             if (!isLoginPage) {
@@ -37,7 +37,7 @@ api.interceptors.response.use(
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
 
-                // Redirect to login if not already there
+	                // Redirect to login if not already there
                 window.location.href = "/login";
             }
         }
