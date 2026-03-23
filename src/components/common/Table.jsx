@@ -1,5 +1,7 @@
 import React from "react";
 
+
+
 const Table = ({
     columns,
     data = [],
@@ -137,3 +139,7 @@ const Table = ({
 };
 
 export default Table;
+
+
+
+// กหฟสก่ทหฟกหฟ
