@@ -11,6 +11,7 @@ import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
+import NumberField from "../../components/common/NumberField";
 import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
 
@@ -212,7 +213,12 @@ const EmployeesListPage = () => {
 
             // Save bank account if any field is filled
             if (savedId && (bankData.bank_id || bankData.account_name || bankData.account_no)) {
-                await api.put(`/employees/${savedId}/bank-account`, bankData).catch(() => {});
+                const bankPayload = {
+                    bank_id: bankData.bank_id ? parseInt(bankData.bank_id) : null,
+                    account_name: bankData.account_name,
+                    account_no: bankData.account_no,
+                };
+                await api.put(`/employees/${savedId}/bank-account`, bankPayload).catch(() => {});
             }
 
             fetchEmployees();
@@ -443,7 +449,7 @@ const EmployeesListPage = () => {
                 {masterEmploymentTypes.length > 0 && (
                     <SelectField
                         label="Employment Type"
-                        options={[{ id: "", name: "— Select —" }, ...masterEmploymentTypes]}
+                        options={masterEmploymentTypes}
                         {...register("employment_type_id")}
                         value={watch("employment_type_id")}
                         error={errors.employment_type_id?.message}
@@ -457,15 +463,15 @@ const EmployeesListPage = () => {
                     error={errors.is_active?.message}
                 />
 
-                {/* Bank Account Section */}
-                <div style={{ borderTop: "1px solid var(--border-color, #e2e8f0)", marginTop: "16px", paddingTop: "16px" }}>
-                    <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted, #64748b)", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                        Bank Account
-                    </div>
-                    {bankLoading ? (
-                        <div style={{ color: "var(--text-muted)", fontSize: "13px" }}>Loading bank data...</div>
-                    ) : (
-                        <>
+                 {/* Bank Account Section */}
+                 <div style={{ borderTop: "1px solid var(--border-color, #e2e8f0)", marginTop: "16px", paddingTop: "16px" }}>
+                     <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted, #64748b)", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                         Bank Account
+                     </div>
+                     {bankLoading ? (
+                         <div style={{ color: "var(--text-muted)", fontSize: "13px" }}>Loading bank data...</div>
+                     ) : (
+                         <>
                             <SelectField
                                 label="Bank"
                                 value={bankData.bank_id}
@@ -473,32 +479,30 @@ const EmployeesListPage = () => {
                                     setBankData((p) => ({ ...p, bank_id: e.target.value }));
                                     if (bankErrors.bank_id) setBankErrors((p) => ({ ...p, bank_id: "" }));
                                 }}
-                                options={[{ id: "", name: "— Select Bank —" }, ...masterBanks]}
+                                options={masterBanks}
                                 error={bankErrors.bank_id}
                             />
-                            <InputField
-                                label="Account Name"
-                                value={bankData.account_name}
-                                onChange={(e) => {
-                                    setBankData((p) => ({ ...p, account_name: e.target.value }));
-                                    if (bankErrors.account_name) setBankErrors((p) => ({ ...p, account_name: "" }));
-                                }}
-                                placeholder="Name on bank account"
-                                error={bankErrors.account_name}
-                            />
-                            <InputField
-                                label="Account No."
-                                value={bankData.account_no}
-                                onChange={(e) => {
-                                    setBankData((p) => ({ ...p, account_no: e.target.value }));
-                                    if (bankErrors.account_no) setBankErrors((p) => ({ ...p, account_no: "" }));
-                                }}
-                                placeholder="e.g. 123-4-56789-0"
-                                error={bankErrors.account_no}
-                            />
-                        </>
-                    )}
-                </div>
+                             <InputField
+                                 label="Account Name"
+                                 value={bankData.account_name}
+                                 onChange={(e) => {
+                                     setBankData((p) => ({ ...p, account_name: e.target.value }));
+                                     if (bankErrors.account_name) setBankErrors((p) => ({ ...p, account_name: "" }));
+                                 }}
+                                 error={bankErrors.account_name}
+                             />
+                             <NumberField
+                                 label="Account No."
+                                 value={bankData.account_no}
+                                 onChange={(e) => {
+                                     setBankData((p) => ({ ...p, account_no: e.target.value }));
+                                     if (bankErrors.account_no) setBankErrors((p) => ({ ...p, account_no: "" }));
+                                 }}
+                                 error={bankErrors.account_no}
+                             />
+                         </>
+                     )}
+                 </div>
             </Modal>
         </>
     );

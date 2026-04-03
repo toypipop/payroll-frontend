@@ -1,6 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import api from '../../api/axiosInstance';
 
 const Navbar = ({ pageTitle = 'Dashboard' }) => {
+  const location = useLocation();
+  const [categoryName, setCategoryName] = useState('System');
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const res = await api.get('/modules');
+        const findParent = (items) => {
+          for (const item of items) {
+            if (item.route_path === location.pathname) {
+              return item;
+            }
+            if (item.children?.length) {
+              const found = findParent(item.children);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        const currentModule = findParent(res.data);
+        if (currentModule?.parent_id) {
+          const parent = res.data.find(m => m.id === currentModule.parent_id);
+          if (parent) setCategoryName(parent.module_name);
+        } else if (pageTitle === 'Dashboard') {
+          setCategoryName('System');
+        }
+      } catch (err) {
+        console.error('Failed to fetch category', err);
+      }
+    };
+    fetchCategory();
+  }, [location.pathname, pageTitle]);
+
   const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
   const displayName = storedUser?.fullName || 'Admin';
   const initials = displayName.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
@@ -64,7 +99,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
   return (
     <nav style={styles.navbar}>
       <div style={styles.breadcrumb}>
-        <span>System</span>
+        <span>{categoryName}</span>
         <span style={{ color: '#cbd5e1' }}>/</span>
         <span style={styles.pageTitle}>{pageTitle}</span>
       </div>

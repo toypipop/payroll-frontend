@@ -29,7 +29,7 @@ const InputField = forwardRef(
             },
             input: {
                 height: "40px",
-                padding: "10px 14px",
+                padding: "0 14px",
                 borderRadius: "8px",
                 border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
                 fontSize: "14px",
@@ -54,7 +54,7 @@ const InputField = forwardRef(
                 <input
                     ref={ref} // Attach the ref here
                     type={type}
-                    placeholder={placeholder}
+                    placeholder={placeholder || `Enter ${label || ""}`}
                     style={styles.input}
                     // Extract handlers or use defaults
                     {...props}

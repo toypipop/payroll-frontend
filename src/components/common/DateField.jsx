@@ -1,8 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const DateField = React.forwardRef(({ label, error, value, onChange, id, ...props }, ref) => {
+    const [selectedDate, setSelectedDate] = useState(null);
+
+    useEffect(() => {
+        if (value && typeof value === "string" && value !== "") {
+            const d = new Date(value + "T00:00:00");
+            if (!isNaN(d)) setSelectedDate(d);
+        } else if (value instanceof Date && !isNaN(value)) {
+            setSelectedDate(value);
+        } else {
+            setSelectedDate(null);
+        }
+    }, [value]);
+
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+        if (date && !isNaN(date)) {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
+            const formatted = `${yyyy}-${mm}-${dd}`;
+            if (onChange) onChange(formatted);
+        }
+    };
+
     const styles = {
         container: {
             display: "flex",
@@ -29,8 +53,8 @@ const DateField = React.forwardRef(({ label, error, value, onChange, id, ...prop
             
             <DatePicker
                 ref={ref}
-                selected={value}
-                onChange={onChange}
+                selected={selectedDate}
+                onChange={handleDateChange}
                 dateFormat="yyyy-MM-dd"
                 id={id}
                 className={`custom-date-input ${error ? 'error' : ''}`}
@@ -66,9 +90,8 @@ const DateField = React.forwardRef(({ label, error, value, onChange, id, ...prop
                     border-color: #ef4444;
                 }
 
-                /* Layout for Month/Year Select */
                 .react-datepicker__header__dropdown {
-                    margin-top: 10px; /* Added margin top to dropdown area */
+                    margin-top: 10px;
                     display: flex;
                     justify-content: center;
                     gap: 8px;
@@ -91,7 +114,6 @@ const DateField = React.forwardRef(({ label, error, value, onChange, id, ...prop
                     border-color: #3b82f6;
                 }
 
-                /* Calendar Style */
                 .react-datepicker {
                     font-family: inherit;
                     border-radius: 12px;

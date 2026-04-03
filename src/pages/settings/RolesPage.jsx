@@ -172,7 +172,6 @@ const RolesPage = () => {
                         label="Role Name" 
                         {...register("roles_name")} 
                         error={errors.roles_name?.message} 
-                        placeholder="e.g. HR Manager, Staff"
                     />
                 </div>
             </Modal>

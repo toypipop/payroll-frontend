@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -10,6 +10,7 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
+import DecimalField from "../../components/common/DecimalField";
 import SelectField from "../../components/common/SelectField";
 
 const schema = z.object({
@@ -26,7 +27,7 @@ const EmployeeEarningsPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { employees_id: "", earning_type_id: "", amount: "" },
     });
@@ -179,13 +180,19 @@ const EmployeeEarningsPage = () => {
                         error={errors.earning_type_id?.message}
                         options={earningTypes.map((et) => ({ id: et.id, name: et.name }))}
                     />
-                    <InputField
-                        label="Monthly Amount (฿)"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...register("amount")}
-                        error={errors.amount?.message}
+                    <Controller
+                        name="amount"
+                        control={control}
+                        render={({ field }) => (
+                            <DecimalField
+                                label="Monthly Amount (฿)"
+                                decimals={2}
+                                placeholder="0.00"
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={errors.amount?.message}
+                            />
+                        )}
                     />
                 </div>
             </Modal>

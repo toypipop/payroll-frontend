@@ -175,7 +175,6 @@ const PayrollCyclesPage = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <InputField
                         label="Cycle Name"
-                        placeholder="e.g. Mar 2026"
                         error={errors.cycle_name?.message}
                         {...register("cycle_name")}
                     />

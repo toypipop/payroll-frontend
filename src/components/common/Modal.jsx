@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const Modal = ({ isOpen, onClose, title, children, footer }) => {
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const styles = {
@@ -62,7 +71,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
     return (
         // Remove onClick from overlay
         <div style={styles.overlay}>
-            // No onClick so overlay doesn't close
+            {/* // No onClick so overlay doesn't close */}
             <div style={styles.modalBox}>
                 <div style={styles.header}>
                     <h3 style={styles.title}>{title}</h3>

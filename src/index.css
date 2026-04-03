@@ -73,3 +73,8 @@ input:focus, select:focus, textarea:focus { outline: none; }
 
 /* ─── Print ──────────────────────────────────────────── */
 @media print { body { background: #fff; } }
+
+/* ─── Input Placeholder ─────────────────────────────── */
+input::placeholder {
+  color: #94a3b8;
+}

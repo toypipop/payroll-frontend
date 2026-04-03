@@ -34,7 +34,7 @@ const MainLayout = ({ children, pageTitle }) => {
       <div style={styles.mainContent}>
         <Navbar pageTitle={pageTitle} />
         <main style={styles.contentArea}>
-          // Wrapper keeps everything aligned
+          {/* // Wrapper keeps everything aligned */}
           <div style={styles.innerContainer}>
             {children}
           </div>

@@ -10,6 +10,7 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
+import DecimalField from "../../components/common/DecimalField";
 import DateField from "../../components/common/DateField";
 import CheckboxField from "../../components/common/CheckboxField";
 import Badge from "../../components/common/Badge";
@@ -21,8 +22,8 @@ const salariesSchema = z.object({
         (val) => parseFloat(val),
         z.number().min(0, "Salaries must be a positive number")
     ),
-    effective_date: z.date({ required_error: "Effective date is required" }),
-    is_enabled: z.boolean().default(true),
+    effective_date: z.string().min(1, "Effective date is required").regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+    is_active: z.boolean().default(true),
 });
 
 const SalariesStructurePage = () => {
@@ -32,7 +33,6 @@ const SalariesStructurePage = () => {
     const [selectedEmp, setSelectedEmp] = useState(null);
 
     const {
-        register,
         handleSubmit,
         reset,
         setValue,
@@ -41,8 +41,8 @@ const SalariesStructurePage = () => {
     } = useForm({
         resolver: zodResolver(salariesSchema),
         defaultValues: {
-            effective_date: new Date(),
-            is_enabled: true,
+            effective_date: new Date().toISOString().split("T")[0],
+            deleted_at: true,
         },
     });
 
@@ -66,7 +66,8 @@ const SalariesStructurePage = () => {
         try {
             await api.post("/salaries", {
                 ...data,
-                effective_date: data.effective_date instanceof Date ? data.effective_date.toISOString() : data.effective_date,
+                effective_date: data.effective_date,
+                deleted_at: data.is_active ? null : true,
             });
             fetchSalaries();
             closeModal();
@@ -81,18 +82,19 @@ const SalariesStructurePage = () => {
         setValue("base_salaries", emp.salaries_structure?.base_salaries || 0);
 
         const existingDate = emp.salaries_structure?.effective_date;
-        let finalDate = new Date();
+        let finalDate = new Date().toISOString().split("T")[0];
 
         if (existingDate && !existingDate.startsWith("0001")) {
             try {
-                finalDate = new Date(existingDate);
+                const d = new Date(existingDate);
+                finalDate = d.toISOString().split("T")[0];
                 // eslint-disable-next-line no-unused-vars
             } catch (e) {
-                finalDate = new Date();
+                finalDate = new Date().toISOString().split("T")[0];
             }
         }
         setValue("effective_date", finalDate);
-        setValue("is_enabled", emp.salaries_structure?.is_enabled ?? true);
+        setValue("is_active", !!emp.salaries_structure?.id);
 
         setIsModalOpen(true);
     };
@@ -100,7 +102,7 @@ const SalariesStructurePage = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedEmp(null);
-        reset({ effective_date: new Date(), is_enabled: true });
+        reset({ effective_date: new Date().toISOString().split("T")[0], is_active: true });
     };
 
     const columns = [
@@ -114,7 +116,7 @@ const SalariesStructurePage = () => {
             label: "Base Salaries",
             render: (row) => {
                 const amount = row.salaries_structure?.base_salaries || 0;
-                return amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             },
         },
         {
@@ -133,11 +135,12 @@ const SalariesStructurePage = () => {
         {
             label: "Salary Status",
             render: (row) => {
-                const isEnabled = row.salaries_structure?.is_enabled ?? false;
-                if (!row.salaries_structure) return <span style={{ color: "#9ca3af" }}>-</span>;
+                const ss = row.salaries_structure;
+                if (!ss || !ss.id) return <Badge status={false}>Disabled</Badge>;
+                const isDeleted = ss.deleted_at && ss.deleted_at !== 0 && ss.deleted_at !== "0";
                 return (
-                    <Badge status={isEnabled}>
-                        {isEnabled ? "Enabled" : "Disabled"}
+                    <Badge status={!isDeleted}>
+                        {!isDeleted ? "Enabled" : "Disabled"}
                     </Badge>
                 );
             },
@@ -186,12 +189,19 @@ const SalariesStructurePage = () => {
                     </>
                 }
             >
-                <InputField
-                    label="Base Salaries (Monthly)"
-                    type="number"
-                    step="0.01"
-                    {...register("base_salaries")}
-                    error={errors.base_salaries?.message}
+                <Controller
+                    name="base_salaries"
+                    control={control}
+                    render={({ field }) => (
+                        <DecimalField
+                            label="Base Salaries (Monthly)"
+                            decimals={2}
+                            placeholder="0.00"
+                            value={field.value}
+                            onChange={field.onChange}
+                            error={errors.base_salaries?.message}
+                        />
+                    )}
                 />
 
                 <Controller
@@ -210,11 +220,18 @@ const SalariesStructurePage = () => {
                 <p style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
                     * Adjustments will be applied to payroll calculations from this date onwards.
                 </p>
-                <CheckboxField
-                    label="Enable Salary Structure"
-                    id="is_enabled"
-                    {...register("is_enabled")}
-                    error={errors.is_enabled?.message}
+                <Controller
+                    name="is_active"
+                    control={control}
+                    render={({ field }) => (
+                        <CheckboxField
+                            label="Active Salary Structure"
+                            id="is_active"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            error={errors.is_active?.message}
+                        />
+                    )}
                 />
             </Modal>
         </>
