@@ -14,17 +14,23 @@ const Button = ({
         primary: {
             backgroundColor: "#6259ca",
             color: "#ffffff",
-            border: "none",
+            borderWidth: "0",
+            borderStyle: "solid",
+            borderColor: "transparent",
         },
         danger: {
             backgroundColor: "#fee2e2",
             color: "#dc2626",
-            border: "none",
+            borderWidth: "0",
+            borderStyle: "solid",
+            borderColor: "transparent",
         },
         ghost: {
             backgroundColor: "transparent",
             color: "#6259ca",
-            border: "1px solid var(--border-color)",
+            borderWidth: "1px",
+            borderStyle: "solid",
+            borderColor: "var(--border-color)",
         },
     };
 
