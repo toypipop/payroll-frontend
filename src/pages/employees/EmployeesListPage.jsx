@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -32,6 +32,9 @@ const createEmployeesSchema = (isEditing, requireCompany) => z.object({
     password: isEditing
         ? z.string().optional().or(z.literal(""))
         : z.string().min(6, "Password must be at least 6 characters"),
+    bank_id: z.string().optional(),
+    account_name: z.string().optional(),
+    account_no: z.string().optional(),
 });
 
 const EmployeesListPage = () => {
@@ -45,10 +48,6 @@ const EmployeesListPage = () => {
     const [masterCompanies, setMasterCompanies] = useState([]);
     const [masterBanks, setMasterBanks] = useState([]);
     const [masterEmploymentTypes, setMasterEmploymentTypes] = useState([]);
-    // Bank account state separate from form
-    const [bankData, setBankData] = useState({ bank_id: "", account_name: "", account_no: "" });
-    const [bankLoading, setBankLoading] = useState(false);
-    const [bankErrors, setBankErrors] = useState({ bank_id: "", account_name: "", account_no: "" });
 
     // Ref to skip cascade-reset during edit initialization
     const isEditLoading = useRef(false);
@@ -71,6 +70,7 @@ const EmployeesListPage = () => {
         reset,
         setValue,
         watch,
+        control,
         formState: { errors },
     } = useForm({
         resolver: dynamicResolver,
@@ -86,6 +86,9 @@ const EmployeesListPage = () => {
             companies_id: "",
             is_active: true,
             password: "",
+            bank_id: "",
+            account_name: "",
+            account_no: "",
         },
     });
 
@@ -117,6 +120,7 @@ const EmployeesListPage = () => {
         try {
             setLoading(true);
             const response = await api.get("/employees");
+            console.log("Employees API response:", response.data);
             setEmployees(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -128,15 +132,17 @@ const EmployeesListPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [deptRes, posRes, rolesRes, empTypesRes, banksRes] = await Promise.all([
+                const [deptRes, posRes, rolesRes, empTypesRes, banksRes, compRes] = await Promise.all([
                     api.get("/departments"),
                     api.get("/positions"),
                     api.get("/roles"),
                     api.get("/master/employment-types").catch(() => ({ data: [] })),
                     api.get("/master/banks").catch(() => ({ data: [] })),
+                    api.get("/companies/options").catch(() => ({ data: [] })),
                 ]);
                 setMasterBanks((banksRes.data || []).map((b) => ({ id: b.id, name: `${b.bank_code} — ${b.bank_name}` })));
                 setMasterEmploymentTypes((empTypesRes.data || []).map((t) => ({ id: t.id, name: t.name })));
+                setMasterCompanies((compRes.data || []).map((c) => ({ id: c.id, name: c.name })));
 
                 // Check property names from API
                 // match your Backend JSON response (English Comment)
@@ -162,16 +168,7 @@ const EmployeesListPage = () => {
                     })),
                 );
             } catch (err) {
-                console.error("Master Data Load Error", err);
-            }
-            // Load companies list for super-admin companies selection
-            try {
-                const companiesRes = await api.get("/companies/options");
-                const companiesData = companiesRes.data.map((c) => ({ id: c.id, name: c.name }));
-                setMasterCompanies(companiesData);
-                requireCompanyRef.current = companiesData.length > 0;
-            } catch {
-                // Non-admins handled gracefully
+                console.error("Master data fetch error:", err);
             }
         };
         fetchMasterData();
@@ -179,20 +176,7 @@ const EmployeesListPage = () => {
     }, []);
 
     // Submit handler for form
-    const validateBank = () => {
-        const { bank_id, account_name, account_no } = bankData;
-        const errs = {
-            bank_id: bank_id ? "" : "Bank is required",
-            account_name: account_name ? "" : "Account name is required",
-            account_no: account_no ? "" : "Account number is required",
-        };
-        const hasError = Object.values(errs).some(Boolean);
-        setBankErrors(errs);
-        return !hasError;
-    };
-
     const onSubmit = async (data) => {
-        if (!validateBank()) return;
         try {
             const payload = {
                 ...data,
@@ -201,24 +185,13 @@ const EmployeesListPage = () => {
                 roles_id: parseInt(data.roles_id),
                 companies_id: data.companies_id ? parseInt(data.companies_id) : undefined,
                 employment_type_id: data.employment_type_id ? parseInt(data.employment_type_id) : null,
+                bank_id: data.bank_id ? parseInt(data.bank_id) : null,
             };
 
-            let savedId = editingId;
             if (editingId) {
                 await api.put(`/employees/${editingId}`, payload);
             } else {
-                const res = await api.post("/employees", payload);
-                savedId = res.data?.id || res.data?.ID;
-            }
-
-            // Save bank account if any field is filled
-            if (savedId && (bankData.bank_id || bankData.account_name || bankData.account_no)) {
-                const bankPayload = {
-                    bank_id: bankData.bank_id ? parseInt(bankData.bank_id) : null,
-                    account_name: bankData.account_name,
-                    account_no: bankData.account_no,
-                };
-                await api.put(`/employees/${savedId}/bank-account`, bankPayload).catch(() => {});
+                await api.post("/employees", payload);
             }
 
             fetchEmployees();
@@ -229,36 +202,33 @@ const EmployeesListPage = () => {
     };
 
     const handleEdit = (emp) => {
+        console.log("emp keys:", Object.keys(emp));
+        console.log("emp bank_id:", emp.bank_id, typeof emp.bank_id);
+        console.log("emp.account_name:", emp.account_name);
+        
         const empId = emp.ID || emp.id;
         setEditingId(empId);
         editingIdRef.current = empId;
-        // Guard cascade reset during initialization
         isEditLoading.current = true;
-        // Map values to form (English Comment)
-        setValue("employees_code", emp.employees_code);
-        setValue("first_name", emp.first_name);
-        setValue("last_name", emp.last_name);
-        setValue("email", emp.email);
-        setValue("dept_id", emp.dept_id?.toString() || "");
-        setValue("pos_id", emp.pos_id?.toString() || "");
-        setValue("roles_id", emp.roles_id?.toString() || "");
-        setValue("companies_id", emp.companies_id?.toString() || "");
-        setValue("employment_type_id", emp.employment_type_id?.toString() || "");
-        // Allow cascade to run after all values set
+        
+        // Reset form first
+        reset({
+            employees_code: emp.employees_code || "",
+            first_name: emp.first_name || "",
+            last_name: emp.last_name || "",
+            email: emp.email || "",
+            dept_id: emp.dept_id ? String(emp.dept_id) : "",
+            pos_id: emp.pos_id ? String(emp.pos_id) : "",
+            roles_id: emp.roles_id ? String(emp.roles_id) : "",
+            companies_id: emp.companies_id ? String(emp.companies_id) : "",
+            employment_type_id: emp.employment_type_id ? String(emp.employment_type_id) : "",
+            is_active: emp.is_active === true || emp.is_active === "true",
+            bank_id: emp.bank_id ? String(emp.bank_id) : "",
+            account_name: emp.account_name || "",
+            account_no: emp.account_no || "",
+        });
+        
         setTimeout(() => { isEditLoading.current = false; }, 0);
-        // Load existing bank account
-        setBankLoading(true);
-        setBankData({ bank_id: "", account_name: "", account_no: "" });
-        api.get(`/employees/${empId}/bank-account`)
-            .then((res) => {
-                setBankData({
-                    bank_id: res.data.bank_id?.toString() || "",
-                    account_name: res.data.account_name || "",
-                    account_no: res.data.account_no || "",
-                });
-            })
-            .catch(() => {})
-            .finally(() => setBankLoading(false));
         setIsModalOpen(true);
     };
 
@@ -277,8 +247,6 @@ const EmployeesListPage = () => {
         setIsModalOpen(false);
         setEditingId(null);
         editingIdRef.current = null;
-        setBankData({ bank_id: "", account_name: "", account_no: "" });
-        setBankErrors({ bank_id: "", account_name: "", account_no: "" });
         reset(); // Clear form and errors
     };
 
@@ -286,15 +254,18 @@ const EmployeesListPage = () => {
         { label: "Code", key: "employees_code" },
         {
             label: "Full Name",
+            sortKey: "first_name",
             render: (row) => `${row.first_name} ${row.last_name}`,
         },
-        { label: "Position", render: (row) => row.position?.pos_name || "N/A" },
+        { label: "Position", sortKey: "position.pos_name", render: (row) => row.position?.pos_name || "N/A" },
         {
             label: "Department",
+            sortKey: "department.dept_name",
             render: (row) => row.department?.dept_name || "N/A",
         },
         {
             label: "Status",
+            sortKey: "is_active",
             render: (row) => (
                 <Badge status={row.is_active}>
                     {row.is_active ? "Active" : "Inactive"}
@@ -303,10 +274,12 @@ const EmployeesListPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "companies.name",
             render: (row) => row.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button
@@ -366,7 +339,7 @@ const EmployeesListPage = () => {
                         </Button>
                         {/* 4. Use handleSubmit from Hook Form (English Comment) */}
                         <Button
-                            onClick={() => { validateBank(); handleSubmit(onSubmit)(); }}
+                            onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
                         >
                             {editingId ? "Update" : "Save"}
@@ -459,11 +432,18 @@ const EmployeesListPage = () => {
                     />
                 )}
 
-                <CheckboxField
-                    label="Account Active"
-                    id="is_active"
-                    {...register("is_active")}
-                    error={errors.is_active?.message}
+                <Controller
+                    name="is_active"
+                    control={control}
+                    render={({ field }) => (
+                        <CheckboxField
+                            label="Account Active"
+                            id="is_active"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            error={errors.is_active?.message}
+                        />
+                    )}
                 />
 
                  {/* Bank Account Section */}
@@ -471,40 +451,22 @@ const EmployeesListPage = () => {
                      <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted, #64748b)", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                          Bank Account
                      </div>
-                     {bankLoading ? (
-                         <div style={{ color: "var(--text-muted)", fontSize: "13px" }}>Loading bank data...</div>
-                     ) : (
-                         <>
-                            <SelectField
-                                label="Bank"
-                                value={bankData.bank_id}
-                                onChange={(e) => {
-                                    setBankData((p) => ({ ...p, bank_id: e.target.value }));
-                                    if (bankErrors.bank_id) setBankErrors((p) => ({ ...p, bank_id: "" }));
-                                }}
-                                options={masterBanks}
-                                error={bankErrors.bank_id}
-                            />
-                             <InputField
-                                 label="Account Name"
-                                 value={bankData.account_name}
-                                 onChange={(e) => {
-                                     setBankData((p) => ({ ...p, account_name: e.target.value }));
-                                     if (bankErrors.account_name) setBankErrors((p) => ({ ...p, account_name: "" }));
-                                 }}
-                                 error={bankErrors.account_name}
-                             />
-                             <NumberField
-                                 label="Account No."
-                                 value={bankData.account_no}
-                                 onChange={(e) => {
-                                     setBankData((p) => ({ ...p, account_no: e.target.value }));
-                                     if (bankErrors.account_no) setBankErrors((p) => ({ ...p, account_no: "" }));
-                                 }}
-                                 error={bankErrors.account_no}
-                             />
-                         </>
-                     )}
+                     <SelectField
+                         label="Bank"
+                         options={masterBanks}
+                         {...register("bank_id")}
+                         value={watch("bank_id")}
+                     />
+                     <InputField
+                         label="Account Name"
+                         {...register("account_name")}
+                     />
+                     <NumberField
+                         label="Account No."
+                         value={watch("account_no") ?? ""}
+                         onChange={(e) => setValue("account_no", e.target.value, { shouldDirty: true })}
+                         onBlur={() => {}}
+                     />
                  </div>
             </Modal>
         </>

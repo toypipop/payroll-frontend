@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useCallback } from "react";
+import React, { forwardRef, useState, useCallback, useEffect } from "react";
 
 const NumberField = forwardRef(
     (
@@ -15,6 +15,13 @@ const NumberField = forwardRef(
         ref,
     ) => {
         const [internalValue, setInternalValue] = useState(value ?? "");
+
+        // Sync internal state when value prop changes externally (e.g. RHF reset)
+        useEffect(() => {
+            if (value !== undefined) {
+                setInternalValue(String(value ?? ""));
+            }
+        }, [value]);
 
         const handleChange = useCallback((e) => {
             const raw = e.target.value;

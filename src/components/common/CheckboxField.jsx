@@ -2,7 +2,7 @@ import React from "react";
 
 // Use forwardRef for React Hook Form
 const CheckboxField = React.forwardRef(
-    ({ label, error, id, ...props }, ref) => {
+    ({ label, error, id, checked, onChange, ...props }, ref) => {
         const styles = {
             container: {
                 display: "flex",
@@ -21,7 +21,7 @@ const CheckboxField = React.forwardRef(
                 width: "18px",
                 height: "18px",
                 cursor: "pointer",
-                accentColor: "#10b981", // Green theme to match 'Active' status
+                accentColor: "#10b981",
             },
             label: {
                 cursor: "pointer",
@@ -43,6 +43,8 @@ const CheckboxField = React.forwardRef(
                         type="checkbox"
                         id={id}
                         ref={ref}
+                        checked={checked}
+                        onChange={onChange}
                         style={styles.input}
                         {...props}
                     />

@@ -1,18 +1,100 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 
 
+const SortIcon = ({ direction }) => {
+    if (!direction) {
+        return (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}>
+                <path d="M7 15l5 5 5-5" />
+                <path d="M7 9l5-5 5 5" />
+            </svg>
+        );
+    }
+    if (direction === "asc") {
+        return (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 15l5 5 5-5" />
+            </svg>
+        );
+    }
+    return (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 9l5-5 5 5" />
+        </svg>
+    );
+};
 
 const Table = ({
     columns,
     data = [],
     onRowClick,
     hideHeader = false,
-    density = "normal", // "normal" | "compact"
+    density = "normal",
     getRowKey,
     renderBeforeRow,
     renderAfterRow,
+    sortable = true,
 }) => {
+    const [sortState, setSortState] = useState({ key: null, order: null });
+
     const isCompact = density === "compact";
+
+    const handleHeaderClick = (col) => {
+        if (!col.sortable && sortable !== true) return;
+
+        setSortState((prev) => {
+            if (prev.key !== col.sortKey && prev.key !== col.key) {
+                return { key: col.sortKey || col.key, order: "asc" };
+            }
+            if (prev.order === "asc") {
+                return { key: prev.key, order: "desc" };
+            }
+            if (prev.order === "desc") {
+                return { key: null, order: null };
+            }
+            return { key: null, order: null };
+        });
+    };
+
+    const sortedData = useMemo(() => {
+        if (!sortState.key || !sortState.order) {
+            return data;
+        }
+
+        return [...data].sort((a, b) => {
+            const key = sortState.key;
+            let aVal, bVal;
+
+            if (key.includes(".")) {
+                const keys = key.split(".");
+                aVal = keys.reduce((obj, k) => obj?.[k], a);
+                bVal = keys.reduce((obj, k) => obj?.[k], b);
+            } else {
+                const col = columns.find((c) => c.key === key || c.sortKey === key);
+                if (col?.sortValue) {
+                    aVal = col.sortValue(a);
+                    bVal = col.sortValue(b);
+                } else {
+                    aVal = a[key];
+                    bVal = b[key];
+                }
+            }
+
+            if (aVal == null) return 1;
+            if (bVal == null) return -1;
+
+            if (typeof aVal === "number" && typeof bVal === "number") {
+                return sortState.order === "asc" ? aVal - bVal : bVal - aVal;
+            }
+
+            const strA = String(aVal).toLowerCase();
+            const strB = String(bVal).toLowerCase();
+
+            if (strA < strB) return sortState.order === "asc" ? -1 : 1;
+            if (strA > strB) return sortState.order === "asc" ? 1 : -1;
+            return 0;
+        });
+    }, [data, sortState, columns]);
 
     const styles = {
         tableContainer: {
@@ -38,6 +120,15 @@ const Table = ({
             borderBottom: "1px solid #e2e8f0",
             whiteSpace: "nowrap",
         },
+        thSortable: {
+            cursor: "pointer",
+            userSelect: "none",
+        },
+        thContent: {
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+        },
         td: {
             padding: isCompact ? "7px 10px" : "13px 20px",
             fontSize: isCompact ? "12px" : "14px",
@@ -47,7 +138,7 @@ const Table = ({
         },
     };
 
-    const safeData = data || [];
+    const safeData = sortedData || [];
 
     return (
         <div style={styles.tableContainer}>
@@ -55,17 +146,29 @@ const Table = ({
                 {!hideHeader && (
                     <thead style={styles.thead}>
                         <tr>
-                            {columns.map((col, index) => (
-                                <th
-                                    key={index}
-                                    style={{
-                                        ...styles.th,
-                                        ...(col.headerStyle || null),
-                                    }}
-                                >
-                                    {col.label}
-                                </th>
-                            ))}
+                            {columns.map((col, index) => {
+                                const sortKey = col.sortKey || col.key;
+                                const isSorted = sortState.key === sortKey;
+                                const isSortable = col.sortable !== false && sortable !== false;
+                                const sortDir = isSorted ? sortState.order : null;
+
+                                return (
+                                    <th
+                                        key={index}
+                                        style={{
+                                            ...styles.th,
+                                            ...(isSortable ? styles.thSortable : {}),
+                                            ...(col.headerStyle || null),
+                                        }}
+                                        onClick={() => handleHeaderClick(col)}
+                                    >
+                                        <div style={styles.thContent}>
+                                            {col.label}
+                                            {isSortable && <SortIcon direction={sortDir} />}
+                                        </div>
+                                    </th>
+                                );
+                            })}
                         </tr>
                     </thead>
                 )}
@@ -139,20 +242,3 @@ const Table = ({
 };
 
 export default Table;
-
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
-
-// หกด้ืหกาีกฟ้ืกาส่หฟื้ก่าหืฟกาหฟ
