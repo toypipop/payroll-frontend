@@ -7,8 +7,27 @@ const TimeField = ({ label, value, onChange, error, ...props }) => {
 
     const parseTime = (timeStr) => {
         if (!timeStr) return { hours: 9, minutes: 0 };
-        const [h, m] = timeStr.split(":").map(Number);
-        return { hours: h || 0, minutes: m || 0 };
+        
+        if (typeof timeStr === 'string') {
+            if (timeStr.includes('T') || timeStr.includes('-')) {
+                const date = new Date(timeStr);
+                if (!isNaN(date.getTime())) {
+                    return { hours: date.getHours(), minutes: date.getMinutes() };
+                }
+            }
+            const parts = timeStr.split(":");
+            if (parts.length >= 2) {
+                const h = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10);
+                return { hours: h || 0, minutes: m || 0 };
+            }
+        }
+        
+        if (timeStr instanceof Date && !isNaN(timeStr.getTime())) {
+            return { hours: timeStr.getHours(), minutes: timeStr.getMinutes() };
+        }
+        
+        return { hours: 9, minutes: 0 };
     };
 
     const { hours, minutes } = parseTime(value);
@@ -44,8 +63,9 @@ const TimeField = ({ label, value, onChange, error, ...props }) => {
     };
 
     const handlePeriodChange = (newPeriod) => {
+        const h24 = to24Hour(displayHours, newPeriod);
+        const newTime = `${String(h24).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
         setPeriod(newPeriod);
-        const newTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
         onChange(newTime);
     };
 
@@ -166,7 +186,9 @@ const TimeField = ({ label, value, onChange, error, ...props }) => {
             fontWeight: 600,
             borderRadius: "6px",
             cursor: "pointer",
-            border: "1px solid #e2e8f0",
+            borderWidth: "1px",
+            borderStyle: "solid",
+            borderColor: "#e2e8f0",
             backgroundColor: "#ffffff",
             color: "#64748b",
             transition: "all 0.15s",

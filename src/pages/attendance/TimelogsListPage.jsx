@@ -197,6 +197,27 @@ const TimelogsListPage = () => {
         )
         : masterWorkLocations;
 
+    const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
+        if (!timeValue) return { hour: defaultHour, min: defaultMin };
+        
+        if (typeof timeValue === 'string') {
+            if (timeValue.includes(':') && !timeValue.includes('T')) {
+                const [h, m] = timeValue.split(':').map(Number);
+                return { hour: h, min: m };
+            }
+            const date = new Date(timeValue);
+            if (!isNaN(date.getTime())) {
+                return { hour: date.getHours(), min: date.getMinutes() };
+            }
+        }
+        
+        if (timeValue instanceof Date && !isNaN(timeValue.getTime())) {
+            return { hour: timeValue.getHours(), min: timeValue.getMinutes() };
+        }
+        
+        return { hour: defaultHour, min: defaultMin };
+    };
+
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
@@ -210,12 +231,9 @@ const TimelogsListPage = () => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            if (config && config.work_start_time) {
-                const startTime = config.work_start_time;
-                const endTime = config.work_end_time || "18:00";
-                
-                const [startHour, startMin] = startTime.split(':').map(Number);
-                const [endHour, endMin] = endTime.split(':').map(Number);
+            if (config) {
+                const { hour: startHour, min: startMin } = parseTimeFromConfig(config.work_start_time, 9, 0);
+                const { hour: endHour, min: endMin } = parseTimeFromConfig(config.work_end_time, 18, 0);
                 
                 const checkInDate = new Date(today);
                 checkInDate.setHours(startHour, startMin, 0, 0);
@@ -333,7 +351,10 @@ const TimelogsListPage = () => {
                     options={masterEmployees}
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
-                    onChange={handleEmployeeChange}
+                    onChange={(e) => {
+                        register("employees_id").onChange(e);
+                        handleEmployeeChange(e);
+                    }}
                 />
 
                 <Controller
