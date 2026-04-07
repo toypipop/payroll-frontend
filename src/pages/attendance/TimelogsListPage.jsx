@@ -210,8 +210,8 @@ const TimelogsListPage = () => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            if (config) {
-                const startTime = config.work_start_time || "09:00";
+            if (config && config.work_start_time) {
+                const startTime = config.work_start_time;
                 const endTime = config.work_end_time || "18:00";
                 
                 const [startHour, startMin] = startTime.split(':').map(Number);
@@ -235,7 +235,7 @@ const TimelogsListPage = () => {
                 setValue("check_out", defaultCheckOut);
             }
         } else {
-            setValue("check_in", new Date());
+            setValue("check_in", null);
             setValue("check_out", null);
         }
     };
