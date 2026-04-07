@@ -211,14 +211,17 @@ const TimelogsListPage = () => {
             today.setHours(0, 0, 0, 0);
             
             if (config) {
-                const startHour = config.work_start_hour ?? 9;
-                const startMin = config.work_start_min ?? 0;
+                const startTime = config.work_start_time || "09:00";
+                const endTime = config.work_end_time || "18:00";
+                
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
                 
                 const checkInDate = new Date(today);
                 checkInDate.setHours(startHour, startMin, 0, 0);
                 
                 const checkOutDate = new Date(today);
-                checkOutDate.setHours(startHour + 9, startMin, 0, 0);
+                checkOutDate.setHours(endHour, endMin, 0, 0);
                 
                 setValue("check_in", checkInDate);
                 setValue("check_out", checkOutDate);
