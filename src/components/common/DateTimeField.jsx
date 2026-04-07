@@ -32,15 +32,22 @@ const DateTimeField = React.forwardRef(({ label, error, value, onChange, id, ...
     const timeValue = useMemo(() => {
         if (!value) return "00:00";
         const d = new Date(value);
+        if (isNaN(d.getTime())) return "00:00";
         return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }, [value]);
 
     const handleTimeChange = (e) => {
         const [hours, minutes] = e.target.value.split(":");
-        const newDate = value ? new Date(value) : new Date();
-        newDate.setHours(parseInt(hours, 10));
-        newDate.setMinutes(parseInt(minutes, 10));
-        onChange(newDate);
+        if (!value || isNaN(new Date(value).getTime())) {
+            const newDate = new Date();
+            newDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+            onChange(newDate);
+        } else {
+            const newDate = new Date(value);
+            newDate.setHours(parseInt(hours, 10));
+            newDate.setMinutes(parseInt(minutes, 10));
+            onChange(newDate);
+        }
     };
 
     return (
@@ -49,7 +56,7 @@ const DateTimeField = React.forwardRef(({ label, error, value, onChange, id, ...
             
             <DatePicker
                 ref={ref}
-                selected={value}
+                selected={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
                 onChange={onChange}
                 dateFormat="yyyy-MM-dd HH:mm"
                 id={id}
