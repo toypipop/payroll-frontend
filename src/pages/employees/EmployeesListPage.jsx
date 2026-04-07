@@ -428,6 +428,7 @@ const EmployeesListPage = () => {
                     {...register("dept_id")}
                     value={watch("dept_id")}
                     error={errors.dept_id?.message}
+                    disabled={!selectedCompaniesId}
                 />
 
                 <SelectField
@@ -436,6 +437,7 @@ const EmployeesListPage = () => {
                     {...register("pos_id")}
                     value={watch("pos_id")}
                     error={errors.pos_id?.message}
+                    disabled={!selectedCompaniesId}
                 />
 
                 <SelectField
@@ -444,6 +446,7 @@ const EmployeesListPage = () => {
                     {...register("roles_id")}
                     value={watch("roles_id")}
                     error={errors.roles_id?.message}
+                    disabled={!selectedCompaniesId}
                 />
 
                 {masterEmploymentTypes.length > 0 && (

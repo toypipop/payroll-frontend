@@ -46,8 +46,10 @@ const LeaveRequestsPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
+    const [employeeData, setEmployeeData] = useState({});
 
     // Initialize form with hook form
     const {
@@ -55,6 +57,7 @@ const LeaveRequestsPage = () => {
         handleSubmit,
         reset,
         setValue,
+        watch,
         control,
         formState: { errors },
     } = useForm({
@@ -93,7 +96,18 @@ const LeaveRequestsPage = () => {
                         name: `${e.first_name} ${e.last_name}`,
                     }))
                 );
-                setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ id: lt.id, name: lt.name })));
+                
+                const empDataMap = {};
+                empRes.data.forEach((e) => {
+                    empDataMap[e.id || e.ID] = e;
+                });
+                setEmployeeData(empDataMap);
+                
+                setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ 
+                    id: lt.id, 
+                    name: lt.name,
+                    companies_id: lt.companies_id 
+                })));
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -128,6 +142,7 @@ const LeaveRequestsPage = () => {
     const handleEdit = (req) => {
         setEditingId(req.id || req.ID);
         setValue("employees_id", req.employees_id?.toString() || "");
+        setSelectedEmployeeId(req.employees_id?.toString() || "");
         setValue("leave_type_id", req.leave_type_id?.toString() || "");
         // Convert API string to Date for field
         setValue("start_date", req.start_date ? new Date(req.start_date) : null);
@@ -150,8 +165,26 @@ const LeaveRequestsPage = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
+        setSelectedEmployeeId("");
         reset();
     };
+
+    const selectedEmployeeCompaniesId = selectedEmployeeId 
+        ? employeeData[selectedEmployeeId]?.companies_id 
+        : null;
+    
+    const filteredLeaveTypes = selectedEmployeeCompaniesId
+        ? masterLeaveTypes.filter((lt) => 
+            !lt.companies_id || String(lt.companies_id) === String(selectedEmployeeCompaniesId)
+        )
+        : masterLeaveTypes;
+
+    const handleEmployeeChange = (e) => {
+        const empId = e.target.value;
+        setSelectedEmployeeId(empId);
+        setValue("leave_type_id", "");
+    };
+
     const columns = [
         { label: "Employee",
             render: (row) => (
@@ -256,13 +289,15 @@ const LeaveRequestsPage = () => {
                     options={masterEmployees}
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
+                    onChange={handleEmployeeChange}
                 />
 
                 <SelectField
                     label="Leave Type"
-                    options={[{ id: "", name: "— Select —" }, ...masterLeaveTypes]}
+                    options={filteredLeaveTypes}
                     {...register("leave_type_id")}
                     error={errors.leave_type_id?.message}
+                    disabled={!selectedEmployeeId}
                 />
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>

@@ -41,10 +41,13 @@ const TimelogsListPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
     // Master data for dropdown
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterWorkLocations, setMasterWorkLocations] = useState([]);
+    const [employeeData, setEmployeeData] = useState({});
+    const [attendanceConfigs, setAttendanceConfigs] = useState({});
 
     // Initialize form with hook form
     const {
@@ -82,9 +85,10 @@ const TimelogsListPage = () => {
         const fetchMasterData = async () => {
             try {
                 // Fetch employees to show in dropdown
-                const [empRes, locRes] = await Promise.all([
+                const [empRes, locRes, attConfigRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/work-locations").catch(() => ({ data: [] })),
+                    api.get("/attendance/config").catch(() => ({ data: [] })),
                 ]);
                 setMasterEmployees(
                     empRes.data.map((e) => ({
@@ -92,7 +96,27 @@ const TimelogsListPage = () => {
                         name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
                     }))
                 );
-                setMasterWorkLocations((locRes.data || []).map((l) => ({ id: l.id, name: l.name })));
+                
+                const empDataMap = {};
+                empRes.data.forEach((e) => {
+                    empDataMap[e.id || e.ID] = e;
+                });
+                setEmployeeData(empDataMap);
+                
+                setMasterWorkLocations((locRes.data || []).map((l) => ({ 
+                    id: l.id, 
+                    name: l.name,
+                    companies_id: l.companies_id 
+                })));
+
+                const configMap = {};
+                (attConfigRes.data || []).forEach((c) => {
+                    const compId = c.ID || c.id || c.companies_id;
+                    if (compId) {
+                        configMap[compId] = c.attendance_config || null;
+                    }
+                });
+                setAttendanceConfigs(configMap);
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -127,6 +151,7 @@ const TimelogsListPage = () => {
     const handleEdit = (log) => {
         setEditingId(log.ID || log.id);
         setValue("employees_id", log.employees_id?.toString());
+        setSelectedEmployeeId(log.employees_id?.toString());
 
         // Ensure valid Date object or null
         const parseDate = (isoString) => {
@@ -158,7 +183,58 @@ const TimelogsListPage = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
+        setSelectedEmployeeId("");
         reset();
+    };
+
+    const selectedEmployeeCompaniesId = selectedEmployeeId 
+        ? employeeData[selectedEmployeeId]?.companies_id 
+        : null;
+    
+    const filteredWorkLocations = selectedEmployeeCompaniesId
+        ? masterWorkLocations.filter((loc) => 
+            !loc.companies_id || String(loc.companies_id) === String(selectedEmployeeCompaniesId)
+        )
+        : masterWorkLocations;
+
+    const handleEmployeeChange = (e) => {
+        const empId = e.target.value;
+        setSelectedEmployeeId(empId);
+        setValue("work_location_id", "");
+
+        if (empId) {
+            const emp = employeeData[empId];
+            const compId = emp?.companies_id;
+            const config = compId ? attendanceConfigs[compId] : null;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (config) {
+                const startHour = config.work_start_hour ?? 9;
+                const startMin = config.work_start_min ?? 0;
+                
+                const checkInDate = new Date(today);
+                checkInDate.setHours(startHour, startMin, 0, 0);
+                
+                const checkOutDate = new Date(today);
+                checkOutDate.setHours(startHour + 9, startMin, 0, 0);
+                
+                setValue("check_in", checkInDate);
+                setValue("check_out", checkOutDate);
+            } else {
+                const defaultCheckIn = new Date(today);
+                defaultCheckIn.setHours(9, 0, 0, 0);
+                const defaultCheckOut = new Date(today);
+                defaultCheckOut.setHours(18, 0, 0, 0);
+                
+                setValue("check_in", defaultCheckIn);
+                setValue("check_out", defaultCheckOut);
+            }
+        } else {
+            setValue("check_in", new Date());
+            setValue("check_out", null);
+        }
     };
 
     const columns = [
@@ -168,7 +244,7 @@ const TimelogsListPage = () => {
         },
         {
             label: "Date",
-            render: (row) => row.check_in ? new Date(row.check_in).toLocaleDateString() : "-"
+            render: (row) => row.check_in ? new Date(row.check_in).toISOString().split('T')[0] : "-"
         },
         {
             label: "Time In",
@@ -254,6 +330,7 @@ const TimelogsListPage = () => {
                     options={masterEmployees}
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
+                    onChange={handleEmployeeChange}
                 />
 
                 <Controller
@@ -274,7 +351,7 @@ const TimelogsListPage = () => {
                     name="check_out"
                     render={({ field }) => (
                         <DateTimeField
-                            label="Check In"
+                            label="Check Out"
                             value={field.value}
                             onChange={field.onChange}
                             error={errors.check_out?.message}
@@ -296,10 +373,11 @@ const TimelogsListPage = () => {
                 />
 
                 <SelectField
-                    label="Work Location"
-                    options={[{ id: "", name: "— Select Location —" }, ...masterWorkLocations]}
+                    label="Work Location (Optional)"
+                    options={filteredWorkLocations}
                     {...register("work_location_id")}
                     error={errors.work_location_id?.message}
+                    disabled={!selectedEmployeeId}
                 />
 
                 <InputField
