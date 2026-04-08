@@ -40,7 +40,7 @@ const Table = ({
     const isCompact = density === "compact";
 
     const handleHeaderClick = (col) => {
-        if (!col.sortable && sortable !== true) return;
+        if (sortable === false || col.sortable === false) return;
 
         setSortState((prev) => {
             if (prev.key !== col.sortKey && prev.key !== col.key) {
