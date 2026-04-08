@@ -32,12 +32,12 @@ const leaveSchema = z.object({
     reason: z.string().max(500, "Reason must be less than 500 characters").optional().or(z.literal("")),
 }).refine((data) => {
     if (data.start_date && data.end_date) {
-        // Direct comparison for Date objects
-        return data.end_date >= data.start_date;
+        // End date-time must be strictly after start date-time
+        return data.end_date > data.start_date;
     }
     return true;
 }, {
-    message: "End date cannot be earlier than start date",
+    message: "End date must be after start date",
     path: ["end_date"],
 });
 
@@ -50,6 +50,7 @@ const LeaveRequestsPage = () => {
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
     const [employeeData, setEmployeeData] = useState({});
+    const [attendanceConfigs, setAttendanceConfigs] = useState({});
 
     // Initialize form with hook form
     const {
@@ -71,6 +72,28 @@ const LeaveRequestsPage = () => {
         },
     });
 
+    const startDateValue = watch("start_date");
+    const endDateValue = watch("end_date");
+
+    const normalizeLeaveDates = (startInput, endInput) => {
+        if (!startInput || !endInput) {
+            return { startDate: startInput, endDate: endInput };
+        }
+
+        const startDate = new Date(startInput);
+        const endDate = new Date(endInput);
+
+        if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+            return { startDate: startInput, endDate: endInput };
+        }
+
+        if (endDate <= startDate) {
+            endDate.setDate(endDate.getDate() + 1);
+        }
+
+        return { startDate, endDate };
+    };
+
     const fetchRequests = async () => {
         try {
             setLoading(true);
@@ -86,14 +109,15 @@ const LeaveRequestsPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [empRes, ltRes] = await Promise.all([
+                const [empRes, ltRes, attConfigRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/leave-types").catch(() => ({ data: [] })),
+                    api.get("/attendance/config").catch(() => ({ data: [] })),
                 ]);
                 setMasterEmployees(
                     empRes.data.map((e) => ({
                         id: e.id || e.ID,
-                        name: `${e.first_name} ${e.last_name}`,
+                        name: `${e.employees_code || "-"} - ${e.first_name} ${e.last_name}`,
                     }))
                 );
                 
@@ -102,12 +126,22 @@ const LeaveRequestsPage = () => {
                     empDataMap[e.id || e.ID] = e;
                 });
                 setEmployeeData(empDataMap);
+
+                const configMap = {};
                 
                 setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ 
-                    id: lt.id, 
+                    id: lt.id || lt.ID,
                     name: lt.name,
                     companies_id: lt.companies_id 
                 })));
+
+                (attConfigRes.data || []).forEach((c) => {
+                    const compId = c.ID || c.id || c.companies_id;
+                    if (compId) {
+                        configMap[compId] = c.attendance_config || null;
+                    }
+                });
+                setAttendanceConfigs(configMap);
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -118,14 +152,36 @@ const LeaveRequestsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            const employeeId = Number(data.employees_id);
+            const leaveTypeId = Number(data.leave_type_id);
+            const companyId = employeeData[data.employees_id]?.companies_id || null;
+            const selectedLeaveType = masterLeaveTypes.find((lt) => String(lt.id) === String(data.leave_type_id));
+            const normalizedDates = normalizeLeaveDates(data.start_date, data.end_date);
+
+            if (!Number.isFinite(employeeId) || employeeId <= 0) {
+                alert("Please select an employee");
+                return;
+            }
+
+            if (!Number.isFinite(leaveTypeId) || leaveTypeId <= 0) {
+                alert("Please select leave type");
+                return;
+            }
+
+            if (!selectedLeaveType?.name) {
+                alert("Please select a valid leave type");
+                return;
+            }
+
             const payload = {
                 ...data,
-                employees_id: parseInt(data.employees_id),
-                leave_type_id: parseInt(data.leave_type_id),
-                companies_id: 1,
+                employees_id: employeeId,
+                leave_type_id: leaveTypeId,
+                leave_type: selectedLeaveType.name,
+                companies_id: companyId,
                 // Ensure dates are converted to ISO string for Go time.Time
-                start_date: data.start_date.toISOString(),
-                end_date: data.end_date.toISOString(),
+                start_date: normalizedDates.startDate.toISOString(),
+                end_date: normalizedDates.endDate.toISOString(),
             };
 
             if (editingId) {
@@ -140,6 +196,11 @@ const LeaveRequestsPage = () => {
         }
     };
     const handleEdit = (req) => {
+        if (req.status !== "Pending") {
+            alert("Only pending requests can be edited");
+            return;
+        }
+
         setEditingId(req.id || req.ID);
         setValue("employees_id", req.employees_id?.toString() || "");
         setSelectedEmployeeId(req.employees_id?.toString() || "");
@@ -152,6 +213,12 @@ const LeaveRequestsPage = () => {
     };
 
     const handleDelete = async (id) => {
+        const currentItem = requests.find((r) => (r.id || r.ID) === id);
+        if (currentItem && currentItem.status !== "Pending") {
+            alert("Only pending requests can be deleted");
+            return;
+        }
+
         if (window.confirm("Are you sure you want to delete this request?")) {
             try {
                 await api.delete(`/leaves/requests/${id}`);
@@ -169,6 +236,20 @@ const LeaveRequestsPage = () => {
         reset();
     };
 
+    const openCreateModal = () => {
+        const now = new Date();
+        setEditingId(null);
+        setSelectedEmployeeId("");
+        reset({
+            employees_id: "",
+            leave_type_id: "",
+            start_date: now,
+            end_date: new Date(now),
+            reason: "",
+        });
+        setIsModalOpen(true);
+    };
+
     const selectedEmployeeCompaniesId = selectedEmployeeId 
         ? employeeData[selectedEmployeeId]?.companies_id 
         : null;
@@ -183,10 +264,69 @@ const LeaveRequestsPage = () => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
         setValue("leave_type_id", "");
+
+        const parseTimeFromConfig = (timeValue) => {
+            if (!timeValue) return null;
+
+            if (typeof timeValue === "string") {
+                if (timeValue.includes(":") && !timeValue.includes("T")) {
+                    const [h, m] = timeValue.split(":").map(Number);
+                    return { hour: h, min: m };
+                }
+                const date = new Date(timeValue);
+                if (!isNaN(date.getTime())) {
+                    return { hour: date.getHours(), min: date.getMinutes() };
+                }
+            }
+
+            if (timeValue instanceof Date && !isNaN(timeValue.getTime())) {
+                return { hour: timeValue.getHours(), min: timeValue.getMinutes() };
+            }
+
+            return null;
+        };
+
+        const buildDateWithTime = (baseDate, hour, min) => {
+            const date = new Date(baseDate);
+            date.setHours(hour, min, 0, 0);
+            return date;
+        };
+
+        if (!empId) {
+            return;
+        }
+
+        const emp = employeeData[empId];
+        const compId = emp?.companies_id;
+        const config = compId ? attendanceConfigs[compId] : null;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (config) {
+            const startTime = parseTimeFromConfig(config.work_start_time);
+            const endTime = parseTimeFromConfig(config.work_end_time);
+
+            if (!startTime || !endTime) {
+                return;
+            }
+
+            const startDate = buildDateWithTime(today, startTime.hour, startTime.min);
+            const endDate = buildDateWithTime(today, endTime.hour, endTime.min);
+
+            if (endDate <= startDate) {
+                endDate.setDate(endDate.getDate() + 1);
+            }
+
+            setValue("start_date", startDate);
+            setValue("end_date", endDate);
+        }
     };
 
     const columns = [
         { label: "Employee",
+            sortKey: "employee_name",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             render: (row) => (
                 <div style={{ whiteSpace: "nowrap" }}>
                     <div style={{ fontWeight: "600" }}>
@@ -198,9 +338,16 @@ const LeaveRequestsPage = () => {
                 </div>
             )
         },
-        { label: "Type", render: (row) => row.leave_type_master?.name || row.leave_type || "—" },
+        {
+            label: "Type",
+            sortKey: "leave_type_name",
+            sortValue: (row) => (row.leave_type_master?.name || row.leave_type || "").toLowerCase(),
+            render: (row) => row.leave_type_master?.name || row.leave_type || "—",
+        },
         {
             label: "Duration",
+            sortKey: "start_date",
+            sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             render: (row) => {
                 const formatD = (d) => new Date(d).toLocaleDateString('en-GB', {
                     day: '2-digit', month: '2-digit', year: '2-digit'
@@ -210,10 +357,13 @@ const LeaveRequestsPage = () => {
         },
         {
             label: "Status",
+            sortKey: "status",
             render: (row) => <Badge status={row.status}>{row.status}</Badge>,
         },
         {
             label: "Approved By",
+            sortKey: "approver_name",
+            sortValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim().toLowerCase(),
             render: (row) => (
                 <div style={{ fontSize: "13px", color: "#475569" }}>
                     {row.approver ? (
@@ -228,14 +378,36 @@ const LeaveRequestsPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "employees.companies.name",
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => handleEdit(row)} style={smallBtn}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id || row.ID)} style={smallBtn}>Delete</Button>
+                    <Button
+                        variant="ghost"
+                        onClick={() => handleEdit(row)}
+                        style={{
+                            ...smallBtn,
+                            opacity: row.status === "Pending" ? 1 : 0.45,
+                            cursor: row.status === "Pending" ? "pointer" : "not-allowed",
+                        }}
+                    >
+                        Edit
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => handleDelete(row.id || row.ID)}
+                        style={{
+                            ...smallBtn,
+                            opacity: row.status === "Pending" ? 1 : 0.45,
+                            cursor: row.status === "Pending" ? "pointer" : "not-allowed",
+                        }}
+                    >
+                        Delete
+                    </Button>
                 </div>
             ),
         },
@@ -247,7 +419,7 @@ const LeaveRequestsPage = () => {
                 title="Leave Requests"
                 actionButton={
                     <Button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={openCreateModal}
                         style={{ width: "auto" }}
                     >
                         + Create Request
@@ -289,7 +461,10 @@ const LeaveRequestsPage = () => {
                     options={masterEmployees}
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
-                    onChange={handleEmployeeChange}
+                    onChange={(e) => {
+                        register("employees_id").onChange(e);
+                        handleEmployeeChange(e);
+                    }}
                 />
 
                 <SelectField
@@ -309,7 +484,18 @@ const LeaveRequestsPage = () => {
                             <DateTimeField
                                 label="Start Date"
                                 value={field.value}
-                                onChange={field.onChange}
+                                onChange={(nextStartDate) => {
+                                    const normalizedDates = normalizeLeaveDates(nextStartDate, endDateValue);
+                                    field.onChange(normalizedDates.startDate);
+
+                                    if (
+                                        normalizedDates.endDate instanceof Date &&
+                                        endDateValue instanceof Date &&
+                                        normalizedDates.endDate.getTime() !== endDateValue.getTime()
+                                    ) {
+                                        setValue("end_date", normalizedDates.endDate, { shouldValidate: true });
+                                    }
+                                }}
                                 error={errors.start_date?.message}
                             />
                         )}
@@ -323,7 +509,10 @@ const LeaveRequestsPage = () => {
                             <DateTimeField
                                 label="End Date"
                                 value={field.value}
-                                onChange={field.onChange}
+                                onChange={(nextEndDate) => {
+                                    const normalizedDates = normalizeLeaveDates(startDateValue, nextEndDate);
+                                    field.onChange(normalizedDates.endDate);
+                                }}
                                 error={errors.end_date?.message}
                             />
                         )}

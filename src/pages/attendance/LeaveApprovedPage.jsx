@@ -44,6 +44,8 @@ const LeaveApprovedPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employee_name",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             render: (row) => (
                 <div style={{ whiteSpace: "nowrap" }}>
                     <span style={{ fontWeight: "600" }}>
@@ -55,9 +57,16 @@ const LeaveApprovedPage = () => {
                 </div>
             )
         },
-        { label: "Type", key: "leave_type" },
+        {
+            label: "Type",
+            sortKey: "leave_type",
+            sortValue: (row) => (row.leave_type || "").toLowerCase(),
+            key: "leave_type",
+        },
         {
             label: "Period",
+            sortKey: "start_date",
+            sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             render: (row) => {
                 const formatDT = (d) => {
                     const date = new Date(d);
@@ -73,9 +82,15 @@ const LeaveApprovedPage = () => {
                 );
             }
         },
-        { label: "Days", key: "total_days" },
+        {
+            label: "Days",
+            key: "total_days",
+            sortValue: (row) => Number(row.total_days) || 0,
+        },
         {
             label: "Reason",
+            sortKey: "reason",
+            sortValue: (row) => (row.reason || "").toLowerCase(),
             render: (row) => (
                 <div style={{
                     maxWidth: "200px",
@@ -89,10 +104,12 @@ const LeaveApprovedPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "employees.companies.name",
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Decision",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>
                     <Button

@@ -218,6 +218,12 @@ const TimelogsListPage = () => {
         return { hour: defaultHour, min: defaultMin };
     };
 
+    const buildDateWithTime = (baseDate, hour, min) => {
+        const date = new Date(baseDate);
+        date.setHours(hour, min, 0, 0);
+        return date;
+    };
+
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
@@ -234,20 +240,19 @@ const TimelogsListPage = () => {
             if (config) {
                 const { hour: startHour, min: startMin } = parseTimeFromConfig(config.work_start_time, 9, 0);
                 const { hour: endHour, min: endMin } = parseTimeFromConfig(config.work_end_time, 18, 0);
-                
-                const checkInDate = new Date(today);
-                checkInDate.setHours(startHour, startMin, 0, 0);
-                
-                const checkOutDate = new Date(today);
-                checkOutDate.setHours(endHour, endMin, 0, 0);
+
+                const checkInDate = buildDateWithTime(today, startHour, startMin);
+                const checkOutDate = buildDateWithTime(today, endHour, endMin);
+
+                if (checkOutDate <= checkInDate) {
+                    checkOutDate.setDate(checkOutDate.getDate() + 1);
+                }
                 
                 setValue("check_in", checkInDate);
                 setValue("check_out", checkOutDate);
             } else {
-                const defaultCheckIn = new Date(today);
-                defaultCheckIn.setHours(9, 0, 0, 0);
-                const defaultCheckOut = new Date(today);
-                defaultCheckOut.setHours(18, 0, 0, 0);
+                const defaultCheckIn = buildDateWithTime(today, 9, 0);
+                const defaultCheckOut = buildDateWithTime(today, 18, 0);
                 
                 setValue("check_in", defaultCheckIn);
                 setValue("check_out", defaultCheckOut);
