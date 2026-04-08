@@ -23,7 +23,6 @@ const timeLogSchema = z.object({
         invalid_type_error: "That's not a valid date",
     }),
     check_out: z.date().nullable().optional(),
-    status: z.string().min(1, "Status is required"),
     work_location_id: z.coerce.number().optional().nullable(),
     remark: z.string().optional(),
 }).refine((data) => {
@@ -63,7 +62,6 @@ const TimelogsListPage = () => {
             employees_id: "",
             check_in: new Date(),
             check_out: null,
-            status: "on_time",
             work_location_id: "",
             remark: "",
         },
@@ -162,7 +160,6 @@ const TimelogsListPage = () => {
         setValue("check_in", parseDate(log.check_in));
         setValue("check_out", parseDate(log.check_out));
 
-        setValue("status", log.status);
         setValue("work_location_id", log.work_location_id?.toString() || "");
         setValue("remark", log.remark || "");
 
@@ -286,7 +283,6 @@ const TimelogsListPage = () => {
             },
             render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-",
         },
-        { label: "Status", key: "status" },
         {
             label: "Companies",
             sortKey: "employees.companies.name",
@@ -398,19 +394,6 @@ const TimelogsListPage = () => {
                             error={errors.check_out?.message}
                         />
                     )}
-                />
-
-                <SelectField
-                    label="Status"
-                    options={[
-                        { id: "on_time", name: "On-time" },
-                        { id: "late", name: "Late" },
-                        { id: "absent", name: "Absent" },
-                        { id: "leave", name: "Leave" },
-                        { id: "holiday", name: "Holiday" }
-                    ]}
-                    {...register("status")}
-                    error={errors.status?.message}
                 />
 
                 <SelectField

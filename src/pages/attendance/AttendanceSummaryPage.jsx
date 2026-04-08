@@ -39,7 +39,7 @@ const AttendanceSummaryPage = () => {
     const fetchSummary = async () => {
         try {
             setLoading(true);
-            const res = await api.get("/attendance/summary", {
+            const res = await api.get("/deduction/summary", {
                 params: { from: toDateStr(fromDate), to: toDateStr(toDate) },
             });
             setSummary(res.data.summary || []);
