@@ -9,6 +9,19 @@ import DateField from "../../components/common/DateField";
 
 const toDateStr = (date) => {
     if (!date) return "";
+
+    if (typeof date === "string") {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+        const parsed = new Date(date);
+        if (Number.isNaN(parsed.getTime())) return "";
+        const y = parsed.getFullYear();
+        const m = String(parsed.getMonth() + 1).padStart(2, "0");
+        const d = String(parsed.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    }
+
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
@@ -33,7 +46,7 @@ const AttendanceSummaryPage = () => {
             setMeta({ from: res.data.from, to: res.data.to });
         } catch (err) {
             console.error("Fetch Error:", err);
-            alert(err.response?.data?.error || "Failed to load summary");
+            alert(err.response?.data?.error || "Failed to load deduction summary");
         } finally {
             setLoading(false);
         }
@@ -50,7 +63,7 @@ const AttendanceSummaryPage = () => {
         { label: "Full Name", key: "full_name" },
         { label: "Companies", key: "company_name" },
         {
-            label: "Late (min)",
+            label: "LATE (M)",
             render: (row) => (
                 <span style={{ color: row.total_late_minutes > 0 ? "#f59e0b" : undefined }}>
                     {row.total_late_minutes.toFixed(1)}
@@ -58,7 +71,7 @@ const AttendanceSummaryPage = () => {
             ),
         },
         {
-            label: "Late Amount (฿)",
+            label: "LATE ($)",
             render: (row) => (
                 <span style={{ color: row.late_amount > 0 ? "#ef4444" : undefined }}>
                     {row.late_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -66,7 +79,7 @@ const AttendanceSummaryPage = () => {
             ),
         },
         {
-            label: "Absent (days)",
+            label: "ABSENT (D)",
             render: (row) => (
                 <span style={{ color: row.total_absent_days > 0 ? "#f59e0b" : undefined }}>
                     {row.total_absent_days}
@@ -74,7 +87,7 @@ const AttendanceSummaryPage = () => {
             ),
         },
         {
-            label: "Absent Amount (฿)",
+            label: "ABSENT ($)",
             render: (row) => (
                 <span style={{ color: row.absent_amount > 0 ? "#ef4444" : undefined }}>
                     {row.absent_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -93,7 +106,7 @@ const AttendanceSummaryPage = () => {
 
     return (
         <>
-            <PageHeader title="Attendance Summary" />
+            <PageHeader title="Deduction Summary" />
 
             {/* Filter Bar */}
             <Card style={{ marginBottom: "16px" }}>
