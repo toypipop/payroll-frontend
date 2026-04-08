@@ -37,6 +37,23 @@ const createEmployeesSchema = (isEditing, requireCompany) => z.object({
     account_no: z.string().optional(),
 });
 
+const EMPTY_EMPLOYEE_FORM = {
+    employees_code: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    dept_id: "",
+    pos_id: "",
+    roles_id: "",
+    employment_type_id: "",
+    companies_id: "",
+    is_active: true,
+    password: "",
+    bank_id: "",
+    account_name: "",
+    account_no: "",
+};
+
 const EmployeesListPage = () => {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -74,22 +91,7 @@ const EmployeesListPage = () => {
         formState: { errors },
     } = useForm({
         resolver: dynamicResolver,
-        defaultValues: {
-            employees_code: "",
-            first_name: "",
-            last_name: "",
-            email: "",
-            dept_id: "",
-            pos_id: "",
-            roles_id: "",
-            employment_type_id: "",
-            companies_id: "",
-            is_active: true,
-            password: "",
-            bank_id: "",
-            account_name: "",
-            account_no: "",
-        },
+        defaultValues: EMPTY_EMPLOYEE_FORM,
     });
 
     // Watch selected company to drive cascading filter
@@ -247,7 +249,14 @@ const EmployeesListPage = () => {
         setIsModalOpen(false);
         setEditingId(null);
         editingIdRef.current = null;
-        reset(); // Clear form and errors
+        reset(EMPTY_EMPLOYEE_FORM); // Clear form and errors
+    };
+
+    const openCreateModal = () => {
+        setEditingId(null);
+        editingIdRef.current = null;
+        reset(EMPTY_EMPLOYEE_FORM);
+        setIsModalOpen(true);
     };
 
     const columns = [
@@ -307,7 +316,7 @@ const EmployeesListPage = () => {
                 title="Employees Directory"
                 actionButton={
                     <Button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={openCreateModal}
                         style={{ width: "auto" }}
                     >
                         + Add Employees
