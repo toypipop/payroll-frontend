@@ -12,7 +12,7 @@ import Badge from "../../components/common/Badge";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
-import DateTimeField from "../../components/common/DateTimeField";
+import DateField from "../../components/common/DateField";
 
 import { Controller } from "react-hook-form";
 
@@ -20,24 +20,18 @@ import { Controller } from "react-hook-form";
 const leaveSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
     leave_type_id: z.string().min(1, "Please select leave type"),
-    // Accept Date from date-time field
-    start_date: z.date({
-        required_error: "Start date is required",
-        invalid_type_error: "Start date is required",
-    }),
-    end_date: z.date({
-        required_error: "End date is required",
-        invalid_type_error: "End date is required",
-    }),
+    // Accept YYYY-MM-DD string from DateField
+    start_date: z.string().min(1, "Start date is required"),
+    end_date: z.string().min(1, "End date is required"),
     reason: z.string().max(500, "Reason must be less than 500 characters").optional().or(z.literal("")),
 }).refine((data) => {
     if (data.start_date && data.end_date) {
-        // End date-time must be strictly after start date-time
-        return data.end_date > data.start_date;
+        // Same day is allowed (1 day leave)
+        return data.end_date >= data.start_date;
     }
     return true;
 }, {
-    message: "End date must be after start date",
+    message: "End date must be on or after start date",
     path: ["end_date"],
 });
 
@@ -50,7 +44,6 @@ const LeaveRequestsPage = () => {
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
     const [employeeData, setEmployeeData] = useState({});
-    const [attendanceConfigs, setAttendanceConfigs] = useState({});
 
     // Initialize form with hook form
     const {
@@ -58,7 +51,6 @@ const LeaveRequestsPage = () => {
         handleSubmit,
         reset,
         setValue,
-        watch,
         control,
         formState: { errors },
     } = useForm({
@@ -66,33 +58,11 @@ const LeaveRequestsPage = () => {
         defaultValues: {
             employees_id: "",
             leave_type_id: "",
-            start_date: new Date(),
-            end_date: new Date(),
+            start_date: "",
+            end_date: "",
             reason: "",
         },
     });
-
-    const startDateValue = watch("start_date");
-    const endDateValue = watch("end_date");
-
-    const normalizeLeaveDates = (startInput, endInput) => {
-        if (!startInput || !endInput) {
-            return { startDate: startInput, endDate: endInput };
-        }
-
-        const startDate = new Date(startInput);
-        const endDate = new Date(endInput);
-
-        if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-            return { startDate: startInput, endDate: endInput };
-        }
-
-        if (endDate <= startDate) {
-            endDate.setDate(endDate.getDate() + 1);
-        }
-
-        return { startDate, endDate };
-    };
 
     const fetchRequests = async () => {
         try {
@@ -109,10 +79,9 @@ const LeaveRequestsPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [empRes, ltRes, attConfigRes] = await Promise.all([
+                const [empRes, ltRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/leave-types").catch(() => ({ data: [] })),
-                    api.get("/attendance/config").catch(() => ({ data: [] })),
                 ]);
                 setMasterEmployees(
                     empRes.data.map((e) => ({
@@ -127,21 +96,11 @@ const LeaveRequestsPage = () => {
                 });
                 setEmployeeData(empDataMap);
 
-                const configMap = {};
-                
                 setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ 
                     id: lt.id || lt.ID,
                     name: lt.name,
                     companies_id: lt.companies_id 
                 })));
-
-                (attConfigRes.data || []).forEach((c) => {
-                    const compId = c.ID || c.id || c.companies_id;
-                    if (compId) {
-                        configMap[compId] = c.attendance_config || null;
-                    }
-                });
-                setAttendanceConfigs(configMap);
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -156,7 +115,6 @@ const LeaveRequestsPage = () => {
             const leaveTypeId = Number(data.leave_type_id);
             const companyId = employeeData[data.employees_id]?.companies_id || null;
             const selectedLeaveType = masterLeaveTypes.find((lt) => String(lt.id) === String(data.leave_type_id));
-            const normalizedDates = normalizeLeaveDates(data.start_date, data.end_date);
 
             if (!Number.isFinite(employeeId) || employeeId <= 0) {
                 alert("Please select an employee");
@@ -179,9 +137,8 @@ const LeaveRequestsPage = () => {
                 leave_type_id: leaveTypeId,
                 leave_type: selectedLeaveType.name,
                 companies_id: companyId,
-                // Ensure dates are converted to ISO string for Go time.Time
-                start_date: normalizedDates.startDate.toISOString(),
-                end_date: normalizedDates.endDate.toISOString(),
+                start_date: `${data.start_date}T00:00:00Z`,
+                end_date: `${data.end_date}T00:00:00Z`,
             };
 
             if (editingId) {
@@ -205,9 +162,8 @@ const LeaveRequestsPage = () => {
         setValue("employees_id", req.employees_id?.toString() || "");
         setSelectedEmployeeId(req.employees_id?.toString() || "");
         setValue("leave_type_id", req.leave_type_id?.toString() || "");
-        // Convert API string to Date for field
-        setValue("start_date", req.start_date ? new Date(req.start_date) : null);
-        setValue("end_date", req.end_date ? new Date(req.end_date) : null);
+        setValue("start_date", req.start_date ? req.start_date.split("T")[0] : "");
+        setValue("end_date", req.end_date ? req.end_date.split("T")[0] : "");
         setValue("reason", req.reason || "");
         setIsModalOpen(true);
     };
@@ -237,14 +193,13 @@ const LeaveRequestsPage = () => {
     };
 
     const openCreateModal = () => {
-        const now = new Date();
         setEditingId(null);
         setSelectedEmployeeId("");
         reset({
             employees_id: "",
             leave_type_id: "",
-            start_date: now,
-            end_date: new Date(now),
+            start_date: "",
+            end_date: "",
             reason: "",
         });
         setIsModalOpen(true);
@@ -264,63 +219,6 @@ const LeaveRequestsPage = () => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
         setValue("leave_type_id", "");
-
-        const parseTimeFromConfig = (timeValue) => {
-            if (!timeValue) return null;
-
-            if (typeof timeValue === "string") {
-                if (timeValue.includes(":") && !timeValue.includes("T")) {
-                    const [h, m] = timeValue.split(":").map(Number);
-                    return { hour: h, min: m };
-                }
-                const date = new Date(timeValue);
-                if (!isNaN(date.getTime())) {
-                    return { hour: date.getHours(), min: date.getMinutes() };
-                }
-            }
-
-            if (timeValue instanceof Date && !isNaN(timeValue.getTime())) {
-                return { hour: timeValue.getHours(), min: timeValue.getMinutes() };
-            }
-
-            return null;
-        };
-
-        const buildDateWithTime = (baseDate, hour, min) => {
-            const date = new Date(baseDate);
-            date.setHours(hour, min, 0, 0);
-            return date;
-        };
-
-        if (!empId) {
-            return;
-        }
-
-        const emp = employeeData[empId];
-        const compId = emp?.companies_id;
-        const config = compId ? attendanceConfigs[compId] : null;
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (config) {
-            const startTime = parseTimeFromConfig(config.work_start_time);
-            const endTime = parseTimeFromConfig(config.work_end_time);
-
-            if (!startTime || !endTime) {
-                return;
-            }
-
-            const startDate = buildDateWithTime(today, startTime.hour, startTime.min);
-            const endDate = buildDateWithTime(today, endTime.hour, endTime.min);
-
-            if (endDate <= startDate) {
-                endDate.setDate(endDate.getDate() + 1);
-            }
-
-            setValue("start_date", startDate);
-            setValue("end_date", endDate);
-        }
     };
 
     const columns = [
@@ -476,43 +374,27 @@ const LeaveRequestsPage = () => {
                 />
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                    {/* Start Date Controller (English Comment) */}
                     <Controller
                         control={control}
                         name="start_date"
                         render={({ field }) => (
-                            <DateTimeField
+                            <DateField
                                 label="Start Date"
                                 value={field.value}
-                                onChange={(nextStartDate) => {
-                                    const normalizedDates = normalizeLeaveDates(nextStartDate, endDateValue);
-                                    field.onChange(normalizedDates.startDate);
-
-                                    if (
-                                        normalizedDates.endDate instanceof Date &&
-                                        endDateValue instanceof Date &&
-                                        normalizedDates.endDate.getTime() !== endDateValue.getTime()
-                                    ) {
-                                        setValue("end_date", normalizedDates.endDate, { shouldValidate: true });
-                                    }
-                                }}
+                                onChange={field.onChange}
                                 error={errors.start_date?.message}
                             />
                         )}
                     />
 
-                    {/* End Date Controller (English Comment) */}
                     <Controller
                         control={control}
                         name="end_date"
                         render={({ field }) => (
-                            <DateTimeField
+                            <DateField
                                 label="End Date"
                                 value={field.value}
-                                onChange={(nextEndDate) => {
-                                    const normalizedDates = normalizeLeaveDates(startDateValue, nextEndDate);
-                                    field.onChange(normalizedDates.endDate);
-                                }}
+                                onChange={field.onChange}
                                 error={errors.end_date?.message}
                             />
                         )}

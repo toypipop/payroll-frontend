@@ -16,8 +16,8 @@ import Badge from "../../components/common/Badge";
 
 const cycleSchema = z.object({
     cycle_name: z.string().min(1, "Cycle name is required"),
-    start_date: z.date({ required_error: "Start date is required" }),
-    end_date: z.date({ required_error: "End date is required" }),
+    start_date: z.string().min(1, "Start date is required"),
+    end_date: z.string().min(1, "End date is required"),
 }).refine((d) => d.end_date > d.start_date, {
     message: "End date must be after start date",
     path: ["end_date"],
@@ -54,8 +54,8 @@ const PayrollCyclesPage = () => {
         try {
             await api.post("/payroll/cycles", {
                 cycle_name: data.cycle_name,
-                start_date: data.start_date.toISOString(),
-                end_date: data.end_date.toISOString(),
+                start_date: data.start_date + "T00:00:00Z",
+                end_date: data.end_date + "T00:00:00Z",
             });
             fetchCycles();
             closeModal();

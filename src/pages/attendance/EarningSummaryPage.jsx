@@ -30,10 +30,11 @@ const toDateStr = (date) => {
 
 const EarningSummaryPage = () => {
     const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
     const [summary, setSummary] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [fromDate, setFromDate] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
-    const [toDate, setToDate] = useState(new Date());
+    const [fromDate, setFromDate] = useState(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`);
+    const [toDate, setToDate] = useState(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`);
     const [meta, setMeta] = useState({ from: "", to: "" });
 
     const fetchSummary = async () => {

@@ -18,16 +18,13 @@ import { Controller } from "react-hook-form";
 // Validation schema for timelog form
 const timeLogSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
-    check_in: z.date({
-        required_error: "Check-in time is required",
-        invalid_type_error: "That's not a valid date",
-    }),
-    check_out: z.date().nullable().optional(),
+    check_in: z.string().min(1, "Check-in time is required"),
+    check_out: z.string().optional().or(z.literal("")),
     work_location_id: z.coerce.number().optional().nullable(),
     remark: z.string().optional(),
 }).refine((data) => {
     if (data.check_in && data.check_out) {
-        return new Date(data.check_out) >= new Date(data.check_in);
+        return data.check_out >= data.check_in;
     }
     return true;
 }, {
@@ -60,8 +57,8 @@ const TimelogsListPage = () => {
         resolver: zodResolver(timeLogSchema),
         defaultValues: {
             employees_id: "",
-            check_in: new Date(),
-            check_out: null,
+            check_in: "",
+            check_out: "",
             work_location_id: "",
             remark: "",
         },
@@ -151,14 +148,16 @@ const TimelogsListPage = () => {
         setValue("employees_id", log.employees_id?.toString());
         setSelectedEmployeeId(log.employees_id?.toString());
 
-        // Ensure valid Date object or null
-        const parseDate = (isoString) => {
-            return isoString ? new Date(isoString) : null;
+        const parseToLocalISO = (isoString) => {
+            if (!isoString) return "";
+            const d = new Date(isoString);
+            if (isNaN(d.getTime())) return "";
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
         };
 
-        // Use Date objects instead of time strings (English Comment)
-        setValue("check_in", parseDate(log.check_in));
-        setValue("check_out", parseDate(log.check_out));
+        setValue("check_in", parseToLocalISO(log.check_in));
+        setValue("check_out", parseToLocalISO(log.check_out));
 
         setValue("work_location_id", log.work_location_id?.toString() || "");
         setValue("remark", log.remark || "");
@@ -244,15 +243,16 @@ const TimelogsListPage = () => {
                 if (checkOutDate <= checkInDate) {
                     checkOutDate.setDate(checkOutDate.getDate() + 1);
                 }
-                
-                setValue("check_in", checkInDate);
-                setValue("check_out", checkOutDate);
+
+                const toLocalISO = (d) => { const pad = (n) => String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+                setValue("check_in", toLocalISO(checkInDate));
+                setValue("check_out", toLocalISO(checkOutDate));
             } else {
                 const defaultCheckIn = buildDateWithTime(today, 9, 0);
                 const defaultCheckOut = buildDateWithTime(today, 18, 0);
-                
-                setValue("check_in", defaultCheckIn);
-                setValue("check_out", defaultCheckOut);
+                const toLocalISO = (d) => { const pad = (n) => String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+                setValue("check_in", toLocalISO(defaultCheckIn));
+                setValue("check_out", toLocalISO(defaultCheckOut));
             }
         } else {
             setValue("check_in", null);
