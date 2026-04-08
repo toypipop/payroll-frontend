@@ -261,23 +261,35 @@ const TimelogsListPage = () => {
     const columns = [
         {
             label: "Employee",
-            render: (row) => row.employees?.first_name + ' ' + row.employees?.last_name
+            sortKey: "employee_name",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
+            render: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim() || "-",
         },
         {
             label: "Date",
-            render: (row) => row.check_in ? new Date(row.check_in).toISOString().split('T')[0] : "-"
+            sortKey: "check_in_date",
+            sortValue: (row) => (row.check_in ? new Date(row.check_in).getTime() : 0),
+            render: (row) => row.check_in ? new Date(row.check_in).toISOString().split("T")[0] : "-",
         },
         {
             label: "Time In",
-            render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"
+            sortKey: "check_in_time",
+            sortValue: (row) => {
+                if (!row.check_in) return -1;
+                const date = new Date(row.check_in);
+                return date.getHours() * 60 + date.getMinutes();
+            },
+            render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-",
         },
         { label: "Status", key: "status" },
         {
             label: "Companies",
+            sortKey: "employees.companies.name",
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button

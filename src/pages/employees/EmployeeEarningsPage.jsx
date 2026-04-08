@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -27,12 +27,26 @@ const EmployeeEarningsPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, watch, resetField, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { employees_id: "", earning_type_id: "", amount: "" },
     });
 
     const editingId = watch("id");
+    const selectedEmployeeId = watch("employees_id");
+    const selectedEmployee = employees.find((emp) => String(emp.id) === String(selectedEmployeeId));
+    const selectedCompanyId = selectedEmployee?.companies_id;
+
+    const filteredEarningTypes = useMemo(() => {
+        if (!selectedCompanyId) return earningTypes;
+
+        return earningTypes.filter((et) => {
+            if (!et.companies_id) return true;
+            return String(et.companies_id) === String(selectedCompanyId);
+        });
+    }, [earningTypes, selectedCompanyId]);
+
+    const employeeField = register("employees_id");
 
     const fetchData = async () => {
         try {
@@ -56,6 +70,16 @@ const EmployeeEarningsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            const selectedType = earningTypes.find((et) => String(et.id) === String(data.earning_type_id));
+            if (
+                selectedCompanyId &&
+                selectedType?.companies_id &&
+                String(selectedType.companies_id) !== String(selectedCompanyId)
+            ) {
+                alert("Selected earning type does not belong to this employee's company");
+                return;
+            }
+
             if (data.id) {
                 await api.put(`/employee-earnings/${data.id}`, data);
             } else {
@@ -98,6 +122,8 @@ const EmployeeEarningsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employee_name",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             render: (row) =>
                 row.employees
                     ? `${row.employees.first_name} ${row.employees.last_name}`
@@ -105,18 +131,24 @@ const EmployeeEarningsPage = () => {
         },
         {
             label: "Earning Type",
+            sortKey: "earning_type_name",
+            sortValue: (row) => (row.earning_type?.name || "").toLowerCase(),
             render: (row) => row.earning_type?.name ?? `ID: ${row.earning_type_id}`,
         },
         {
             label: "Monthly Amount (฿)",
+            sortKey: "amount",
+            sortValue: (row) => Number(row.amount) || 0,
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
             label: "Companies",
+            sortKey: "employees.companies.name",
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button variant="ghost" onClick={() => handleEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>
@@ -167,8 +199,13 @@ const EmployeeEarningsPage = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField
                         label="Employee"
-                        {...register("employees_id")}
+                        {...employeeField}
+                        placeholder="Select employee"
                         error={errors.employees_id?.message}
+                        onChange={(e) => {
+                            employeeField.onChange(e);
+                            resetField("earning_type_id", { defaultValue: "" });
+                        }}
                         options={employees.map((e) => ({
                             id: e.id,
                             name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
@@ -177,8 +214,10 @@ const EmployeeEarningsPage = () => {
                     <SelectField
                         label="Earning Type"
                         {...register("earning_type_id")}
+                        placeholder={selectedEmployeeId ? "Select earning type" : "Select employee first"}
                         error={errors.earning_type_id?.message}
-                        options={earningTypes.map((et) => ({ id: et.id, name: et.name }))}
+                        options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}
+                        disabled={!selectedEmployeeId}
                     />
                     <Controller
                         name="amount"

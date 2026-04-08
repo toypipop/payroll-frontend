@@ -33,16 +33,17 @@ const SelectField = forwardRef(
             if (value === undefined && hiddenRef.current) {
                 // Initial sync from ref
                 const refVal = hiddenRef.current.value;
-                if (refVal) {
-                    setInternalValue(refVal);
-                }
+                window.requestAnimationFrame(() => {
+                    setInternalValue(refVal ?? "");
+                });
 
                 // Poll for changes from React Hook Form's setValue()
                 if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
                 pollIntervalRef.current = setInterval(() => {
                     if (hiddenRef.current) {
                         const currentRefVal = hiddenRef.current.value;
-                        setInternalValue((prev) => currentRefVal || prev);
+                        const nextValue = currentRefVal ?? "";
+                        setInternalValue((prev) => (prev === nextValue ? prev : nextValue));
                     }
                 }, 50);
 

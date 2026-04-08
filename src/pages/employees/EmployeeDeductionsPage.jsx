@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -27,12 +27,26 @@ const EmployeeDeductionsPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, watch, resetField, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { employees_id: "", deduction_type_id: "", amount: "" },
     });
 
     const editingId = watch("id");
+    const selectedEmployeeId = watch("employees_id");
+    const selectedEmployee = employees.find((emp) => String(emp.id) === String(selectedEmployeeId));
+    const selectedCompanyId = selectedEmployee?.companies_id;
+
+    const filteredDeductionTypes = useMemo(() => {
+        if (!selectedCompanyId) return deductionTypes;
+
+        return deductionTypes.filter((dt) => {
+            if (!dt.companies_id) return true;
+            return String(dt.companies_id) === String(selectedCompanyId);
+        });
+    }, [deductionTypes, selectedCompanyId]);
+
+    const employeeField = register("employees_id");
 
     const fetchData = async () => {
         try {
@@ -56,6 +70,16 @@ const EmployeeDeductionsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            const selectedType = deductionTypes.find((dt) => String(dt.id) === String(data.deduction_type_id));
+            if (
+                selectedCompanyId &&
+                selectedType?.companies_id &&
+                String(selectedType.companies_id) !== String(selectedCompanyId)
+            ) {
+                alert("Selected deduction type does not belong to this employee's company");
+                return;
+            }
+
             if (data.id) {
                 await api.put(`/employee-deductions/${data.id}`, data);
             } else {
@@ -98,6 +122,8 @@ const EmployeeDeductionsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employee_name",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             render: (row) =>
                 row.employees
                     ? `${row.employees.first_name} ${row.employees.last_name}`
@@ -105,18 +131,24 @@ const EmployeeDeductionsPage = () => {
         },
         {
             label: "Deduction Type",
+            sortKey: "deduction_type_name",
+            sortValue: (row) => (row.deduction_type?.name || "").toLowerCase(),
             render: (row) => row.deduction_type?.name ?? `ID: ${row.deduction_type_id}`,
         },
         {
             label: "Monthly Amount (฿)",
+            sortKey: "amount",
+            sortValue: (row) => Number(row.amount) || 0,
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
             label: "Companies",
+            sortKey: "employees.companies.name",
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button variant="ghost" onClick={() => handleEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>
@@ -167,8 +199,13 @@ const EmployeeDeductionsPage = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField
                         label="Employee"
-                        {...register("employees_id")}
+                        {...employeeField}
+                        placeholder="Select employee"
                         error={errors.employees_id?.message}
+                        onChange={(e) => {
+                            employeeField.onChange(e);
+                            resetField("deduction_type_id", { defaultValue: "" });
+                        }}
                         options={employees.map((e) => ({
                             id: e.id,
                             name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
@@ -177,8 +214,10 @@ const EmployeeDeductionsPage = () => {
                     <SelectField
                         label="Deduction Type"
                         {...register("deduction_type_id")}
+                        placeholder={selectedEmployeeId ? "Select deduction type" : "Select employee first"}
                         error={errors.deduction_type_id?.message}
-                        options={deductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
+                        options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
+                        disabled={!selectedEmployeeId}
                     />
                     <Controller
                         name="amount"
