@@ -35,9 +35,11 @@ const Table = ({
     renderAfterRow,
     sortable = true,
     rowsPerPage = 10,
+    enableSearch = true,
 }) => {
     const [sortState, setSortState] = useState({ key: null, order: null });
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const isCompact = density === "compact";
 
@@ -100,6 +102,26 @@ const Table = ({
         });
     }, [data, sortState, columns]);
 
+    const filteredData = useMemo(() => {
+        if (!searchQuery.trim()) return sortedData;
+        
+        const query = searchQuery.toLowerCase();
+        return sortedData.filter(row => {
+            return columns.some(col => {
+                let value;
+                if (col.render) {
+                    // For columns with custom render, try to get raw value from data
+                    value = row[col.key];
+                } else {
+                    value = row[col.key];
+                }
+                
+                if (value == null) return false;
+                return String(value).toLowerCase().includes(query);
+            });
+        });
+    }, [sortedData, searchQuery, columns]);
+
     const styles = {
         tableContainer: {
             width: "100%",
@@ -150,7 +172,7 @@ const Table = ({
             gap: "12px",
             flexWrap: "wrap",
             marginTop: 0,
-            padding: isCompact ? "8px 2px" : "8px 4px",
+            padding: "8px 4px",
             backgroundColor: "#f0effe",
             borderRadius: "10px",
             fontSize: "13px",
@@ -206,9 +228,56 @@ const Table = ({
             cursor: "not-allowed",
             boxShadow: "none",
         },
+        searchBox: {
+            margin: "6px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+        },
+        searchInputWrapper: {
+            flex: 1,
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+        },
+        searchIcon: {
+            position: "absolute",
+            left: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#cbd5e1",
+            pointerEvents: "none",
+        },
+        searchInput: {
+            width: "100%",
+            padding: "10px 12px 10px 38px",
+            fontSize: "14px",
+            fontWeight: "500",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            backgroundColor: "#ffffff",
+            color: "var(--text-main)",
+            outline: "none",
+            transition: "all 0.2s ease",
+            boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)",
+        },
     };
 
-    const safeData = sortedData || [];
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1);
+    };
+
+    const SearchIcon = () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+    );
+
+    const safeData = filteredData || [];
     const safeRowsPerPage = Math.max(1, Number(rowsPerPage) || 10);
     const totalPages = Math.max(1, Math.ceil(safeData.length / safeRowsPerPage));
     const page = Math.min(currentPage, totalPages);
@@ -233,6 +302,31 @@ const Table = ({
 
     return (
         <div style={styles.tableContainer}>
+            {enableSearch && (
+                <div style={styles.searchBox}>
+                    <div style={styles.searchInputWrapper}>
+                        <div style={styles.searchIcon}>
+                            <SearchIcon />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            style={styles.searchInput}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = "#6259ca";
+                                e.target.style.boxShadow = "0 0 0 3px rgba(98, 89, 202, 0.1)";
+                                e.target.style.backgroundColor = "#ffffff";
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = "#e2e8f0";
+                                e.target.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.03)";
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
             <div style={styles.tableScroll}>
                 <table style={styles.table}>
                     {!hideHeader && (

@@ -284,6 +284,16 @@ const TimelogsListPage = () => {
             render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-",
         },
         {
+            label: "Time Out",
+            sortKey: "check_out_time",
+            sortValue: (row) => {
+                if (!row.check_out) return -1;
+                const date = new Date(row.check_out);
+                return date.getHours() * 60 + date.getMinutes();
+            },
+            render: (row) => row.check_out ? new Date(row.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-",
+        },
+        {
             label: "Companies",
             sortKey: "employees.companies.name",
             render: (row) => row.employees?.companies?.name || "-",
