@@ -260,21 +260,29 @@ const EmployeesListPage = () => {
     };
 
     const columns = [
-        { label: "Code", key: "employees_code" },
+        { label: "Code", key: "employees_code", searchableKeys: ['employees_code'] },
         {
             label: "Full Name",
             sortKey: "first_name",
+            searchableKeys: ['first_name', 'last_name'],
             render: (row) => `${row.first_name} ${row.last_name}`,
         },
-        { label: "Position", sortKey: "position.pos_name", render: (row) => row.position?.pos_name || "N/A" },
+        { 
+            label: "Position", 
+            sortKey: "position.pos_name", 
+            searchableKeys: ['position.pos_name'],
+            render: (row) => row.position?.pos_name || "N/A" 
+        },
         {
             label: "Department",
             sortKey: "department.dept_name",
+            searchableKeys: ['department.dept_name'],
             render: (row) => row.department?.dept_name || "N/A",
         },
         {
             label: "Status",
             sortKey: "is_active",
+            searchValue: (row) => row.is_active ? "Active" : "Inactive",
             render: (row) => (
                 <Badge status={row.is_active}>
                     {row.is_active ? "Active" : "Inactive"}
@@ -284,6 +292,7 @@ const EmployeesListPage = () => {
         {
             label: "Companies",
             sortKey: "companies.name",
+            searchableKeys: ['companies.name'],
             render: (row) => row.companies?.name || "-",
         },
         {

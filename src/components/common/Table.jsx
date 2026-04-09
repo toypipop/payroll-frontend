@@ -36,8 +36,9 @@ const Table = ({
     sortable = true,
     rowsPerPage = 10,
     enableSearch = true,
+    defaultSort = null,
 }) => {
-    const [sortState, setSortState] = useState({ key: null, order: null });
+    const [sortState, setSortState] = useState(defaultSort || { key: null, order: null });
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -106,18 +107,44 @@ const Table = ({
         if (!searchQuery.trim()) return sortedData;
         
         const query = searchQuery.toLowerCase();
+        
+        // Helper function to get nested values from objects
+        const getNestedValue = (obj, path) => {
+            if (!path) return null;
+            return path.split('.').reduce((current, key) => current?.[key], obj);
+        };
+
         return sortedData.filter(row => {
             return columns.some(col => {
-                let value;
-                if (col.render) {
-                    // For columns with custom render, try to get raw value from data
-                    value = row[col.key];
-                } else {
-                    value = row[col.key];
+                // Skip Actions and other non-searchable columns
+                if (col.sortable === false && col.searchableKeys === undefined && !col.searchValue) {
+                    return false;
                 }
                 
-                if (value == null) return false;
-                return String(value).toLowerCase().includes(query);
+                // If column has searchValue function, use it to get custom search text
+                if (col.searchValue && typeof col.searchValue === 'function') {
+                    const searchText = String(col.searchValue(row)).toLowerCase();
+                    // Normalize both search text and query by removing commas for flexible matching
+                    const normalizedSearchText = searchText.replace(/,/g, '');
+                    const normalizedQuery = query.replace(/,/g, '');
+                    return normalizedSearchText.includes(normalizedQuery);
+                }
+                
+                // Use searchableKeys if provided, otherwise use key and sortKey
+                let keysToSearch = [];
+                
+                if (col.searchableKeys && Array.isArray(col.searchableKeys)) {
+                    keysToSearch = col.searchableKeys;
+                } else {
+                    if (col.key) keysToSearch.push(col.key);
+                    if (col.sortKey) keysToSearch.push(col.sortKey);
+                }
+                
+                return keysToSearch.some(key => {
+                    let value = getNestedValue(row, key);
+                    if (value == null) return false;
+                    return String(value).toLowerCase().includes(query);
+                });
             });
         });
     }, [sortedData, searchQuery, columns]);

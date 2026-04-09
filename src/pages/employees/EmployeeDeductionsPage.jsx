@@ -123,6 +123,7 @@ const EmployeeDeductionsPage = () => {
         {
             label: "Employee",
             sortKey: "employee_name",
+            searchableKeys: ['employees.first_name', 'employees.last_name'],
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             render: (row) =>
                 row.employees
@@ -132,18 +133,21 @@ const EmployeeDeductionsPage = () => {
         {
             label: "Deduction Type",
             sortKey: "deduction_type_name",
+            searchableKeys: ['deduction_type.name'],
             sortValue: (row) => (row.deduction_type?.name || "").toLowerCase(),
             render: (row) => row.deduction_type?.name ?? `ID: ${row.deduction_type_id}`,
         },
         {
             label: "Monthly Amount (฿)",
             sortKey: "amount",
+            searchableKeys: ['amount'],
             sortValue: (row) => Number(row.amount) || 0,
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
             label: "Companies",
             sortKey: "employees.companies.name",
+            searchableKeys: ['employees.companies.name'],
             render: (row) => row.employees?.companies?.name || "-",
         },
         {

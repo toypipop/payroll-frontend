@@ -209,8 +209,7 @@ const SalariesStructurePage = () => {
                         __salary_id: latestId,
                         __recent_sort: Number.isNaN(recentSort) ? latestId : recentSort,
                     };
-                })
-                .sort((a, b) => b.__recent_sort - a.__recent_sort || b.__salary_id - a.__salary_id);
+                });
             setSalariesData(normalized);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -296,15 +295,17 @@ const SalariesStructurePage = () => {
     };
 
     const columns = [
-        { label: "Code", key: "employees_code" },
+        { label: "Code", key: "employees_code", searchableKeys: ['employees_code'] },
         {
             label: "Full Name",
             sortKey: "first_name",
+            searchableKeys: ['first_name', 'last_name'],
             render: (row) => `${row.first_name} ${row.last_name}`,
         },
         {
             label: "Base Salaries",
             sortKey: "base_salaries_sort",
+            searchValue: (row) => getSalaryBaseAmount(row.__salary || null, row).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, ''),
             sortValue: (row) => getSalaryBaseAmount(row.__salary || null, row),
             render: (row) => {
                 const ss = row.__salary || null;
@@ -315,6 +316,20 @@ const SalariesStructurePage = () => {
         {
             label: "Effective Date",
             sortKey: "effective_date_sort",
+            searchValue: (row) => {
+                const ss = row.__salary || null;
+                const date = getSalaryEffectiveDate(ss, row);
+                if (!date || date.startsWith("0001")) return "";
+                try {
+                    const d = new Date(date);
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${year}/${month}/${day}`;
+                } catch (e) {
+                    return "";
+                }
+            },
             sortValue: (row) => {
                 const date = getSalaryEffectiveDate(row.__salary || null, row);
                 if (!date || date.startsWith("0001")) return 0;
@@ -326,8 +341,11 @@ const SalariesStructurePage = () => {
                 const date = getSalaryEffectiveDate(ss, row);
                 if (!date || date.startsWith("0001")) return "-";
                 try {
-                    return new Date(date).toLocaleDateString();
-                    // eslint-disable-next-line no-unused-vars
+                    const d = new Date(date);
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${year}/${month}/${day}`;
                 } catch (e) {
                     return "-";
                 }
@@ -336,6 +354,11 @@ const SalariesStructurePage = () => {
         {
             label: "Salary Status",
             sortKey: "salary_status_sort",
+            searchValue: (row) => {
+                const ss = row.__salary || null;
+                if (!ss || getSalaryRecordId(ss, row) === 0) return "Disabled";
+                return isSoftDeleted(getSalaryDeletedAt(ss, row)) ? "Disabled" : "Enabled";
+            },
             sortValue: (row) => {
                 const ss = row.__salary || null;
                 if (!ss || getSalaryRecordId(ss, row) === 0) return 0;
@@ -355,6 +378,7 @@ const SalariesStructurePage = () => {
         {
             label: "Companies",
             sortKey: "companies.name",
+            searchableKeys: ['companies.name'],
             render: (row) => row.companies?.name || "-",
         },
         {
@@ -379,7 +403,11 @@ const SalariesStructurePage = () => {
                 {loading ? (
                     <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
                 ) : (
-                    <Table columns={columns} data={salariesData} />
+                    <Table 
+                        columns={columns} 
+                        data={salariesData}
+                        defaultSort={{ key: "id", order: "asc" }}
+                    />
                 )}
             </Card>
 

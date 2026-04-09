@@ -123,6 +123,7 @@ const EmployeeEarningsPage = () => {
         {
             label: "Employee",
             sortKey: "employee_name",
+            searchableKeys: ['employees.first_name', 'employees.last_name'],
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             render: (row) =>
                 row.employees
@@ -132,18 +133,21 @@ const EmployeeEarningsPage = () => {
         {
             label: "Earning Type",
             sortKey: "earning_type_name",
+            searchableKeys: ['earning_type.name'],
             sortValue: (row) => (row.earning_type?.name || "").toLowerCase(),
             render: (row) => row.earning_type?.name ?? `ID: ${row.earning_type_id}`,
         },
         {
             label: "Monthly Amount (฿)",
             sortKey: "amount",
+            searchableKeys: ['amount'],
             sortValue: (row) => Number(row.amount) || 0,
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
             label: "Companies",
             sortKey: "employees.companies.name",
+            searchableKeys: ['employees.companies.name'],
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
