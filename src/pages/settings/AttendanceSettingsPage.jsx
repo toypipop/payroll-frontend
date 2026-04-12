@@ -10,7 +10,7 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
-import CheckboxField from "../../components/common/CheckboxField";
+import ToggleField from "../../components/common/ToggleField";
 import TimeField from "../../components/common/TimeField";
 
 const attendanceConfigSchema = z.object({
@@ -251,10 +251,10 @@ const AttendanceSettingsPage = () => {
                             name="is_late_deduction_enabled"
                             control={control}
                             render={({ field: { value, onChange } }) => (
-                                <CheckboxField
-                                    label="Late Amount Deduction (ON/OFF)"
-                                    checked={value}
-                                    onChange={(e) => onChange(e.target.checked)}
+                                <ToggleField
+                                    label="Late Deduction Enable"
+                                    checked={!!value}
+                                    onChange={onChange}
                                 />
                             )}
                         />
@@ -270,10 +270,10 @@ const AttendanceSettingsPage = () => {
                             name="is_absent_deduction_enabled"
                             control={control}
                             render={({ field: { value, onChange } }) => (
-                                <CheckboxField
-                                    label="Absent Amount Deduction (ON/OFF)"
-                                    checked={value}
-                                    onChange={(e) => onChange(e.target.checked)}
+                                <ToggleField
+                                    label="Absent Deduction Enable"
+                                    checked={!!value}
+                                    onChange={onChange}
                                 />
                             )}
                         />
@@ -293,10 +293,10 @@ const AttendanceSettingsPage = () => {
                             name="is_overtime_earnings_enabled"
                             control={control}
                             render={({ field: { value, onChange } }) => (
-                                <CheckboxField
+                                <ToggleField
                                     label="Overtime Earnings Enable"
-                                    checked={value}
-                                    onChange={(e) => onChange(e.target.checked)}
+                                    checked={!!value}
+                                    onChange={onChange}
                                 />
                             )}
                         />
@@ -312,10 +312,10 @@ const AttendanceSettingsPage = () => {
                             name="is_extra_earnings_enabled"
                             control={control}
                             render={({ field: { value, onChange } }) => (
-                                <CheckboxField
+                                <ToggleField
                                     label="Extra Earnings Enable"
-                                    checked={value}
-                                    onChange={(e) => onChange(e.target.checked)}
+                                    checked={!!value}
+                                    onChange={onChange}
                                 />
                             )}
                         />

@@ -12,12 +12,14 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import DateField from "../../components/common/DateField";
+import SelectField from "../../components/common/SelectField";
 import Badge from "../../components/common/Badge";
 
 const cycleSchema = z.object({
     cycle_name: z.string().min(1, "Cycle name is required"),
     start_date: z.string().min(1, "Start date is required"),
     end_date: z.string().min(1, "End date is required"),
+    companies_id: z.string().min(1, "Company is required"),
 }).refine((d) => d.end_date > d.start_date, {
     message: "End date must be after start date",
     path: ["end_date"],
@@ -29,6 +31,7 @@ const formatDate = (d) =>
 const PayrollCyclesPage = () => {
     const navigate = useNavigate();
     const [cycles, setCycles] = useState([]);
+    const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -48,7 +51,19 @@ const PayrollCyclesPage = () => {
         }
     };
 
-    useEffect(() => { fetchCycles(); }, []);
+    const fetchCompanies = async () => {
+        try {
+            const res = await api.get("/companies/options");
+            setCompanies(res.data || []);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetchCycles();
+        fetchCompanies();
+    }, []);
 
     const onSubmit = async (data) => {
         try {
@@ -56,6 +71,7 @@ const PayrollCyclesPage = () => {
                 cycle_name: data.cycle_name,
                 start_date: data.start_date + "T00:00:00Z",
                 end_date: data.end_date + "T00:00:00Z",
+                companies_id: Number(data.companies_id),
             });
             fetchCycles();
             closeModal();
@@ -177,6 +193,20 @@ const PayrollCyclesPage = () => {
                         label="Cycle Name"
                         error={errors.cycle_name?.message}
                         {...register("cycle_name")}
+                    />
+                    <Controller
+                        name="companies_id"
+                        control={control}
+                        render={({ field }) => (
+                            <SelectField
+                                label="Company"
+                                options={companies}
+                                value={field.value}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                error={errors.companies_id?.message}
+                                placeholder="Select Company"
+                            />
+                        )}
                     />
                     <Controller
                         name="start_date"

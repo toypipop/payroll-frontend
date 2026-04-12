@@ -240,59 +240,58 @@ const RunPayrollPage = () => {
                     </Button>
                 </div>
 
-                {/* FIX Issue 1: Display Current SSO Parameters - Uses Cycle's Company Config */}
+                {/* SSO / Payroll Parameters */}
                 {loadingConfig ? (
-                    <div style={{
-                        marginTop: "16px", padding: "12px 14px",
-                        borderRadius: "6px", backgroundColor: "#f3f4f6",
-                        border: "1px solid #d1d5db", color: "#6b7280", fontSize: "12px",
-                    }}>
-                        ⏳ Loading SSO parameters for {selectedCycle?.companies?.name || "selected company"}...
-                    </div>
-                ) : !selectedCycle ? (
-                    <div style={{
-                        marginTop: "16px", padding: "12px 14px",
-                        borderRadius: "6px", backgroundColor: "#fef3c7",
-                        border: "1px solid #f59e0b", color: "#78350f", fontSize: "12px",
-                    }}>
-                        ℹ️ Select a payroll cycle to view SSO parameters
+                    <div style={{ marginTop: "16px", fontSize: "13px", color: "#94a3b8" }}>
+                        Loading parameters...
                     </div>
                 ) : !payrollConfig ? (
-                    <div style={{
-                        marginTop: "16px", padding: "12px 14px",
-                        borderRadius: "6px", backgroundColor: "#fee2e2",
-                        border: "1px solid #fca5a5", color: "#991b1b", fontSize: "12px",
-                    }}>
-                        ⚠️ Unable to load SSO configuration for <strong>{selectedCycle?.companies?.name || "this company"}</strong>. Please verify Payroll Setup has been configured.
-                    </div>
-                ) : payrollConfig ? (
-                    <div style={{
-                        marginTop: "16px", padding: "12px 14px",
-                        borderRadius: "6px", backgroundColor: "#fef3c7",
-                        border: "2px solid #f59e0b", color: "#78350f", fontSize: "12px", fontWeight: "600",
-                    }}>
-                        <div style={{ marginBottom: "8px" }}>
-                            📊 <strong>CURRENT SSO PARAMETERS FOR {selectedCycle?.companies?.name?.toUpperCase() || "CYCLE"}</strong>
+                    selectedCycle && (
+                        <div style={{
+                            marginTop: "16px", padding: "10px 14px",
+                            borderRadius: "8px", backgroundColor: "#fff1f2",
+                            border: "1px solid #fecdd3", color: "#be123c", fontSize: "13px",
+                        }}>
+                            No payroll config found for <strong>{selectedCycle.companies?.name || "this company"}</strong>. Configure it in Payroll Setup.
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "10px", fontSize: "11px", fontWeight: "400" }}>
-                            <div>Rate: <strong>{payrollConfig.sso_rate}%</strong></div>
-                            <div>Max: <strong>฿{formatCurrency(payrollConfig.sso_max_amount)}</strong></div>
-                            <div>Min Salary: <strong>฿{formatCurrency(payrollConfig.sso_min_salary)}</strong></div>
-                            <div>Tax: <strong>{payrollConfig.tax_calculation || "Progressive"}</strong></div>
+                    )
+                ) : (
+                    <div style={{
+                        marginTop: "16px",
+                        padding: "14px 16px",
+                        borderRadius: "10px",
+                        backgroundColor: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                    }}>
+                        <div style={{ fontSize: "11px", fontWeight: "600", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }}>
+                            {selectedCycle?.companies?.name || "Company"} · Payroll Parameters
+                        </div>
+                        <div style={{ display: "flex", gap: "32px", flexWrap: "wrap" }}>
+                            {[
+                                { label: "SSO Rate", value: `${payrollConfig.sso_rate}%` },
+                                { label: "SSO Max", value: `฿${formatCurrency(payrollConfig.sso_max_amount)}` },
+                                { label: "Min Salary", value: `฿${formatCurrency(payrollConfig.sso_min_salary)}` },
+                                { label: "Tax Method", value: payrollConfig.tax_calculation || "Progressive" },
+                            ].map((item) => (
+                                <div key={item.label}>
+                                    <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "3px" }}>{item.label}</div>
+                                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#1e293b" }}>{item.value}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                ) : null}
+                )}
 
                 {/* Calculation result banner */}
                 {calcResult && (
                     <div style={{
-                        marginTop: "16px", padding: "12px 16px",
+                        marginTop: "12px", padding: "10px 14px",
                         borderRadius: "8px", backgroundColor: "#f0fdf4",
-                        border: "1px solid #bbf7d0", color: "#15803d", fontSize: "14px",
+                        border: "1px solid #bbf7d0", color: "#15803d", fontSize: "13px",
                     }}>
-                        ✅ Calculation complete — <strong>{calcResult.processed_count}</strong> employees processed
+                        <strong>{calcResult.processed_count}</strong> employees processed
                         {calcResult.skipped_count > 0 && (
-                            <span style={{ color: "#92400e" }}>, {calcResult.skipped_count} skipped (no salary record)</span>
+                            <span style={{ color: "#92400e" }}> · {calcResult.skipped_count} skipped (no salary record)</span>
                         )}
                     </div>
                 )}
