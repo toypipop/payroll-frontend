@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import ReactDOM from "react-dom";
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
@@ -9,6 +10,69 @@ import SelectField from "../../components/common/SelectField";
 
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const DetailDropdown = ({ total, details, color, filterFn }) => {
+    const [open, setOpen] = useState(false);
+    const [pos, setPos] = useState({ top: 0, left: 0 });
+    const btnRef = useRef(null);
+    const filtered = details.filter(filterFn || (() => true));
+    const hasDetails = filtered.length > 0;
+
+    const handleToggle = () => {
+        if (!hasDetails) return;
+        if (!open && btnRef.current) {
+            const rect = btnRef.current.getBoundingClientRect();
+            setPos({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX });
+        }
+        setOpen(o => !o);
+    };
+
+    useEffect(() => {
+        if (!open) return;
+        const close = () => setOpen(false);
+        document.addEventListener("click", close);
+        return () => document.removeEventListener("click", close);
+    }, [open]);
+
+    return (
+        <div style={{ fontFamily: "monospace", fontSize: "12px" }}>
+            <button
+                ref={btnRef}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleToggle(); }}
+                style={{
+                    background: "none", border: "none", padding: 0, cursor: hasDetails ? "pointer" : "default",
+                    display: "flex", alignItems: "center", gap: "4px", fontFamily: "monospace", fontSize: "12px",
+                }}
+            >
+                <span style={{ fontWeight: "700", color }}>฿{formatCurrency(total)}</span>
+                {hasDetails && <span style={{ fontSize: "10px", color: "#94a3b8" }}>{open ? "▲" : "▼"}</span>}
+            </button>
+            {open && hasDetails && ReactDOM.createPortal(
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                        position: "absolute", zIndex: 9999, top: pos.top, left: pos.left,
+                        background: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "8px 0", minWidth: "210px",
+                    }}
+                >
+                    {filtered.map((d, i) => (
+                        <div key={i} style={{
+                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                            padding: "5px 14px", fontSize: "12px", gap: "16px",
+                            borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
+                        }}>
+                            <span style={{ color: "#475569", whiteSpace: "nowrap" }}>{d.item_name}</span>
+                            <span style={{ color, fontWeight: "600", whiteSpace: "nowrap" }}>฿{formatCurrency(d.amount)}</span>
+                        </div>
+                    ))}
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+};
 
 const RunPayrollPage = () => {
     const [cycles, setCycles] = useState([]);
@@ -154,19 +218,30 @@ const RunPayrollPage = () => {
             ),
         },
         {
-            label: "Total Earning",
-            render: (row) => (
-                <span style={{ fontFamily: "monospace", color: "#10b981" }}>
-                    ฿{formatCurrency(row.total_earning)}
-                </span>
-            ),
+            label: "Earning",
+            render: (row) => {
+                const extras = (row.details || []).filter(d => d.type === "earning" && d.item_name !== "Base Salary");
+                const extrasTotal = extras.reduce((s, d) => s + (d.amount || 0), 0);
+                if (!extras.length) return <span style={{ color: "#cbd5e1", fontSize: "12px" }}>—</span>;
+                return (
+                    <DetailDropdown
+                        total={extrasTotal}
+                        details={row.details || []}
+                        color="#10b981"
+                        filterFn={(d) => d.type === "earning" && d.item_name !== "Base Salary"}
+                    />
+                );
+            },
         },
         {
             label: "Deductions",
             render: (row) => (
-                <span style={{ fontFamily: "monospace", color: "#ef4444" }}>
-                    ฿{formatCurrency(row.total_deduction)}
-                </span>
+                <DetailDropdown
+                    total={row.total_deduction}
+                    details={row.details || []}
+                    color="#ef4444"
+                    filterFn={(d) => d.type === "deduction" && d.item_name !== "Social Security (SSO)" && d.item_name !== "Income Tax"}
+                />
             ),
         },
         {
@@ -213,7 +288,11 @@ const RunPayrollPage = () => {
                         ) : (
                             <SelectField
                                 label="Select Open Cycle"
-                                options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
+                                options={cycles.map((c) => {
+                                    const fmt = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "";
+                                    const dateRange = (c.start_date && c.end_date) ? ` · ${fmt(c.start_date)} – ${fmt(c.end_date)}` : "";
+                                    return { id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}${dateRange}` };
+                                })}
                                 value={selectedCycleId}
                                 onChange={(e) => {
                                     const cycleId = e.target.value;
