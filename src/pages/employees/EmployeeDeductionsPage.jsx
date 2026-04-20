@@ -204,7 +204,6 @@ const EmployeeDeductionsPage = () => {
                     <SelectField
                         label="Employee"
                         {...employeeField}
-                        placeholder="Select employee"
                         error={errors.employees_id?.message}
                         onChange={(e) => {
                             employeeField.onChange(e);
@@ -218,7 +217,6 @@ const EmployeeDeductionsPage = () => {
                     <SelectField
                         label="Deduction Type"
                         {...register("deduction_type_id")}
-                        placeholder={selectedEmployeeId ? "Select deduction type" : "Select employee first"}
                         error={errors.deduction_type_id?.message}
                         options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
                         disabled={!selectedEmployeeId}

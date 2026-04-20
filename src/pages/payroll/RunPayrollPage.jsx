@@ -92,10 +92,6 @@ const RunPayrollPage = () => {
             const res = await api.get("/payroll/cycles");
             const open = (res.data || []).filter((c) => !c.is_closed);
             setCycles(open);
-            if (open.length > 0) {
-                setSelectedCycleId(String(open[0].id));
-                setSelectedCycle(open[0]);  // FIX: Store the cycle object
-            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -188,6 +184,9 @@ const RunPayrollPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employees.first_name",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.toLowerCase(),
+            searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) => (
                 <div>
                     <div style={{ fontWeight: "600", color: "#1e293b" }}>
@@ -201,10 +200,14 @@ const RunPayrollPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "employees.companies.name",
+            searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Position",
+            sortKey: "employees.position.pos_name",
+            searchableKeys: ["employees.position.pos_name"],
             render: (row) => (
                 <span style={{ fontSize: "13px", color: "#475569" }}>
                     {row.employees?.position?.pos_name || "—"}
@@ -213,12 +216,16 @@ const RunPayrollPage = () => {
         },
         {
             label: "Base Salary",
+            sortKey: "salaries_at_time",
+            sortValue: (row) => row.salaries_at_time || 0,
             render: (row) => (
                 <span style={{ fontFamily: "monospace" }}>฿{formatCurrency(row.salaries_at_time)}</span>
             ),
         },
         {
             label: "Earning",
+            sortKey: "total_earning",
+            sortValue: (row) => row.total_earning || 0,
             render: (row) => {
                 const extras = (row.details || []).filter(d => d.type === "earning" && d.item_name !== "Base Salary");
                 const extrasTotal = extras.reduce((s, d) => s + (d.amount || 0), 0);
@@ -235,6 +242,8 @@ const RunPayrollPage = () => {
         },
         {
             label: "Deductions",
+            sortKey: "total_deduction",
+            sortValue: (row) => row.total_deduction || 0,
             render: (row) => (
                 <DetailDropdown
                     total={row.total_deduction}
@@ -246,6 +255,8 @@ const RunPayrollPage = () => {
         },
         {
             label: "SSO",
+            sortKey: "sso_amount",
+            sortValue: (row) => row.sso_amount || 0,
             render: (row) => (
                 <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>
                     ฿{formatCurrency(row.sso_amount)}
@@ -254,6 +265,8 @@ const RunPayrollPage = () => {
         },
         {
             label: "Tax",
+            sortKey: "tax_amount",
+            sortValue: (row) => row.tax_amount || 0,
             render: (row) => (
                 <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>
                     ฿{formatCurrency(row.tax_amount)}
@@ -262,6 +275,8 @@ const RunPayrollPage = () => {
         },
         {
             label: "Net Pay",
+            sortKey: "net_pay",
+            sortValue: (row) => row.net_pay || 0,
             render: (row) => (
                 <span style={{ fontFamily: "monospace", fontWeight: "700", fontSize: "15px", color: "#0f172a" }}>
                     ฿{formatCurrency(row.net_pay)}
@@ -405,7 +420,7 @@ const RunPayrollPage = () => {
                         No payroll results yet. Select a cycle and click <strong>Run Calculation</strong>.
                     </div>
                 ) : (
-                    <Table columns={columns} data={transactions} />
+                    <Table columns={columns} data={transactions} defaultSort={{ key: "net_pay", order: "desc" }} />
                 )}
             </Card>
         </>

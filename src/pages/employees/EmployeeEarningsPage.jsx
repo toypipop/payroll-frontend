@@ -204,7 +204,6 @@ const EmployeeEarningsPage = () => {
                     <SelectField
                         label="Employee"
                         {...employeeField}
-                        placeholder="Select employee"
                         error={errors.employees_id?.message}
                         onChange={(e) => {
                             employeeField.onChange(e);
@@ -218,7 +217,6 @@ const EmployeeEarningsPage = () => {
                     <SelectField
                         label="Earning Type"
                         {...register("earning_type_id")}
-                        placeholder={selectedEmployeeId ? "Select earning type" : "Select employee first"}
                         error={errors.earning_type_id?.message}
                         options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}
                         disabled={!selectedEmployeeId}

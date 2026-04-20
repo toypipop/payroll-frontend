@@ -38,12 +38,27 @@ const CycleDeductionsPage = () => {
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { cycle_id: "", employees_id: "", deduction_type_id: "", amount: "" },
     });
 
     const editingId = watch("id");
+    const watchedCycleId = watch("cycle_id");
+    const watchedEmployeeId = watch("employees_id");
+
+    const cycleCompanyId = cycles.find((c) => String(c.id) === String(watchedCycleId))?.companies_id;
+
+    const filteredEmployees = cycleCompanyId
+        ? employees.filter((e) => String(e.companies_id) === String(cycleCompanyId))
+        : [];
+
+    const filteredDeductionTypes = cycleCompanyId
+        ? deductionTypes.filter((dt) => String(dt.companies_id) === String(cycleCompanyId))
+        : [];
+
+    const cycleField = register("cycle_id");
+    const employeeField = register("employees_id");
 
     useEffect(() => {
         const fetchMaster = async () => {
@@ -145,6 +160,8 @@ const CycleDeductionsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.toLowerCase(),
+            searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) =>
                 row.employees
                     ? `${row.employees.first_name} ${row.employees.last_name}`
@@ -152,18 +169,25 @@ const CycleDeductionsPage = () => {
         },
         {
             label: "Deduction Type",
+            sortValue: (row) => row.deduction_type?.name?.toLowerCase() || "",
+            searchableKeys: ["deduction_type.name"],
             render: (row) => row.deduction_type?.name ?? `ID: ${row.deduction_type_id}`,
         },
         {
             label: "Amount (฿)",
+            sortKey: "amount",
+            sortValue: (row) => row.amount || 0,
             render: (row) => row.amount?.toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         },
         {
             label: "Companies",
+            sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
+            searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button variant="ghost" onClick={() => handleEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>
@@ -195,7 +219,6 @@ const CycleDeductionsPage = () => {
                         options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        placeholder="- Select a cycle -"
                         containerStyle={{ minWidth: "280px", marginBottom: 0 }}
                     />
                 </div>
@@ -217,7 +240,7 @@ const CycleDeductionsPage = () => {
                 ) : loading ? (
                     <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
                 ) : (
-                    <Table columns={columns} data={items} />
+                    <Table columns={columns} data={items} defaultSort={{ key: "amount", order: "desc" }} />
                 )}
             </Card>
 
@@ -240,8 +263,13 @@ const CycleDeductionsPage = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField
                         label="Payroll Cycle"
-                        {...register("cycle_id")}
+                        {...cycleField}
                         error={errors.cycle_id?.message}
+                        onChange={(e) => {
+                            cycleField.onChange(e);
+                            setValue("employees_id", "");
+                            setValue("deduction_type_id", "");
+                        }}
                         options={cycles.map((c) => ({
                             id: c.id,
                             name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
@@ -249,18 +277,21 @@ const CycleDeductionsPage = () => {
                     />
                     <SelectField
                         label="Employee"
-                        {...register("employees_id")}
+                        {...employeeField}
                         error={errors.employees_id?.message}
-                        options={employees.map((e) => ({
+                        onChange={(e) => { employeeField.onChange(e); }}
+                        options={filteredEmployees.map((e) => ({
                             id: e.id,
                             name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
                         }))}
+                        disabled={!watchedCycleId}
                     />
                     <SelectField
                         label="Deduction Type"
                         {...register("deduction_type_id")}
                         error={errors.deduction_type_id?.message}
-                        options={deductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
+                        options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
+                        disabled={!watchedCycleId}
                     />
                     <InputField
                         label="Amount (฿)"

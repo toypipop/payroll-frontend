@@ -98,12 +98,17 @@ const PayrollCyclesPage = () => {
     const columns = [
         {
             label: "Cycle Name",
+            sortKey: "cycle_name",
+            searchableKeys: ["cycle_name"],
             render: (row) => (
                 <span style={{ fontWeight: "600", color: "#1e293b" }}>{row.cycle_name}</span>
             ),
         },
         {
             label: "Period",
+            sortKey: "start_date",
+            sortValue: (row) => new Date(row.start_date).getTime(),
+            searchableKeys: ["start_date", "end_date"],
             render: (row) => (
                 <span style={{ fontSize: "13px", color: "#475569" }}>
                     {formatDate(row.start_date)} — {formatDate(row.end_date)}
@@ -112,6 +117,9 @@ const PayrollCyclesPage = () => {
         },
         {
             label: "Status",
+            sortKey: "is_closed",
+            sortValue: (row) => (row.is_closed ? 1 : 0),
+            searchValue: (row) => (row.is_closed ? "closed" : "open"),
             render: (row) => (
                 <Badge status={row.is_closed ? "rejected" : "active"}>
                     {row.is_closed ? "Closed" : "Open"}
@@ -120,16 +128,21 @@ const PayrollCyclesPage = () => {
         },
         {
             label: "Created",
+            sortKey: "created_at",
+            sortValue: (row) => new Date(row.created_at).getTime(),
             render: (row) => (
                 <span style={{ fontSize: "13px", color: "#94a3b8" }}>{formatDate(row.created_at)}</span>
             ),
         },
         {
             label: "Companies",
+            sortKey: "companies.name",
+            searchableKeys: ["companies.name"],
             render: (row) => row.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                     {row.is_closed ? (
@@ -173,7 +186,7 @@ const PayrollCyclesPage = () => {
                         No payroll cycles yet. Create your first cycle to get started.
                     </div>
                 ) : (
-                    <Table columns={columns} data={cycles} />
+                    <Table columns={columns} data={cycles} defaultSort={{ key: "created_at", order: "desc" }} />
                 )}
             </Card>
 
@@ -204,7 +217,6 @@ const PayrollCyclesPage = () => {
                                 value={field.value}
                                 onChange={(e) => field.onChange(e.target.value)}
                                 error={errors.companies_id?.message}
-                                placeholder="Select Company"
                             />
                         )}
                     />

@@ -86,6 +86,8 @@ const TransactionsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.toLowerCase(),
+            searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) => (
                 <div>
                     <div style={{ fontWeight: "600", color: "#0f172a" }}>
@@ -99,10 +101,13 @@ const TransactionsPage = () => {
         },
         {
             label: "Companies",
+            sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
+            searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
             label: "Cycle",
+            sortable: false,
             render: () => (
                 <span style={{ fontSize: "13px", color: "#475569" }}>
                     {cycleInfo?.cycle_name || "-"}
@@ -111,6 +116,8 @@ const TransactionsPage = () => {
         },
         {
             label: "Total Earning",
+            sortKey: "total_earning",
+            sortValue: (row) => row.total_earning || 0,
             render: (row) => (
                 <span style={{ color: "#10b981", fontFamily: "monospace" }}>
                     ฿{formatCurrency(row.total_earning)}
@@ -119,6 +126,8 @@ const TransactionsPage = () => {
         },
         {
             label: "Total Deduction",
+            sortKey: "total_deduction",
+            sortValue: (row) => row.total_deduction || 0,
             render: (row) => (
                 <span style={{ color: "#ef4444", fontFamily: "monospace" }}>
                     ฿{formatCurrency(row.total_deduction)}
@@ -127,6 +136,8 @@ const TransactionsPage = () => {
         },
         {
             label: "Net Pay",
+            sortKey: "net_pay",
+            sortValue: (row) => row.net_pay || 0,
             render: (row) => (
                 <span style={{ color: "#0f172a", fontWeight: 700, fontFamily: "monospace" }}>
                     ฿{formatCurrency(row.net_pay)}
@@ -135,6 +146,7 @@ const TransactionsPage = () => {
         },
         {
             label: "Status",
+            sortable: false,
             render: () => <Badge status="cancelled">Closed / Locked</Badge>,
         },
     ];
@@ -173,7 +185,6 @@ const TransactionsPage = () => {
                         options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        placeholder="Select a closed cycle"
                         containerStyle={{ minWidth: "260px", marginBottom: 0 }}
                     />
 
@@ -220,7 +231,7 @@ const TransactionsPage = () => {
                         No transaction records found for this cycle.
                     </div>
                 ) : (
-                    <Table columns={columns} data={filteredTransactions} onRowClick={openDetails} />
+                    <Table columns={columns} data={filteredTransactions} onRowClick={openDetails} defaultSort={{ key: "net_pay", order: "desc" }} />
                 )}
             </Card>
 
