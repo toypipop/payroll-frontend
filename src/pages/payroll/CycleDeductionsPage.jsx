@@ -160,6 +160,7 @@ const CycleDeductionsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employee_name",
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.toLowerCase(),
             searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) =>
@@ -169,6 +170,7 @@ const CycleDeductionsPage = () => {
         },
         {
             label: "Deduction Type",
+            sortKey: "deduction_type_name",
             sortValue: (row) => row.deduction_type?.name?.toLowerCase() || "",
             searchableKeys: ["deduction_type.name"],
             render: (row) => row.deduction_type?.name ?? `ID: ${row.deduction_type_id}`,
@@ -181,6 +183,7 @@ const CycleDeductionsPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "companies_name",
             sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
             searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",

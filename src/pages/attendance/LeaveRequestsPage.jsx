@@ -225,6 +225,7 @@ const LeaveRequestsPage = () => {
         { label: "Employee",
             sortKey: "employee_name",
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
+            searchValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""} ${row.employees?.employees_code || ""}`.trim(),
             render: (row) => (
                 <div style={{ whiteSpace: "nowrap" }}>
                     <div style={{ fontWeight: "600" }}>
@@ -240,6 +241,7 @@ const LeaveRequestsPage = () => {
             label: "Type",
             sortKey: "leave_type_name",
             sortValue: (row) => (row.leave_type_master?.name || row.leave_type || "").toLowerCase(),
+            searchValue: (row) => row.leave_type_master?.name || row.leave_type || "",
             render: (row) => row.leave_type_master?.name || row.leave_type || "—",
         },
         {
@@ -262,6 +264,7 @@ const LeaveRequestsPage = () => {
             label: "Approved By",
             sortKey: "approver_name",
             sortValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim().toLowerCase(),
+            searchValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim(),
             render: (row) => (
                 <div style={{ fontSize: "13px", color: "#475569" }}>
                     {row.approver ? (

@@ -72,19 +72,18 @@ const Table = ({
             const key = sortState.key;
             let aVal, bVal;
 
-            if (key.includes(".")) {
+            // Always prefer sortValue when the column defines it
+            const col = columns.find((c) => c.key === key || c.sortKey === key);
+            if (col?.sortValue) {
+                aVal = col.sortValue(a);
+                bVal = col.sortValue(b);
+            } else if (key.includes(".")) {
                 const keys = key.split(".");
                 aVal = keys.reduce((obj, k) => obj?.[k], a);
                 bVal = keys.reduce((obj, k) => obj?.[k], b);
             } else {
-                const col = columns.find((c) => c.key === key || c.sortKey === key);
-                if (col?.sortValue) {
-                    aVal = col.sortValue(a);
-                    bVal = col.sortValue(b);
-                } else {
-                    aVal = a[key];
-                    bVal = b[key];
-                }
+                aVal = a[key];
+                bVal = b[key];
             }
 
             if (aVal == null) return 1;
@@ -107,12 +106,25 @@ const Table = ({
         if (!searchQuery.trim()) return sortedData;
         
         const query = searchQuery.toLowerCase();
-        
+
         // Helper function to get nested values from objects
         const getNestedValue = (obj, path) => {
             if (!path) return null;
             return path.split('.').reduce((current, key) => current?.[key], obj);
         };
+
+        // Normalize a string for number-format-agnostic matching:
+        // strips commas, then collapses "6000.00" → "6000" so all of
+        // "6000", "6,000", "6000.00", "6,000.00" resolve to the same token.
+        const normalizeValue = (str) => {
+            const noComma = str.replace(/,/g, '');
+            if (/^-?\d+(\.\d+)?$/.test(noComma.trim())) {
+                return String(parseFloat(noComma));
+            }
+            return noComma;
+        };
+
+        const normalizedQuery = normalizeValue(query);
 
         return sortedData.filter(row => {
             return columns.some(col => {
@@ -120,31 +132,41 @@ const Table = ({
                 if (col.sortable === false && col.searchableKeys === undefined && !col.searchValue) {
                     return false;
                 }
-                
+
                 // If column has searchValue function, use it to get custom search text
                 if (col.searchValue && typeof col.searchValue === 'function') {
-                    const searchText = String(col.searchValue(row)).toLowerCase();
-                    // Normalize both search text and query by removing commas for flexible matching
-                    const normalizedSearchText = searchText.replace(/,/g, '');
-                    const normalizedQuery = query.replace(/,/g, '');
-                    return normalizedSearchText.includes(normalizedQuery);
+                    const searchText = normalizeValue(String(col.searchValue(row)).toLowerCase());
+                    return searchText.includes(normalizedQuery);
                 }
-                
+
                 // Use searchableKeys if provided, otherwise use key and sortKey
                 let keysToSearch = [];
-                
+
                 if (col.searchableKeys && Array.isArray(col.searchableKeys)) {
                     keysToSearch = col.searchableKeys;
                 } else {
                     if (col.key) keysToSearch.push(col.key);
                     if (col.sortKey) keysToSearch.push(col.sortKey);
                 }
-                
-                return keysToSearch.some(key => {
-                    let value = getNestedValue(row, key);
+
+                // Check each key individually (handles "David" or "Wilson")
+                const individualMatch = keysToSearch.some(key => {
+                    const value = getNestedValue(row, key);
                     if (value == null) return false;
-                    return String(value).toLowerCase().includes(query);
+                    return normalizeValue(String(value).toLowerCase()).includes(normalizedQuery);
                 });
+                if (individualMatch) return true;
+
+                // Also check all keys joined (handles "David Wilson" spanning first+last name)
+                if (keysToSearch.length > 1) {
+                    const combined = keysToSearch
+                        .map(key => getNestedValue(row, key) ?? "")
+                        .join(" ")
+                        .toLowerCase();
+                    if (normalizeValue(combined).includes(normalizedQuery)) return true;
+                }
+
+                return false;
             });
         });
     }, [sortedData, searchQuery, columns]);

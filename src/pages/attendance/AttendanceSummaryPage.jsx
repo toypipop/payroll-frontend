@@ -65,6 +65,9 @@ const AttendanceSummaryPage = () => {
         { label: "Companies", key: "company_name" },
         {
             label: "LATE (M)",
+            sortKey: "total_late_minutes",
+            sortValue: (row) => Number(row.total_late_minutes) || 0,
+            searchValue: (row) => String(Number(row.total_late_minutes) || 0),
             render: (row) => (
                 <span style={{ color: row.total_late_minutes > 0 ? "#f59e0b" : undefined }}>
                     {row.total_late_minutes.toFixed(1)}
@@ -73,6 +76,9 @@ const AttendanceSummaryPage = () => {
         },
         {
             label: "LATE ($)",
+            sortKey: "late_amount",
+            sortValue: (row) => Number(row.late_amount) || 0,
+            searchValue: (row) => (Number(row.late_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
                 <span style={{ color: row.late_amount > 0 ? "#ef4444" : undefined }}>
                     {row.late_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -81,6 +87,9 @@ const AttendanceSummaryPage = () => {
         },
         {
             label: "ABSENT (D)",
+            sortKey: "total_absent_days",
+            sortValue: (row) => Number(row.total_absent_days) || 0,
+            searchValue: (row) => String(Number(row.total_absent_days) || 0),
             render: (row) => (
                 <span style={{ color: row.total_absent_days > 0 ? "#f59e0b" : undefined }}>
                     {row.total_absent_days}
@@ -89,6 +98,9 @@ const AttendanceSummaryPage = () => {
         },
         {
             label: "ABSENT ($)",
+            sortKey: "absent_amount",
+            sortValue: (row) => Number(row.absent_amount) || 0,
+            searchValue: (row) => (Number(row.absent_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
                 <span style={{ color: row.absent_amount > 0 ? "#ef4444" : undefined }}>
                     {row.absent_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
@@ -97,6 +109,9 @@ const AttendanceSummaryPage = () => {
         },
         {
             label: "Total Deduction (฿)",
+            sortKey: "total_amount",
+            sortValue: (row) => Number(row.total_amount) || 0,
+            searchValue: (row) => (Number(row.total_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
                 <strong style={{ color: row.total_amount > 0 ? "#dc2626" : undefined }}>
                     {row.total_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}

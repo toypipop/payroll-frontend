@@ -86,6 +86,7 @@ const TransactionsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employee_name",
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.toLowerCase(),
             searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) => (
@@ -101,6 +102,7 @@ const TransactionsPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "companies_name",
             sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
             searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
@@ -155,10 +157,15 @@ const TransactionsPage = () => {
         { label: "Item", key: "item_name" },
         {
             label: "Type",
+            sortKey: "type",
+            sortValue: (row) => (row.type || "").toLowerCase(),
             render: (row) => <Badge status={row.type === "earning" ? "active" : "rejected"}>{row.type}</Badge>,
         },
         {
             label: "Amount",
+            sortKey: "amount",
+            sortValue: (row) => Number(row.amount) || 0,
+            searchValue: (row) => (Number(row.amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
                 <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
                     ฿{formatCurrency(row.amount)}
