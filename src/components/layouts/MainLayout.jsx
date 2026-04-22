@@ -7,7 +7,7 @@ const MainLayout = ({ children, pageTitle }) => {
     layoutContainer: {
       display: 'flex',
       minHeight: '100vh',
-      backgroundColor: 'var(--bg-body)',
+      backgroundColor: 'transparent',
     },
     mainContent: {
       flexGrow: 1,
@@ -18,13 +18,19 @@ const MainLayout = ({ children, pageTitle }) => {
       minWidth: 0,
     },
     contentArea: {
-      padding: '28px 32px',
+      padding: '24px clamp(16px, 3vw, 34px) 30px',
       flexGrow: 1,
     },
     innerContainer: {
-      maxWidth: '1200px',
+      maxWidth: '1280px',
       margin: '0 auto',
       width: '100%',
+      borderRadius: '18px',
+      backgroundColor: 'rgba(255,255,255,0.72)',
+      border: '1px solid rgba(219, 229, 227, 0.95)',
+      boxShadow: 'var(--shadow-card)',
+      padding: 'clamp(12px, 1.8vw, 20px)',
+      backdropFilter: 'blur(2px)',
     }
   };
 
@@ -34,7 +40,6 @@ const MainLayout = ({ children, pageTitle }) => {
       <div style={styles.mainContent}>
         <Navbar pageTitle={pageTitle} />
         <main style={styles.contentArea}>
-          {/* // Wrapper keeps everything aligned */}
           <div style={styles.innerContainer}>
             {children}
           </div>

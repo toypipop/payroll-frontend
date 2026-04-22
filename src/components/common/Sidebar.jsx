@@ -126,10 +126,10 @@ const Sidebar = () => {
     }, []);
 
     const styles = {
-        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", backgroundColor: "var(--sidebar-bg)", borderRight: "1px solid var(--sidebar-border)", display: "flex", flexDirection: "column", padding: "24px 12px", zIndex: 1000 },
+        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", background: "linear-gradient(180deg, #0f172a 0%, var(--sidebar-bg) 100%)", borderRight: "1px solid var(--sidebar-border)", display: "flex", flexDirection: "column", padding: "24px 12px", zIndex: 1000, boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 8px 0 30px rgba(2,6,23,0.22)" },
         logoSection: { display: "flex", alignItems: "center", padding: "0 12px", marginBottom: "32px", gap: "10px" },
-        categoryLabel: { fontSize: "10px", fontWeight: "700", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.09em", padding: "14px 12px 6px 12px" },
-        navLink: { display: "flex", alignItems: "center", padding: "9px 12px", borderRadius: "8px", textDecoration: "none", fontSize: "13px", fontWeight: "500", marginBottom: "1px", transition: "all 0.15s ease" },
+        categoryLabel: { fontSize: "10px", fontWeight: "700", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.11em", padding: "14px 12px 6px 12px" },
+        navLink: { display: "flex", alignItems: "center", padding: "9px 12px", borderRadius: "10px", textDecoration: "none", fontSize: "13px", fontWeight: "500", marginBottom: "2px", transition: "all 0.15s ease" },
         subLink: { paddingLeft: "36px" }
     };
 
@@ -152,14 +152,14 @@ const Sidebar = () => {
                 style={({ isActive }) => ({
                     ...styles.navLink,
                     paddingLeft: isSub ? "20px" : "12px",
-                    backgroundColor: isActive ? "rgba(98,89,202,0.25)" : "transparent",
-                    color: isActive ? "#ffffff" : "rgba(255,255,255,0.65)",
+                    backgroundColor: isActive ? "var(--sidebar-active)" : "transparent",
+                    color: isActive ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
                 })}
             >
                 {({ isActive }) => (
                     <>
                         <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
-                            {IconComponent(isActive ? "#c4b5fd" : "rgba(255,255,255,0.75)")}
+                            {IconComponent(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                         </div>
                         <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
                             {item.module_name}
@@ -173,8 +173,8 @@ const Sidebar = () => {
     return (
         <div style={styles.sidebarContainer}>
             <div style={styles.logoSection}>
-                <div style={{ width: "38px", height: "38px", backgroundColor: "#6259ca", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontWeight: "800", fontSize: "18px", letterSpacing: "0.02em" }}>P</div>
-                <span style={{ fontSize: "18px", fontWeight: "700", color: "#f1f5f9", letterSpacing: "-0.01em" }}>PayrollPro</span>
+                <div style={{ width: "38px", height: "38px", background: "linear-gradient(160deg, #14b8a6, #0f766e)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontWeight: "800", fontSize: "18px", letterSpacing: "0.02em", boxShadow: "0 10px 20px rgba(15, 118, 110, 0.34)" }}>P</div>
+                <span style={{ fontSize: "18px", fontWeight: "700", color: "#f1f5f9", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>PayrollPro</span>
             </div>
 
             <nav style={{ flexGrow: 1, overflowY: "auto" }}>

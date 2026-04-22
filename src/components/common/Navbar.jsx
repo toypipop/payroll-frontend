@@ -47,23 +47,25 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: '#ffffff',
-      borderBottom: '1px solid #e2e8f0',
+      backgroundColor: 'rgba(248, 251, 251, 0.82)',
+      borderBottom: '1px solid var(--border-color)',
       position: 'sticky',
       top: 0,
       zIndex: 100,
       flexShrink: 0,
+      backdropFilter: 'blur(5px)',
     },
     breadcrumb: {
       display: 'flex',
       alignItems: 'center',
       gap: '7px',
       fontSize: '13px',
-      color: '#64748b',
+      color: 'var(--text-muted)',
     },
     pageTitle: {
-      color: '#1e293b',
+      color: 'var(--text-main)',
       fontWeight: '600',
+      fontFamily: 'var(--font-display)',
     },
     userArea: {
       display: 'flex',
@@ -74,7 +76,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
       width: '30px',
       height: '30px',
       borderRadius: '50%',
-      backgroundColor: '#6259ca',
+      background: 'linear-gradient(145deg, #0f766e, #14b8a6)',
       color: '#fff',
       display: 'flex',
       alignItems: 'center',
@@ -83,16 +85,17 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
       fontWeight: '700',
       flexShrink: 0,
       letterSpacing: '0.03em',
+      boxShadow: '0 8px 20px rgba(15, 118, 110, 0.24)',
     },
     userName: {
       fontSize: '13px',
       fontWeight: '600',
-      color: '#1e293b',
+      color: 'var(--text-main)',
     },
     separator: {
       width: '1px',
       height: '16px',
-      backgroundColor: '#e2e8f0',
+      backgroundColor: 'var(--border-color)',
     },
   };
 
@@ -100,7 +103,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
     <nav style={styles.navbar}>
       <div style={styles.breadcrumb}>
         <span>{categoryName}</span>
-        <span style={{ color: '#cbd5e1' }}>/</span>
+        <span style={{ color: '#9fb3b7' }}>/</span>
         <span style={styles.pageTitle}>{pageTitle}</span>
       </div>
 
@@ -114,9 +117,9 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
             window.location.href = '/login';
           }}
           style={{
-            color: '#64748b',
+            color: 'var(--text-muted)',
             background: 'none',
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--border-color)',
             borderRadius: '6px',
             cursor: 'pointer',
             fontSize: '12px',
@@ -125,8 +128,8 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
             fontFamily: 'inherit',
             transition: 'all 0.15s',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6259ca'; e.currentTarget.style.color = '#6259ca'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary-color)'; e.currentTarget.style.color = 'var(--primary-color)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
         >
           Sign out
         </button>
