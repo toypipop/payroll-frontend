@@ -118,26 +118,42 @@ const EarningTypesPage = () => {
         { label: "Name", key: "name" },
         {
             label: "Category",
+            sortKey: "category.name",
+            sortValue: (row) => (row.category?.name || "").toLowerCase(),
+            searchValue: (row) => row.category?.name || "",
             render: (row) => row.category?.name || "—",
         },
         {
             label: "Taxable",
+            sortKey: "is_taxable",
+            sortValue: (row) => row.is_taxable ? 1 : 0,
+            searchValue: (row) => row.is_taxable ? "yes" : "no",
             render: (row) => <Badge status={row.is_taxable}>{row.is_taxable ? "Yes" : "No"}</Badge>
         },
         {
             label: "SSO",
+            sortKey: "is_sso",
+            sortValue: (row) => row.is_sso ? 1 : 0,
+            searchValue: (row) => row.is_sso ? "yes" : "no",
             render: (row) => <Badge status={row.is_sso}>{row.is_sso ? "Yes" : "No"}</Badge>
         },
         {
             label: "Type",
+            sortKey: "is_permanent",
+            sortValue: (row) => row.is_permanent ? 1 : 0,
+            searchValue: (row) => row.is_permanent ? "fixed" : "variable",
             render: (row) => row.is_permanent ? "Fixed" : "Variable"
         },
         {
             label: "Companies",
+            sortKey: "companies.name",
+            sortValue: (row) => (row.companies?.name || "").toLowerCase(),
+            searchValue: (row) => row.companies?.name || "",
             render: (row) => row.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button variant="ghost" onClick={() => handleEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>Edit</Button>

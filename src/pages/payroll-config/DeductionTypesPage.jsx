@@ -113,22 +113,35 @@ const DeductionTypesPage = () => {
         { label: "Deduction Name", key: "name" },
         {
             label: "Category",
+            sortKey: "category.name",
+            sortValue: (row) => (row.category?.name || "").toLowerCase(),
+            searchValue: (row) => row.category?.name || "",
             render: (row) => row.category?.name || "—",
         },
         {
             label: "Tax Deductible",
+            sortKey: "is_tax_deductible",
+            sortValue: (row) => row.is_tax_deductible ? 1 : 0,
+            searchValue: (row) => row.is_tax_deductible ? "yes" : "no",
             render: (row) => <Badge status={row.is_tax_deductible}>{row.is_tax_deductible ? "Yes" : "No"}</Badge>
         },
         {
             label: "SSO Deductible",
+            sortKey: "is_sso_deductible",
+            sortValue: (row) => row.is_sso_deductible ? 1 : 0,
+            searchValue: (row) => row.is_sso_deductible ? "yes" : "no",
             render: (row) => <Badge status={row.is_sso_deductible}>{row.is_sso_deductible ? "Yes" : "No"}</Badge>
         },
         {
             label: "Companies",
+            sortKey: "companies.name",
+            sortValue: (row) => (row.companies?.name || "").toLowerCase(),
+            searchValue: (row) => row.companies?.name || "",
             render: (row) => row.companies?.name || "-",
         },
         {
             label: "Actions",
+            sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button variant="ghost" onClick={() => handleEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>Edit</Button>

@@ -46,6 +46,7 @@ const LeaveApprovedPage = () => {
             label: "Employee",
             sortKey: "employee_name",
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
+            searchValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""} ${row.employees?.employees_code || ""}`.trim(),
             render: (row) => (
                 <div style={{ whiteSpace: "nowrap" }}>
                     <span style={{ fontWeight: "600" }}>
@@ -85,6 +86,7 @@ const LeaveApprovedPage = () => {
         {
             label: "Days",
             key: "total_days",
+            sortKey: "total_days",
             sortValue: (row) => Number(row.total_days) || 0,
         },
         {

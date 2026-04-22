@@ -164,6 +164,7 @@ const CycleEarningsPage = () => {
     const columns = [
         {
             label: "Employee",
+            sortKey: "employee_name",
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.toLowerCase(),
             searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) =>
@@ -173,6 +174,7 @@ const CycleEarningsPage = () => {
         },
         {
             label: "Earning Type (Variable)",
+            sortKey: "earning_type_name",
             sortValue: (row) => row.earning_type?.name?.toLowerCase() || "",
             searchableKeys: ["earning_type.name"],
             render: (row) => row.earning_type?.name ?? `ID: ${row.earning_type_id}`,
@@ -185,6 +187,7 @@ const CycleEarningsPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "companies_name",
             sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
             searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
