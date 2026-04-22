@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 
 const TimeField = ({ label, value, onChange, error, ...props }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [period, setPeriod] = useState("AM");
     const containerRef = useRef(null);
 
     const parseTime = (timeStr) => {
@@ -47,6 +46,7 @@ const TimeField = ({ label, value, onChange, error, ...props }) => {
     };
 
     const displayHours = to12Hour(hours);
+    const period = hours >= 12 ? "PM" : "AM";
     const displayValue = value
         ? `${displayHours}:${String(minutes).padStart(2, "0")} ${period}`
         : "";
@@ -65,15 +65,8 @@ const TimeField = ({ label, value, onChange, error, ...props }) => {
     const handlePeriodChange = (newPeriod) => {
         const h24 = to24Hour(displayHours, newPeriod);
         const newTime = `${String(h24).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-        setPeriod(newPeriod);
         onChange(newTime);
     };
-
-    useEffect(() => {
-        if (value) {
-            setPeriod(hours >= 12 ? "PM" : "AM");
-        }
-    }, [value]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {

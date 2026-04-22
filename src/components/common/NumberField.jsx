@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useCallback, useEffect } from "react";
+import React, { forwardRef, useState, useCallback } from "react";
 
 const NumberField = forwardRef(
     (
@@ -15,18 +15,14 @@ const NumberField = forwardRef(
         ref,
     ) => {
         const [internalValue, setInternalValue] = useState(value ?? "");
-
-        // Sync internal state when value prop changes externally (e.g. RHF reset)
-        useEffect(() => {
-            if (value !== undefined) {
-                setInternalValue(String(value ?? ""));
-            }
-        }, [value]);
+        const isControlled = value !== undefined;
 
         const handleChange = useCallback((e) => {
             const raw = e.target.value;
             const numeric = raw.replace(/[^0-9.]/g, "").replace(/(\..*?)\..*/g, "$1");
-            setInternalValue(numeric);
+            if (!isControlled) {
+                setInternalValue(numeric);
+            }
             if (onChange) {
                 const syntheticEvent = {
                     ...e,
@@ -37,9 +33,9 @@ const NumberField = forwardRef(
                 };
                 onChange(syntheticEvent);
             }
-        }, [onChange]);
+        }, [isControlled, onChange]);
 
-        const displayValue = value !== undefined ? value : internalValue;
+        const displayValue = isControlled ? String(value ?? "") : internalValue;
 
         const styles = {
             container: {

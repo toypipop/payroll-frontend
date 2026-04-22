@@ -270,8 +270,7 @@ const SalariesStructurePage = () => {
             try {
                 const d = new Date(existingDate);
                 finalDate = d.toISOString().split("T")[0];
-                // eslint-disable-next-line no-unused-vars
-            } catch (e) {
+            } catch {
                 finalDate = new Date().toISOString().split("T")[0];
             }
         }
@@ -326,7 +325,7 @@ const SalariesStructurePage = () => {
                     const month = String(d.getMonth() + 1).padStart(2, '0');
                     const day = String(d.getDate()).padStart(2, '0');
                     return `${year}/${month}/${day}`;
-                } catch (e) {
+                } catch {
                     return "";
                 }
             },
@@ -346,7 +345,7 @@ const SalariesStructurePage = () => {
                     const month = String(d.getMonth() + 1).padStart(2, '0');
                     const day = String(d.getDate()).padStart(2, '0');
                     return `${year}/${month}/${day}`;
-                } catch (e) {
+                } catch {
                     return "-";
                 }
             },

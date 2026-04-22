@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
@@ -37,7 +37,7 @@ const EarningSummaryPage = () => {
     const [toDate, setToDate] = useState(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`);
     const [meta, setMeta] = useState({ from: "", to: "" });
 
-    const fetchSummary = async () => {
+    const fetchSummary = useCallback(async () => {
         try {
             setLoading(true);
             const res = await api.get("/earning/summary", {
@@ -51,9 +51,9 @@ const EarningSummaryPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [fromDate, toDate]);
 
-    useEffect(() => { fetchSummary(); }, []);
+    useEffect(() => { fetchSummary(); }, [fetchSummary]);
 
     const totalOtMins = summary.reduce((s, r) => s + r.total_overtime_minutes, 0);
     const totalExtraDays = summary.reduce((s, r) => s + r.total_extra_days, 0);

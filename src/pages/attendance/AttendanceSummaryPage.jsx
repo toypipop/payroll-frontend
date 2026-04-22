@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
@@ -37,7 +37,7 @@ const AttendanceSummaryPage = () => {
     const [toDate, setToDate] = useState(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`);
     const [meta, setMeta] = useState({ from: "", to: "" });
 
-    const fetchSummary = async () => {
+    const fetchSummary = useCallback(async () => {
         try {
             setLoading(true);
             const res = await api.get("/deduction/summary", {
@@ -51,9 +51,9 @@ const AttendanceSummaryPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [fromDate, toDate]);
 
-    useEffect(() => { fetchSummary(); }, []);
+    useEffect(() => { fetchSummary(); }, [fetchSummary]);
 
     const totalLateMin = summary.reduce((s, r) => s + r.total_late_minutes, 0);
     const totalAbsent = summary.reduce((s, r) => s + r.total_absent_days, 0);

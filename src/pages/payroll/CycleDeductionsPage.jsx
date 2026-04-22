@@ -45,7 +45,6 @@ const CycleDeductionsPage = () => {
 
     const editingId = watch("id");
     const watchedCycleId = watch("cycle_id");
-    const watchedEmployeeId = watch("employees_id");
 
     const cycleCompanyId = cycles.find((c) => String(c.id) === String(watchedCycleId))?.companies_id;
 

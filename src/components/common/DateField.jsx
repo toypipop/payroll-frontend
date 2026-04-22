@@ -80,27 +80,28 @@ const CalendarSelect = ({ value, options, onChange }) => {
 };
 
 const DateField = React.forwardRef(({ label, error, value, onChange, id, ...props }, ref) => {
-    const [selectedDate, setSelectedDate] = useState(null);
-
-    useEffect(() => {
+    const selectedDate = (() => {
         if (value && typeof value === "string" && value !== "") {
-            const d = new Date(value + "T00:00:00");
-            if (!isNaN(d)) setSelectedDate(d);
-        } else if (value instanceof Date && !isNaN(value)) {
-            setSelectedDate(value);
-        } else {
-            setSelectedDate(null);
+            const date = new Date(value + "T00:00:00");
+            return Number.isNaN(date.getTime()) ? null : date;
         }
-    }, [value]);
+
+        if (value instanceof Date) {
+            return Number.isNaN(value.getTime()) ? null : value;
+        }
+
+        return null;
+    })();
 
     const handleDateChange = (date) => {
-        setSelectedDate(date);
         if (date && !isNaN(date)) {
             const yyyy = date.getFullYear();
             const mm = String(date.getMonth() + 1).padStart(2, "0");
             const dd = String(date.getDate()).padStart(2, "0");
             const formatted = `${yyyy}-${mm}-${dd}`;
             if (onChange) onChange(formatted);
+        } else if (onChange) {
+            onChange("");
         }
     };
 

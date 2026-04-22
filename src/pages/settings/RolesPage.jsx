@@ -46,8 +46,7 @@ const RolesPage = () => {
             ]);
             setRoles(rolesRes.data);
             setCompanies(companiesRes.data);
-        // eslint-disable-next-line no-unused-vars
-        } catch (err) {
+        } catch {
             console.error("Initial load failed");
         } finally {
             setLoading(false);
@@ -66,7 +65,6 @@ const RolesPage = () => {
             const res = await api.get("/roles");
             setRoles(res.data);
             closeModal();
-        // eslint-disable-next-line no-unused-vars
         } catch (err) {
             alert(err.response?.data?.error || "Operation failed");
         }
@@ -87,8 +85,7 @@ const RolesPage = () => {
             await api.delete(`/roles/${id}`);
             const res = await api.get("/roles");
             setRoles(res.data);
-        // eslint-disable-next-line no-unused-vars
-        } catch (err) {
+        } catch {
             alert("Delete failed");
         }
     };

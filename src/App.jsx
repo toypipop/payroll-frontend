@@ -1,9 +1,9 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import api from "../src/api/axiosInstance";
+import api from "./api/axiosInstance";
 import MainLayout from "./components/layouts/MainLayout";
-import LoginPage from "./pages/auth/LoginPage";
-import DashboardPage from "./pages/dashboard/DashboardPage";
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
 
 const pages = import.meta.glob("./pages/**/*.jsx");
 
@@ -65,7 +65,7 @@ function App() {
                         )?.[1];
 
                         if (!importFunc) {
-                            console.warn(`⚠️ Route skipped: File ${pagePath} not found in src/pages/`);
+                            console.warn(`Route skipped: missing page file for module_key "${m.module_key}" in src/pages`);
                             return null;
                         }
 
