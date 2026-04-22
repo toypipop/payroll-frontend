@@ -137,6 +137,11 @@ Run from repository root.
 - Do not store sensitive data in `localStorage` beyond existing auth needs.
 - Sanitize/validate user input before sending requests when practical.
 
+### Local agent artifacts
+
+- Keep local agent cache files out of source control (`.agents/`, `skills-lock.json`).
+- If working on multiple machines, sync these artifacts privately (or reinstall locally) rather than committing them.
+
 ## Testing Guidance
 
 - Use Vitest + Testing Library for UI and interaction tests.
