@@ -18,7 +18,6 @@ const deductionSchema = z.object({
     id: z.number().optional(),
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
     name: z.string().min(1, "Name is required"),
-    category_id: z.coerce.number().optional().nullable(),
     is_tax_deductible: z.boolean().default(false),
     is_sso_deductible: z.boolean().default(false),
 });
@@ -26,7 +25,6 @@ const deductionSchema = z.object({
 const DeductionTypesPage = () => {
     const [deductions, setDeductions] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [deductionCategories, setDeductionCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,7 +35,6 @@ const DeductionTypesPage = () => {
         resolver: zodResolver(deductionSchema),
         defaultValues: {
             companies_id: defaultCompanieId,
-            category_id: "",
             is_tax_deductible: false,
             is_sso_deductible: false,
         },
@@ -48,14 +45,12 @@ const DeductionTypesPage = () => {
     const fetchInitialData = async () => {
         try {
             setLoading(true);
-            const [deductionsRes, companiesRes, catRes] = await Promise.all([
+            const [deductionsRes, companiesRes] = await Promise.all([
                 api.get("/deduction-types"),
                 api.get("/companies/options"),
-                api.get("/master/deduction-categories").catch(() => ({ data: [] })),
             ]);
             setDeductions(deductionsRes.data);
             setCompanies(companiesRes.data);
-            setDeductionCategories((catRes.data || []).map((c) => ({ id: c.id, name: c.name })));
         // eslint-disable-next-line no-unused-vars
         } catch (err) {
             console.error("Initial load failed");
@@ -100,24 +95,16 @@ const DeductionTypesPage = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        reset({ 
-            id: undefined, 
+        reset({
+            id: undefined,
             companies_id: defaultCompanieId,
-            category_id: "",
-            is_tax_deductible: false, 
-            is_sso_deductible: false 
+            is_tax_deductible: false,
+            is_sso_deductible: false,
         });
     };
 
     const columns = [
         { label: "Deduction Name", key: "name" },
-        {
-            label: "Category",
-            sortKey: "category.name",
-            sortValue: (row) => (row.category?.name || "").toLowerCase(),
-            searchValue: (row) => row.category?.name || "",
-            render: (row) => row.category?.name || "—",
-        },
         {
             label: "Tax Deductible",
             sortKey: "is_tax_deductible",
@@ -186,14 +173,6 @@ const DeductionTypesPage = () => {
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
                     />
-                    {deductionCategories.length > 0 && (
-                        <SelectField
-                            label="Category"
-                            {...register("category_id")}
-                            error={errors.category_id?.message}
-                            options={[{ id: "", name: "— Select Category —" }, ...deductionCategories]}
-                        />
-                    )}
                     <InputField label="Deduction Name" {...register("name")} error={errors.name?.message} />
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                         <CheckboxField label="Tax Deductible" id="is_tax_deductible" {...register("is_tax_deductible")} />

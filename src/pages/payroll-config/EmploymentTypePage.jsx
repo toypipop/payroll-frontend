@@ -8,30 +8,40 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
+import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
 const schema = z.object({
+    companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
 });
 
 const EmploymentTypePage = () => {
     const [items, setItems] = useState([]);
+    const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const defaultCompanieId = userData.companies_id;
+
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { name: "", description: "" },
+        defaultValues: { companies_id: defaultCompanieId, name: "", description: "" },
     });
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await api.get("/master/employment-types");
-            setItems(res.data || []);
+            const [typesRes, companiesRes] = await Promise.all([
+                api.get("/master/employment-types"),
+                api.get("/companies/options"),
+            ]);
+            setItems(typesRes.data || []);
+            setCompanies(companiesRes.data || []);
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -57,14 +67,14 @@ const EmploymentTypePage = () => {
 
     const handleEdit = (item) => {
         setEditingId(item.id);
-        reset({ name: item.name, description: item.description || "" });
+        reset({ companies_id: item.companies_id, name: item.name, description: item.description || "" });
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ name: "", description: "" });
+        reset({ companies_id: defaultCompanieId, name: "", description: "" });
     };
 
     const handleDelete = async (id) => {
@@ -83,6 +93,13 @@ const EmploymentTypePage = () => {
         { label: "Name", key: "name" },
         { label: "Description", key: "description" },
         {
+            label: "Companies",
+            sortKey: "companies.name",
+            sortValue: (row) => (row.companies?.name || "").toLowerCase(),
+            searchValue: (row) => row.companies?.name || "",
+            render: (row) => row.companies?.name || "-",
+        },
+        {
             label: "Actions",
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
@@ -98,7 +115,7 @@ const EmploymentTypePage = () => {
             <PageHeader
                 title="Employment Types"
                 actionButton={
-                    <Button onClick={() => { setEditingId(null); reset({ name: "", description: "" }); setIsModalOpen(true); }} style={{ width: "auto" }}>
+                    <Button onClick={() => { setEditingId(null); reset({ companies_id: defaultCompanieId, name: "", description: "" }); setIsModalOpen(true); }} style={{ width: "auto" }}>
                         + Add Employment Type
                     </Button>
                 }
@@ -118,8 +135,16 @@ const EmploymentTypePage = () => {
                     </>
                 }
             >
-                <InputField label="Name (e.g. Full-time, Contract)" {...register("name")} error={errors.name?.message} />
-                <InputField label="Description" {...register("description")} error={errors.description?.message} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <SelectField
+                        label="Companies"
+                        {...register("companies_id")}
+                        error={errors.companies_id?.message}
+                        options={companies.map(c => ({ id: c.id, name: c.name }))}
+                    />
+                    <InputField label="Name (e.g. Full-time, Contract)" {...register("name")} error={errors.name?.message} />
+                    <InputField label="Description" {...register("description")} error={errors.description?.message} />
+                </div>
             </Modal>
         </>
     );

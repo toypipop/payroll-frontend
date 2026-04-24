@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import ReactDOM from "react-dom";
 
 const Modal = ({ isOpen, onClose, title, children, footer }) => {
     useEffect(() => {
@@ -68,10 +69,8 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
             gap: "12px",
         },
     };
-    return (
-        // Remove onClick from overlay
+    return ReactDOM.createPortal(
         <div style={styles.overlay}>
-            {/* // No onClick so overlay doesn't close */}
             <div style={styles.modalBox}>
                 <div style={styles.header}>
                     <h3 style={styles.title}>{title}</h3>
@@ -82,7 +81,8 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
                 <div style={styles.body}>{children}</div>
                 {footer && <div style={styles.footer}>{footer}</div>}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

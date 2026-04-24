@@ -16,19 +16,15 @@ import Badge from "../../components/common/Badge";
 
 const earningSchema = z.object({
     id: z.number().optional(),
-    // Convert SelectField string to number
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
     name: z.string().min(1, "Name is required"),
-    category_id: z.coerce.number().optional().nullable(),
     is_taxable: z.boolean().default(true),
     is_sso: z.boolean().default(true),
-    is_permanent: z.boolean().default(false),
 });
 
 const EarningTypesPage = () => {
     const [earnings, setEarnings] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [earningCategories, setEarningCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,10 +35,8 @@ const EarningTypesPage = () => {
         resolver: zodResolver(earningSchema),
         defaultValues: {
             companies_id: defaultCompanieId,
-            category_id: "",
             is_taxable: true,
             is_sso: true,
-            is_permanent: false,
         },
     });
 
@@ -51,15 +45,12 @@ const EarningTypesPage = () => {
     const fetchInitialData = async () => {
         try {
             setLoading(true);
-            // Fetch both earnings and companie options (English Comment)
-            const [earningsRes, companiesRes, catRes] = await Promise.all([
+            const [earningsRes, companiesRes] = await Promise.all([
                 api.get("/earning-types"),
                 api.get("/companies/options"),
-                api.get("/master/earning-categories").catch(() => ({ data: [] })),
             ]);
             setEarnings(earningsRes.data);
             setCompanies(companiesRes.data);
-            setEarningCategories((catRes.data || []).map((c) => ({ id: c.id, name: c.name })));
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -70,7 +61,6 @@ const EarningTypesPage = () => {
     useEffect(() => { fetchInitialData(); }, []);
 
     const onSubmit = async (data) => {
-        console.log("Payload to server:", data);
         try {
             if (data.id) {
                 await api.put(`/earning-types/${data.id}`, data);
@@ -104,25 +94,16 @@ const EarningTypesPage = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        reset({ 
-            id: undefined, 
+        reset({
+            id: undefined,
             companies_id: defaultCompanieId,
-            category_id: "",
-            is_taxable: true, 
-            is_sso: true, 
-            is_permanent: false 
+            is_taxable: true,
+            is_sso: true,
         });
     };
 
     const columns = [
         { label: "Name", key: "name" },
-        {
-            label: "Category",
-            sortKey: "category.name",
-            sortValue: (row) => (row.category?.name || "").toLowerCase(),
-            searchValue: (row) => row.category?.name || "",
-            render: (row) => row.category?.name || "—",
-        },
         {
             label: "Taxable",
             sortKey: "is_taxable",
@@ -136,13 +117,6 @@ const EarningTypesPage = () => {
             sortValue: (row) => row.is_sso ? 1 : 0,
             searchValue: (row) => row.is_sso ? "yes" : "no",
             render: (row) => <Badge status={row.is_sso}>{row.is_sso ? "Yes" : "No"}</Badge>
-        },
-        {
-            label: "Type",
-            sortKey: "is_permanent",
-            sortValue: (row) => row.is_permanent ? 1 : 0,
-            searchValue: (row) => row.is_permanent ? "fixed" : "variable",
-            render: (row) => row.is_permanent ? "Fixed" : "Variable"
         },
         {
             label: "Companies",
@@ -189,35 +163,17 @@ const EarningTypesPage = () => {
                 }
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    {/* Companies Dropdown (English Comment) */}
-                    <SelectField 
+                    <SelectField
                         label="Companies"
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
                     />
-
-                    {earningCategories.length > 0 && (
-                        <SelectField
-                            label="Category"
-                            {...register("category_id")}
-                            error={errors.category_id?.message}
-                            options={[{ id: "", name: "— Select Category —" }, ...earningCategories]}
-                        />
-                    )}
-
                     <InputField label="Earning Name" {...register("name")} error={errors.name?.message} />
-
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                         <CheckboxField label="Is Taxable" id="is_taxable" {...register("is_taxable")} />
                         <CheckboxField label="Include in SSO" id="is_sso" {...register("is_sso")} />
                     </div>
-
-                    <CheckboxField
-                        label="Permanent (Fixed Monthly Amount)"
-                        id="is_permanent"
-                        {...register("is_permanent")}
-                    />
                 </div>
             </Modal>
         </>

@@ -8,7 +8,6 @@ import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Modal from "../../components/common/Modal";
 import Badge from "../../components/common/Badge";
-import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 
 const formatCurrency = (value) =>
@@ -35,8 +34,6 @@ const TransactionsPage = () => {
         selectedCycleId,
         setSelectedCycleId,
         cycleInfo,
-        employeeQuery,
-        setEmployeeQuery,
         filteredTransactions,
         loadingCycles,
         loadingTransactions,
@@ -192,14 +189,6 @@ const TransactionsPage = () => {
                         options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        containerStyle={{ minWidth: "260px", marginBottom: 0 }}
-                    />
-
-                    <InputField
-                        label="Filter by Employee"
-                        value={employeeQuery}
-                        onChange={(e) => setEmployeeQuery(e.target.value)}
-                        placeholder="Search code or name"
                         containerStyle={{ minWidth: "260px", marginBottom: 0 }}
                     />
 

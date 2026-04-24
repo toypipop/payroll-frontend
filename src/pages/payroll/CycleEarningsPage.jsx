@@ -72,8 +72,7 @@ const CycleEarningsPage = () => {
                 ]);
                 setCycles(cycleRes.data);
                 setEmployees(empRes.data);
-                // Only show Variable (non-permanent) types in this page
-                setEarningTypes(etRes.data.filter((et) => !et.is_permanent));
+                setEarningTypes(etRes.data);
             } catch (err) {
                 console.error("Master data fetch error:", err);
             }
@@ -173,7 +172,7 @@ const CycleEarningsPage = () => {
                     : `ID: ${row.employees_id}`,
         },
         {
-            label: "Earning Type (Variable)",
+            label: "Earning Type",
             sortKey: "earning_type_name",
             sortValue: (row) => row.earning_type?.name?.toLowerCase() || "",
             searchableKeys: ["earning_type.name"],
@@ -236,7 +235,7 @@ const CycleEarningsPage = () => {
                     </div>
                 )}
                 <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "#94a3b8" }}>
-                    Variable earnings (Bonus, Commission, etc.) are one-time per cycle. Fixed earnings (Position Allowance, etc.) are managed under Employee Earnings.
+                    One-time earnings per cycle (Bonus, OT, Commission, etc.). Recurring monthly earnings are managed under Employee Earnings.
                 </p>
             </Card>
 
@@ -297,7 +296,7 @@ const CycleEarningsPage = () => {
                         disabled={!watchedCycleId}
                     />
                     <SelectField
-                        label="Earning Type (Variable only)"
+                        label="Earning Type"
                         {...register("earning_type_id")}
                         error={errors.earning_type_id?.message}
                         options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}

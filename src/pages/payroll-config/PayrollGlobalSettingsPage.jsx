@@ -83,7 +83,11 @@ const PayrollGlobalSettingsPage = () => {
         },
         {
             label: "Tax Method",
-            render: (row) => row.payroll_config?.tax_calculation || "-"
+            render: (row) => {
+                const labels = { Progressive: "Progressive Rate", Fixed: "Fixed Rate", None: "No Tax" };
+                const val = row.payroll_config?.tax_calculation;
+                return val ? (labels[val] || val) : <span style={{ color: '#94a3b8' }}>Not Set</span>;
+            }
         },
         {
             label: "Actions",
