@@ -104,6 +104,7 @@ const EmployeesListPage = () => {
             setValue("dept_id", "");
             setValue("pos_id", "");
             setValue("roles_id", "");
+            setValue("employment_type_id", "");
         }
     }, [selectedCompaniesId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -117,6 +118,9 @@ const EmployeesListPage = () => {
     const filteredRoles = masterCompanies.length > 0 && selectedCompaniesId
         ? masterRoles.filter((r) => String(r.companies_id) === String(selectedCompaniesId))
         : masterRoles;
+    const filteredEmploymentTypes = masterCompanies.length > 0 && selectedCompaniesId
+        ? masterEmploymentTypes.filter((t) => String(t.companies_id) === String(selectedCompaniesId))
+        : masterEmploymentTypes;
 
     const fetchEmployees = async () => {
         try {
@@ -143,7 +147,13 @@ const EmployeesListPage = () => {
                     api.get("/companies/options").catch(() => ({ data: [] })),
                 ]);
                 setMasterBanks((banksRes.data || []).map((b) => ({ id: b.id, name: `${b.bank_code} — ${b.bank_name}` })));
-                setMasterEmploymentTypes((empTypesRes.data || []).map((t) => ({ id: t.id, name: t.name })));
+                setMasterEmploymentTypes(
+                    (empTypesRes.data || []).map((t) => ({
+                        id: t.id,
+                        name: t.name,
+                        companies_id: t.companies_id,
+                    })),
+                );
                 setMasterCompanies((compRes.data || []).map((c) => ({ id: c.id, name: c.name })));
 
                 // Check property names from API
@@ -443,10 +453,11 @@ const EmployeesListPage = () => {
                 {masterEmploymentTypes.length > 0 && (
                     <SelectField
                         label="Employment Type"
-                        options={masterEmploymentTypes}
+                        options={filteredEmploymentTypes}
                         {...register("employment_type_id")}
                         value={watch("employment_type_id")}
                         error={errors.employment_type_id?.message}
+                        disabled={!selectedCompaniesId}
                     />
                 )}
 

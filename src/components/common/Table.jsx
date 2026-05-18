@@ -31,6 +31,70 @@ const SearchIcon = () => (
     </svg>
 );
 
+const ACTION_LABEL_PATTERN = /^(actions?|command|tools?)$/i;
+
+const isActionColumn = (col) => {
+    const label = String(col.label ?? "").trim();
+    return label === "" || ACTION_LABEL_PATTERN.test(label);
+};
+
+const getNestedValue = (obj, path) => {
+    if (!path) return null;
+    return path.split(".").reduce((current, key) => current?.[key], obj);
+};
+
+const getRenderedText = (value) => {
+    if (value == null || typeof value === "boolean") return "";
+    if (typeof value === "string" || typeof value === "number") return String(value);
+    if (Array.isArray(value)) return value.map(getRenderedText).join(" ");
+    if (React.isValidElement(value)) return getRenderedText(value.props?.children);
+    return "";
+};
+
+const getColumnValue = (col, row, rowIndex) => {
+    if (col.sortValue && typeof col.sortValue === "function") return col.sortValue(row);
+    if (col.searchValue && typeof col.searchValue === "function") return col.searchValue(row);
+    if (col.sortKey) return getNestedValue(row, col.sortKey);
+    if (col.key) return getNestedValue(row, col.key);
+    if (col.render && !isActionColumn(col)) return getRenderedText(col.render(row, rowIndex));
+    return null;
+};
+
+const getSortableKey = (col) => {
+    if (col.sortable === false) return null;
+    if (col.sortValue || col.searchValue || col.sortKey || col.key) return col.sortKey || col.key || col.label;
+    if (col.render && !isActionColumn(col)) return col.label;
+    return null;
+};
+
+const normalizeSearchValue = (value) => {
+    const noComma = String(value ?? "").toLowerCase().replace(/,/g, "");
+    if (/^-?\d+(\.\d+)?$/.test(noComma.trim())) {
+        return String(parseFloat(noComma));
+    }
+    return noComma;
+};
+
+const normalizeSortValue = (value) => {
+    if (value == null || value === "") return null;
+    if (value instanceof Date) return value.getTime();
+    if (typeof value === "number") return value;
+    if (typeof value === "boolean") return value ? 1 : 0;
+
+    const raw = String(value).trim();
+    const numeric = raw.replace(/,/g, "").replace(/[^\d.-]/g, "");
+    if (numeric && /^-?\d+(\.\d+)?$/.test(numeric)) {
+        return Number(numeric);
+    }
+
+    const timestamp = Date.parse(raw);
+    if (!Number.isNaN(timestamp) && /\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/.test(raw)) {
+        return timestamp;
+    }
+
+    return raw.toLowerCase();
+};
+
 const Table = ({
     columns,
     data = [],
@@ -52,13 +116,14 @@ const Table = ({
     const isCompact = density === "compact";
 
     const handleHeaderClick = (col) => {
-        if (sortable === false || col.sortable === false) return;
+        const nextKey = getSortableKey(col);
+        if (sortable === false || !nextKey) return;
 
         setCurrentPage(1);
 
         setSortState((prev) => {
-            if (prev.key !== col.sortKey && prev.key !== col.key) {
-                return { key: col.sortKey || col.key, order: "asc" };
+            if (prev.key !== nextKey) {
+                return { key: nextKey, order: "asc" };
             }
             if (prev.order === "asc") {
                 return { key: prev.key, order: "desc" };
@@ -76,22 +141,11 @@ const Table = ({
         }
 
         return [...data].sort((a, b) => {
-            const key = sortState.key;
-            let aVal, bVal;
+            const col = columns.find((c) => getSortableKey(c) === sortState.key);
+            if (!col) return 0;
 
-            // Always prefer sortValue when the column defines it
-            const col = columns.find((c) => c.key === key || c.sortKey === key);
-            if (col?.sortValue) {
-                aVal = col.sortValue(a);
-                bVal = col.sortValue(b);
-            } else if (key.includes(".")) {
-                const keys = key.split(".");
-                aVal = keys.reduce((obj, k) => obj?.[k], a);
-                bVal = keys.reduce((obj, k) => obj?.[k], b);
-            } else {
-                aVal = a[key];
-                bVal = b[key];
-            }
+            const aVal = normalizeSortValue(getColumnValue(col, a));
+            const bVal = normalizeSortValue(getColumnValue(col, b));
 
             if (aVal == null) return 1;
             if (bVal == null) return -1;
@@ -100,8 +154,8 @@ const Table = ({
                 return sortState.order === "asc" ? aVal - bVal : bVal - aVal;
             }
 
-            const strA = String(aVal).toLowerCase();
-            const strB = String(bVal).toLowerCase();
+            const strA = String(aVal);
+            const strB = String(bVal);
 
             if (strA < strB) return sortState.order === "asc" ? -1 : 1;
             if (strA > strB) return sortState.order === "asc" ? 1 : -1;
@@ -112,37 +166,18 @@ const Table = ({
     const filteredData = useMemo(() => {
         if (!searchQuery.trim()) return sortedData;
         
-        const query = searchQuery.toLowerCase();
-
-        // Helper function to get nested values from objects
-        const getNestedValue = (obj, path) => {
-            if (!path) return null;
-            return path.split('.').reduce((current, key) => current?.[key], obj);
-        };
-
-        // Normalize a string for number-format-agnostic matching:
-        // strips commas, then collapses "6000.00" → "6000" so all of
-        // "6000", "6,000", "6000.00", "6,000.00" resolve to the same token.
-        const normalizeValue = (str) => {
-            const noComma = str.replace(/,/g, '');
-            if (/^-?\d+(\.\d+)?$/.test(noComma.trim())) {
-                return String(parseFloat(noComma));
-            }
-            return noComma;
-        };
-
-        const normalizedQuery = normalizeValue(query);
+        const normalizedQuery = normalizeSearchValue(searchQuery);
 
         return sortedData.filter(row => {
             return columns.some(col => {
                 // Skip Actions and other non-searchable columns
-                if (col.sortable === false && col.searchableKeys === undefined && !col.searchValue) {
+                if (col.searchable === false || isActionColumn(col)) {
                     return false;
                 }
 
                 // If column has searchValue function, use it to get custom search text
                 if (col.searchValue && typeof col.searchValue === 'function') {
-                    const searchText = normalizeValue(String(col.searchValue(row)).toLowerCase());
+                    const searchText = normalizeSearchValue(col.searchValue(row));
                     return searchText.includes(normalizedQuery);
                 }
 
@@ -160,7 +195,7 @@ const Table = ({
                 const individualMatch = keysToSearch.some(key => {
                     const value = getNestedValue(row, key);
                     if (value == null) return false;
-                    return normalizeValue(String(value).toLowerCase()).includes(normalizedQuery);
+                    return normalizeSearchValue(value).includes(normalizedQuery);
                 });
                 if (individualMatch) return true;
 
@@ -170,7 +205,12 @@ const Table = ({
                         .map(key => getNestedValue(row, key) ?? "")
                         .join(" ")
                         .toLowerCase();
-                    if (normalizeValue(combined).includes(normalizedQuery)) return true;
+                    if (normalizeSearchValue(combined).includes(normalizedQuery)) return true;
+                }
+
+                if (col.render) {
+                    const renderedText = getRenderedText(col.render(row));
+                    if (normalizeSearchValue(renderedText).includes(normalizedQuery)) return true;
                 }
 
                 return false;
@@ -382,9 +422,9 @@ const Table = ({
                         <thead style={styles.thead}>
                             <tr>
                                 {columns.map((col, index) => {
-                                    const sortKey = col.sortKey || col.key;
+                                    const sortKey = getSortableKey(col);
                                     const isSorted = sortState.key === sortKey;
-                                    const isSortable = col.sortable !== false && sortable !== false;
+                                    const isSortable = sortable !== false && !!sortKey;
                                     const sortDir = isSorted ? sortState.order : null;
 
                                     return (
