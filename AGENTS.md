@@ -18,7 +18,7 @@ The companion API lives next to this repo at `../payroll-backend`.
 
 - `src/main.jsx`: app bootstrap and root render.
 - `src/App.jsx`: protected route wiring and backend-driven route registration from `/modules`.
-- `src/api/axiosInstance.js`: axios client, auth token injection, 401 redirect handling.
+- `src/api/axiosInstance.js`: axios client, credentialed cookie requests, 401 redirect handling.
 - `src/pages/*`: feature pages by module (`auth`, `employees`, `attendance`, etc.).
 - `src/components/common/*`: reusable UI primitives (fields, table, modal, buttons).
 - `src/components/common/Sidebar.jsx`: backend-driven navigation tree from `/modules`.
@@ -119,6 +119,11 @@ Run from repository root.
 - Register protected feature routes through the backend module data unless the page is a special static route such as `/login` or `/dashboard`.
 - Keep login redirect and fallback route behavior consistent.
 - Do not bypass auth checks for protected pages.
+- Auth uses backend-set httpOnly JWT cookies. Do not store JWTs in `localStorage` or `sessionStorage`, and do not add manual `Authorization: Bearer` headers in frontend code.
+- Keep `api` requests credentialed through `src/api/axiosInstance.js` (`withCredentials: true`) so the browser sends the auth cookie automatically.
+- Login should call `POST /auth/login`; the backend sets the cookie and the frontend may store only non-sensitive profile data such as `id`, `fullName`, `roles`, and `companies_id`.
+- Protected route checks should rely on `GET /auth/me`, not on checking a frontend token.
+- Logout should call `POST /auth/logout`, then clear non-sensitive frontend profile state and redirect to `/login`.
 - Keep module-key-to-page resolution compatible with the backend `/modules` response.
 - Backend `module_key` values must match frontend page filenames exactly, for example `EmployeesListPage` resolves to `src/pages/**/EmployeesListPage.jsx`.
 - Sidebar categories come from modules with `is_category: true`; clickable pages need a `route_path`.
@@ -126,7 +131,7 @@ Run from repository root.
 ### API integration
 
 - Use `src/api/axiosInstance.js` instead of creating ad-hoc axios clients.
-- Keep token handling centralized in interceptors.
+- Keep auth behavior centralized in `src/api/axiosInstance.js`; do not attach JWTs manually.
 - Call endpoints relative to `VITE_API_URL`; for example `api.get("/modules")` resolves to `/api/v1/modules` locally.
 - Handle API failures with user-friendly messages; avoid leaking raw backend internals.
 - Avoid hardcoding API URLs; use `import.meta.env.VITE_API_URL`.
@@ -136,10 +141,19 @@ Run from repository root.
 - Companion backend: `../payroll-backend`, written in Go with Gin, GORM, and MySQL.
 - Backend entrypoint: `../payroll-backend/main.go`; route registration: `../payroll-backend/routes/routes.go`.
 - Backend config defaults: MySQL at `127.0.0.1:3306`, DB name `PayrollDB`, server port `8000`, CORS origin `http://localhost:5173`.
-- Backend auth: login is `POST /api/v1/auth/login`; protected endpoints require `Authorization: Bearer <token>`.
+- Backend auth: login is `POST /api/v1/auth/login`, session check is `GET /api/v1/auth/me`, and logout is `POST /api/v1/auth/logout`; protected endpoints authenticate through the httpOnly `auth_token` cookie.
 - `/api/v1/modules` is currently public and returns active `AppModule` rows sorted by `order`.
 - Module seed data is in `../payroll-backend/seed/main.go`; permission checks in `routes.go` use the same module-key names as frontend page files.
 - If adding a new page, update all needed pieces together: backend seed module, backend route/permission if data is needed, frontend page file, and frontend API calls.
+
+### Tables and index pages
+
+- Use `src/components/common/Table.jsx` for index/list pages unless the view needs a genuinely custom table.
+- Shared table search is enabled by default and should work across key-based, nested, and rendered-text columns.
+- Header sorting is automatic when a column has `key`, `sortKey`, `sortValue`, `searchValue`, or sortable rendered text; action/blank command columns are excluded automatically.
+- For complex rendered columns, provide `sortValue`, `searchValue`, or `searchableKeys` when the rendered text alone is not enough.
+- Mark command-only columns with `sortable: false` when their label is not blank or "Actions".
+- Keep company-scoped form options cascaded from the selected company, including department, position, roles, and employment type.
 
 ### Error handling and UX
 
@@ -157,7 +171,8 @@ Run from repository root.
 ### Security and data safety
 
 - Never commit secrets or production tokens.
-- Do not store sensitive data in `localStorage` beyond existing auth needs.
+- Do not store JWTs, refresh tokens, or other secrets in `localStorage` or `sessionStorage`.
+- Only store non-sensitive user display/profile data on the frontend when needed for UI.
 - Sanitize/validate user input before sending requests when practical.
 
 ### Local agent artifacts
