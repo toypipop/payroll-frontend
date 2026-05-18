@@ -7,16 +7,37 @@ const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
 
 const pages = import.meta.glob("./pages/**/*.jsx");
 
-const ProtectedRoute = ({ children }) => {
-    return localStorage.getItem("token") ? children : <Navigate to="/login" replace />;
+const ProtectedRoute = ({ isAuthenticated, children }) => {
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 
 function App() {
     const [routes, setRoutes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
+        const verifySession = async () => {
+            try {
+                const res = await api.get("/auth/me");
+                const userPayload = {
+                    id: res.data.id,
+                    fullName: res.data.full_name,
+                    roles: res.data.roles,
+                    companies_id: res.data.companies_id,
+                };
+                localStorage.setItem("user", JSON.stringify(userPayload));
+                setIsAuthenticated(true);
+            } catch {
+                localStorage.removeItem("user");
+                setIsAuthenticated(false);
+            } finally {
+                setAuthLoading(false);
+            }
+        };
+
         const fetchRoutes = async () => {
             try {
                 const res = await api.get("/modules");
@@ -38,10 +59,11 @@ function App() {
                 setLoading(false);
             }
         };
+        verifySession();
         fetchRoutes();
     }, []);
 
-    if (loading) return null;
+    if (loading || authLoading) return null;
 
     return (
         <Router>
@@ -51,7 +73,7 @@ function App() {
                     <Route
                         path="/dashboard"
                         element={
-                            <ProtectedRoute>
+                            <ProtectedRoute isAuthenticated={isAuthenticated}>
                                 <MainLayout pageTitle="Dashboard">
                                     <DashboardPage />
                                 </MainLayout>
@@ -76,7 +98,7 @@ function App() {
                                 key={m.id}
                                 path={m.route_path}
                                 element={
-                                    <ProtectedRoute>
+                                    <ProtectedRoute isAuthenticated={isAuthenticated}>
                                         <MainLayout pageTitle={m.module_name}>
                                             <Page />
                                         </MainLayout>

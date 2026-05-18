@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosInstance';
 import Card from '../../components/common/Card';
 import InputField from '../../components/common/InputField';
@@ -9,7 +8,6 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -24,18 +22,16 @@ const LoginPage = () => {
                 password: cleanPassword
             });
 
-            if (response.data && response.data.token) {
-                localStorage.setItem('token', response.data.token);
-
-                // Add 'id' to the payload (English Comment)
+            if (response.data && response.data.id) {
                 const userPayload = {
                     id: response.data.id,
                     fullName: response.data.full_name,
-                    roles: response.data.roles
+                    roles: response.data.roles,
+                    companies_id: response.data.companies_id
                 };
                 localStorage.setItem('user', JSON.stringify(userPayload));
 
-                navigate('/dashboard');
+                window.location.href = '/dashboard';
             }
         } catch (err) {
             console.error("Login Error:", err);

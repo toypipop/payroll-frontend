@@ -40,6 +40,15 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
   const displayName = storedUser?.fullName || 'Admin';
   const initials = displayName.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } finally {
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+  };
+
   const styles = {
     navbar: {
       height: '60px',
@@ -112,10 +121,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }) => {
         <span style={styles.userName}>{displayName}</span>
         <div style={styles.separator} />
         <button
-          onClick={() => {
-            localStorage.clear();
-            window.location.href = '/login';
-          }}
+          onClick={handleLogout}
           style={{
             color: 'var(--text-muted)',
             background: 'none',

@@ -3,20 +3,12 @@ import axios from "axios";
 const api = axios.create({
     // Use the environment variable from .env file
     baseURL: import.meta.env.VITE_API_URL,
+    withCredentials: true,
 });
 
 // Request interceptor
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers = {
-                ...config.headers,
-                Authorization: `Bearer ${token}`,
-            };
-        }
-        return config;
-    },
+    (config) => config,
     (error) => {
         return Promise.reject(error);
     },
@@ -33,11 +25,8 @@ api.interceptors.response.use(
             const isLoginPage = window.location.pathname === "/login";
 
             if (!isLoginPage) {
-                // Clear stored auth tokens
-                localStorage.removeItem("token");
                 localStorage.removeItem("user");
 
-	                // Redirect to login if not already there
                 window.location.href = "/login";
             }
         }
