@@ -16,14 +16,15 @@ The companion API lives next to this repo at `../payroll-backend`.
 
 ## Project Layout
 
-- `src/main.jsx`: app bootstrap and root render.
-- `src/App.jsx`: protected route wiring and backend-driven route registration from `/modules`.
-- `src/api/axiosInstance.js`: axios client, credentialed cookie requests, 401 redirect handling.
+- `src/main.tsx`: app bootstrap and root render.
+- `src/App.tsx`: protected route wiring and backend-driven route registration from `/modules`.
+- `src/api/axiosInstance.ts`: axios client, credentialed cookie requests, 401 redirect handling.
+- `src/types/*`: shared TypeScript API/domain/component types.
 - `src/pages/*`: feature pages by module (`auth`, `employees`, `attendance`, etc.).
 - `src/components/common/*`: reusable UI primitives (fields, table, modal, buttons).
-- `src/components/common/Sidebar.jsx`: backend-driven navigation tree from `/modules`.
-- `src/components/common/Navbar.jsx`: page title/breadcrumb shell and sign-out control.
-- `src/components/layouts/MainLayout.jsx`: global shell and navigation.
+- `src/components/common/Sidebar.tsx`: backend-driven navigation tree from `/modules`.
+- `src/components/common/Navbar.tsx`: page title/breadcrumb shell and sign-out control.
+- `src/components/layouts/MainLayout.tsx`: global shell and navigation.
 - `src/hooks/*`: reusable UI/data hooks.
 - `src/index.css` + `src/App.css`: global and app-level styling.
 
@@ -31,6 +32,7 @@ The companion API lives next to this repo at `../payroll-backend`.
 
 - Runtime: Node.js + npm.
 - Bundler/dev server: Vite (`vite` via npm scripts).
+- Language: TypeScript for app source (`.ts`/`.tsx`); keep new React files typed.
 - React version: `19.x` (`react`/`react-dom` currently `^19.2.0`).
 - Router: `react-router-dom` v7.
 - Form and validation stack: `react-hook-form`, `@hookform/resolvers`, and `zod`.
@@ -47,7 +49,8 @@ Run from repository root.
 
 - `npm install` - install dependencies.
 - `npm run dev` - run local development server.
-- `npm run build` - create production build in `dist/`.
+- `npm run typecheck` - run TypeScript without emitting files.
+- `npm run build` - run TypeScript check and create production build in `dist/`.
 - `npm run preview` - serve built app locally.
 
 ### Local MySQL Docker
@@ -64,6 +67,7 @@ Run from repository root.
 ### Lint and formatting
 
 - `npm run lint` - run ESLint using `eslint.config.js`.
+- `npm run typecheck` - run TypeScript validation using `tsconfig.json`.
 - If formatting changes are introduced, keep style consistent with existing files.
 
 ### Tests (Vitest)
@@ -78,13 +82,13 @@ Run from repository root.
 ### Run a single test (important)
 
 - Single file:
-- `npx vitest run src/pages/auth/LoginPage.test.jsx`
+- `npx vitest run src/pages/auth/LoginPage.test.tsx`
 - Single test by name:
 - `npx vitest run -t "shows login error"`
 - Single file + single test name:
-- `npx vitest run src/pages/auth/LoginPage.test.jsx -t "submits valid credentials"`
+- `npx vitest run src/pages/auth/LoginPage.test.tsx -t "submits valid credentials"`
 - Single suite in watch mode:
-- `npx vitest src/components/common/Table.test.jsx`
+- `npx vitest src/components/common/Table.test.tsx`
 
 ## Development Workflow for Agents
 
@@ -92,7 +96,7 @@ Run from repository root.
 - Preserve existing route naming and module-key conventions used by backend-driven menus.
 - Keep UI behavior aligned with backend permission/data-scope responses.
 - If behavior changes, add/update tests near the changed component/page.
-- Run at least `npm run lint` and `npm run build` before finishing.
+- Run at least `npm run typecheck`, `npm run lint`, and `npm run build` before finishing.
 - For changes that touch API contracts, check `../payroll-backend/routes/routes.go`, handlers, models, and seed module definitions before editing frontend assumptions.
 
 ## Code Style Guidelines
@@ -102,13 +106,15 @@ Run from repository root.
 - Keep imports grouped and stable: external packages first, then internal modules, then styles.
 - Use relative paths consistent with current file patterns.
 - Remove unused imports; ESLint is configured to fail on unused vars/imports.
+- Prefer `import type` for TypeScript-only imports.
 
 ### Formatting and structure
 
-- Match existing JSX/JS style in surrounding files.
+- Match existing TSX/TS style in surrounding files.
 - Prefer clear, readable component structure over dense inline logic.
 - Use early returns for loading/error guards.
 - Keep components focused; extract reusable logic to hooks/helpers when repeated.
+- Avoid `any` unless a third-party or legacy boundary makes a narrower type impractical; prefer shared interfaces from `src/types`.
 
 ### Components and state
 
@@ -123,7 +129,7 @@ Run from repository root.
 - Hooks: `camelCase` starting with `use` (`useTransactionsData`).
 - Variables/functions: `camelCase`.
 - Constants: `UPPER_SNAKE_CASE` only for true constants.
-- File names: follow existing convention (`PageName.jsx`, `fieldName.js`).
+- File names: follow existing convention (`PageName.tsx`, `fieldName.ts`/`fieldName.tsx`).
 
 ### Routing and auth
 
@@ -131,18 +137,19 @@ Run from repository root.
 - Keep login redirect and fallback route behavior consistent.
 - Do not bypass auth checks for protected pages.
 - Auth uses backend-set httpOnly JWT cookies. Do not store JWTs in `localStorage` or `sessionStorage`, and do not add manual `Authorization: Bearer` headers in frontend code.
-- Keep `api` requests credentialed through `src/api/axiosInstance.js` (`withCredentials: true`) so the browser sends the auth cookie automatically.
+- Keep `api` requests credentialed through `src/api/axiosInstance.ts` (`withCredentials: true`) so the browser sends the auth cookie automatically.
 - Login should call `POST /auth/login`; the backend sets the cookie and the frontend may store only non-sensitive profile data such as `id`, `fullName`, `roles`, and `companies_id`.
 - Protected route checks should rely on `GET /auth/me`, not on checking a frontend token.
 - Logout should call `POST /auth/logout`, then clear non-sensitive frontend profile state and redirect to `/login`.
 - Keep module-key-to-page resolution compatible with the backend `/modules` response.
-- Backend `module_key` values must match frontend page filenames exactly, for example `EmployeesListPage` resolves to `src/pages/**/EmployeesListPage.jsx`.
+- Backend `module_key` values must match frontend page filenames exactly, for example `EmployeesListPage` resolves to `src/pages/**/EmployeesListPage.tsx`.
 - Sidebar categories come from modules with `is_category: true`; clickable pages need a `route_path`.
 
 ### API integration
 
-- Use `src/api/axiosInstance.js` instead of creating ad-hoc axios clients.
-- Keep auth behavior centralized in `src/api/axiosInstance.js`; do not attach JWTs manually.
+- Use `src/api/axiosInstance.ts` instead of creating ad-hoc axios clients.
+- Keep auth behavior centralized in `src/api/axiosInstance.ts`; do not attach JWTs manually.
+- Type API request and response shapes with shared interfaces in `src/types` where practical.
 - Call endpoints relative to `VITE_API_URL`; for example `api.get("/modules")` resolves to `/api/v1/modules` locally.
 - Handle API failures with user-friendly messages; avoid leaking raw backend internals.
 - Avoid hardcoding API URLs; use `import.meta.env.VITE_API_URL`.
@@ -159,7 +166,7 @@ Run from repository root.
 
 ### Tables and index pages
 
-- Use `src/components/common/Table.jsx` for index/list pages unless the view needs a genuinely custom table.
+- Use `src/components/common/Table.tsx` for index/list pages unless the view needs a genuinely custom table.
 - Shared table search is enabled by default and should work across key-based, nested, and rendered-text columns.
 - Header sorting is automatic when a column has `key`, `sortKey`, `sortValue`, `searchValue`, or sortable rendered text; action/blank command columns are excluded automatically.
 - For complex rendered columns, provide `sortValue`, `searchValue`, or `searchableKeys` when the rendered text alone is not enough.
@@ -217,6 +224,7 @@ The following specialized skills are available in the `.agents/skills/` director
 ## Definition of Done (for agent changes)
 
 - Code compiles and builds (`npm run build`).
+- TypeScript passes (`npm run typecheck`).
 - Lint passes (`npm run lint`).
 - Relevant tests pass (`npx vitest run` or targeted single-test commands).
 - Routing/auth behavior remains consistent.
