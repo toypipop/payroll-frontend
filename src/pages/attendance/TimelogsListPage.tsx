@@ -10,7 +10,6 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
-import DateField from "../../components/common/DateField";
 import DateTimeField from "../../components/common/DateTimeField";
 import SelectField from "../../components/common/SelectField";
 import { Controller } from "react-hook-form";
@@ -32,6 +31,48 @@ const timeLogSchema = z.object({
     path: ["check_out"],
 });
 
+const toLocalDateTimeValue = (date) => {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+const parseToLocalDateTimeValue = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return toLocalDateTimeValue(date);
+};
+
+const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
+    if (!timeValue) return { hour: defaultHour, min: defaultMin };
+
+    if (typeof timeValue === "string") {
+        if (timeValue.includes(":") && !timeValue.includes("T")) {
+            const [hour, min] = timeValue.split(":").map(Number);
+            if (Number.isFinite(hour) && Number.isFinite(min)) {
+                return { hour, min };
+            }
+        }
+
+        const date = new Date(timeValue);
+        if (!Number.isNaN(date.getTime())) {
+            return { hour: date.getHours(), min: date.getMinutes() };
+        }
+    }
+
+    if (timeValue instanceof Date && !Number.isNaN(timeValue.getTime())) {
+        return { hour: timeValue.getHours(), min: timeValue.getMinutes() };
+    }
+
+    return { hour: defaultHour, min: defaultMin };
+};
+
+const buildDateWithTime = (baseDate, hour, min) => {
+    const date = new Date(baseDate);
+    date.setHours(hour, min, 0, 0);
+    return date;
+};
+
 const TimelogsListPage = () => {
     const [timeLogs, setTimeLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -51,6 +92,7 @@ const TimelogsListPage = () => {
         handleSubmit,
         reset,
         setValue,
+        getValues,
         control,
         formState: { errors },
     } = useForm({
@@ -147,17 +189,8 @@ const TimelogsListPage = () => {
         setEditingId(log.ID || log.id);
         setValue("employees_id", log.employees_id?.toString());
         setSelectedEmployeeId(log.employees_id?.toString());
-
-        const parseToLocalISO = (isoString) => {
-            if (!isoString) return "";
-            const d = new Date(isoString);
-            if (isNaN(d.getTime())) return "";
-            const pad = (n) => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-        };
-
-        setValue("check_in", parseToLocalISO(log.check_in));
-        setValue("check_out", parseToLocalISO(log.check_out));
+        setValue("check_in", parseToLocalDateTimeValue(log.check_in));
+        setValue("check_out", parseToLocalDateTimeValue(log.check_out));
 
         setValue("work_location_id", log.work_location_id?.toString() || "");
         setValue("remark", log.remark || "");
@@ -193,71 +226,41 @@ const TimelogsListPage = () => {
         )
         : masterWorkLocations;
 
-    const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
-        if (!timeValue) return { hour: defaultHour, min: defaultMin };
-        
-        if (typeof timeValue === 'string') {
-            if (timeValue.includes(':') && !timeValue.includes('T')) {
-                const [h, m] = timeValue.split(':').map(Number);
-                return { hour: h, min: m };
-            }
-            const date = new Date(timeValue);
-            if (!isNaN(date.getTime())) {
-                return { hour: date.getHours(), min: date.getMinutes() };
-            }
+    const fillScheduleTimesForEmployee = (empId) => {
+        if (!empId) {
+            setValue("check_in", "");
+            setValue("check_out", "");
+            return;
         }
-        
-        if (timeValue instanceof Date && !isNaN(timeValue.getTime())) {
-            return { hour: timeValue.getHours(), min: timeValue.getMinutes() };
-        }
-        
-        return { hour: defaultHour, min: defaultMin };
-    };
 
-    const buildDateWithTime = (baseDate, hour, min) => {
-        const date = new Date(baseDate);
-        date.setHours(hour, min, 0, 0);
-        return date;
+        const emp = employeeData[empId];
+        const companiesId = emp?.companies_id;
+        const config = companiesId ? attendanceConfigs[companiesId] : null;
+        const currentCheckIn = getValues("check_in");
+        const selectedDate = currentCheckIn && !Number.isNaN(new Date(currentCheckIn).getTime())
+            ? new Date(currentCheckIn)
+            : new Date();
+
+        selectedDate.setHours(0, 0, 0, 0);
+
+        const { hour: startHour, min: startMin } = parseTimeFromConfig(config?.work_start_time, 9, 0);
+        const { hour: endHour, min: endMin } = parseTimeFromConfig(config?.work_end_time, 18, 0);
+        const checkInDate = buildDateWithTime(selectedDate, startHour, startMin);
+        const checkOutDate = buildDateWithTime(selectedDate, endHour, endMin);
+
+        if (checkOutDate <= checkInDate) {
+            checkOutDate.setDate(checkOutDate.getDate() + 1);
+        }
+
+        setValue("check_in", toLocalDateTimeValue(checkInDate), { shouldValidate: true, shouldDirty: true });
+        setValue("check_out", toLocalDateTimeValue(checkOutDate), { shouldValidate: true, shouldDirty: true });
     };
 
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
         setValue("work_location_id", "");
-
-        if (empId) {
-            const emp = employeeData[empId];
-            const compId = emp?.companies_id;
-            const config = compId ? attendanceConfigs[compId] : null;
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            if (config) {
-                const { hour: startHour, min: startMin } = parseTimeFromConfig(config.work_start_time, 9, 0);
-                const { hour: endHour, min: endMin } = parseTimeFromConfig(config.work_end_time, 18, 0);
-
-                const checkInDate = buildDateWithTime(today, startHour, startMin);
-                const checkOutDate = buildDateWithTime(today, endHour, endMin);
-
-                if (checkOutDate <= checkInDate) {
-                    checkOutDate.setDate(checkOutDate.getDate() + 1);
-                }
-
-                const toLocalISO = (d) => { const pad = (n) => String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-                setValue("check_in", toLocalISO(checkInDate));
-                setValue("check_out", toLocalISO(checkOutDate));
-            } else {
-                const defaultCheckIn = buildDateWithTime(today, 9, 0);
-                const defaultCheckOut = buildDateWithTime(today, 18, 0);
-                const toLocalISO = (d) => { const pad = (n) => String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-                setValue("check_in", toLocalISO(defaultCheckIn));
-                setValue("check_out", toLocalISO(defaultCheckOut));
-            }
-        } else {
-            setValue("check_in", null);
-            setValue("check_out", null);
-        }
+        fillScheduleTimesForEmployee(empId);
     };
 
     const columns = [

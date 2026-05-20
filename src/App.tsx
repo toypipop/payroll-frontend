@@ -33,6 +33,7 @@ function App() {
                     fullName: res.data.full_name,
                     roles: res.data.roles,
                     companies_id: res.data.companies_id,
+                    accessible_company_ids: res.data.accessible_company_ids || [],
                 };
                 localStorage.setItem("user", JSON.stringify(userPayload));
                 setIsAuthenticated(true);

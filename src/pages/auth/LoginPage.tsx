@@ -27,7 +27,8 @@ const LoginPage = () => {
                     id: response.data.id,
                     fullName: response.data.full_name,
                     roles: response.data.roles,
-                    companies_id: response.data.companies_id
+                    companies_id: response.data.companies_id,
+                    accessible_company_ids: response.data.accessible_company_ids || [],
                 };
                 localStorage.setItem('user', JSON.stringify(userPayload));
 

@@ -7,6 +7,7 @@ export interface UserProfile {
     fullName: string;
     roles: string[];
     companies_id?: ApiId | null;
+    accessible_company_ids?: ApiId[];
 }
 
 export interface AuthMeResponse {
@@ -14,6 +15,7 @@ export interface AuthMeResponse {
     full_name: string;
     roles: string[];
     companies_id?: ApiId | null;
+    accessible_company_ids?: ApiId[];
 }
 
 export interface AppModule {
