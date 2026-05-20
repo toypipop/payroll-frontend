@@ -16,6 +16,10 @@ import Badge from "../../components/common/Badge";
 
 /* --- 1. Validation Schema (English Comment) --- */
 const salariesSchema = z.object({
+    companies_id: z.preprocess(
+        (val) => Number(val),
+        z.number().min(1, "Company is required")
+    ),
     employees_id: z.preprocess(
         (val) => Number(val),
         z.number().min(1, "Please select an employee")
@@ -29,6 +33,7 @@ const salariesSchema = z.object({
 });
 
 const DEFAULT_FORM_VALUES = {
+    companies_id: "",
     employees_id: "",
     base_salaries: "",
     effective_date: new Date().toISOString().split("T")[0],
@@ -226,6 +231,7 @@ const SalariesStructurePage = () => {
         try {
             const payload = {
                 ...data,
+                companies_id: Number(data.companies_id),
                 employees_id: Number(data.employees_id),
                 base_salaries: Number(data.base_salaries),
                 base_salary: Number(data.base_salaries),
@@ -275,6 +281,7 @@ const SalariesStructurePage = () => {
             }
         }
         reset({
+            companies_id: emp.companies_id ? String(emp.companies_id) : "",
             employees_id: String(empId),
             base_salaries: getSalaryBaseAmount(ss, emp) || "",
             effective_date: finalDate,

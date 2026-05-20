@@ -16,6 +16,7 @@ import { Controller } from "react-hook-form";
 
 // Validation schema for timelog form
 const timeLogSchema = z.object({
+    companies_id: z.string().min(1, "Please select a company"),
     employees_id: z.string().min(1, "Please select an employee"),
     check_in: z.string().min(1, "Check-in time is required"),
     check_out: z.string().optional().or(z.literal("")),
@@ -81,6 +82,7 @@ const TimelogsListPage = () => {
     const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
     // Master data for dropdown
+    const [masterCompanies, setMasterCompanies] = useState([]);
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterWorkLocations, setMasterWorkLocations] = useState([]);
     const [employeeData, setEmployeeData] = useState({});
@@ -93,11 +95,13 @@ const TimelogsListPage = () => {
         reset,
         setValue,
         getValues,
+        watch,
         control,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(timeLogSchema),
         defaultValues: {
+            companies_id: "",
             employees_id: "",
             check_in: "",
             check_out: "",
@@ -122,15 +126,18 @@ const TimelogsListPage = () => {
         const fetchMasterData = async () => {
             try {
                 // Fetch employees to show in dropdown
-                const [empRes, locRes, attConfigRes] = await Promise.all([
+                const [empRes, locRes, attConfigRes, companyRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/work-locations").catch(() => ({ data: [] })),
                     api.get("/attendance/config").catch(() => ({ data: [] })),
+                    api.get("/companies"),
                 ]);
+                setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
                     empRes.data.map((e) => ({
                         id: e.id || e.ID,
                         name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
+                        companies_id: e.companies_id,
                     }))
                 );
                 
@@ -170,6 +177,7 @@ const TimelogsListPage = () => {
                 check_in: data.check_in ? new Date(data.check_in).toISOString() : null,
                 check_out: data.check_out ? new Date(data.check_out).toISOString() : null,
                 employees_id: parseInt(data.employees_id),
+                companies_id: parseInt(data.companies_id),
                 work_location_id: data.work_location_id ? parseInt(data.work_location_id) : null,
             };
 
@@ -187,6 +195,7 @@ const TimelogsListPage = () => {
 
     const handleEdit = (log) => {
         setEditingId(log.ID || log.id);
+        setValue("companies_id", log.companies_id?.toString() || log.employees?.companies_id?.toString() || "");
         setValue("employees_id", log.employees_id?.toString());
         setSelectedEmployeeId(log.employees_id?.toString());
         setValue("check_in", parseToLocalDateTimeValue(log.check_in));
@@ -216,9 +225,13 @@ const TimelogsListPage = () => {
         reset();
     };
 
-    const selectedEmployeeCompaniesId = selectedEmployeeId 
-        ? employeeData[selectedEmployeeId]?.companies_id 
-        : null;
+    const selectedCompanyId = watch("companies_id");
+    const filteredEmployees = selectedCompanyId
+        ? masterEmployees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId))
+        : [];
+    const selectedEmployeeCompaniesId = selectedCompanyId || (selectedEmployeeId
+        ? employeeData[selectedEmployeeId]?.companies_id
+        : null);
     
     const filteredWorkLocations = selectedEmployeeCompaniesId
         ? masterWorkLocations.filter((loc) => 
@@ -261,6 +274,15 @@ const TimelogsListPage = () => {
         setSelectedEmployeeId(empId);
         setValue("work_location_id", "");
         fillScheduleTimesForEmployee(empId);
+    };
+
+    const handleCompanyChange = (e) => {
+        setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+        setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
+        setSelectedEmployeeId("");
+        setValue("work_location_id", "");
+        setValue("check_in", "");
+        setValue("check_out", "");
     };
 
     const columns = [
@@ -377,14 +399,26 @@ const TimelogsListPage = () => {
                 {/* 5. Inputs for TimeLog (English Comment) */}
 
                 <SelectField
+                    label="Company"
+                    options={masterCompanies}
+                    {...register("companies_id")}
+                    error={errors.companies_id?.message}
+                    onChange={(e) => {
+                        register("companies_id").onChange(e);
+                        handleCompanyChange(e);
+                    }}
+                />
+
+                <SelectField
                     label="Employee"
-                    options={masterEmployees}
+                    options={filteredEmployees}
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
                     onChange={(e) => {
                         register("employees_id").onChange(e);
                         handleEmployeeChange(e);
                     }}
+                    disabled={!selectedCompanyId}
                 />
 
                 <Controller

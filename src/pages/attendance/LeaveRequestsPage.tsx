@@ -18,6 +18,7 @@ import { Controller } from "react-hook-form";
 
 // Validation schema for leave requests
 const leaveSchema = z.object({
+    companies_id: z.string().min(1, "Please select a company"),
     employees_id: z.string().min(1, "Please select an employee"),
     leave_type_id: z.string().min(1, "Please select leave type"),
     // Accept YYYY-MM-DD string from DateField
@@ -41,6 +42,7 @@ const LeaveRequestsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+    const [masterCompanies, setMasterCompanies] = useState([]);
     const [masterEmployees, setMasterEmployees] = useState([]);
     const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
     const [employeeData, setEmployeeData] = useState({});
@@ -51,11 +53,13 @@ const LeaveRequestsPage = () => {
         handleSubmit,
         reset,
         setValue,
+        watch,
         control,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(leaveSchema),
         defaultValues: {
+            companies_id: "",
             employees_id: "",
             leave_type_id: "",
             start_date: "",
@@ -79,14 +83,17 @@ const LeaveRequestsPage = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [empRes, ltRes] = await Promise.all([
+                const [empRes, ltRes, companyRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/leave-types").catch(() => ({ data: [] })),
+                    api.get("/companies"),
                 ]);
+                setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
                     empRes.data.map((e) => ({
                         id: e.id || e.ID,
                         name: `${e.employees_code || "-"} - ${e.first_name} ${e.last_name}`,
+                        companies_id: e.companies_id,
                     }))
                 );
                 
@@ -113,7 +120,7 @@ const LeaveRequestsPage = () => {
         try {
             const employeeId = Number(data.employees_id);
             const leaveTypeId = Number(data.leave_type_id);
-            const companyId = employeeData[data.employees_id]?.companies_id || null;
+            const companyId = Number(data.companies_id);
             const selectedLeaveType = masterLeaveTypes.find((lt) => String(lt.id) === String(data.leave_type_id));
 
             if (!Number.isFinite(employeeId) || employeeId <= 0) {
@@ -159,6 +166,7 @@ const LeaveRequestsPage = () => {
         }
 
         setEditingId(req.id || req.ID);
+        setValue("companies_id", req.companies_id?.toString() || req.employees?.companies_id?.toString() || "");
         setValue("employees_id", req.employees_id?.toString() || "");
         setSelectedEmployeeId(req.employees_id?.toString() || "");
         setValue("leave_type_id", req.leave_type_id?.toString() || "");
@@ -197,6 +205,7 @@ const LeaveRequestsPage = () => {
         setSelectedEmployeeId("");
         reset({
             employees_id: "",
+            companies_id: "",
             leave_type_id: "",
             start_date: "",
             end_date: "",
@@ -205,9 +214,13 @@ const LeaveRequestsPage = () => {
         setIsModalOpen(true);
     };
 
-    const selectedEmployeeCompaniesId = selectedEmployeeId 
-        ? employeeData[selectedEmployeeId]?.companies_id 
-        : null;
+    const selectedCompanyId = watch("companies_id");
+    const filteredEmployees = selectedCompanyId
+        ? masterEmployees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId))
+        : [];
+    const selectedEmployeeCompaniesId = selectedCompanyId || (selectedEmployeeId
+        ? employeeData[selectedEmployeeId]?.companies_id
+        : null);
     
     const filteredLeaveTypes = selectedEmployeeCompaniesId
         ? masterLeaveTypes.filter((lt) => 
@@ -218,6 +231,12 @@ const LeaveRequestsPage = () => {
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
+        setValue("leave_type_id", "");
+    };
+    const handleCompanyChange = (e) => {
+        setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+        setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
+        setSelectedEmployeeId("");
         setValue("leave_type_id", "");
     };
 
@@ -358,14 +377,26 @@ const LeaveRequestsPage = () => {
                 }
             >
                 <SelectField
+                    label="Company"
+                    options={masterCompanies}
+                    {...register("companies_id")}
+                    error={errors.companies_id?.message}
+                    onChange={(e) => {
+                        register("companies_id").onChange(e);
+                        handleCompanyChange(e);
+                    }}
+                />
+
+                <SelectField
                     label="Employee"
-                    options={masterEmployees}
+                    options={filteredEmployees}
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
                     onChange={(e) => {
                         register("employees_id").onChange(e);
                         handleEmployeeChange(e);
                     }}
+                    disabled={!selectedCompanyId}
                 />
 
                 <SelectField

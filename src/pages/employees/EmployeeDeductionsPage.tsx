@@ -15,6 +15,7 @@ import SelectField from "../../components/common/SelectField";
 
 const schema = z.object({
     id: z.number().optional(),
+    companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
     employees_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select an employee")),
     deduction_type_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a deduction type")),
     amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
@@ -22,6 +23,7 @@ const schema = z.object({
 
 const EmployeeDeductionsPage = () => {
     const [items, setItems] = useState([]);
+    const [companies, setCompanies] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [deductionTypes, setDeductionTypes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -29,13 +31,16 @@ const EmployeeDeductionsPage = () => {
 
     const { register, handleSubmit, reset, watch, resetField, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { employees_id: "", deduction_type_id: "", amount: "" },
+        defaultValues: { companies_id: "", employees_id: "", deduction_type_id: "", amount: "" },
     });
 
     const editingId = watch("id");
+    const selectedCompanyId = watch("companies_id");
     const selectedEmployeeId = watch("employees_id");
-    const selectedEmployee = employees.find((emp) => String(emp.id) === String(selectedEmployeeId));
-    const selectedCompanyId = selectedEmployee?.companies_id;
+    const filteredEmployees = useMemo(
+        () => selectedCompanyId ? employees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId)) : [],
+        [employees, selectedCompanyId],
+    );
 
     const filteredDeductionTypes = useMemo(() => {
         if (!selectedCompanyId) return deductionTypes;
@@ -51,14 +56,16 @@ const EmployeeDeductionsPage = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [itemsRes, empRes, dtRes] = await Promise.all([
+            const [itemsRes, empRes, dtRes, companyRes] = await Promise.all([
                 api.get("/employee-deductions"),
                 api.get("/employees"),
                 api.get("/deduction-types"),
+                api.get("/companies"),
             ]);
             setItems(itemsRes.data);
             setEmployees(empRes.data);
             setDeductionTypes(dtRes.data);
+            setCompanies(companyRes.data);
         } catch (err) {
             console.error("Fetch error:", err);
         } finally {
@@ -94,8 +101,10 @@ const EmployeeDeductionsPage = () => {
     };
 
     const handleEdit = (item) => {
+        const companyId = item.companies_id || item.employees?.companies_id || "";
         reset({
             id: item.id,
+            companies_id: companyId,
             employees_id: item.employees_id,
             deduction_type_id: item.deduction_type_id,
             amount: item.amount,
@@ -115,7 +124,7 @@ const EmployeeDeductionsPage = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        reset({ id: undefined, employees_id: "", deduction_type_id: "", amount: "" });
+        reset({ id: undefined, companies_id: "", employees_id: "", deduction_type_id: "", amount: "" });
     };
 
     const columns = [
@@ -201,6 +210,17 @@ const EmployeeDeductionsPage = () => {
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField
+                        label="Company"
+                        {...register("companies_id")}
+                        error={errors.companies_id?.message}
+                        onChange={(e) => {
+                            register("companies_id").onChange(e);
+                            resetField("employees_id", { defaultValue: "" });
+                            resetField("deduction_type_id", { defaultValue: "" });
+                        }}
+                        options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                    />
+                    <SelectField
                         label="Employee"
                         {...employeeField}
                         error={errors.employees_id?.message}
@@ -208,10 +228,11 @@ const EmployeeDeductionsPage = () => {
                             employeeField.onChange(e);
                             resetField("deduction_type_id", { defaultValue: "" });
                         }}
-                        options={employees.map((e) => ({
+                        options={filteredEmployees.map((e) => ({
                             id: e.id,
                             name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
                         }))}
+                        disabled={!selectedCompanyId}
                     />
                     <SelectField
                         label="Deduction Type"

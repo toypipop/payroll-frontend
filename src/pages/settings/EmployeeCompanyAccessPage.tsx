@@ -62,6 +62,10 @@ const EmployeeCompanyAccessPage = () => {
         if (!selectedCompanyId) return roles;
         return roles.filter((role) => String(role.companies_id) === String(selectedCompanyId));
     }, [roles, selectedCompanyId]);
+    const filteredEmployees = useMemo(() => {
+        if (!selectedCompanyId) return [];
+        return employees.filter((employee) => String(employee.companies_id) === String(selectedCompanyId));
+    }, [employees, selectedCompanyId]);
 
     const selectedEmployeeName = useMemo(() => {
         const employee = employees.find((item) => String(item.id) === String(selectedEmployeeId));
@@ -265,19 +269,25 @@ const EmployeeCompanyAccessPage = () => {
                 }
             >
                 <SelectField
-                    label="Employee"
-                    options={employees}
-                    {...register("employee_id")}
-                    value={watch("employee_id")}
-                    error={errors.employee_id?.message}
-                />
-
-                <SelectField
                     label="Company"
                     options={companies}
                     {...register("company_id")}
                     value={watch("company_id")}
                     error={errors.company_id?.message}
+                    onChange={(e) => {
+                        setValue("company_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                        setValue("employee_id", "", { shouldValidate: true, shouldDirty: true });
+                        setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
+                    }}
+                />
+
+                <SelectField
+                    label="Employee"
+                    options={filteredEmployees}
+                    {...register("employee_id")}
+                    value={watch("employee_id")}
+                    error={errors.employee_id?.message}
+                    disabled={!selectedCompanyId}
                 />
 
                 <SelectField

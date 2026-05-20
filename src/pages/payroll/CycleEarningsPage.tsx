@@ -14,6 +14,7 @@ import SelectField from "../../components/common/SelectField";
 
 const schema = z.object({
     id: z.number().optional(),
+    companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
     cycle_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a payroll cycle")),
     employees_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select an employee")),
     earning_type_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select an earning type")),
@@ -32,23 +33,29 @@ const formatDate = (value) => {
 
 const CycleEarningsPage = () => {
     const [items, setItems] = useState([]);
+    const [companies, setCompanies] = useState([]);
     const [cycles, setCycles] = useState([]);
     const [employees, setEmployees] = useState([]);
     // Only variable (non-permanent) earning types
     const [earningTypes, setEarningTypes] = useState([]);
+    const [selectedCompanyId, setSelectedCompanyId] = useState("");
     const [selectedCycleId, setSelectedCycleId] = useState("");
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { cycle_id: "", employees_id: "", earning_type_id: "", amount: "" },
+        defaultValues: { companies_id: "", cycle_id: "", employees_id: "", earning_type_id: "", amount: "" },
     });
 
     const editingId = watch("id");
+    const watchedCompanyId = watch("companies_id");
     const watchedCycleId = watch("cycle_id");
 
-    const cycleCompanyId = cycles.find((c) => String(c.id) === String(watchedCycleId))?.companies_id;
+    const filteredCycles = watchedCompanyId
+        ? cycles.filter((c) => String(c.companies_id) === String(watchedCompanyId))
+        : [];
+    const cycleCompanyId = cycles.find((c) => String(c.id) === String(watchedCycleId))?.companies_id || watchedCompanyId;
 
     const filteredEmployees = cycleCompanyId
         ? employees.filter((e) => String(e.companies_id) === String(cycleCompanyId))
@@ -65,11 +72,13 @@ const CycleEarningsPage = () => {
     useEffect(() => {
         const fetchMaster = async () => {
             try {
-                const [cycleRes, empRes, etRes] = await Promise.all([
+                const [companyRes, cycleRes, empRes, etRes] = await Promise.all([
+                    api.get("/companies"),
                     api.get("/payroll/cycles"),
                     api.get("/employees"),
                     api.get("/earning-types"),
                 ]);
+                setCompanies(companyRes.data);
                 setCycles(cycleRes.data);
                 setEmployees(empRes.data);
                 setEarningTypes(etRes.data);
@@ -123,6 +132,7 @@ const CycleEarningsPage = () => {
     const handleAdd = () => {
         reset({
             id: undefined,
+            companies_id: selectedCompanyId ? Number(selectedCompanyId) : "",
             cycle_id: selectedCycleId ? Number(selectedCycleId) : "",
             employees_id: "",
             earning_type_id: "",
@@ -132,8 +142,10 @@ const CycleEarningsPage = () => {
     };
 
     const handleEdit = (item) => {
+        const companyId = item.companies_id || item.employees?.companies_id || cycles.find((c) => String(c.id) === String(item.cycle_id))?.companies_id || "";
         reset({
             id: item.id,
+            companies_id: companyId,
             cycle_id: item.cycle_id,
             employees_id: item.employees_id,
             earning_type_id: item.earning_type_id,
@@ -154,9 +166,10 @@ const CycleEarningsPage = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        reset({ id: undefined, cycle_id: selectedCycleId ? Number(selectedCycleId) : "", employees_id: "", earning_type_id: "", amount: "" });
+        reset({ id: undefined, companies_id: selectedCompanyId ? Number(selectedCompanyId) : "", cycle_id: selectedCycleId ? Number(selectedCycleId) : "", employees_id: "", earning_type_id: "", amount: "" });
     };
 
+    const pageCycles = selectedCompanyId ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId)) : [];
     const selectedCycleLabel = cycles.find((c) => String(c.id) === String(selectedCycleId));
 
     const columns = [
@@ -221,10 +234,21 @@ const CycleEarningsPage = () => {
             <Card style={{ marginBottom: "16px", padding: "16px 24px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                     <SelectField
+                        label="Company"
+                        options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        value={selectedCompanyId}
+                        onChange={(e) => {
+                            setSelectedCompanyId(e.target.value);
+                            setSelectedCycleId("");
+                        }}
+                        containerStyle={{ minWidth: "240px", marginBottom: 0 }}
+                    />
+                    <SelectField
                         label="Payroll Cycle"
-                        options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}` }))}
+                        options={pageCycles.map((c) => ({ id: c.id, name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
+                        disabled={!selectedCompanyId}
                         containerStyle={{ minWidth: "280px", marginBottom: 0 }}
                     />
                 </div>
@@ -268,6 +292,18 @@ const CycleEarningsPage = () => {
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <SelectField
+                        label="Company"
+                        {...register("companies_id")}
+                        error={errors.companies_id?.message}
+                        onChange={(e) => {
+                            register("companies_id").onChange(e);
+                            setValue("cycle_id", "");
+                            setValue("employees_id", "");
+                            setValue("earning_type_id", "");
+                        }}
+                        options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                    />
+                    <SelectField
                         label="Payroll Cycle"
                         {...cycleField}
                         error={errors.cycle_id?.message}
@@ -276,10 +312,11 @@ const CycleEarningsPage = () => {
                             setValue("employees_id", "");
                             setValue("earning_type_id", "");
                         }}
-                        options={cycles.map((c) => ({
+                        options={filteredCycles.map((c) => ({
                             id: c.id,
                             name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
                         }))}
+                        disabled={!watchedCompanyId}
                     />
                     <SelectField
                         label="Employee"
