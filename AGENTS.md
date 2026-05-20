@@ -138,12 +138,13 @@ Run from repository root.
 - Do not bypass auth checks for protected pages.
 - Auth uses backend-set httpOnly JWT cookies. Do not store JWTs in `localStorage` or `sessionStorage`, and do not add manual `Authorization: Bearer` headers in frontend code.
 - Keep `api` requests credentialed through `src/api/axiosInstance.ts` (`withCredentials: true`) so the browser sends the auth cookie automatically.
-- Login should call `POST /auth/login`; the backend sets the cookie and the frontend may store only non-sensitive profile data such as `id`, `fullName`, `roles`, and `companies_id`.
+- Login should call `POST /auth/login`; the backend sets the cookie and the frontend may store only non-sensitive profile data such as `id`, `fullName`, `roles`, `companies_id`, and `accessible_company_ids`.
 - Protected route checks should rely on `GET /auth/me`, not on checking a frontend token.
 - Logout should call `POST /auth/logout`, then clear non-sensitive frontend profile state and redirect to `/login`.
 - Keep module-key-to-page resolution compatible with the backend `/modules` response.
 - Backend `module_key` values must match frontend page filenames exactly, for example `EmployeesListPage` resolves to `src/pages/**/EmployeesListPage.tsx`.
 - Sidebar categories come from modules with `is_category: true`; clickable pages need a `route_path`.
+- `EmployeeCompanyAccessPage` manages the backend `employee_company_role` table at `/employee-company-access`; use it to grant an employee/user access to additional companies and roles.
 
 ### API integration
 
@@ -163,6 +164,9 @@ Run from repository root.
 - `/api/v1/modules` is currently public and returns active `AppModule` rows sorted by `order`.
 - Module seed data is in `../payroll-backend/seed/main.go`; permission checks in `routes.go` use the same module-key names as frontend page files.
 - If adding a new page, update all needed pieces together: backend seed module, backend route/permission if data is needed, frontend page file, and frontend API calls.
+- `employees.companies_id` is the employee's primary/home company for payroll, attendance, department, position, salary, and employment type logic.
+- `employee_company_role.company_id` is app access, not payroll ownership; one employee can have many rows there to view/manage multiple companies.
+- Creating an employee saves both the primary `employees.companies_id` and an active/default `employee_company_role` row for that same company/role.
 
 ### Tables and index pages
 
@@ -172,6 +176,7 @@ Run from repository root.
 - For complex rendered columns, provide `sortValue`, `searchValue`, or `searchableKeys` when the rendered text alone is not enough.
 - Mark command-only columns with `sortable: false` when their label is not blank or "Actions".
 - Keep company-scoped form options cascaded from the selected company, including department, position, roles, and employment type.
+- On `EmployeeCompanyAccessPage`, filter role options by the selected company; normally only one mapping per employee should have `is_default: true`.
 
 ### Error handling and UX
 
