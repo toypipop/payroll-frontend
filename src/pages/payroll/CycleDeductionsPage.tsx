@@ -70,7 +70,7 @@ const CycleDeductionsPage = () => {
         const fetchMaster = async () => {
             try {
                 const [companyRes, cycleRes, empRes, dtRes] = await Promise.all([
-                    api.get("/companies"),
+                    api.get("/companies/options"),
                     api.get("/payroll/cycles"),
                     api.get("/employees"),
                     api.get("/deduction-types"),

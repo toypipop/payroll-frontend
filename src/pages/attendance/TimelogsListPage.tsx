@@ -130,7 +130,7 @@ const TimelogsListPage = () => {
                     api.get("/employees"),
                     api.get("/master/work-locations").catch(() => ({ data: [] })),
                     api.get("/attendance/config").catch(() => ({ data: [] })),
-                    api.get("/companies"),
+                    api.get("/companies/options"),
                 ]);
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(

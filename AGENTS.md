@@ -1,239 +1,113 @@
 # AGENTS.md
 
-Agent playbook for `payroll-frontend`.
-This repository is a React + Vite frontend for payroll, attendance, and reporting modules.
-Use these rules when editing code, adding tests, and running local checks.
-The companion API lives next to this repo at `../payroll-backend`.
+Compact playbook for `payroll-frontend`, a React + Vite frontend for payroll, attendance, and reporting. The companion API is `../payroll-backend`; read its `AGENTS.md` whenever a task touches routes, modules, auth, permissions, seed data, API contracts, or response shapes.
 
-## Rule Sources
+## Stack And Layout
 
-- Checked `.cursor/rules/`: not present.
-- Checked `.cursorrules`: not present.
-- Checked `.github/copilot-instructions.md`: not present.
-- Therefore, this file is the canonical agent guidance in this repo.
-- Read this frontend `AGENTS.md` first for frontend work.
-- If a task touches backend APIs, routes, modules, auth, permissions, seed data, or response shapes, also read `../payroll-backend/AGENTS.md` before making changes.
-
-## Project Layout
-
-- `src/main.tsx`: app bootstrap and root render.
-- `src/App.tsx`: protected route wiring and backend-driven route registration from `/modules`.
-- `src/api/axiosInstance.ts`: axios client, credentialed cookie requests, 401 redirect handling.
-- `src/types/*`: shared TypeScript API/domain/component types.
-- `src/pages/*`: feature pages by module (`auth`, `employees`, `attendance`, etc.).
-- `src/components/common/*`: reusable UI primitives (fields, table, modal, buttons).
-- `src/components/common/Sidebar.tsx`: backend-driven navigation tree from `/modules`.
-- `src/components/common/Navbar.tsx`: page title/breadcrumb shell and sign-out control.
-- `src/components/layouts/MainLayout.tsx`: global shell and navigation.
-- `src/hooks/*`: reusable UI/data hooks.
-- `src/index.css` + `src/App.css`: global and app-level styling.
-
-## Environment Assumptions
-
-- Runtime: Node.js + npm.
-- Bundler/dev server: Vite (`vite` via npm scripts).
-- Language: TypeScript for app source (`.ts`/`.tsx`); keep new React files typed.
-- React version: `19.x` (`react`/`react-dom` currently `^19.2.0`).
-- Router: `react-router-dom` v7.
-- Form and validation stack: `react-hook-form`, `@hookform/resolvers`, and `zod`.
+- React `19.x`, Vite, TypeScript, `react-router-dom` v7.
+- Forms use `react-hook-form`, `@hookform/resolvers`, and `zod`.
 - UI helpers include `lucide-react`, `react-datepicker`, and Tailwind CSS v4.
-- API base URL comes from `VITE_API_URL` in `.env`.
-- Local frontend `.env` currently points to `http://localhost:8000/api/v1`.
-- Companion backend default URL is `http://localhost:8000/api/v1`.
+- API base URL comes from `VITE_API_URL`; local `.env` points to `http://localhost:8000/api/v1`.
+- Key files:
+- `src/App.tsx`: auth guard and backend-driven page registration from `/modules`.
+- `src/api/axiosInstance.ts`: credentialed axios client and 401 handling.
+- `src/components/common/Sidebar.tsx`: backend-driven navigation and icon map.
+- `src/components/common/Navbar.tsx`: title/breadcrumb shell and logout.
+- `src/pages/*`: feature pages by module.
+- `src/types/*`: shared API/domain/component types.
 
-## Build, Lint, and Test Commands
+## Commands
 
-Run from repository root.
-
-### Install and run
+Run from the frontend root.
 
 - `npm install` - install dependencies.
-- `npm run dev` - run local development server.
-- `npm run typecheck` - run TypeScript without emitting files.
-- `npm run build` - run TypeScript check and create production build in `dist/`.
-- `npm run preview` - serve built app locally.
+- `npm run dev` - start Vite.
+- `npm run typecheck` - TypeScript check.
+- `npm run lint` - ESLint.
+- `npm run build` - TypeScript check plus production build.
+- `npm run preview` - serve the built app.
+- Tests use direct Vitest commands because there is no `test` script yet:
+- `npx vitest run`
+- `npx vitest run src/path/File.test.tsx`
+- `npx vitest run -t "test name"`
 
-### Local MySQL Docker
+## Docker And Local API
 
-- Local database Docker files live in the companion backend repo at `../payroll-backend/docker-compose.yml`; keep database infrastructure there unless explicitly requested otherwise.
-- Start the local database from `../payroll-backend` with `docker compose up -d`.
-- Check database status from `../payroll-backend` with `docker compose ps` and logs with `docker compose logs -f mysql`.
-- The MySQL container is `payroll-mysql`, publishes `localhost:3306`, and creates `PayrollDB`.
-- Backend local `.env` should use `DB_USER=root`, `DB_PASSWORD=1234`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, and `DB_NAME=PayrollDB`.
-- Run the backend locally from `../payroll-backend` with `go run .`; it connects to the Docker MySQL database and runs migrations.
-- Stop the database from `../payroll-backend` with `docker compose stop`; remove the container with `docker compose down`; remove all local MySQL data with `docker compose down -v`.
-- If Docker commands fail with `dockerDesktopLinuxEngine` pipe errors, Docker Desktop is not running. Start it with `Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"` from PowerShell, wait until Docker is ready, then retry.
+- Docker database files live in `../payroll-backend`; keep database infrastructure there unless explicitly requested.
+- Start MySQL from `../payroll-backend` with `docker compose up -d`.
+- Backend local DB defaults: `DB_USER=root`, `DB_PASSWORD=1234`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_NAME=PayrollDB`.
+- Run the backend from `../payroll-backend` with `go run .`.
+- If Docker Desktop is not running, Docker commands may fail with `dockerDesktopLinuxEngine` pipe errors.
 
-### Lint and formatting
+## Workflow
 
-- `npm run lint` - run ESLint using `eslint.config.js`.
-- `npm run typecheck` - run TypeScript validation using `tsconfig.json`.
-- If formatting changes are introduced, keep style consistent with existing files.
+- Prefer small, module-scoped changes.
+- Reuse common components before adding new primitives.
+- Keep imports grouped: external packages, internal modules, styles.
+- Use `import type` for TypeScript-only imports.
+- Prefer shared interfaces from `src/types`; avoid `any` unless a boundary makes it impractical.
+- Keep loading, empty, validation, and server-error states explicit.
+- Run at least `npm run typecheck`, `npm run lint`, and `npm run build` before finishing when code changed.
+- When adding/changing API calls, verify the frontend method/path exists in backend `routes.go`; dropdown failures often come from route mismatches rather than empty data.
 
-### Tests (Vitest)
+## Auth And API
 
-- There is currently no `test` script in `package.json`.
-- There are currently no committed `*.test.*` or `*.spec.*` files in `src/`.
-- Use direct Vitest commands:
-- `npx vitest` - run full test suite in watch mode.
-- `npx vitest run` - run tests once (CI style).
-- `npx vitest run --coverage` - run tests with coverage.
+- Always use `src/api/axiosInstance.ts`; do not create ad-hoc axios clients.
+- Auth is cookie-based with backend-set httpOnly JWT cookies.
+- Do not store JWTs in `localStorage` or `sessionStorage`.
+- Do not add manual `Authorization: Bearer` headers.
+- Login calls `POST /auth/login`; frontend may store only non-sensitive profile data such as `id`, `fullName`, `roles`, `companies_id`, and `accessible_company_ids`.
+- Protected route checks use `GET /auth/me`.
+- Logout calls `POST /auth/logout`, clears non-sensitive profile state, and redirects to `/login`.
+- Keep requests relative to `VITE_API_URL`; for example `api.get("/modules")` resolves to `/api/v1/modules`.
+- Company dropdowns/options must use `GET /companies/options`.
+- `GET /companies` is not a backend route.
+- `GET /companies/all` is only for the Companies settings index/list page.
 
-### Run a single test (important)
+## Backend-Driven Modules
 
-- Single file:
-- `npx vitest run src/pages/auth/LoginPage.test.tsx`
-- Single test by name:
-- `npx vitest run -t "shows login error"`
-- Single file + single test name:
-- `npx vitest run src/pages/auth/LoginPage.test.tsx -t "submits valid credentials"`
-- Single suite in watch mode:
-- `npx vitest src/components/common/Table.test.tsx`
-
-## Development Workflow for Agents
-
-- Prefer small, module-scoped changes (page + shared component + API call if needed).
-- Preserve existing route naming and module-key conventions used by backend-driven menus.
-- Keep UI behavior aligned with backend permission/data-scope responses.
-- If behavior changes, add/update tests near the changed component/page.
-- Run at least `npm run typecheck`, `npm run lint`, and `npm run build` before finishing.
-- For changes that touch API contracts, check `../payroll-backend/routes/routes.go`, handlers, models, and seed module definitions before editing frontend assumptions.
-
-## Code Style Guidelines
-
-### Imports
-
-- Keep imports grouped and stable: external packages first, then internal modules, then styles.
-- Use relative paths consistent with current file patterns.
-- Remove unused imports; ESLint is configured to fail on unused vars/imports.
-- Prefer `import type` for TypeScript-only imports.
-
-### Formatting and structure
-
-- Match existing TSX/TS style in surrounding files.
-- Prefer clear, readable component structure over dense inline logic.
-- Use early returns for loading/error guards.
-- Keep components focused; extract reusable logic to hooks/helpers when repeated.
-- Avoid `any` unless a third-party or legacy boundary makes a narrower type impractical; prefer shared interfaces from `src/types`.
-
-### Components and state
-
-- Prefer functional components and hooks.
-- Keep local state minimal and derive values when possible.
-- For forms, follow existing `react-hook-form` + field component patterns where present.
-- Keep controlled input behavior predictable and trim/sanitize where needed.
-
-### Naming conventions
-
-- Components: `PascalCase` (`LoginPage`, `MainLayout`).
-- Hooks: `camelCase` starting with `use` (`useTransactionsData`).
-- Variables/functions: `camelCase`.
-- Constants: `UPPER_SNAKE_CASE` only for true constants.
-- File names: follow existing convention (`PageName.tsx`, `fieldName.ts`/`fieldName.tsx`).
-
-### Routing and auth
-
-- Register protected feature routes through the backend module data unless the page is a special static route such as `/login` or `/dashboard`.
-- Keep login redirect and fallback route behavior consistent.
-- Do not bypass auth checks for protected pages.
-- Auth uses backend-set httpOnly JWT cookies. Do not store JWTs in `localStorage` or `sessionStorage`, and do not add manual `Authorization: Bearer` headers in frontend code.
-- Keep `api` requests credentialed through `src/api/axiosInstance.ts` (`withCredentials: true`) so the browser sends the auth cookie automatically.
-- Login should call `POST /auth/login`; the backend sets the cookie and the frontend may store only non-sensitive profile data such as `id`, `fullName`, `roles`, `companies_id`, and `accessible_company_ids`.
-- Protected route checks should rely on `GET /auth/me`, not on checking a frontend token.
-- Logout should call `POST /auth/logout`, then clear non-sensitive frontend profile state and redirect to `/login`.
-- Keep module-key-to-page resolution compatible with the backend `/modules` response.
+- Protected feature routes come from backend `/modules`; special static routes are `/login` and `/dashboard`.
 - Backend `module_key` values must match frontend page filenames exactly, for example `EmployeesListPage` resolves to `src/pages/**/EmployeesListPage.tsx`.
-- Sidebar categories come from modules with `is_category: true`; clickable pages need a `route_path`.
-- `EmployeeCompanyAccessPage` manages the backend `employee_company_access` table at `/employee-company-access`; use it to grant an employee/user access to additional companies and roles.
+- Sidebar categories use modules with `is_category: true`; clickable pages need a `route_path`.
+- Backend module `icon` values must exist in `src/components/common/Sidebar.tsx`; missing keys render the generic `Default` icon.
+- If adding a new page, update backend seed module, backend route/permission if needed, frontend page file, frontend API calls, and sidebar icon mapping if a new icon name is used.
+- Payroll config category APIs are `/master/earning-categories` and `/master/deduction-categories`; keep `EarningCategoryPage`, backend routes, handlers, delete guards, and seed module data aligned.
 
-### API integration
+## Company Access Rules
 
-- Use `src/api/axiosInstance.ts` instead of creating ad-hoc axios clients.
-- Keep auth behavior centralized in `src/api/axiosInstance.ts`; do not attach JWTs manually.
-- Type API request and response shapes with shared interfaces in `src/types` where practical.
-- Call endpoints relative to `VITE_API_URL`; for example `api.get("/modules")` resolves to `/api/v1/modules` locally.
-- Handle API failures with user-friendly messages; avoid leaking raw backend internals.
-- Avoid hardcoding API URLs; use `import.meta.env.VITE_API_URL`.
-
-### Backend contract notes
-
-- Companion backend: `../payroll-backend`, written in Go with Gin, GORM, and MySQL.
-- Backend entrypoint: `../payroll-backend/main.go`; route registration: `../payroll-backend/routes/routes.go`.
-- Backend config defaults: MySQL at `127.0.0.1:3306`, DB name `PayrollDB`, server port `8000`, CORS origin `http://localhost:5173`.
-- Backend auth: login is `POST /api/v1/auth/login`, session check is `GET /api/v1/auth/me`, and logout is `POST /api/v1/auth/logout`; protected endpoints authenticate through the httpOnly `auth_token` cookie.
-- `/api/v1/modules` is currently public and returns active `AppModule` rows sorted by `order`.
-- Module seed data is in `../payroll-backend/seed/main.go`; permission checks in `routes.go` use the same module-key names as frontend page files.
-- If adding a new page, update all needed pieces together: backend seed module, backend route/permission if data is needed, frontend page file, and frontend API calls.
 - `employees.companies_id` is the employee's primary/home company for payroll, attendance, department, position, salary, and employment type logic.
-- `employee_company_access.company_id` is app access, not payroll ownership; one employee can have many rows there to view/manage multiple companies.
-- Creating an employee saves both the primary `employees.companies_id` and an active/default `employee_company_access` row for that same company/role.
-- The backend has no hardcoded privileged-user bypass. Broad access comes from normal role/module/access rows plus `employee_company_access` mappings. The seeded top-level role is `SYSTEM_ADMIN`.
-- Any form with an employee dropdown must put a company dropdown first, filter employees by that company, reset employee-dependent fields when company changes, and submit the selected company value.
+- `employee_company_access.company_id` is app access, not payroll ownership.
+- Use `EmployeeCompanyAccessPage` and `/employee-company-access` to grant extra company/role access.
+- Creating an employee should save both primary `employees.companies_id` and an active/default `employee_company_access` row for that same company/role.
+- Employee-linked forms must put company first, filter employees by company, reset employee-dependent fields when company changes, and submit the selected company value when the backend model supports it.
+- Prevent submitting an employee from a different company.
+- On `EmployeeCompanyAccessPage`, filter role options by selected company; normally only one mapping per employee should have `is_default: true`.
 
-### Tables and index pages
+## Tables And UI
 
-- Use `src/components/common/Table.tsx` for index/list pages unless the view needs a genuinely custom table.
-- Shared table search is enabled by default and should work across key-based, nested, and rendered-text columns.
-- Header sorting is automatic when a column has `key`, `sortKey`, `sortValue`, `searchValue`, or sortable rendered text; action/blank command columns are excluded automatically.
-- For complex rendered columns, provide `sortValue`, `searchValue`, or `searchableKeys` when the rendered text alone is not enough.
-- Mark command-only columns with `sortable: false` when their label is not blank or "Actions".
-- Keep company-scoped form options cascaded from the selected company, including department, position, roles, and employment type.
-- On `EmployeeCompanyAccessPage`, filter role options by the selected company; normally only one mapping per employee should have `is_default: true`.
-- For employee-linked forms, company is not only a UI filter: include `companies_id` in the payload when the backend model supports it and prevent submitting an employee from a different company.
+- Use `src/components/common/Table.tsx` for list/index pages unless a custom table is truly needed.
+- Shared table search is enabled by default and works across key-based, nested, and rendered-text columns.
+- Sorting is automatic when a column has `key`, `sortKey`, `sortValue`, `searchValue`, or sortable rendered text.
+- Provide `sortValue`, `searchValue`, or `searchableKeys` for complex rendered columns.
+- Mark command-only columns with `sortable: false` when their label is not blank or `"Actions"`.
+- Keep company-scoped option cascades consistent: company -> department, position, roles, employment type, employee.
 
-### Error handling and UX
-
-- Show actionable error states in UI (empty state, validation, server failure).
-- Avoid silent failures; log diagnostics only when useful for debugging.
-- Keep loading states explicit for async page-level fetches.
-
-### Styling and design consistency
-
-- Reuse existing common components before adding new primitives.
-- Keep spacing, color, radius, and typography consistent with current UI language.
-- Prefer shared CSS tokens/variables and avoid one-off inline styles when reusable.
-- Ensure layouts remain usable on desktop and mobile breakpoints.
-
-### Security and data safety
+## Security And Artifacts
 
 - Never commit secrets or production tokens.
-- Do not store JWTs, refresh tokens, or other secrets in `localStorage` or `sessionStorage`.
-- Only store non-sensitive user display/profile data on the frontend when needed for UI.
-- Sanitize/validate user input before sending requests when practical.
+- Store only non-sensitive display/profile data on the frontend.
+- Validate/sanitize user input before sending requests when practical.
+- Keep local agent artifacts out of source control: `.agents/`, `skills-lock.json`.
 
-### Local agent artifacts
+## Skills
 
-- Keep local agent cache files out of source control (`.agents/`, `skills-lock.json`).
-- If working on multiple machines, sync these artifacts privately (or reinstall locally) rather than committing them.
+Use relevant local skills when the task matches: accessibility, frontend-design, seo, tailwind-css-patterns, vercel-react-best-practices, vercel-composition-patterns, vite, vitest, nodejs-backend-patterns, and nodejs-best-practices.
 
-## Agent Skills
+## Definition Of Done
 
-The following specialized skills are available in the `.agents/skills/` directory. The agent should reference their respective `SKILL.md` files when working on related tasks:
-
-- **accessibility**: Audit and improve web accessibility following WCAG 2.2 guidelines.
-- **frontend-design**: Create distinctive, production-grade frontend interfaces with high design quality.
-- **nodejs-backend-patterns**: Build production-ready Node.js backend services.
-- **nodejs-best-practices**: Node.js development principles and decision-making.
-- **seo**: Optimize for search engine visibility and ranking.
-- **tailwind-css-patterns**: Comprehensive Tailwind CSS utility-first styling patterns.
-- **vercel-composition-patterns**: React composition patterns that scale.
-- **vercel-react-best-practices**: React and Next.js performance optimization guidelines.
-- **vite**: Vite build tool configuration, plugin API, and SSR.
-- **vitest**: Vitest fast unit testing framework powered by Vite.
-
-## Testing Guidance
-
-- Use Vitest + Testing Library for UI and interaction tests.
-- Co-locate tests with components/pages when practical.
-- Focus assertions on behavior (rendered output, interactions, API side effects).
-- For auth-sensitive pages, test both authenticated and unauthenticated flows.
-- For table/forms, test validation and key edge cases.
-
-## Definition of Done (for agent changes)
-
-- Code compiles and builds (`npm run build`).
-- TypeScript passes (`npm run typecheck`).
-- Lint passes (`npm run lint`).
-- Relevant tests pass (`npx vitest run` or targeted single-test commands).
+- TypeScript passes.
+- Lint passes.
+- Build passes.
+- Relevant tests pass, or any inability to run them is explained.
 - Routing/auth behavior remains consistent.
 - No secrets added; environment-driven config preserved.

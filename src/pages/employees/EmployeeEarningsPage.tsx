@@ -60,7 +60,7 @@ const EmployeeEarningsPage = () => {
                 api.get("/employee-earnings"),
                 api.get("/employees"),
                 api.get("/earning-types"),
-                api.get("/companies"),
+                api.get("/companies/options"),
             ]);
             setItems(itemsRes.data);
             setEmployees(empRes.data);

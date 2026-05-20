@@ -60,7 +60,7 @@ const EmployeeDeductionsPage = () => {
                 api.get("/employee-deductions"),
                 api.get("/employees"),
                 api.get("/deduction-types"),
-                api.get("/companies"),
+                api.get("/companies/options"),
             ]);
             setItems(itemsRes.data);
             setEmployees(empRes.data);
