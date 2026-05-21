@@ -296,10 +296,10 @@ const CycleEarningsPage = () => {
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         onChange={(e) => {
-                            register("companies_id").onChange(e);
-                            setValue("cycle_id", "");
-                            setValue("employees_id", "");
-                            setValue("earning_type_id", "");
+                            setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                            setValue("cycle_id", "", { shouldValidate: true, shouldDirty: true });
+                            setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
+                            setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
                     />
@@ -308,9 +308,9 @@ const CycleEarningsPage = () => {
                         {...cycleField}
                         error={errors.cycle_id?.message}
                         onChange={(e) => {
-                            cycleField.onChange(e);
-                            setValue("employees_id", "");
-                            setValue("earning_type_id", "");
+                            setValue("cycle_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                            setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
+                            setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={filteredCycles.map((c) => ({
                             id: c.id,
@@ -323,7 +323,7 @@ const CycleEarningsPage = () => {
                         {...employeeField}
                         error={errors.employees_id?.message}
                         onChange={(e) => {
-                            employeeField.onChange(e);
+                            setValue("employees_id", e.target.value, { shouldValidate: true, shouldDirty: true });
                         }}
                         options={filteredEmployees.map((e) => ({
                             id: e.id,

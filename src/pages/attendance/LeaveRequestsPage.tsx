@@ -177,12 +177,6 @@ const LeaveRequestsPage = () => {
     };
 
     const handleDelete = async (id) => {
-        const currentItem = requests.find((r) => (r.id || r.ID) === id);
-        if (currentItem && currentItem.status !== "Pending") {
-            alert("Only pending requests can be deleted");
-            return;
-        }
-
         if (window.confirm("Are you sure you want to delete this request?")) {
             try {
                 await api.delete(`/leaves/requests/${id}`);
@@ -231,13 +225,17 @@ const LeaveRequestsPage = () => {
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
-        setValue("leave_type_id", "");
+        setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
+        setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
+    };
+    const handleLeaveTypeChange = (e) => {
+        setValue("leave_type_id", e.target.value, { shouldValidate: true, shouldDirty: true });
     };
     const handleCompanyChange = (e) => {
         setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
         setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
         setSelectedEmployeeId("");
-        setValue("leave_type_id", "");
+        setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
     };
 
     const columns = [
@@ -320,11 +318,7 @@ const LeaveRequestsPage = () => {
                     <Button
                         variant="danger"
                         onClick={() => handleDelete(row.id || row.ID)}
-                        style={{
-                            ...smallBtn,
-                            opacity: row.status === "Pending" ? 1 : 0.45,
-                            cursor: row.status === "Pending" ? "pointer" : "not-allowed",
-                        }}
+                        style={smallBtn}
                     >
                         Delete
                     </Button>
@@ -382,7 +376,6 @@ const LeaveRequestsPage = () => {
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
                     onChange={(e) => {
-                        register("companies_id").onChange(e);
                         handleCompanyChange(e);
                     }}
                 />
@@ -393,7 +386,6 @@ const LeaveRequestsPage = () => {
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
                     onChange={(e) => {
-                        register("employees_id").onChange(e);
                         handleEmployeeChange(e);
                     }}
                     disabled={!selectedCompanyId}
@@ -404,6 +396,7 @@ const LeaveRequestsPage = () => {
                     options={filteredLeaveTypes}
                     {...register("leave_type_id")}
                     error={errors.leave_type_id?.message}
+                    onChange={handleLeaveTypeChange}
                     disabled={!selectedEmployeeId}
                 />
 

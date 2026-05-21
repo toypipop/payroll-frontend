@@ -15,7 +15,9 @@ interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
     style?: CSSProperties;
     containerStyle?: CSSProperties;
     value?: unknown;
-    onChange?: (event: { target: { name?: string; value: string } }) => void;
+    onChange?: (
+        event: React.ChangeEvent<HTMLSelectElement> | { target: { name?: string; value: string } }
+    ) => void;
     searchable?: boolean;
 }
 
@@ -140,7 +142,12 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
             }
 
             if (onChange) {
-                onChange({ target: { name, value: strVal } });
+                const eventTarget = hiddenRef.current ?? { name, value: strVal };
+                onChange({
+                    target: eventTarget,
+                    currentTarget: eventTarget,
+                    type: "change",
+                } as React.ChangeEvent<HTMLSelectElement>);
             }
             setOpen(false);
         };

@@ -29,7 +29,7 @@ const EmployeeEarningsPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { register, handleSubmit, reset, watch, resetField, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, watch, setValue, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: "", employees_id: "", earning_type_id: "", amount: "" },
     });
@@ -214,9 +214,9 @@ const EmployeeEarningsPage = () => {
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         onChange={(e) => {
-                            register("companies_id").onChange(e);
-                            resetField("employees_id", { defaultValue: "" });
-                            resetField("earning_type_id", { defaultValue: "" });
+                            setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                            setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
+                            setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
                     />
@@ -225,8 +225,8 @@ const EmployeeEarningsPage = () => {
                         {...employeeField}
                         error={errors.employees_id?.message}
                         onChange={(e) => {
-                            employeeField.onChange(e);
-                            resetField("earning_type_id", { defaultValue: "" });
+                            setValue("employees_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                            setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={filteredEmployees.map((e) => ({
                             id: e.id,

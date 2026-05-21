@@ -219,6 +219,13 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                     transition: all 0.2s;
                     box-sizing: border-box;
                 }
+                .custom-date-input.error {
+                    border-color: #ef4444;
+                }
+                .custom-date-input.error:focus {
+                    border-color: #ef4444;
+                    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+                }
                 .custom-header-container {
                     padding: 10px;
                     display: flex;

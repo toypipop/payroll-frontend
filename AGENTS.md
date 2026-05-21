@@ -7,6 +7,7 @@ Compact playbook for `payroll-frontend`, a React + Vite frontend for payroll, at
 - React `19.x`, Vite, TypeScript, `react-router-dom` v7.
 - Forms use `react-hook-form`, `@hookform/resolvers`, and `zod`.
 - UI helpers include `lucide-react`, `react-datepicker`, and Tailwind CSS v4.
+- Vite dev server runs at `http://localhost:5174`.
 - API base URL comes from `VITE_API_URL`; local `.env` points to `http://localhost:8000/api/v1`.
 - Key files:
 - `src/App.tsx`: auth guard and backend-driven page registration from `/modules`.

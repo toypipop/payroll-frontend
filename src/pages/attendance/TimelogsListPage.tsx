@@ -68,6 +68,8 @@ const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
     return { hour: defaultHour, min: defaultMin };
 };
 
+const minutesFromTime = ({ hour, min }) => (hour * 60) + min;
+
 const buildDateWithTime = (baseDate, hour, min) => {
     const date = new Date(baseDate);
     date.setHours(hour, min, 0, 0);
@@ -239,6 +241,30 @@ const TimelogsListPage = () => {
         )
         : masterWorkLocations;
 
+    const getScheduleDurationMinutes = (empId) => {
+        const emp = employeeData[empId];
+        const companiesId = emp?.companies_id;
+        const config = companiesId ? attendanceConfigs[companiesId] : null;
+        const { hour: startHour, min: startMin } = parseTimeFromConfig(config?.work_start_time, 9, 0);
+        const { hour: endHour, min: endMin } = parseTimeFromConfig(config?.work_end_time, 18, 0);
+        const startMinutes = minutesFromTime({ hour: startHour, min: startMin });
+        const endMinutes = minutesFromTime({ hour: endHour, min: endMin });
+        return endMinutes > startMinutes
+            ? endMinutes - startMinutes
+            : (24 * 60) - startMinutes + endMinutes;
+    };
+
+    const setCheckOutFromCheckIn = (checkInValue, empId = selectedEmployeeId) => {
+        if (!checkInValue || !empId) return;
+
+        const checkInDate = new Date(checkInValue);
+        if (Number.isNaN(checkInDate.getTime())) return;
+
+        const checkOutDate = new Date(checkInDate);
+        checkOutDate.setMinutes(checkOutDate.getMinutes() + getScheduleDurationMinutes(empId));
+        setValue("check_out", toLocalDateTimeValue(checkOutDate), { shouldValidate: true, shouldDirty: true });
+    };
+
     const fillScheduleTimesForEmployee = (empId) => {
         if (!empId) {
             setValue("check_in", "");
@@ -260,8 +286,9 @@ const TimelogsListPage = () => {
         const { hour: endHour, min: endMin } = parseTimeFromConfig(config?.work_end_time, 18, 0);
         const checkInDate = buildDateWithTime(selectedDate, startHour, startMin);
         const checkOutDate = buildDateWithTime(selectedDate, endHour, endMin);
+        const isOvernightShift = minutesFromTime({ hour: endHour, min: endMin }) <= minutesFromTime({ hour: startHour, min: startMin });
 
-        if (checkOutDate <= checkInDate) {
+        if (isOvernightShift) {
             checkOutDate.setDate(checkOutDate.getDate() + 1);
         }
 
@@ -269,10 +296,16 @@ const TimelogsListPage = () => {
         setValue("check_out", toLocalDateTimeValue(checkOutDate), { shouldValidate: true, shouldDirty: true });
     };
 
+    const handleCheckInChange = (value) => {
+        setValue("check_in", value, { shouldValidate: true, shouldDirty: true });
+        setCheckOutFromCheckIn(value);
+    };
+
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
-        setValue("work_location_id", "");
+        setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
+        setValue("work_location_id", "", { shouldValidate: true, shouldDirty: true });
         fillScheduleTimesForEmployee(empId);
     };
 
@@ -280,9 +313,9 @@ const TimelogsListPage = () => {
         setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
         setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
         setSelectedEmployeeId("");
-        setValue("work_location_id", "");
-        setValue("check_in", "");
-        setValue("check_out", "");
+        setValue("work_location_id", "", { shouldValidate: true, shouldDirty: true });
+        setValue("check_in", "", { shouldValidate: true, shouldDirty: true });
+        setValue("check_out", "", { shouldValidate: true, shouldDirty: true });
     };
 
     const columns = [
@@ -404,7 +437,6 @@ const TimelogsListPage = () => {
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
                     onChange={(e) => {
-                        register("companies_id").onChange(e);
                         handleCompanyChange(e);
                     }}
                 />
@@ -415,7 +447,6 @@ const TimelogsListPage = () => {
                     {...register("employees_id")}
                     error={errors.employees_id?.message}
                     onChange={(e) => {
-                        register("employees_id").onChange(e);
                         handleEmployeeChange(e);
                     }}
                     disabled={!selectedCompanyId}
@@ -428,7 +459,7 @@ const TimelogsListPage = () => {
                         <DateTimeField
                             label="Check In"
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={handleCheckInChange}
                             error={errors.check_in?.message}
                         />
                     )}

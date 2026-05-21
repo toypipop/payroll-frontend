@@ -118,7 +118,7 @@ const EmployeeCompanyAccessPage = () => {
         if (!selectedCompanyId) return;
         const selectedRoleStillValid = filteredRoles.some((role) => String(role.id) === String(selectedRoleId));
         if (!selectedRoleStillValid) {
-            setValue("role_id", "");
+            setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
         }
     }, [filteredRoles, selectedCompanyId, selectedRoleId, setValue]);
 
@@ -287,6 +287,9 @@ const EmployeeCompanyAccessPage = () => {
                     {...register("employee_id")}
                     value={watch("employee_id")}
                     error={errors.employee_id?.message}
+                    onChange={(e) => {
+                        setValue("employee_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                    }}
                     disabled={!selectedCompanyId}
                 />
 
@@ -296,6 +299,9 @@ const EmployeeCompanyAccessPage = () => {
                     {...register("role_id")}
                     value={watch("role_id")}
                     error={errors.role_id?.message}
+                    onChange={(e) => {
+                        setValue("role_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                    }}
                     disabled={!selectedCompanyId}
                 />
 
