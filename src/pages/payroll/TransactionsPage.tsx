@@ -105,15 +105,6 @@ const TransactionsPage = () => {
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
-            label: "Cycle",
-            sortable: false,
-            render: () => (
-                <span style={{ fontSize: "13px", color: "#475569" }}>
-                    {cycleInfo?.cycle_name || "-"}
-                </span>
-            ),
-        },
-        {
             label: "Total Earning",
             sortKey: "total_earning",
             sortValue: (row) => row.total_earning || 0,

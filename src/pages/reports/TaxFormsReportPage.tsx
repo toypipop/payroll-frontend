@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
@@ -193,6 +194,17 @@ const TaxFormsReportPage = () => {
         })();
     }, [selectedCycleId]);
 
+    useEffect(() => {
+        if (viewMode !== "pnd1-print" && viewMode !== "tawi") return;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [viewMode]);
+
     const handleView50Tawi = async (txId) => {
         try {
             setLoadingTawi(true);
@@ -286,6 +298,48 @@ const TaxFormsReportPage = () => {
         },
     ];
 
+    const pnd1Preview = viewMode === "pnd1-print" && pnd1Data ? (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
+            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>PND.1 Preview — {cycle?.cycle_name}</span>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={() => handlePrint("pnd1-a4")} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
+                    <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
+                <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
+                    <A4PND1 data={pnd1Data} />
+                </div>
+            </div>
+        </div>
+    ) : null;
+
+    const tawiPreview = viewMode === "tawi" ? (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
+            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>
+                    50 Tawi
+                    {tawiData && <span style={{ color: "#94a3b8", fontSize: "13px", marginLeft: "12px" }}>{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
+                </span>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    {tawiData && <button onClick={() => handlePrint("tawi50-a4")} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>}
+                    <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
+                {loadingTawi ? (
+                    <div style={{ color: "#94a3b8", fontSize: "14px", paddingTop: "60px" }}>Loading certificate...</div>
+                ) : tawiData ? (
+                    <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
+                        <A4Tawi50 data={tawiData} />
+                    </div>
+                ) : null}
+            </div>
+        </div>
+    ) : null;
+    const renderInlinePreview = false;
+
     return (
         <>
             <PageHeader title="Tax Forms" />
@@ -355,8 +409,7 @@ const TaxFormsReportPage = () => {
                 </Card>
             )}
 
-            {/* PND.1 Print overlay */}
-            {viewMode === "pnd1-print" && pnd1Data && (
+            {renderInlinePreview && viewMode === "pnd1-print" && pnd1Data && (
                 <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000, overflowY: "auto" }}>
                     <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                         <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>PND.1 Preview — {cycle?.cycle_name}</span>
@@ -373,8 +426,7 @@ const TaxFormsReportPage = () => {
                 </div>
             )}
 
-            {/* 50 Tawi overlay */}
-            {viewMode === "tawi" && (
+            {renderInlinePreview && viewMode === "tawi" && (
                 <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000, overflowY: "auto" }}>
                     <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                         <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>
@@ -397,6 +449,8 @@ const TaxFormsReportPage = () => {
                     </div>
                 </div>
             )}
+            {pnd1Preview && createPortal(pnd1Preview, document.body)}
+            {tawiPreview && createPortal(tawiPreview, document.body)}
         </>
     );
 };

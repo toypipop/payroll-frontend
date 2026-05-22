@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
@@ -270,6 +271,17 @@ const PayslipsReportPage = () => {
     useEffect(() => { fetchCycles(); }, []);
     useEffect(() => { fetchTransactions(selectedCycleId); }, [selectedCycleId]);
 
+    useEffect(() => {
+        if (!isSlipOpen) return;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [isSlipOpen]);
+
     const handleViewSlip = async (transactionId) => {
         try {
             setLoadingSlip(true);
@@ -376,6 +388,71 @@ const PayslipsReportPage = () => {
         },
     ];
 
+    const payslipPreview = isSlipOpen ? (
+        <div style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "#0f172a", zIndex: 10000,
+            overflowY: "auto",
+        }}>
+            {/* Toolbar — hidden on print */}
+            <div id="payslip-toolbar" style={{
+                position: "sticky", top: 0, zIndex: 1,
+                backgroundColor: "#1e293b",
+                padding: "12px 28px",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+            }}>
+                <div>
+                    <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>
+                        Payslip Preview
+                    </span>
+                    {slipData && (
+                        <span style={{ color: "#94a3b8", fontSize: "13px", marginLeft: "12px" }}>
+                            {slipData.employees?.first_name} {slipData.employees?.last_name} &nbsp;&middot;&nbsp; {cycleData?.cycle_name}
+                        </span>
+                    )}
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    {slipData && (
+                        <button
+                            onClick={handlePrint}
+                            style={{
+                                backgroundColor: "#10b981", color: "#fff",
+                                border: "none", borderRadius: "8px", cursor: "pointer",
+                                padding: "9px 18px", fontWeight: "700", fontSize: "13px",
+                                display: "flex", alignItems: "center", gap: "6px",
+                            }}
+                        >
+                            Print / Save PDF
+                        </button>
+                    )}
+                    <button
+                        onClick={handleCloseSlip}
+                        style={{
+                            backgroundColor: "transparent", color: "#94a3b8",
+                            border: "1px solid #334155", borderRadius: "8px", cursor: "pointer",
+                            padding: "9px 18px", fontWeight: "600", fontSize: "13px",
+                        }}
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+
+            {/* A4 slip content */}
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
+                {loadingSlip ? (
+                    <div style={{ color: "#94a3b8", fontSize: "14px", paddingTop: "60px" }}>
+                        Loading payslip...
+                    </div>
+                ) : slipData ? (
+                    <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
+                        <A4Payslip slip={slipData} cycle={cycleData} company={companyData} />
+                    </div>
+                ) : null}
+            </div>
+        </div>
+    ) : null;
     return (
         <>
             <PageHeader title="Payslips" />
@@ -423,72 +500,7 @@ const PayslipsReportPage = () => {
                 )}
             </Card>
 
-            {/* Full-screen payslip viewer */}
-            {isSlipOpen && (
-                <div style={{
-                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000,
-                    overflowY: "auto",
-                }}>
-                    {/* Toolbar — hidden on print */}
-                    <div id="payslip-toolbar" style={{
-                        position: "sticky", top: 0, zIndex: 1,
-                        backgroundColor: "#1e293b",
-                        padding: "12px 28px",
-                        display: "flex", alignItems: "center", justifyContent: "space-between",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                    }}>
-                        <div>
-                            <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>
-                                Payslip Preview
-                            </span>
-                            {slipData && (
-                                <span style={{ color: "#94a3b8", fontSize: "13px", marginLeft: "12px" }}>
-                                    {slipData.employees?.first_name} {slipData.employees?.last_name} &nbsp;&middot;&nbsp; {cycleData?.cycle_name}
-                                </span>
-                            )}
-                        </div>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                            {slipData && (
-                                <button
-                                    onClick={handlePrint}
-                                    style={{
-                                        backgroundColor: "#10b981", color: "#fff",
-                                        border: "none", borderRadius: "8px", cursor: "pointer",
-                                        padding: "9px 18px", fontWeight: "700", fontSize: "13px",
-                                        display: "flex", alignItems: "center", gap: "6px",
-                                    }}
-                                >
-                                    Print / Save PDF
-                                </button>
-                            )}
-                            <button
-                                onClick={handleCloseSlip}
-                                style={{
-                                    backgroundColor: "transparent", color: "#94a3b8",
-                                    border: "1px solid #334155", borderRadius: "8px", cursor: "pointer",
-                                    padding: "9px 18px", fontWeight: "600", fontSize: "13px",
-                                }}
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* A4 slip content */}
-                    <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
-                        {loadingSlip ? (
-                            <div style={{ color: "#94a3b8", fontSize: "14px", paddingTop: "60px" }}>
-                                Loading payslip...
-                            </div>
-                        ) : slipData ? (
-                            <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
-                                <A4Payslip slip={slipData} cycle={cycleData} company={companyData} />
-                            </div>
-                        ) : null}
-                    </div>
-                </div>
-            )}
+            {payslipPreview && createPortal(payslipPreview, document.body)}
         </>
     );
 };

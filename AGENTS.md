@@ -80,6 +80,14 @@ Compact playbook for `payroll-frontend`, a React + Vite frontend for payroll, at
 - Mark command-only columns with `sortable: false` unless label is blank or `"Actions"`.
 - Keep company-scoped option cascades consistent.
 
+## Reports And Print Previews
+
+- "Full-screen modal" means a portal modal via `createPortal(..., document.body)`, outside page/card layout, with background scroll locked.
+- Report print previews should not render inline inside cards when full-screen behavior is requested.
+- `A4*` components are printed document layouts: `A4Payslip`, `A4BankSummary`, `A4SSO`, `A4PND1`, `A4Tawi50`. Edit these for document content/layout; edit the portal/modal shell for preview behavior.
+- Full-screen portal print previews currently exist for Payslips, Bank Transfer, Tax Forms (PND.1/50 Tawi), and SSO.
+- On `/transactions`, the table intentionally omits the repeated Cycle column because the selected cycle is already shown above the table.
+
 ## Definition Of Done
 
 - TypeScript, lint, and build pass or blockers are explained.

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
@@ -172,6 +173,17 @@ const SSOReportPage = () => {
         })();
     }, [selectedCycleId]);
 
+    useEffect(() => {
+        if (!isPrintOpen) return;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [isPrintOpen]);
+
     const handlePrint = () => {
         const style = document.createElement("style");
         style.innerHTML = `@media print { body * { visibility: hidden !important; } #sso-a4, #sso-a4 * { visibility: visible !important; } #sso-a4 { position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; box-shadow: none !important; margin: 0 !important; } @page { margin: 0; size: A4; } }`;
@@ -208,6 +220,23 @@ const SSOReportPage = () => {
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
     ];
+
+    const printPreview = isPrintOpen ? (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
+            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>SSO Form 1-10 Preview</span>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={handlePrint} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
+                    <button onClick={() => setIsPrintOpen(false)} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
+                <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
+                    <A4SSO data={data} />
+                </div>
+            </div>
+        </div>
+    ) : null;
 
     return (
         <>
@@ -272,24 +301,7 @@ const SSOReportPage = () => {
                     </>
                 )}
             </Card>
-
-            {/* Print overlay */}
-            {isPrintOpen && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000, overflowY: "auto" }}>
-                    <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-                        <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>SSO Form 1-10 Preview</span>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                            <button onClick={handlePrint} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
-                            <button onClick={() => setIsPrintOpen(false)} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
-                        </div>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
-                        <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
-                            <A4SSO data={data} />
-                        </div>
-                    </div>
-                </div>
-            )}
+            {printPreview && createPortal(printPreview, document.body)}
         </>
     );
 };
