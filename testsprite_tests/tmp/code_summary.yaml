@@ -1,0 +1,317 @@
+version: "2"
+type: frontend
+tech_stack:
+  - language: TypeScript
+  - framework: React
+  - ui_library: Tailwind CSS
+  - other: Vite
+routes:
+  - path: /login
+    file: src/pages/auth/LoginPage.tsx
+    auth_required: false
+    description: User login page
+  - path: /dashboard
+    file: src/pages/dashboard/DashboardPage.tsx
+    auth_required: true
+    description: Main dashboard after authentication
+  - path: /employees
+    file: src/pages/employees/EmployeesListPage.tsx
+    auth_required: true
+    description: Employee list and employee management page
+  - path: /salaries
+    file: src/pages/employees/SalariesStructurePage.tsx
+    auth_required: true
+    description: Employee salary structure page
+  - path: /employee-earnings
+    file: src/pages/employees/EmployeeEarningsPage.tsx
+    auth_required: true
+    description: Employee earnings management page
+  - path: /employee-deductions
+    file: src/pages/employees/EmployeeDeductionsPage.tsx
+    auth_required: true
+    description: Employee deductions management page
+  - path: /timelogs
+    file: src/pages/attendance/TimelogsListPage.tsx
+    auth_required: true
+    description: Time log listing and management page
+  - path: /leave-requests
+    file: src/pages/attendance/LeaveRequestsPage.tsx
+    auth_required: true
+    description: Leave request creation and approval page
+  - path: /leave-approved
+    file: src/pages/attendance/LeaveApprovedPage.tsx
+    auth_required: true
+    description: Approved leave history page
+  - path: /earning-summary
+    file: src/pages/attendance/EarningSummaryPage.tsx
+    auth_required: true
+    description: Earning summary and attendance analysis page
+  - path: /deduction-summary
+    file: src/pages/attendance/DeductionSummaryPage.tsx
+    auth_required: true
+    description: Deduction summary and attendance analysis page
+  - path: /payroll-cycles
+    file: src/pages/payroll/PayrollCyclesPage.tsx
+    auth_required: true
+    description: Manage payroll cycle definitions
+  - path: /run-payroll
+    file: src/pages/payroll/RunPayrollPage.tsx
+    auth_required: true
+    description: Run payroll process for selected cycles
+  - path: /cycle-earnings
+    file: src/pages/payroll/CycleEarningsPage.tsx
+    auth_required: true
+    description: Define payroll cycle earnings
+  - path: /cycle-deductions
+    file: src/pages/payroll/CycleDeductionsPage.tsx
+    auth_required: true
+    description: Define payroll cycle deductions
+  - path: /transactions
+    file: src/pages/payroll/TransactionsPage.tsx
+    auth_required: true
+    description: Payroll transaction history page
+  - path: /payroll-global
+    file: src/pages/payroll-config/PayrollGlobalSettingsPage.tsx
+    auth_required: true
+    description: Global payroll configuration page
+  - path: /earning-types
+    file: src/pages/payroll-config/EarningTypesPage.tsx
+    auth_required: true
+    description: Payroll earning types configuration page
+  - path: /deduction-types
+    file: src/pages/payroll-config/DeductionTypesPage.tsx
+    auth_required: true
+    description: Payroll deduction types configuration page
+  - path: /companies
+    file: src/pages/settings/CompaniesPage.tsx
+    auth_required: true
+    description: Company master data page
+  - path: /departments
+    file: src/pages/settings/DepartmentSettings.tsx
+    auth_required: true
+    description: Department settings page
+  - path: /positions
+    file: src/pages/settings/PositionSettings.tsx
+    auth_required: true
+    description: Position settings page
+  - path: /employment-types
+    file: src/pages/payroll-config/EmploymentTypePage.tsx
+    auth_required: true
+    description: Employment type settings page
+  - path: /roles
+    file: src/pages/settings/RolesPage.tsx
+    auth_required: true
+    description: Role management page
+  - path: /permissions
+    file: src/pages/settings/PermissionSettings.tsx
+    auth_required: true
+    description: Permission settings page
+  - path: /employee-company-access
+    file: src/pages/settings/EmployeeCompanyAccessPage.tsx
+    auth_required: true
+    description: Employee company access mapping page
+  - path: /attendance-settings
+    file: src/pages/settings/AttendanceSettingsPage.tsx
+    auth_required: true
+    description: Attendance configuration page
+  - path: /master-banks
+    file: src/pages/settings/MasterBankPage.tsx
+    auth_required: true
+    description: Bank master data page
+  - path: /holidays
+    file: src/pages/settings/HolidayCalendarPage.tsx
+    auth_required: true
+    description: Holiday calendar page
+  - path: /day-offs
+    file: src/pages/settings/DayOffPage.tsx
+    auth_required: true
+    description: Day off configuration page
+  - path: /work-locations
+    file: src/pages/settings/WorkLocationPage.tsx
+    auth_required: true
+    description: Work location configuration page
+  - path: /leave-types
+    file: src/pages/settings/MasterLeaveTypePage.tsx
+    auth_required: true
+    description: Leave type master data page
+  - path: /payslips
+    file: src/pages/reports/PayslipsReportPage.tsx
+    auth_required: true
+    description: Payslip report page
+  - path: /reports/bank-transfer
+    file: src/pages/reports/BankTransferReportPage.tsx
+    auth_required: true
+    description: Bank transfer report page
+  - path: /reports/tax-forms
+    file: src/pages/reports/TaxFormsReportPage.tsx
+    auth_required: true
+    description: Tax forms report page
+  - path: /reports/sso
+    file: src/pages/reports/SSOReportPage.tsx
+    auth_required: true
+    description: SSO report page
+  - path: /reports/payroll-analysis
+    file: src/pages/reports/PayrollAnalysisPage.tsx
+    auth_required: true
+    description: Payroll analysis report page
+features:
+  - name: User Login
+    description: Login with seeded credentials and check protected access
+    files:
+      - src/pages/auth/LoginPage.tsx
+      - src/api/axiosInstance.ts
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Fill password input field
+      - Click Login button to submit
+      - See dashboard after successful login
+      - See error message on invalid credentials
+    api_calls:
+      - method: POST
+        endpoint: /auth/login
+      - method: GET
+        endpoint: /auth/me
+    auth_required: false
+  - name: Dashboard Access
+    description: Access the dashboard after login and verify protected redirects
+    files:
+      - src/pages/dashboard/DashboardPage.tsx
+      - src/App.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - Navigate to dashboard after login
+      - Verify dashboard content loads
+    api_calls:
+      - method: GET
+        endpoint: /auth/me
+    auth_required: true
+  - name: Backend-Driven Navigation
+    description: Sidebar and routing are driven by backend /modules data
+    files:
+      - src/components/common/Sidebar.tsx
+      - src/App.tsx
+    entry_route: /dashboard
+    user_interactions:
+      - Open sidebar menu
+      - Click multiple module links
+      - Verify pages load for each selected module
+    api_calls:
+      - method: GET
+        endpoint: /modules
+    auth_required: true
+  - name: Employee Management
+    description: Employee list, salary structure, earnings, and deductions workflows
+    files:
+      - src/pages/employees/EmployeesListPage.tsx
+      - src/pages/employees/SalariesStructurePage.tsx
+      - src/pages/employees/EmployeeEarningsPage.tsx
+      - src/pages/employees/EmployeeDeductionsPage.tsx
+    entry_route: /employees
+    user_interactions:
+      - Open employee list page
+      - Create or edit an employee record if available
+      - Manage salary, earnings, and deduction entries
+    api_calls:
+      - method: GET
+        endpoint: /employees
+      - method: POST
+        endpoint: /employees
+      - method: PUT
+        endpoint: /employees/:id
+    auth_required: true
+  - name: Attendance and Leave Workflows
+    description: Time log creation, leave requests, approvals, and summaries
+    files:
+      - src/pages/attendance/TimelogsListPage.tsx
+      - src/pages/attendance/LeaveRequestsPage.tsx
+      - src/pages/attendance/LeaveApprovedPage.tsx
+      - src/pages/attendance/EarningSummaryPage.tsx
+      - src/pages/attendance/DeductionSummaryPage.tsx
+    entry_route: /timelogs
+    user_interactions:
+      - Create/edit timelog entries
+      - Create leave requests and validate required fields
+      - View approved leave and summary pages
+    api_calls:
+      - method: GET
+        endpoint: /timelogs
+      - method: POST
+        endpoint: /timelogs
+      - method: GET
+        endpoint: /leave-requests
+    auth_required: true
+  - name: Payroll Processing
+    description: Payroll cycle management, earnings/deductions, running payroll, and transactions
+    files:
+      - src/pages/payroll/PayrollCyclesPage.tsx
+      - src/pages/payroll/RunPayrollPage.tsx
+      - src/pages/payroll/CycleEarningsPage.tsx
+      - src/pages/payroll/CycleDeductionsPage.tsx
+      - src/pages/payroll/TransactionsPage.tsx
+    entry_route: /payroll-cycles
+    user_interactions:
+      - Create or select payroll cycles
+      - Add cycle earnings and deductions
+      - Run payroll and view transaction results
+    api_calls:
+      - method: GET
+        endpoint: /payroll-cycles
+      - method: POST
+        endpoint: /run-payroll
+      - method: GET
+        endpoint: /transactions
+    auth_required: true
+  - name: Settings and Master Data
+    description: Company, department, position, role, permission, attendance, and leave master settings
+    files:
+      - src/pages/settings/CompaniesPage.tsx
+      - src/pages/settings/DepartmentSettings.tsx
+      - src/pages/settings/PositionSettings.tsx
+      - src/pages/payroll-config/EmploymentTypePage.tsx
+      - src/pages/settings/RolesPage.tsx
+      - src/pages/settings/PermissionSettings.tsx
+      - src/pages/settings/EmployeeCompanyAccessPage.tsx
+      - src/pages/settings/AttendanceSettingsPage.tsx
+      - src/pages/settings/MasterBankPage.tsx
+      - src/pages/settings/HolidayCalendarPage.tsx
+      - src/pages/settings/DayOffPage.tsx
+      - src/pages/settings/WorkLocationPage.tsx
+      - src/pages/settings/MasterLeaveTypePage.tsx
+    entry_route: /companies
+    user_interactions:
+      - Open master settings pages
+      - Create or update company and payroll configuration data
+      - Validate dependent field cascades for company-scoped workflows
+    api_calls:
+      - method: GET
+        endpoint: /companies/options
+      - method: GET
+        endpoint: /settings
+    auth_required: true
+  - name: Reports
+    description: Payslip, bank transfer, tax form, SSO, and payroll analysis report preview workflows
+    files:
+      - src/pages/reports/PayslipsReportPage.tsx
+      - src/pages/reports/BankTransferReportPage.tsx
+      - src/pages/reports/TaxFormsReportPage.tsx
+      - src/pages/reports/SSOReportPage.tsx
+      - src/pages/reports/PayrollAnalysisPage.tsx
+    entry_route: /payslips
+    user_interactions:
+      - Open report pages
+      - Generate report previews and print views
+      - Confirm full-screen modal preview behavior
+    api_calls:
+      - method: GET
+        endpoint: /reports/payslips
+      - method: GET
+        endpoint: /reports/bank-transfer
+    auth_required: true
+known_limitations:
+  - issue: Module route registration is driven by backend /modules response
+    location: src/App.tsx
+    impact: Pages only load when backend returns matching module_key and route_path
+  - issue: Some pages may be skipped if backend provides a module_key with no matching src/pages file
+    location: src/App.tsx
+    impact: Missing route pages will not render in the frontend
