@@ -143,5 +143,3 @@ skills-lock.json
 
 # Claude Code local settings
 .claude/
-
-testsprite_tests/tmp/config.json
