@@ -1,0 +1,12 @@
+.agents/
+.git/
+.vscode/
+coverage/
+dist/
+node_modules/
+tmp/
+.env
+.env.*
+*.log
+test-results.txt
+skills-lock.json
