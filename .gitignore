@@ -138,7 +138,6 @@ dist
 .aider*
 
 # Local agent/skill cache
-.agents/
 skills-lock.json
 
 # Claude Code local settings
