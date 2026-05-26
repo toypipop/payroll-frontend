@@ -1,8 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 const api = axios.create({
-    // Use the environment variable from .env file
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: import.meta.env.VITE_API_URL || "/api/v1",
     withCredentials: true,
 });
 
