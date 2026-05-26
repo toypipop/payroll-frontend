@@ -8,7 +8,8 @@ Compact playbook for `payroll-frontend`, a React + Vite frontend for payroll, at
 - Forms: `react-hook-form`, `@hookform/resolvers`, `zod`.
 - UI helpers: `lucide-react`, `react-datepicker`, Tailwind CSS v4.
 - Vite dev URL: `http://localhost:5174`.
-- API base URL: `VITE_API_URL`; local `.env` points to `http://localhost:8000/api/v1`.
+- API base URL: `VITE_API_URL`; use `/api/v1` for local, SIT, UAT, and prod same-origin deployments.
+- Local Vite proxy target: `API_PROXY_TARGET`; defaults to `http://localhost:8001`.
 
 ## Layout
 
