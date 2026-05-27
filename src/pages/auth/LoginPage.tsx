@@ -79,7 +79,7 @@ const LoginPage = () => {
                     fontSize: '24px',
                     fontWeight: 'bold',
                     margin: '0 auto 24px auto'
-                }}>P</div>
+                }}>PPP</div>
 
                 <h2 style={{ color: '#f8fafc', marginBottom: '8px' }}>Payroll Pro</h2>
                 <p style={{ color: 'rgba(255,255,255,0.55)', marginBottom: '32px' }}>Please sign in to your account</p>
