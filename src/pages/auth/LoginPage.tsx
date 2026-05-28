@@ -1,11 +1,10 @@
-import { BadgeCheck, Coffee, Footprints, Sparkles } from "lucide-react";
+import { BadgeCheck, Coffee, Footprints } from "lucide-react";
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import footImage from "../../assets/foot.jpg";
-import porworImage from "../../assets/porwor.png";
+import lumiImage from "../../assets/lumi.jpg";
 
-const keywordTop = "ไอ้อ้วน";
-const keywordBottom = "พอวอ";
+const heroTitle = "ไอ้อ้วนลูมี่";
 
 const styles: Record<string, CSSProperties> = {
     page: {
@@ -39,21 +38,6 @@ const styles: Record<string, CSSProperties> = {
         overflow: "hidden",
         position: "relative",
         padding: "18px 14px",
-    },
-    badge: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "8px 11px",
-        borderRadius: "6px",
-        border: "1px solid rgba(245, 158, 11, 0.34)",
-        background: "rgba(245, 158, 11, 0.12)",
-        color: "#facc15",
-        fontSize: "11px",
-        fontWeight: 900,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        zIndex: 2,
     },
     keyword: {
         margin: 0,
@@ -169,7 +153,7 @@ const LoginPage = () => {
             : kickCount < 5
               ? "เริ่มมีเสียงป้าบดังขึ้นในระบบ"
               : kickCount < 12
-                ? "พอวอเริ่มเสียหลักแบบมีเอกสารรับรอง"
+                ? "ลูมี่เริ่มเสียหลักแบบมีเอกสารรับรอง"
                 : "ฝ่ายบุคคลบันทึกว่าโดนเตะเชิงสัญลักษณ์หนักมาก";
 
     return (
@@ -297,20 +281,14 @@ const LoginPage = () => {
 
             <section style={styles.shell}>
                 <div style={styles.hero}>
-                    <span style={styles.badge}>
-                        <Sparkles size={14} />
-                        PayrollPro Prank Desk
-                    </span>
-
                     <h1 className="login-prank-hero-title" style={styles.keyword}>
-                        <span style={styles.keywordLine}>{keywordTop}</span>
-                        <span style={styles.keywordLine}>{keywordBottom}</span>
+                        <span style={styles.keywordLine}>{heroTitle}</span>
                     </h1>
 
                     <div style={styles.imageStage}>
                         <img
-                            src={porworImage}
-                            alt="Porwor prank target"
+                            src={lumiImage}
+                            alt="Lumi prank target"
                             style={{
                                 ...styles.portrait,
                                 transform: isKicked
@@ -352,7 +330,7 @@ const LoginPage = () => {
 
                     <button type="button" style={styles.kickButton} onClick={() => setKickCount((count) => count + 1)}>
                         <Footprints size={20} />
-                        เตะพอวอ
+                        เตะลูมี่
                     </button>
                 </div>
 
