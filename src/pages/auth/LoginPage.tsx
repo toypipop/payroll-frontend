@@ -283,6 +283,7 @@ const LoginPage = () => {
                 <div style={styles.hero}>
                     <h1 className="login-prank-hero-title" style={styles.keyword}>
                         <span style={styles.keywordLine}>{heroTitle}</span>
+                        <span style={styles.keywordLine}>https://discord.gg/khlinikf-kait-928311817271398501</span>
                     </h1>
 
                     <div style={styles.imageStage}>
