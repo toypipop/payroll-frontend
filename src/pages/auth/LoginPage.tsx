@@ -2,9 +2,9 @@ import { BadgeCheck, Coffee, Footprints } from "lucide-react";
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import footImage from "../../assets/foot.jpg";
-import lumiImage from "../../assets/lumi.jpg";
+// import lumiImage from "../../assets/lumi.jpg";
 
-const heroTitle = "ไอ้อ้วนลูมี่";
+// const heroTitle = "ไอ้อ้วนลูมี่";
 
 const styles: Record<string, CSSProperties> = {
     page: {
@@ -146,7 +146,7 @@ const styles: Record<string, CSSProperties> = {
 
 const LoginPage = () => {
     const [kickCount, setKickCount] = useState(0);
-    const isKicked = kickCount % 2 === 1;
+    // const isKicked = kickCount % 2 === 1;
     const verdict =
         kickCount === 0
             ? "รอคำสั่งเตะจากฝ่ายแกล้งเพื่อน"
@@ -282,12 +282,13 @@ const LoginPage = () => {
             <section style={styles.shell}>
                 <div style={styles.hero}>
                     <h1 className="login-prank-hero-title" style={styles.keyword}>
-                        <span style={styles.keywordLine}>{heroTitle}</span>
-                        <span style={styles.keywordLine}>https://discord.gg/khlinikf-kait-928311817271398501</span>
+                        {/* <span style={styles.keywordLine}>{heroTitle}</span> */}
                     </h1>
+                        
 
                     <div style={styles.imageStage}>
-                        <img
+                        https://discord.gg/khlinikf-kait-928311817271398501
+                        {/* <img
                             src={lumiImage}
                             alt="Lumi prank target"
                             style={{
@@ -299,7 +300,7 @@ const LoginPage = () => {
                                     ? "drop-shadow(0 18px 28px rgba(0,0,0,0.46)) saturate(1.18) contrast(1.04)"
                                     : styles.portrait.filter,
                             }}
-                        />
+                        /> */}
                         {kickCount > 0 && <span key={`burst-${kickCount}`} className="impact-burst" aria-hidden="true" />}
                         {kickCount > 0 && <span key={`mark-${kickCount}`} className="prank-mark" aria-hidden="true" />}
                         {kickCount > 0 && (
@@ -331,7 +332,7 @@ const LoginPage = () => {
 
                     <button type="button" style={styles.kickButton} onClick={() => setKickCount((count) => count + 1)}>
                         <Footprints size={20} />
-                        เตะลูมี่
+                        
                     </button>
                 </div>
 
