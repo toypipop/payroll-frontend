@@ -72,7 +72,7 @@ const CompaniesPage = () => {
     };
 
     const handleEdit = (item) => {
-        setEditingId(item.ID || item.id);
+        setEditingId(item.id);
         reset({
             name: item.name,
             tax_id: item.tax_id,
@@ -89,7 +89,8 @@ const CompaniesPage = () => {
                 await api.delete(`/companies/${id}`);
                 fetchCompanies();
             } catch (err) {
-                alert(err.response?.data?.error || "Delete Failed");
+                const errData = err.response?.data;
+                alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
             }
         }
     };
@@ -117,7 +118,7 @@ const CompaniesPage = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.ID || row.id)}
+                        onClick={() => handleDelete(row.id)}
                         style={smallBtn}
                     >
                         Delete

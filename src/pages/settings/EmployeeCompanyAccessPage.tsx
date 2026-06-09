@@ -89,7 +89,7 @@ const EmployeeCompanyAccessPage = () => {
 
             setAccessRows(accessRes.data || []);
             setEmployees((employeesRes.data || []).map((employee) => ({
-                id: employee.id || employee.ID,
+                id: employee.id,
                 name: `${employee.employees_code || "EMP"} - ${employee.first_name || ""} ${employee.last_name || ""}`.trim(),
                 companies_id: employee.companies_id,
             })));

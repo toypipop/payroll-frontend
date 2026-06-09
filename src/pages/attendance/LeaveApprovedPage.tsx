@@ -33,7 +33,7 @@ const LeaveApprovedPage = () => {
             const userData = JSON.parse(localStorage.getItem("user") || "{}");
             await api.put(`/leaves/approve/${id}`, {
                 status: newStatus,
-                approved_by: userData.id || userData.ID
+                approved_by: userData.id
             });
             fetchPending();
         } catch (err) {
@@ -115,14 +115,14 @@ const LeaveApprovedPage = () => {
             render: (row) => (
                 <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>
                     <Button
-                        onClick={() => handleAction(row.id || row.ID, "Approved")}
+                        onClick={() => handleAction(row.id, "Approved")}
                         style={{ ...actionBtn, backgroundColor: "#10b981", color: "#fff" }}
                     >
                         Approve
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleAction(row.id || row.ID, "Rejected")}
+                        onClick={() => handleAction(row.id, "Rejected")}
                         style={actionBtn}
                     >
                         Reject

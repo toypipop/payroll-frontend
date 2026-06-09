@@ -60,7 +60,7 @@ const PayrollGlobalSettingsPage = () => {
 
     const handleEditConfig = (companie) => {
         setSelectedCompanie(companie);
-        setValue("companies_id", companie.ID || companie.id);
+        setValue("companies_id", companie.id);
         setValue("sso_rate", companie.payroll_config?.sso_rate || 5.0);
         setValue("sso_max_amount", companie.payroll_config?.sso_max_amount || 750);
         setValue("sso_min_salary", companie.payroll_config?.sso_min_salary || 1650);

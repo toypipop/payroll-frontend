@@ -75,7 +75,8 @@ const MasterLeaveTypePage = () => {
             await api.delete(`/master/leave-types/${id}`);
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.error || "Delete Failed");
+            const errData = err.response?.data;
+            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
         }
     };
 

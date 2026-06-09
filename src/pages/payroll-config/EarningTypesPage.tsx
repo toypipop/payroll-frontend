@@ -87,7 +87,8 @@ const EarningTypesPage = () => {
             const res = await api.get("/earning-types");
             setEarnings(res.data);
         } catch (err) {
-            alert("Delete failed");
+            const errData = err.response?.data;
+            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
         }
     };
 

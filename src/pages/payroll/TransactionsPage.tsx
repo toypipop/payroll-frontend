@@ -41,6 +41,7 @@ const TransactionsPage = () => {
 
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [slipData, setSlipData] = useState(null);
+    const [slipError, setSlipError] = useState<string | null>(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
 
     useEffect(() => {
@@ -51,13 +52,15 @@ const TransactionsPage = () => {
 
     const openDetails = async (tx) => {
         setSelectedTransaction(tx);
+        setSlipData(null);
+        setSlipError(null);
         setLoadingDetails(true);
         try {
             const res = await api.get(`/payroll/slip/${tx.id}`);
             setSlipData(res.data || null);
         } catch (err) {
-            console.error("Failed to load transaction details", err);
-            setSlipData(null);
+            const msg = err.response?.data?.error || "Unable to load transaction details.";
+            setSlipError(msg);
         } finally {
             setLoadingDetails(false);
         }
@@ -66,6 +69,7 @@ const TransactionsPage = () => {
     const closeDetails = () => {
         setSelectedTransaction(null);
         setSlipData(null);
+        setSlipError(null);
     };
 
     const totals = useMemo(() => {
@@ -229,8 +233,10 @@ const TransactionsPage = () => {
             >
                 {loadingDetails ? (
                     <div style={{ padding: "12px 0", color: "#94a3b8" }}>Loading details...</div>
+                ) : slipError ? (
+                    <div style={{ padding: "12px 0", color: "#ef4444" }}>{slipError}</div>
                 ) : !slipData?.slip ? (
-                    <div style={{ padding: "12px 0", color: "#ef4444" }}>Unable to load transaction details.</div>
+                    <div style={{ padding: "12px 0", color: "#94a3b8" }}>No data available.</div>
                 ) : (
                     <>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>

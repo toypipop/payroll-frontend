@@ -24,7 +24,7 @@ const timeLogSchema = z.object({
     remark: z.string().optional(),
 }).refine((data) => {
     if (data.check_in && data.check_out) {
-        return data.check_out >= data.check_in;
+        return data.check_out > data.check_in;
     }
     return true;
 }, {
@@ -137,7 +137,7 @@ const TimelogsListPage = () => {
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
                     empRes.data.map((e) => ({
-                        id: e.id || e.ID,
+                        id: e.id,
                         name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
                         companies_id: e.companies_id,
                     }))
@@ -145,7 +145,7 @@ const TimelogsListPage = () => {
                 
                 const empDataMap = {};
                 empRes.data.forEach((e) => {
-                    empDataMap[e.id || e.ID] = e;
+                    empDataMap[e.id] = e;
                 });
                 setEmployeeData(empDataMap);
                 
@@ -157,7 +157,7 @@ const TimelogsListPage = () => {
 
                 const configMap = {};
                 (attConfigRes.data || []).forEach((c) => {
-                    const compId = c.ID || c.id || c.companies_id;
+                    const compId = c.id || c.companies_id;
                     if (compId) {
                         configMap[compId] = c.attendance_config || null;
                     }
@@ -196,7 +196,7 @@ const TimelogsListPage = () => {
     };
 
     const handleEdit = (log) => {
-        setEditingId(log.ID || log.id);
+        setEditingId(log.id);
         setValue("companies_id", log.companies_id?.toString() || log.employees?.companies_id?.toString() || "");
         setValue("employees_id", log.employees_id?.toString());
         setSelectedEmployeeId(log.employees_id?.toString());
@@ -374,7 +374,7 @@ const TimelogsListPage = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.ID || row.id)}
+                        onClick={() => handleDelete(row.id)}
                         style={smallBtn}
                     >
                         Delete

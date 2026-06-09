@@ -69,7 +69,7 @@ const PositionSettings = () => {
     };
 
     const handleEdit = (item) => {
-        setEditingId(item.id || item.ID);
+        setEditingId(item.id);
         reset({
             pos_name: item.pos_name,
             companies_id: item.companies_id,
@@ -90,7 +90,8 @@ const PositionSettings = () => {
                 await api.delete(`/positions/${id}`);
                 fetchData();
             } catch (err) {
-                alert(err.response?.data?.error || "Delete Failed");
+                const errData = err.response?.data;
+                alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
             }
         }
     };
@@ -167,7 +168,7 @@ const PositionSettings = () => {
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
                     options={companies.map((c) => ({
-                        id: c.id || c.ID,
+                        id: c.id,
                         name: c.name
                     }))}
                 />

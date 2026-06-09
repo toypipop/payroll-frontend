@@ -5,12 +5,13 @@ const api = axios.create({
     withCredentials: true,
 });
 
-// Request interceptor
+// Request interceptor — attach CSRF header on every request
 api.interceptors.request.use(
-    (config) => config,
-    (error) => {
-        return Promise.reject(error);
+    (config) => {
+        config.headers["X-Requested-With"] = "XMLHttpRequest";
+        return config;
     },
+    (error) => Promise.reject(error),
 );
 
 // Response interceptor for 401 errors

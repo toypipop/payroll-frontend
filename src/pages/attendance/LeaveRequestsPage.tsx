@@ -91,7 +91,7 @@ const LeaveRequestsPage = () => {
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
                     empRes.data.map((e) => ({
-                        id: e.id || e.ID,
+                        id: e.id,
                         name: `${e.employees_code || "-"} - ${e.first_name} ${e.last_name}`,
                         companies_id: e.companies_id,
                     }))
@@ -99,12 +99,12 @@ const LeaveRequestsPage = () => {
                 
                 const empDataMap = {};
                 empRes.data.forEach((e) => {
-                    empDataMap[e.id || e.ID] = e;
+                    empDataMap[e.id] = e;
                 });
                 setEmployeeData(empDataMap);
 
                 setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ 
-                    id: lt.id || lt.ID,
+                    id: lt.id,
                     name: lt.name,
                     companies_id: lt.companies_id 
                 })));
@@ -142,7 +142,6 @@ const LeaveRequestsPage = () => {
                 ...data,
                 employees_id: employeeId,
                 leave_type_id: leaveTypeId,
-                leave_type: selectedLeaveType.name,
                 companies_id: companyId,
                 start_date: `${data.start_date}T00:00:00Z`,
                 end_date: `${data.end_date}T00:00:00Z`,
@@ -165,7 +164,7 @@ const LeaveRequestsPage = () => {
             return;
         }
 
-        setEditingId(req.id || req.ID);
+        setEditingId(req.id);
         setValue("companies_id", req.companies_id?.toString() || req.employees?.companies_id?.toString() || "");
         setValue("employees_id", req.employees_id?.toString() || "");
         setSelectedEmployeeId(req.employees_id?.toString() || "");

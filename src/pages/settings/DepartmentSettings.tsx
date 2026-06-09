@@ -71,7 +71,7 @@ const DepartmentSettings = () => {
 
     const handleEdit = (item) => {
         // Use id from your backend response (English Comment)
-        setEditingId(item.id || item.ID);
+        setEditingId(item.id);
         reset({
             dept_name: item.dept_name,
             companies_id: item.companies_id,
@@ -92,7 +92,8 @@ const DepartmentSettings = () => {
                 await api.delete(`/departments/${id}`);
                 fetchData();
             } catch (err) {
-                alert(err.response?.data?.error || "Delete Failed");
+                const errData = err.response?.data;
+                alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
             }
         }
     };
@@ -111,7 +112,7 @@ const DepartmentSettings = () => {
                     <Button variant="ghost" onClick={() => handleEdit(row)} style={smallBtn}>
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id || row.ID)} style={smallBtn}>
+                    <Button variant="danger" onClick={() => handleDelete(row.id)} style={smallBtn}>
                         Delete
                     </Button>
                 </div>
@@ -168,7 +169,7 @@ const DepartmentSettings = () => {
                     error={errors.companies_id?.message}
                     // Map data to SelectField format
                     options={companies.map((c) => ({
-                        id: c.id || c.ID,
+                        id: c.id,
                         name: c.name
                     }))}
                 />

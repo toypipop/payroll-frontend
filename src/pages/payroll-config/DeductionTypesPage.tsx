@@ -87,7 +87,8 @@ const DeductionTypesPage = () => {
             const res = await api.get("/deduction-types");
             setDeductions(res.data);
         } catch (err) {
-            alert("Delete failed");
+            const errData = err.response?.data;
+            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
         }
     };
 

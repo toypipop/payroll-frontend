@@ -91,7 +91,7 @@ const AttendanceSettingsPage = () => {
         };
 
         setSelectedCompanie(companie);
-        setValue("companies_id", companie.ID || companie.id);
+        setValue("companies_id", companie.id);
         setValue("late_rate_per_minute", config?.late_rate_per_minute ?? 5.0);
         setValue("absent_rate_per_day", config?.absent_rate_per_day ?? 300.0);
         setValue("is_late_deduction_enabled", config?.is_late_deduction_enabled ?? true);

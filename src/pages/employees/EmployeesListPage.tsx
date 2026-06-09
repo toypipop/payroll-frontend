@@ -218,7 +218,7 @@ const EmployeesListPage = () => {
         console.log("emp bank_id:", emp.bank_id, typeof emp.bank_id);
         console.log("emp.account_name:", emp.account_name);
         
-        const empId = emp.ID || emp.id;
+        const empId = emp.id;
         setEditingId(empId);
         editingIdRef.current = empId;
         isEditLoading.current = true;
@@ -319,7 +319,7 @@ const EmployeesListPage = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.ID || row.id)}
+                        onClick={() => handleDelete(row.id)}
                         style={smallBtn}
                     >
                         Delete

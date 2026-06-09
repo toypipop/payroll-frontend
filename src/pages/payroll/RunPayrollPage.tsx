@@ -85,6 +85,8 @@ const RunPayrollPage = () => {
     const [loadingConfig, setLoadingConfig] = useState(false);  // FIX: Track config loading state
     const [calculating, setCalculating] = useState(false);
     const [calcResult, setCalcResult] = useState(null);
+    const [preCheckIssues, setPreCheckIssues] = useState<any[]>([]);
+    const [pendingCalculate, setPendingCalculate] = useState(false);
 
     const fetchCycles = async () => {
         try {
@@ -156,28 +158,38 @@ const RunPayrollPage = () => {
         }
     }, [selectedCycleId, cycles]);
 
-    const handleCalculate = async () => {
+    const runCalculate = async () => {
         if (!selectedCycleId || !selectedCycle) return;
-        if (!window.confirm("Run payroll calculation for this cycle? Existing results will be recalculated with current SSO parameters.")) return;
+        setPreCheckIssues([]);
+        setPendingCalculate(false);
         try {
             setCalculating(true);
             setCalcResult(null);
-            setTransactions([]);  // Clear existing data for fresh re-render
-
-            // Refresh config before calculation
+            setTransactions([]);
             await fetchPayrollConfigForCycle(selectedCycle);
-
-            // Send calculation request
             const res = await api.post(`/payroll/calculate/${selectedCycleId}`);
             setCalcResult(res.data);
-
-            // Fetch transactions and re-render
-            // Using new array reference to trigger React re-render
             await fetchTransactions(selectedCycleId);
         } catch (err) {
             alert(err.response?.data?.error || "Calculation failed");
         } finally {
             setCalculating(false);
+        }
+    };
+
+    const handleCalculate = async () => {
+        if (!selectedCycleId || !selectedCycle) return;
+        try {
+            const res = await api.get(`/payroll/pre-check/${selectedCycleId}`);
+            const { ok, issues } = res.data;
+            if (ok) {
+                runCalculate();
+            } else {
+                setPreCheckIssues(issues || []);
+                setPendingCalculate(true);
+            }
+        } catch {
+            runCalculate();
         }
     };
 
@@ -312,7 +324,8 @@ const RunPayrollPage = () => {
                                 onChange={(e) => {
                                     const cycleId = e.target.value;
                                     setSelectedCycleId(cycleId);
-                                    // FIX: Immediately update selectedCycle object from cycles array
+                                    setPreCheckIssues([]);
+                                    setPendingCalculate(false);
                                     const cycle = cycles.find((c) => String(c.id) === String(cycleId));
                                     if (cycle) setSelectedCycle(cycle);
                                 }}
@@ -373,6 +386,52 @@ const RunPayrollPage = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {/* Pre-check warning panel */}
+                {preCheckIssues.length > 0 && (
+                    <div style={{
+                        marginTop: "12px", padding: "14px 16px",
+                        borderRadius: "8px", backgroundColor: "#fffbeb",
+                        border: "1px solid #fcd34d",
+                    }}>
+                        <div style={{ fontWeight: "600", color: "#92400e", marginBottom: "8px", fontSize: "13px" }}>
+                            ⚠ พบปัญหาก่อน Run Payroll
+                        </div>
+                        {preCheckIssues.map((issue, i) => (
+                            <div key={i} style={{ marginBottom: "8px" }}>
+                                <div style={{ fontSize: "13px", color: "#78350f" }}>{issue.message}</div>
+                                {issue.employees?.length > 0 && (
+                                    <ul style={{ margin: "4px 0 0 16px", padding: 0, fontSize: "12px", color: "#92400e" }}>
+                                        {issue.employees.map((name: string) => <li key={name}>{name}</li>)}
+                                    </ul>
+                                )}
+                            </div>
+                        ))}
+                        {pendingCalculate && (
+                            <div style={{ marginTop: "10px", display: "flex", gap: "8px" }}>
+                                <button
+                                    onClick={runCalculate}
+                                    style={{
+                                        padding: "6px 14px", borderRadius: "6px", border: "1px solid #d97706",
+                                        background: "#f59e0b", color: "#fff", fontSize: "13px",
+                                        fontWeight: "600", cursor: "pointer",
+                                    }}
+                                >
+                                    Proceed Anyway
+                                </button>
+                                <button
+                                    onClick={() => { setPreCheckIssues([]); setPendingCalculate(false); }}
+                                    style={{
+                                        padding: "6px 14px", borderRadius: "6px", border: "1px solid #e2e8f0",
+                                        background: "#fff", color: "#475569", fontSize: "13px", cursor: "pointer",
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 
