@@ -2,6 +2,15 @@
 
 Compact playbook for `payroll-frontend`, the React 19 + Vite + TypeScript UI for payroll, attendance, and reports. Read `../payroll-backend/AGENTS.md` when work touches routes, modules, auth, permissions, seed data, API contracts, or response shapes.
 
+## Scope
+
+This agent is responsible for **both** the frontend and backend of the payroll system:
+
+- **Frontend:** `payroll-frontend/` — React 19 + Vite + TypeScript
+- **Backend:** `payroll-backend/` — Go (Fiber), PostgreSQL
+
+When working on any task, consider whether changes are needed on both sides. Always read `../payroll-backend/AGENTS.md` for backend context before touching API contracts, routes, permissions, or seed data.
+
 ## Core
 
 - Dev URL: `http://localhost:5174`; local proxy target: `API_PROXY_TARGET`, default `http://localhost:8001`.
