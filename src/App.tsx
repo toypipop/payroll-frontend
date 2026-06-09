@@ -5,6 +5,7 @@ import MainLayout from "./components/layouts/MainLayout";
 import type { AppModule, AuthMeResponse, UserProfile } from "./types/api";
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
 const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
+const MyPayslipsPage = lazy(() => import("./pages/payroll/MyPayslipsPage"));
 
 const pages = import.meta.glob<{ default: React.ComponentType }>("./pages/**/*.tsx");
 
@@ -83,6 +84,16 @@ function App() {
                             <ProtectedRoute isAuthenticated={isAuthenticated}>
                                 <MainLayout pageTitle="Dashboard">
                                     <DashboardPage />
+                                </MainLayout>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/my-payslips"
+                        element={
+                            <ProtectedRoute isAuthenticated={isAuthenticated}>
+                                <MainLayout pageTitle="My Payslips">
+                                    <MyPayslipsPage />
                                 </MainLayout>
                             </ProtectedRoute>
                         }
