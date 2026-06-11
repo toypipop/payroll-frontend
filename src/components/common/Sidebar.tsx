@@ -194,26 +194,37 @@ const Sidebar = () => {
             </div>
 
             <nav style={{ flexGrow: 1, overflowY: "auto" }}>
-                <NavLink
-                    to="/my-payslips"
-                    style={({ isActive }) => ({
-                        ...styles.navLink,
-                        backgroundColor: isActive ? "var(--sidebar-active)" : "transparent",
-                        color: isActive ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
-                    })}
-                >
-                    {({ isActive }) => (
+                {loading ? <div>Loading...</div> : (() => {
+                    const dashboard = menuItems.filter(m => m.module_key === 'DashboardPage');
+                    const help = menuItems.filter(m => m.module_key === 'HelpPage');
+                    const others = menuItems.filter(m => m.module_key !== 'DashboardPage' && m.module_key !== 'HelpPage');
+                    return (
                         <>
-                            <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
-                                {Icons.ReceiptLong(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
-                            </div>
-                            <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
-                                My Payslips
-                            </span>
+                            {dashboard.map(item => renderMenuItem(item))}
+                            <NavLink
+                                to="/my-payslips"
+                                style={({ isActive }) => ({
+                                    ...styles.navLink,
+                                    backgroundColor: isActive ? "var(--sidebar-active)" : "transparent",
+                                    color: isActive ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
+                                })}
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
+                                            {Icons.ReceiptLong(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
+                                        </div>
+                                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                                            My Payslips
+                                        </span>
+                                    </>
+                                )}
+                            </NavLink>
+                            {help.map(item => renderMenuItem(item))}
+                            {others.map(item => renderMenuItem(item))}
                         </>
-                    )}
-                </NavLink>
-                {loading ? <div>Loading...</div> : menuItems.map(item => renderMenuItem(item))}
+                    );
+                })()}
             </nav>
         </div>
     );
