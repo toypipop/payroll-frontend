@@ -13,6 +13,7 @@ import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 import DateField from "../../components/common/DateField";
+import HelpIcon from "../../components/common/HelpIcon";
 
 import { Controller } from "react-hook-form";
 
@@ -329,7 +330,7 @@ const LeaveRequestsPage = () => {
     return (
         <>
             <PageHeader
-                title="Leave Requests"
+                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Leave Requests<HelpIcon articleId="leave-requests" /></span>}
                 actionButton={
                     <Button
                         onClick={openCreateModal}

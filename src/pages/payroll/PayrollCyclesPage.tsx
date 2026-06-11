@@ -14,6 +14,7 @@ import InputField from "../../components/common/InputField";
 import DateField from "../../components/common/DateField";
 import SelectField from "../../components/common/SelectField";
 import Badge from "../../components/common/Badge";
+import HelpIcon from "../../components/common/HelpIcon";
 
 const cycleSchema = z.object({
     cycle_name: z.string().min(1, "Cycle name is required"),
@@ -170,7 +171,7 @@ const PayrollCyclesPage = () => {
     return (
         <>
             <PageHeader
-                title="Payroll Cycles"
+                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Payroll Cycles<HelpIcon articleId="payroll-cycles" /></span>}
                 actionButton={
                     <Button onClick={() => setIsModalOpen(true)} style={{ width: "auto" }}>
                         + New Cycle

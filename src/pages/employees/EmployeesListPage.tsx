@@ -14,6 +14,7 @@ import InputField from "../../components/common/InputField";
 import NumberField from "../../components/common/NumberField";
 import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
+import HelpIcon from "../../components/common/HelpIcon";
 
 // Validation schema for employee
 const createEmployeesSchema = (isEditing, requireCompany) => z.object({
@@ -332,7 +333,7 @@ const EmployeesListPage = () => {
     return (
         <>
             <PageHeader
-                title="Employees Directory"
+                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Employees Directory<HelpIcon articleId="employee-list" /></span>}
                 actionButton={
                     <Button
                         onClick={openCreateModal}

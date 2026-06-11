@@ -7,6 +7,7 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import HelpIcon from "../../components/common/HelpIcon";
 
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -306,7 +307,7 @@ const RunPayrollPage = () => {
 
     return (
         <>
-            <PageHeader title="Run Payroll" />
+            <PageHeader title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Run Payroll<HelpIcon articleId="run-payroll" /></span>} />
 
             {/* Cycle selector + Run button */}
             <Card style={{ marginBottom: "20px" }}>
