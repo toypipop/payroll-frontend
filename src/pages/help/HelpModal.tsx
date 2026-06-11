@@ -25,15 +25,14 @@ export default function HelpModal({ article, lang, onClose }: Props) {
 
   return createPortal(
     <div
-      onClick={onClose}
       style={{
         position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-        zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backdropFilter: 'blur(4px)',
+        zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '16px',
       }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
           background: 'white', borderRadius: '12px', width: '100%', maxWidth: '520px',
           maxHeight: '90vh', display: 'flex', flexDirection: 'column',
