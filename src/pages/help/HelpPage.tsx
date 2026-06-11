@@ -7,9 +7,22 @@ export default function HelpPage() {
   const [lang, setLang] = useState<'th' | 'en'>('th')
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null)
+  const [search, setSearch] = useState('')
 
   const categoryArticles = selectedCategory
     ? HELP_ARTICLES.filter((a) => a.category === selectedCategory)
+    : []
+
+  const searchResults = search.trim().length > 0
+    ? HELP_ARTICLES.filter((a) => {
+        const q = search.toLowerCase()
+        return (
+          a.titleTH.toLowerCase().includes(q) ||
+          a.titleEN.toLowerCase().includes(q) ||
+          a.descTH.toLowerCase().includes(q) ||
+          a.descEN.toLowerCase().includes(q)
+        )
+      })
     : []
 
   return (
@@ -43,7 +56,60 @@ export default function HelpPage() {
         </div>
       </div>
 
-      {selectedCategory === null ? (
+      {/* Search bar */}
+      <div style={{ marginBottom: '20px', position: 'relative' }}>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={lang === 'th' ? '🔍  ค้นหาคู่มือ...' : '🔍  Search help articles...'}
+          style={{
+            width: '100%', padding: '10px 16px', fontSize: '14px',
+            border: '1px solid #e0e0e0', borderRadius: '10px',
+            outline: 'none', background: 'white', boxSizing: 'border-box',
+          }}
+        />
+      </div>
+
+      {search.trim().length > 0 ? (
+        /* Search results */
+        <div>
+          <div style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>
+            {lang === 'th'
+              ? `พบ ${searchResults.length} ผลลัพธ์`
+              : `${searchResults.length} result${searchResults.length !== 1 ? 's' : ''}`}
+          </div>
+          {searchResults.length === 0 ? (
+            <div style={{ textAlign: 'center', color: '#aaa', padding: '40px 0', fontSize: '14px' }}>
+              {lang === 'th' ? 'ไม่พบผลลัพธ์' : 'No results found'}
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              {searchResults.map((article) => {
+                const cat = HELP_CATEGORIES.find((c) => c.id === article.category)
+                return (
+                  <div
+                    key={article.id}
+                    onClick={() => setSelectedArticle(article)}
+                    style={{
+                      background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
+                      padding: '16px', cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ fontSize: '22px', marginBottom: '6px' }}>{article.emoji}</div>
+                    <div style={{ fontWeight: 600, fontSize: '13px', color: '#1a3c34', marginBottom: '4px' }}>
+                      {lang === 'th' ? article.titleTH : article.titleEN}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#888' }}>
+                      {cat ? (lang === 'th' ? cat.titleTH : cat.titleEN) : ''}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      ) : selectedCategory === null ? (
         /* Category grid */
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
           {HELP_CATEGORIES.map((cat) => {
