@@ -8,12 +8,29 @@ type Props = {
   onClose: () => void
 }
 
+function getStepsLabel(articleType: string | undefined, lang: 'th' | 'en'): string {
+  if (lang === 'th') {
+    switch (articleType) {
+      case 'troubleshooting': return 'วิธีแก้ไข'
+      case 'business-rule': return 'รายละเอียด'
+      case 'checklist': return 'ขั้นตอน'
+      default: return 'วิธีใช้งาน'
+    }
+  } else {
+    switch (articleType) {
+      case 'troubleshooting': return 'Solution'
+      case 'business-rule': return 'Details'
+      case 'checklist': return 'Steps'
+      default: return 'How to use'
+    }
+  }
+}
+
 export default function HelpModal({ article, lang, onClose }: Props) {
   const title = lang === 'th' ? article.titleTH : article.titleEN
   const subtitle = lang === 'th' ? article.titleEN : article.titleTH
   const desc = lang === 'th' ? article.descTH : article.descEN
   const steps = lang === 'th' ? article.stepsTH : article.stepsEN
-  const stepsLabel = lang === 'th' ? 'วิธีใช้งาน' : 'How to use'
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -72,21 +89,23 @@ export default function HelpModal({ article, lang, onClose }: Props) {
           <p style={{ color: '#444', lineHeight: 1.7, marginBottom: '16px', fontSize: '14px' }}>
             {desc}
           </p>
-          <div style={{ fontWeight: 600, color: '#1a3c34', marginBottom: '10px', fontSize: '13px' }}>
-            {stepsLabel}
-          </div>
-          <div
-            style={{
-              background: '#f8fffe', borderLeft: '3px solid #1a3c34',
-              padding: '12px 16px', borderRadius: '4px',
-            }}
-          >
-            {steps.map((step, i) => (
-              <div key={i} style={{ fontSize: '13px', lineHeight: 2, color: '#333' }}>
-                {i + 1}. {step}
+          {steps.length > 0 && (
+            <>
+              <div style={{ fontWeight: 600, color: '#1a3c34', marginBottom: '10px', fontSize: '13px' }}>
+                {getStepsLabel(article.articleType, lang)}
               </div>
-            ))}
-          </div>
+              <div style={{ background: '#f8fffe', borderLeft: '3px solid #1a3c34', padding: '12px 16px', borderRadius: '4px' }}>
+                {steps.map((step, i) => (
+                  <div key={i} style={{ fontSize: '13px', lineHeight: 2, color: '#333' }}>
+                    {article.articleType === 'checklist'
+                      ? <><span style={{ color: '#1a3c34', fontWeight: 700, marginRight: '6px' }}>✓</span>{step}</>
+                      : `${i + 1}. ${step}`
+                    }
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>,
