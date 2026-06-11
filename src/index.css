@@ -1,5 +1,5 @@
 /* src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&family=Ekkamai:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
 
 /* ─── Design Tokens ─────────────────────────────────── */
 :root {
@@ -40,8 +40,8 @@
 
   /* Layout */
   --sidebar-width: 260px;
-  --font-body: "Manrope", "Ekkamai", "Segoe UI", sans-serif;
-  --font-display: "Sora", "Ekkamai", "Segoe UI", sans-serif;
+  --font-body: "Manrope", "Noto Sans Thai", sans-serif;
+  --font-display: "Sora", "Noto Sans Thai", sans-serif;
 }
 
 /* ─── Reset ─────────────────────────────────────────── */
