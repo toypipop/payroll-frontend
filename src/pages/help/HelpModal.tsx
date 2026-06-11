@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { HelpArticle } from './helpContent'
 
 type Props = {
@@ -22,7 +23,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       style={{
@@ -89,6 +90,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
