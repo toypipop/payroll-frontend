@@ -6,6 +6,7 @@ import type { AppModule, AuthMeResponse, UserProfile } from "./types/api";
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
 const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
 const MyPayslipsPage = lazy(() => import("./pages/payroll/MyPayslipsPage"));
+const HelpPage = lazy(() => import("./pages/help/HelpPage"));
 
 const pages = import.meta.glob<{ default: React.ComponentType }>("./pages/**/*.tsx");
 
@@ -94,6 +95,17 @@ function App() {
                             <ProtectedRoute isAuthenticated={isAuthenticated}>
                                 <MainLayout pageTitle="My Payslips">
                                     <MyPayslipsPage />
+                                </MainLayout>
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/help"
+                        element={
+                            <ProtectedRoute isAuthenticated={isAuthenticated}>
+                                <MainLayout pageTitle="Help Center">
+                                    <HelpPage />
                                 </MainLayout>
                             </ProtectedRoute>
                         }
