@@ -33,7 +33,7 @@ npm run build   # TypeScript check + Vite bundle → dist/
 ```bash
 npm run dev
 # Listens on http://localhost:5174
-# API proxy → http://localhost:8001 (set API_PROXY_TARGET in .env to change)
+# API proxy → http://localhost:8000 (set API_PROXY_TARGET in .env to change)
 ```
 
 **Step 2 — drive it with the driver**:
@@ -76,7 +76,7 @@ npm run typecheck   # TypeScript only
 `.env` controls two vars:
 ```
 VITE_API_URL=/api/v1          # prefix for all API calls (baked into the bundle)
-API_PROXY_TARGET=http://localhost:8001  # Vite dev proxy target (dev only)
+API_PROXY_TARGET=http://localhost:8000  # Vite dev proxy target (dev only)
 ```
 
 Without a running backend at `API_PROXY_TARGET`, the app loads but shows login; `/auth/me` and `/modules` fail with network errors (expected).
