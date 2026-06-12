@@ -18,7 +18,6 @@ export type HelpArticle = {
 
 export type HelpCategoryMeta = {
   id: HelpCategory
-  emoji: string
   titleTH: string
   titleEN: string
 }
