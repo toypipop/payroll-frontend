@@ -7,7 +7,6 @@ export type ArticleType = 'how-to' | 'faq' | 'troubleshooting' | 'business-rule'
 export type HelpArticle = {
   id: string
   category: HelpCategory
-  emoji: string
   titleTH: string
   titleEN: string
   descTH: string
@@ -25,17 +24,17 @@ export type HelpCategoryMeta = {
 }
 
 export const HELP_CATEGORIES: HelpCategoryMeta[] = [
-  { id: 'employees', emoji: '👥', titleTH: 'พนักงาน', titleEN: 'Employees' },
-  { id: 'attendance', emoji: '🕐', titleTH: 'การเข้างาน', titleEN: 'Attendance' },
-  { id: 'payroll', emoji: '💰', titleTH: 'เงินเดือน', titleEN: 'Payroll' },
-  { id: 'reports', emoji: '📊', titleTH: 'รายงาน', titleEN: 'Reports' },
-  { id: 'settings', emoji: '⚙️', titleTH: 'การตั้งค่า', titleEN: 'Settings' },
-  { id: 'payroll-config', emoji: '🔧', titleTH: 'ตั้งค่า Payroll', titleEN: 'Payroll Config' },
-  { id: 'getting-started', emoji: '🚀', titleTH: 'เริ่มต้นใช้งาน', titleEN: 'Getting Started' },
-  { id: 'troubleshooting', emoji: '🔧', titleTH: 'แก้ปัญหา', titleEN: 'Troubleshooting' },
-  { id: 'faq', emoji: '❓', titleTH: 'คำถามที่พบบ่อย', titleEN: 'FAQ' },
-  { id: 'business-rules', emoji: '📐', titleTH: 'กฎการคำนวณ', titleEN: 'Business Rules' },
-  { id: 'glossary', emoji: '📖', titleTH: 'คำศัพท์', titleEN: 'Glossary' },
+  { id: 'employees', titleTH: 'พนักงาน', titleEN: 'Employees' },
+  { id: 'attendance', titleTH: 'การเข้างาน', titleEN: 'Attendance' },
+  { id: 'payroll', titleTH: 'เงินเดือน', titleEN: 'Payroll' },
+  { id: 'reports', titleTH: 'รายงาน', titleEN: 'Reports' },
+  { id: 'settings', titleTH: 'การตั้งค่า', titleEN: 'Settings' },
+  { id: 'payroll-config', titleTH: 'ตั้งค่า Payroll', titleEN: 'Payroll Config' },
+  { id: 'getting-started', titleTH: 'เริ่มต้นใช้งาน', titleEN: 'Getting Started' },
+  { id: 'troubleshooting', titleTH: 'แก้ปัญหา', titleEN: 'Troubleshooting' },
+  { id: 'faq', titleTH: 'คำถามที่พบบ่อย', titleEN: 'FAQ' },
+  { id: 'business-rules', titleTH: 'กฎการคำนวณ', titleEN: 'Business Rules' },
+  { id: 'glossary', titleTH: 'คำศัพท์', titleEN: 'Glossary' },
 ]
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -43,7 +42,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'employee-list',
     category: 'employees',
-    emoji: '👤',
     titleTH: 'รายชื่อพนักงาน',
     titleEN: 'Employee List',
     descTH: 'หน้านี้ใช้สำหรับดูและจัดการข้อมูลพนักงานทั้งหมดในองค์กร สามารถเพิ่มพนักงานใหม่ แก้ไขข้อมูล และค้นหาพนักงานตามชื่อหรือรหัสได้',
@@ -64,7 +62,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'salary-structure',
     category: 'employees',
-    emoji: '💵',
     titleTH: 'โครงสร้างเงินเดือน',
     titleEN: 'Salary Structure',
     descTH: 'ตั้งค่าเงินเดือนพื้นฐานของพนักงานแต่ละคน พร้อมวันที่มีผลบังคับ ระบบจะเก็บประวัติการเปลี่ยนแปลงเงินเดือนโดยอัตโนมัติ',
@@ -85,7 +82,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'employee-earnings',
     category: 'employees',
-    emoji: '➕',
     titleTH: 'รายได้พนักงาน',
     titleEN: 'Employee Earnings',
     descTH: 'กำหนดรายได้ประจำเพิ่มเติมของพนักงานแต่ละคน เช่น เบี้ยเลี้ยงตำแหน่ง หรือค่าตอบแทนพิเศษที่จ่ายทุกรอบเงินเดือน',
@@ -106,7 +102,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'employee-deductions',
     category: 'employees',
-    emoji: '➖',
     titleTH: 'รายการหักพนักงาน',
     titleEN: 'Employee Deductions',
     descTH: 'กำหนดรายการหักเงินประจำของพนักงานแต่ละคน เช่น กองทุนสำรองเลี้ยงชีพ หรือการหักคืนเงินกู้ ที่จะถูกนำไปคำนวณทุกรอบเงินเดือน',
@@ -129,7 +124,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'timelogs',
     category: 'attendance',
-    emoji: '🕑',
     titleTH: 'บันทึกเวลาเข้า-ออกงาน',
     titleEN: 'Time Logs',
     descTH: 'บันทึกและดูประวัติการเข้า-ออกงานของพนักงาน สามารถเพิ่มหรือแก้ไขรายการได้ ระบบจะคำนวณสถานะ (ตรงเวลา สาย ขาด) โดยอัตโนมัติ',
@@ -150,7 +144,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'leave-requests',
     category: 'attendance',
-    emoji: '📅',
     titleTH: 'คำขอลาพักงาน',
     titleEN: 'Leave Requests',
     descTH: 'ดูและจัดการคำขอลาของพนักงาน สามารถสร้างคำขอลาใหม่หรือแก้ไขรายการที่ยังอยู่ในสถานะรอการอนุมัติได้',
@@ -171,7 +164,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'leave-approved',
     category: 'attendance',
-    emoji: '✅',
     titleTH: 'อนุมัติการลา',
     titleEN: 'Leave Approved',
     descTH: 'ดูรายการคำขอลาที่รอการอนุมัติและดำเนินการอนุมัติหรือปฏิเสธ เฉพาะผู้ที่มีสิทธิ์เท่านั้นที่สามารถอนุมัติได้',
@@ -192,7 +184,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'earning-summary',
     category: 'attendance',
-    emoji: '📈',
     titleTH: 'สรุปรายได้จากการเข้างาน',
     titleEN: 'Earning Summary',
     descTH: 'ดูสรุปรายได้พิเศษที่คำนวณจากการเข้างาน เช่น ค่าล่วงเวลาและค่าทำงานวันหยุด ในแต่ละรอบเงินเดือน',
@@ -211,7 +202,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'deduction-summary',
     category: 'attendance',
-    emoji: '📉',
     titleTH: 'สรุปรายการหักจากการเข้างาน',
     titleEN: 'Deduction Summary',
     descTH: 'ดูสรุปรายการหักเงินที่คำนวณจากการเข้างาน เช่น ค่าปรับมาสายและค่าหักขาดงาน ในแต่ละรอบเงินเดือน',
@@ -232,7 +222,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'payroll-cycles',
     category: 'payroll',
-    emoji: '🔄',
     titleTH: 'รอบการจ่ายเงินเดือน',
     titleEN: 'Payroll Cycles',
     descTH: 'สร้างและจัดการรอบการจ่ายเงินเดือน กำหนดวันเริ่มต้นและสิ้นสุดของแต่ละรอบ และปิดรอบเมื่อการจ่ายเงินเสร็จสมบูรณ์',
@@ -255,7 +244,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'run-payroll',
     category: 'payroll',
-    emoji: '▶️',
     titleTH: 'รันเงินเดือน',
     titleEN: 'Run Payroll',
     descTH: 'คำนวณเงินเดือนพนักงานทั้งหมดสำหรับรอบที่เลือก โดยระบบจะรวมเงินเดือนพื้นฐาน รายได้พิเศษ และรายการหักทั้งหมด',
@@ -278,7 +266,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'cycle-earnings',
     category: 'payroll',
-    emoji: '💹',
     titleTH: 'รายได้พิเศษในรอบเงินเดือน',
     titleEN: 'Cycle Earnings',
     descTH: 'เพิ่มรายได้พิเศษที่ไม่ได้กำหนดไว้ล่วงหน้าสำหรับพนักงานในรอบเงินเดือนที่เฉพาะเจาะจง เช่น โบนัสพิเศษหรือค่าตอบแทนเพิ่มเติม',
@@ -301,7 +288,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'cycle-deductions',
     category: 'payroll',
-    emoji: '📋',
     titleTH: 'รายการหักในรอบเงินเดือน',
     titleEN: 'Cycle Deductions',
     descTH: 'เพิ่มรายการหักเงินพิเศษสำหรับพนักงานในรอบเงินเดือนที่เฉพาะเจาะจง เช่น การหักเงินครั้งเดียวหรือค่าปรับพิเศษ',
@@ -324,7 +310,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'transactions',
     category: 'payroll',
-    emoji: '🧾',
     titleTH: 'ธุรกรรมเงินเดือน',
     titleEN: 'Transactions',
     descTH: 'ดูรายการธุรกรรมเงินเดือนทั้งหมดของแต่ละรอบ รวมถึงยอดสุทธิ รายได้ และรายการหักของพนักงานแต่ละคน',
@@ -345,7 +330,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'my-payslips',
     category: 'payroll',
-    emoji: '📄',
     titleTH: 'สลิปเงินเดือนของฉัน',
     titleEN: 'My Payslips',
     descTH: 'ดูสลิปเงินเดือนของตัวเองย้อนหลัง พร้อมรายละเอียดรายได้ รายการหัก และเงินเดือนสุทธิในแต่ละรอบ',
@@ -368,7 +352,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'payroll-analysis',
     category: 'reports',
-    emoji: '📊',
     titleTH: 'รายงานวิเคราะห์เงินเดือน',
     titleEN: 'Payroll Analysis',
     descTH: 'ดูรายงานวิเคราะห์เงินเดือนรายรอบ เปรียบเทียบยอดรายได้รวม ยอดหักรวม และเงินเดือนสุทธิของพนักงานทั้งหมด',
@@ -387,7 +370,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'payslips-report',
     category: 'reports',
-    emoji: '🗒️',
     titleTH: 'รายงานสลิปเงินเดือน',
     titleEN: 'Payslips Report',
     descTH: 'สร้างและดูสลิปเงินเดือนของพนักงานทั้งหมดสำหรับรอบที่เลือก สามารถดาวน์โหลดหรือพิมพ์ได้',
@@ -408,7 +390,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'bank-transfer-report',
     category: 'reports',
-    emoji: '🏦',
     titleTH: 'รายงานการโอนเงินธนาคาร',
     titleEN: 'Bank Transfer Report',
     descTH: 'ดูรายงานข้อมูลการโอนเงินเดือนเข้าบัญชีธนาคารของพนักงานแต่ละคน ในรูปแบบที่พร้อมส่งให้ธนาคาร',
@@ -429,7 +410,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'tax-forms-report',
     category: 'reports',
-    emoji: '📑',
     titleTH: 'รายงานแบบฟอร์มภาษี',
     titleEN: 'Tax Forms Report',
     descTH: 'ดูและออกรายงานภาษีหัก ณ ที่จ่าย (ภ.ง.ด.1 และหนังสือรับรองการหักภาษี 50 ทวิ) สำหรับแต่ละรอบเงินเดือน',
@@ -450,7 +430,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'sso-report',
     category: 'reports',
-    emoji: '🛡️',
     titleTH: 'รายงานประกันสังคม (SSO)',
     titleEN: 'Social Security Report',
     descTH: 'ดูรายงานการนำส่งเงินสมทบประกันสังคมของพนักงานและนายจ้าง สำหรับแต่ละรอบเงินเดือน',
@@ -473,7 +452,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'companies',
     category: 'settings',
-    emoji: '🏢',
     titleTH: 'บริษัท',
     titleEN: 'Companies',
     descTH: 'จัดการข้อมูลบริษัทในระบบ เพิ่มบริษัทใหม่หรือแก้ไขข้อมูล เช่น ชื่อบริษัทและเลขประจำตัวผู้เสียภาษี',
@@ -494,7 +472,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'departments',
     category: 'settings',
-    emoji: '🏗️',
     titleTH: 'แผนก',
     titleEN: 'Departments',
     descTH: 'สร้างและจัดการแผนกงานภายในบริษัท ใช้สำหรับจัดกลุ่มพนักงานและกำหนดสิทธิ์การเข้าถึงข้อมูล',
@@ -515,7 +492,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'positions',
     category: 'settings',
-    emoji: '💼',
     titleTH: 'ตำแหน่งงาน',
     titleEN: 'Positions',
     descTH: 'สร้างและจัดการตำแหน่งงานภายในบริษัท เพื่อกำหนดให้กับพนักงานแต่ละคน',
@@ -536,7 +512,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'roles',
     category: 'settings',
-    emoji: '🔑',
     titleTH: 'บทบาทผู้ใช้',
     titleEN: 'Roles',
     descTH: 'สร้างและจัดการ Role ของผู้ใช้งานในระบบ แต่ละ Role จะกำหนดสิทธิ์การเข้าถึงโมดูลต่าง ๆ ผ่านหน้า Permission',
@@ -557,7 +532,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'employee-company-access',
     category: 'settings',
-    emoji: '🔐',
     titleTH: 'สิทธิ์เข้าถึงบริษัทของพนักงาน',
     titleEN: 'Employee Company Access',
     descTH: 'กำหนดว่าพนักงานคนไหนสามารถเข้าใช้งานระบบในนามบริษัทใดได้บ้าง และ Role ที่ใช้ในบริษัทนั้น',
@@ -578,7 +552,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'work-locations',
     category: 'settings',
-    emoji: '📍',
     titleTH: 'สถานที่ทำงาน',
     titleEN: 'Work Locations',
     descTH: 'กำหนดสถานที่ทำงานที่ใช้ในองค์กร เช่น สำนักงานใหญ่ ทำงานจากบ้าน หรือสถานที่ของลูกค้า',
@@ -599,7 +572,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'day-off',
     category: 'settings',
-    emoji: '🏖️',
     titleTH: 'วันหยุดประจำสัปดาห์',
     titleEN: 'Day Off',
     descTH: 'กำหนดวันหยุดประจำสัปดาห์ของบริษัท เช่น หยุดวันเสาร์-อาทิตย์ ระบบจะใช้ข้อมูลนี้ในการคำนวณการเข้างาน',
@@ -620,7 +592,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'holiday-calendar',
     category: 'settings',
-    emoji: '🗓️',
     titleTH: 'ปฏิทินวันหยุดนักขัตฤกษ์',
     titleEN: 'Holiday Calendar',
     descTH: 'จัดการปฏิทินวันหยุดนักขัตฤกษ์ประจำปีของบริษัท ระบบจะใช้ข้อมูลนี้ในการคำนวณการเข้างานและรายได้วันหยุด',
@@ -643,7 +614,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'leave-types',
     category: 'settings',
-    emoji: '📝',
     titleTH: 'ประเภทการลา',
     titleEN: 'Leave Types',
     descTH: 'กำหนดประเภทการลาที่รองรับในบริษัท เช่น ลาพักร้อน ลาป่วย ลากิจ พร้อมกำหนดจำนวนวันสูงสุดและการจ่ายเงิน',
@@ -664,7 +634,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'attendance-settings',
     category: 'settings',
-    emoji: '⏱️',
     titleTH: 'ตั้งค่าการเข้างาน',
     titleEN: 'Attendance Settings',
     descTH: 'กำหนดเวลาทำงานมาตรฐาน อัตราปรับมาสาย อัตราค่าล่วงเวลา และอัตราทำงานวันหยุด สำหรับแต่ละบริษัท',
@@ -687,7 +656,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'payroll-global-settings',
     category: 'payroll-config',
-    emoji: '🌐',
     titleTH: 'การตั้งค่า Payroll ทั่วไป',
     titleEN: 'Global Settings',
     descTH: 'ตั้งค่าพารามิเตอร์หลักสำหรับการคำนวณเงินเดือน เช่น อัตราประกันสังคม เพดานเงินเดือนขั้นต่ำ และวิธีคำนวณภาษี',
@@ -708,7 +676,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'earning-types',
     category: 'payroll-config',
-    emoji: '📌',
     titleTH: 'ประเภทรายได้',
     titleEN: 'Earning Types',
     descTH: 'กำหนดประเภทรายได้ที่ใช้ในระบบ เช่น ค่าล่วงเวลา เบี้ยเลี้ยง โบนัส พร้อมกำหนดว่าต้องนำไปคำนวณภาษีและประกันสังคมหรือไม่',
@@ -729,7 +696,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'deduction-types',
     category: 'payroll-config',
-    emoji: '📎',
     titleTH: 'ประเภทรายการหัก',
     titleEN: 'Deduction Types',
     descTH: 'กำหนดประเภทการหักเงินที่ใช้ในระบบ เช่น กองทุนสำรองเลี้ยงชีพ เงินกู้ พร้อมกำหนดการนำไปลดหย่อนภาษีและประกันสังคม',
@@ -750,7 +716,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'earning-category',
     category: 'payroll-config',
-    emoji: '🗂️',
     titleTH: 'หมวดหมู่รายได้',
     titleEN: 'Earning Category',
     descTH: 'จัดกลุ่มประเภทรายได้เข้าในหมวดหมู่ต่าง ๆ เช่น Regular Pay, Allowance, Bonus เพื่อให้รายงานเงินเดือนเป็นระเบียบ',
@@ -771,7 +736,6 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: 'employment-type',
     category: 'payroll-config',
-    emoji: '📋',
     titleTH: 'ประเภทการจ้างงาน',
     titleEN: 'Employment Type',
     descTH: 'กำหนดประเภทการจ้างงานในบริษัท เช่น Full-time, Part-time, Contract, Probation เพื่อใช้กำหนดให้กับพนักงาน',
@@ -792,7 +756,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
   // ─── GETTING STARTED ─────────────────────────────────────────────────────────
   {
-    id: 'gs-setup-company', category: 'getting-started', emoji: '🏢', articleType: 'checklist',
+    id: 'gs-setup-company', category: 'getting-started', articleType: 'checklist',
     titleTH: 'ตั้งค่าบริษัท', titleEN: 'Set Up Your Company',
     descTH: 'ก่อนเริ่มใช้งาน กรุณาตั้งค่าข้อมูลบริษัทให้ครบถ้วน รวมถึงแผนก ตำแหน่ง และประเภทการจ้างงาน',
     descEN: 'Before you begin, configure your company information including departments, positions, and employment types.',
@@ -800,7 +764,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Settings → Companies and create your company', 'Add Departments for your company', 'Add Positions', 'Add Employment Types'],
   },
   {
-    id: 'gs-setup-payroll-config', category: 'getting-started', emoji: '⚙️', articleType: 'checklist',
+    id: 'gs-setup-payroll-config', category: 'getting-started', articleType: 'checklist',
     titleTH: 'ตั้งค่า Payroll Config', titleEN: 'Configure Payroll Settings',
     descTH: 'ตั้งค่าพารามิเตอร์การคำนวณเงินเดือน เช่น อัตราประกันสังคม วิธีคำนวณภาษี และประเภทรายได้-รายการหัก',
     descEN: 'Set up payroll calculation parameters including SSO rate, tax method, earning types, and deduction types.',
@@ -808,7 +772,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Payroll Config → Global Settings', 'Set SSO rate and salary cap', 'Add Earning Types used in your organization', 'Add Deduction Types used in your organization'],
   },
   {
-    id: 'gs-add-employees', category: 'getting-started', emoji: '👤', articleType: 'checklist',
+    id: 'gs-add-employees', category: 'getting-started', articleType: 'checklist',
     titleTH: 'เพิ่มพนักงาน', titleEN: 'Add Employees',
     descTH: 'เพิ่มข้อมูลพนักงานทุกคนในระบบ พร้อมกำหนดเงินเดือนพื้นฐานและข้อมูลที่เกี่ยวข้อง',
     descEN: 'Add all employees to the system with their base salary and related information.',
@@ -816,7 +780,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Employees → Employee List and click + Add', 'Fill in personal info and assign Department and Position', 'Go to Employees → Salaries and set the base salary', 'Add recurring Earnings/Deductions if applicable'],
   },
   {
-    id: 'gs-setup-attendance', category: 'getting-started', emoji: '🕐', articleType: 'checklist',
+    id: 'gs-setup-attendance', category: 'getting-started', articleType: 'checklist',
     titleTH: 'ตั้งค่าการเข้างาน', titleEN: 'Set Up Attendance',
     descTH: 'กำหนดเวลาทำงาน วันหยุด และกฎการคำนวณค่าล่วงเวลา เพื่อให้ระบบเข้างานทำงานได้ถูกต้อง',
     descEN: 'Configure work hours, holidays, and overtime rules so attendance calculations are accurate.',
@@ -824,7 +788,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Settings → Attendance Settings and set standard work hours', 'Add public holidays in Holiday Calendar', 'Set weekly off days in Day Off', 'Add leave types in Leave Types'],
   },
   {
-    id: 'gs-first-payroll', category: 'getting-started', emoji: '▶️', articleType: 'checklist',
+    id: 'gs-first-payroll', category: 'getting-started', articleType: 'checklist',
     titleTH: 'รันเงินเดือนครั้งแรก', titleEN: 'Run Your First Payroll',
     descTH: 'เมื่อตั้งค่าทุกอย่างเรียบร้อยแล้ว ทดลองรันเงินเดือนสำหรับรอบแรก',
     descEN: 'Once everything is configured, run payroll for the first cycle.',
@@ -834,7 +798,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
   // ─── TROUBLESHOOTING ─────────────────────────────────────────────────────────
   {
-    id: 'ts-cant-run-payroll', category: 'troubleshooting', emoji: '⚠️', articleType: 'troubleshooting',
+    id: 'ts-cant-run-payroll', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'รัน Payroll ไม่ได้', titleEN: 'Cannot Run Payroll',
     descTH: 'ไม่สามารถกดปุ่ม Calculate ใน Run Payroll ได้ หรือได้รับข้อความ error',
     descEN: 'Unable to click Calculate in Run Payroll, or receiving an error message.',
@@ -842,7 +806,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Verify you have selected a Payroll Cycle', 'Check that the Cycle status is still Open (not Closed)', 'Ensure all employees have a base salary set', 'Review Time Logs for completeness before calculating'],
   },
   {
-    id: 'ts-employee-missing', category: 'troubleshooting', emoji: '👻', articleType: 'troubleshooting',
+    id: 'ts-employee-missing', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'ไม่เห็นพนักงานในรายการ', titleEN: 'Employee Not Appearing in List',
     descTH: 'พนักงานที่เพิ่มไปแล้วไม่โชว์ในหน้า Employee List หรือตัวเลือกเลือกพนักงาน',
     descEN: 'A previously added employee does not appear in the Employee List or employee dropdowns.',
@@ -850,7 +814,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Verify the employee was added under the correct company', 'Check that table filters are not hiding the employee', 'Ensure Employee Company Access has been configured'],
   },
   {
-    id: 'ts-wrong-salary', category: 'troubleshooting', emoji: '💸', articleType: 'troubleshooting',
+    id: 'ts-wrong-salary', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'เงินเดือนคำนวณผิด', titleEN: 'Incorrect Salary Calculation',
     descTH: 'ยอดเงินเดือนสุทธิที่คำนวณออกมาไม่ตรงกับที่คาดไว้',
     descEN: 'The calculated net salary does not match the expected amount.',
@@ -858,7 +822,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Verify the base salary in Employees → Salaries', 'Review Employee Earnings and Employee Deductions on file', 'Check Cycle Earnings and Cycle Deductions for this cycle', 'Review SSO and tax settings in Payroll Config → Global Settings'],
   },
   {
-    id: 'ts-sso-not-deducted', category: 'troubleshooting', emoji: '🛡️', articleType: 'troubleshooting',
+    id: 'ts-sso-not-deducted', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'ไม่มีการหักประกันสังคม', titleEN: 'Social Security Not Being Deducted',
     descTH: 'ยอดประกันสังคมไม่ถูกหักในสลิปเงินเดือน',
     descEN: 'Social security deduction is missing from payslips.',
@@ -866,7 +830,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Payroll Config → Global Settings', 'Verify the SSO Rate is configured (typically 5%)', 'Check that the employee salary meets the minimum threshold'],
   },
   {
-    id: 'ts-payslip-empty', category: 'troubleshooting', emoji: '📄', articleType: 'troubleshooting',
+    id: 'ts-payslip-empty', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'สลิปเงินเดือนไม่มีข้อมูล', titleEN: 'Payslip Shows No Data',
     descTH: 'เข้าหน้า My Payslips แต่ไม่มีข้อมูลโชว์ หรือ Reports → Payslips ไม่มีข้อมูล',
     descEN: 'No data appears on My Payslips page or in Reports → Payslips.',
@@ -874,7 +838,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Verify the Payroll Cycle has been Calculated (not just created)', 'Make sure you have selected the correct cycle', 'Confirm the employee has transactions in that cycle'],
   },
   {
-    id: 'ts-leave-not-approved', category: 'troubleshooting', emoji: '📅', articleType: 'troubleshooting',
+    id: 'ts-leave-not-approved', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'คำขอลาไม่ผ่านการอนุมัติ', titleEN: 'Leave Request Not Getting Approved',
     descTH: 'ส่งคำขอลาแล้วแต่ไม่มีการอนุมัติ หรือไม่สามารถอนุมัติได้',
     descEN: 'Leave request was submitted but not being approved, or cannot be approved.',
@@ -882,7 +846,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Verify the approving user has access to Leave Approved page', 'Confirm the leave request is still in Pending status', 'Check that the selected Leave Type exists in the system'],
   },
   {
-    id: 'ts-timelog-overnight', category: 'troubleshooting', emoji: '🌙', articleType: 'troubleshooting',
+    id: 'ts-timelog-overnight', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'บันทึกเวลาออกงานข้ามวันไม่ถูกต้อง', titleEN: 'Overnight Shift Not Calculating Correctly',
     descTH: 'ต้องการบันทึกเวลาทำงานที่ออกงานหลังเที่ยงคืน แต่ระบบคำนวณผิด',
     descEN: 'Need to record a shift that ends after midnight but the system calculates incorrectly.',
@@ -890,7 +854,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['A check-out time earlier than check-in means an overnight shift', 'Example: In 22:00 / Out 06:00 — system automatically treats check-out as next morning', 'No need to enter a separate date for check-out'],
   },
   {
-    id: 'ts-cant-edit-leave', category: 'troubleshooting', emoji: '🔒', articleType: 'troubleshooting',
+    id: 'ts-cant-edit-leave', category: 'troubleshooting', articleType: 'troubleshooting',
     titleTH: 'แก้ไขคำขอลาไม่ได้', titleEN: 'Cannot Edit Leave Request',
     descTH: 'กดแก้ไขคำขอลาแล้วปุ่มไม่ทำงาน หรือไม่มีปุ่มแก้ไขให้กด',
     descEN: 'Edit button does not work or is missing on a leave request.',
@@ -900,70 +864,70 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
   // ─── FAQ ─────────────────────────────────────────────────────────────────────
   {
-    id: 'faq-change-salary-mid-cycle', category: 'faq', emoji: '💵', articleType: 'faq',
+    id: 'faq-change-salary-mid-cycle', category: 'faq', articleType: 'faq',
     titleTH: 'เปลี่ยนเงินเดือนกลางรอบได้ไหม', titleEN: 'Can I change salary mid-cycle?',
     descTH: 'เปลี่ยนได้ครับ ระบบจะใช้เงินเดือนตาม effective date ที่กำหนด หากต้องการให้มีผลในรอบปัจจุบัน ให้กำหนด effective date ภายในช่วงรอบนั้น แล้วรัน payroll ใหม่',
     descEN: 'Yes. The system uses the salary with the effective date that falls within the payroll cycle. Set the effective date within the current cycle period, then re-run payroll.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-employee-view-payslip', category: 'faq', emoji: '👁️', articleType: 'faq',
+    id: 'faq-employee-view-payslip', category: 'faq', articleType: 'faq',
     titleTH: 'พนักงานดู Payslip เองได้ไหม', titleEN: 'Can employees view their own payslips?',
     descTH: 'ได้ครับ พนักงานที่ login เข้าระบบสามารถดู Payslip ของตัวเองได้ที่เมนู My Payslips โดยจะเห็นเฉพาะข้อมูลของตัวเองเท่านั้น',
     descEN: 'Yes. Employees who log in can view their own payslips under the My Payslips menu. They can only see their own data.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-add-admin', category: 'faq', emoji: '🔑', articleType: 'faq',
+    id: 'faq-add-admin', category: 'faq', articleType: 'faq',
     titleTH: 'เพิ่ม Admin ใหม่ทำยังไง', titleEN: 'How do I add a new admin?',
     descTH: 'สร้างพนักงานใหม่ในระบบก่อน จากนั้นไปที่ Settings → Roles เพื่อสร้าง Role ที่มีสิทธิ์ที่ต้องการ แล้วไปที่ Employee Company Access เพื่อกำหนด Role ให้พนักงานคนนั้น',
     descEN: 'First create the employee record, then go to Settings → Roles to create a role with the required permissions, then go to Employee Company Access to assign that role to the employee.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-close-cycle-edit', category: 'faq', emoji: '🔄', articleType: 'faq',
+    id: 'faq-close-cycle-edit', category: 'faq', articleType: 'faq',
     titleTH: 'ปิด Payroll Cycle แล้วแก้ไขได้ไหม', titleEN: 'Can I edit a closed payroll cycle?',
     descTH: 'Cycle ที่ปิดแล้วไม่สามารถแก้ไขได้โดยตรง ถ้ามีข้อผิดพลาด ต้องติดต่อ System Admin เพื่อเปิด Cycle ใหม่ หรือปรับใน Cycle ถัดไปแทน',
     descEN: 'Closed cycles cannot be edited directly. If there is an error, contact your System Admin to reopen the cycle, or adjust it in the next payroll cycle instead.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-multi-company', category: 'faq', emoji: '🏢', articleType: 'faq',
+    id: 'faq-multi-company', category: 'faq', articleType: 'faq',
     titleTH: 'พนักงานทำงานหลายบริษัทได้ไหม', titleEN: 'Can an employee work across multiple companies?',
     descTH: 'ได้ครับ ใช้ Employee Company Access เพื่อกำหนดว่าพนักงานคนไหนเข้าถึงบริษัทใดบ้าง อย่างไรก็ตาม Payroll จะคำนวณตามบริษัทหลัก (companies_id) ของพนักงานเท่านั้น',
     descEN: 'Yes. Use Employee Company Access to define which companies an employee can access. However, payroll is always calculated based on the employee\'s home company (companies_id).',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-add-leave-type', category: 'faq', emoji: '📝', articleType: 'faq',
+    id: 'faq-add-leave-type', category: 'faq', articleType: 'faq',
     titleTH: 'เพิ่มประเภทการลาใหม่ได้ไหม', titleEN: 'Can I add custom leave types?',
     descTH: 'ได้ครับ ไปที่ Settings → Leave Types แล้วเพิ่มประเภทการลาที่ต้องการ สามารถกำหนดจำนวนวันสูงสุดต่อปีและว่าเป็นการลาแบบได้รับเงินหรือไม่ได้รับเงินได้',
     descEN: 'Yes. Go to Settings → Leave Types to add custom leave types. You can set maximum days per year and whether it is paid or unpaid leave.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-tax-report-when', category: 'faq', emoji: '📑', articleType: 'faq',
+    id: 'faq-tax-report-when', category: 'faq', articleType: 'faq',
     titleTH: 'ออกรายงานภาษีได้เมื่อไหร่', titleEN: 'When can I generate tax reports?',
     descTH: 'รายงานภาษีสามารถออกได้หลังจาก Run Payroll สำเร็จในแต่ละรอบ ไปที่ Reports → Tax Forms เพื่อออก ภ.ง.ด.1 หรือหนังสือรับรอง 50 ทวิ',
     descEN: 'Tax reports can be generated after payroll has been successfully calculated for a cycle. Go to Reports → Tax Forms to generate PND1 or 50 Tawi certificates.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-forgot-password', category: 'faq', emoji: '🔐', articleType: 'faq',
+    id: 'faq-forgot-password', category: 'faq', articleType: 'faq',
     titleTH: 'ลืมรหัสผ่านทำยังไง', titleEN: 'What if I forget my password?',
     descTH: 'ติดต่อ System Admin ขอให้รีเซ็ตรหัสผ่านให้ครับ ขณะนี้ระบบยังไม่รองรับการรีเซ็ตรหัสผ่านด้วยตัวเอง',
     descEN: 'Contact your System Admin to reset your password. Self-service password reset is not currently supported.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-ot-calculation', category: 'faq', emoji: '⏰', articleType: 'faq',
+    id: 'faq-ot-calculation', category: 'faq', articleType: 'faq',
     titleTH: 'OT คิดยังไง', titleEN: 'How is overtime calculated?',
     descTH: 'OT จะถูกคำนวณจาก Time Logs โดยอิงตามอัตราที่ตั้งไว้ใน Attendance Settings ชั่วโมงเกินเวลามาตรฐานจะถูกคิดในอัตรา OT ที่กำหนด ส่วนการทำงานวันหยุดจะใช้อัตรา Holiday Rate',
     descEN: 'OT is calculated from Time Logs based on rates configured in Attendance Settings. Hours beyond standard working time are multiplied by the OT rate. Work on holidays uses the Holiday Rate.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'faq-delete-employee', category: 'faq', emoji: '🗑️', articleType: 'faq',
+    id: 'faq-delete-employee', category: 'faq', articleType: 'faq',
     titleTH: 'ลบพนักงานออกจากระบบได้ไหม', titleEN: 'Can I delete an employee?',
     descTH: 'ระบบไม่แนะนำให้ลบพนักงานที่มีประวัติ Payroll อยู่ เพราะจะกระทบข้อมูลย้อนหลัง แนะนำให้ปล่อยไว้ในระบบโดยไม่ได้ใช้งาน หรือติดต่อ System Admin',
     descEN: 'Deleting employees with payroll history is not recommended as it affects historical data. It is better to leave them inactive in the system, or contact your System Admin.',
@@ -972,7 +936,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
   // ─── BUSINESS RULES ──────────────────────────────────────────────────────────
   {
-    id: 'br-sso', category: 'business-rules', emoji: '🛡️', articleType: 'business-rule',
+    id: 'br-sso', category: 'business-rules', articleType: 'business-rule',
     titleTH: 'ประกันสังคม (SSO)', titleEN: 'Social Security (SSO)',
     descTH: 'ประกันสังคมคิดจากเงินเดือนพื้นฐาน ในอัตรา 5% โดยมีเพดานเงินเดือนที่ 15,000 บาท/เดือน ดังนั้นยอดหักสูงสุดคือ 750 บาท/เดือน ทั้งลูกจ้างและนายจ้างจ่ายในอัตราเดียวกัน',
     descEN: 'Social security is calculated at 5% of base salary, capped at 15,000 THB/month. Maximum deduction is 750 THB/month. Both employee and employer contribute at the same rate.',
@@ -980,7 +944,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Rate: 5% of base salary', 'Salary cap for calculation: 15,000 THB/month', 'Maximum deduction: 750 THB/month', 'Employer matches same amount: 750 THB/month', 'Configure at Payroll Config → Global Settings'],
   },
   {
-    id: 'br-overtime', category: 'business-rules', emoji: '⏱️', articleType: 'business-rule',
+    id: 'br-overtime', category: 'business-rules', articleType: 'business-rule',
     titleTH: 'การคำนวณค่าล่วงเวลา (OT)', titleEN: 'Overtime Calculation',
     descTH: 'OT คิดจากชั่วโมงทำงานที่เกินเวลามาตรฐาน โดยอ้างอิงจาก Time Logs ระบบจะเปรียบเทียบเวลาเข้า-ออกจริงกับเวลามาตรฐานที่ตั้งไว้ใน Attendance Settings',
     descEN: 'OT is calculated from hours worked beyond the standard schedule, based on Time Logs. The system compares actual check-in/out times against the standard hours set in Attendance Settings.',
@@ -988,7 +952,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Standard hours: configured in Attendance Settings', 'Weekday OT: (salary ÷ working days ÷ hours) × OT rate × OT hours', 'Holiday OT: uses Holiday Rate instead of OT Rate', 'OT totals appear in Attendance → Earning Summary'],
   },
   {
-    id: 'br-tax', category: 'business-rules', emoji: '🧾', articleType: 'business-rule',
+    id: 'br-tax', category: 'business-rules', articleType: 'business-rule',
     titleTH: 'ภาษีหัก ณ ที่จ่าย', titleEN: 'Withholding Tax',
     descTH: 'ระบบคำนวณภาษีหัก ณ ที่จ่ายแบบสะสม (Cumulative Method) โดยคาดการณ์รายได้ทั้งปีแล้วคำนวณภาษีตามขั้นบันได จากนั้นหารเฉลี่ยออกมาเป็นรายเดือน',
     descEN: 'The system uses the cumulative method to calculate withholding tax. It projects annual income, applies progressive tax brackets, then divides into equal monthly deductions.',
@@ -996,7 +960,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Progressive rates: 0%, 5%, 10%, 15%, 20%, 25%, 30%, 35%', 'Personal allowance: 60,000 THB/year', 'Salary deduction: 50% of income, max 100,000 THB/year', 'Configure at Payroll Config → Global Settings'],
   },
   {
-    id: 'br-daily-rate', category: 'business-rules', emoji: '📆', articleType: 'business-rule',
+    id: 'br-daily-rate', category: 'business-rules', articleType: 'business-rule',
     titleTH: 'การคำนวณเงินเดือนรายวัน', titleEN: 'Daily Salary Calculation',
     descTH: 'สำหรับพนักงานที่เข้างานไม่ครบเดือน ระบบจะคำนวณเงินเดือนตามวันทำงานจริง โดยหารเงินเดือนพื้นฐานด้วยจำนวนวันทำงานในรอบนั้น',
     descEN: 'For employees who did not work the full month, salary is prorated based on actual days worked divided by total working days in the cycle.',
@@ -1004,7 +968,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Formula: Base salary ÷ working days in cycle × actual days worked', 'Working days = total days minus public holidays minus weekly off days', 'Calculated automatically from Attendance Settings and Holiday Calendar'],
   },
   {
-    id: 'br-leave-deduction', category: 'business-rules', emoji: '✂️', articleType: 'business-rule',
+    id: 'br-leave-deduction', category: 'business-rules', articleType: 'business-rule',
     titleTH: 'การหักเงินเมื่อลาไม่ได้รับเงิน', titleEN: 'Unpaid Leave Deduction',
     descTH: 'การลาแบบไม่ได้รับเงิน (Unpaid Leave) จะถูกหักจากเงินเดือนโดยอัตโนมัติ โดยคิดตามจำนวนวันลาและอัตราเงินเดือนรายวัน',
     descEN: 'Unpaid leave days are automatically deducted from the salary using the daily salary rate multiplied by the number of unpaid leave days.',
@@ -1014,105 +978,105 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
   // ─── GLOSSARY ────────────────────────────────────────────────────────────────
   {
-    id: 'gl-payroll-cycle', category: 'glossary', emoji: '🔄', articleType: 'glossary',
+    id: 'gl-payroll-cycle', category: 'glossary', articleType: 'glossary',
     titleTH: 'รอบเงินเดือน', titleEN: 'Payroll Cycle',
     descTH: 'ช่วงเวลาที่ใช้คำนวณเงินเดือน มักเป็นรายเดือน กำหนดโดยวันเริ่มต้นและวันสิ้นสุด เมื่อปิด Cycle แล้วจะไม่สามารถแก้ไขข้อมูลในรอบนั้นได้',
     descEN: 'The time period used to calculate payroll, typically monthly, defined by a start and end date. Once closed, data within it cannot be modified.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-pnd1', category: 'glossary', emoji: '📋', articleType: 'glossary',
+    id: 'gl-pnd1', category: 'glossary', articleType: 'glossary',
     titleTH: 'ภ.ง.ด.1', titleEN: 'PND1 (Withholding Tax Form)',
     descTH: 'แบบฟอร์มภาษีที่นายจ้างต้องยื่นต่อกรมสรรพากรทุกเดือน เพื่อรายงานภาษีหัก ณ ที่จ่ายของพนักงานแต่ละคน',
     descEN: 'Monthly tax form submitted to the Revenue Department by employers, reporting withholding tax deducted from each employee.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-50-tawi', category: 'glossary', emoji: '📜', articleType: 'glossary',
+    id: 'gl-50-tawi', category: 'glossary', articleType: 'glossary',
     titleTH: 'หนังสือรับรอง 50 ทวิ', titleEN: '50 Tawi Certificate',
     descTH: 'เอกสารที่นายจ้างออกให้พนักงานทุกสิ้นปี รับรองว่าได้หักภาษี ณ ที่จ่ายและนำส่งกรมสรรพากรแล้ว พนักงานใช้ยื่นภาษีประจำปี',
     descEN: 'Annual certificate issued by employers to employees, certifying that withholding tax has been deducted and remitted. Used for the annual personal income tax filing.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-net-pay', category: 'glossary', emoji: '💰', articleType: 'glossary',
+    id: 'gl-net-pay', category: 'glossary', articleType: 'glossary',
     titleTH: 'เงินเดือนสุทธิ (Net Pay)', titleEN: 'Net Pay',
     descTH: 'เงินที่พนักงานได้รับจริง คำนวณจากรายได้ทั้งหมด หักรายการหักทั้งหมด เช่น ประกันสังคม ภาษี และกองทุนสำรองเลี้ยงชีพ',
     descEN: 'The actual amount the employee receives: total earnings minus all deductions such as SSO, tax, and provident fund.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-gross-pay', category: 'glossary', emoji: '💵', articleType: 'glossary',
+    id: 'gl-gross-pay', category: 'glossary', articleType: 'glossary',
     titleTH: 'รายได้รวม (Gross Pay)', titleEN: 'Gross Pay',
     descTH: 'รายได้รวมทั้งหมดก่อนหักรายการใดๆ รวมทั้งเงินเดือนพื้นฐาน เบี้ยเลี้ยง โบนัส และค่าล่วงเวลา',
     descEN: 'Total income before any deductions, including base salary, allowances, bonuses, and overtime pay.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-provident-fund', category: 'glossary', emoji: '🏦', articleType: 'glossary',
+    id: 'gl-provident-fund', category: 'glossary', articleType: 'glossary',
     titleTH: 'กองทุนสำรองเลี้ยงชีพ (PVD)', titleEN: 'Provident Fund (PVD)',
     descTH: 'กองทุนที่พนักงานและนายจ้างสมทบเงินร่วมกัน เพื่อเป็นหลักประกันเมื่อออกจากงาน อัตราการสมทบกำหนดตามนโยบายบริษัท',
     descEN: 'A fund contributed jointly by employee and employer to provide financial security upon leaving the job. Contribution rate is defined by company policy.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-allowance', category: 'glossary', emoji: '➕', articleType: 'glossary',
+    id: 'gl-allowance', category: 'glossary', articleType: 'glossary',
     titleTH: 'เบี้ยเลี้ยง', titleEN: 'Allowance',
     descTH: 'รายได้เพิ่มเติมนอกเหนือจากเงินเดือนพื้นฐาน เช่น ค่าตำแหน่ง ค่าที่พัก ค่าอาหาร หรือค่าโทรศัพท์ กำหนดเป็นรายได้ประจำได้ใน Employee Earnings',
     descEN: 'Additional income beyond base salary, such as position allowance, housing, meal, or phone allowance. Can be set as a recurring earning in Employee Earnings.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-ytd', category: 'glossary', emoji: '📈', articleType: 'glossary',
+    id: 'gl-ytd', category: 'glossary', articleType: 'glossary',
     titleTH: 'รายได้สะสมตั้งแต่ต้นปี (YTD)', titleEN: 'Year-to-Date (YTD)',
     descTH: 'ยอดรวมสะสมนับตั้งแต่ต้นปีจนถึงปัจจุบัน ใช้ในการคำนวณภาษีแบบสะสม (Cumulative Method) เพื่อให้ภาษีที่หักแต่ละเดือนถูกต้อง',
     descEN: 'Cumulative total from the beginning of the year to the current date. Used in cumulative tax calculations to ensure accurate monthly withholding.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-withholding-tax', category: 'glossary', emoji: '🧾', articleType: 'glossary',
+    id: 'gl-withholding-tax', category: 'glossary', articleType: 'glossary',
     titleTH: 'ภาษีหัก ณ ที่จ่าย', titleEN: 'Withholding Tax',
     descTH: 'ภาษีเงินได้บุคคลธรรมดาที่นายจ้างหักจากเงินเดือนพนักงานทุกเดือน แล้วนำส่งกรมสรรพากรแทนพนักงาน คิดตามอัตราภาษีขั้นบันได',
     descEN: 'Personal income tax withheld from employee salary each month by the employer and remitted to the Revenue Department on the employee\'s behalf.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-payslip', category: 'glossary', emoji: '📄', articleType: 'glossary',
+    id: 'gl-payslip', category: 'glossary', articleType: 'glossary',
     titleTH: 'สลิปเงินเดือน', titleEN: 'Payslip',
     descTH: 'เอกสารสรุปรายละเอียดเงินเดือนของพนักงานในแต่ละรอบ แสดงรายได้ รายการหัก และเงินเดือนสุทธิ พนักงานดูได้ที่ My Payslips',
     descEN: 'Document summarizing an employee\'s salary details for each cycle, showing earnings, deductions, and net pay. Employees can view theirs under My Payslips.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-overtime', category: 'glossary', emoji: '⏰', articleType: 'glossary',
+    id: 'gl-overtime', category: 'glossary', articleType: 'glossary',
     titleTH: 'ค่าล่วงเวลา (OT)', titleEN: 'Overtime (OT)',
     descTH: 'ค่าตอบแทนสำหรับการทำงานเกินเวลามาตรฐาน คำนวณจากอัตราเงินเดือนรายชั่วโมงคูณด้วย OT Rate ที่กำหนดใน Attendance Settings',
     descEN: 'Compensation for hours worked beyond the standard schedule. Calculated from the hourly salary rate multiplied by the OT Rate set in Attendance Settings.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-probation', category: 'glossary', emoji: '🔍', articleType: 'glossary',
+    id: 'gl-probation', category: 'glossary', articleType: 'glossary',
     titleTH: 'ทดลองงาน (Probation)', titleEN: 'Probation',
     descTH: 'ช่วงเวลาทดลองงานสำหรับพนักงานใหม่ก่อนได้รับสถานะพนักงานประจำ สามารถกำหนดเป็นประเภทการจ้างงาน (Employment Type) ในระบบได้',
     descEN: 'Trial period for new employees before they receive permanent status. Can be defined as an Employment Type in the system.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-home-company', category: 'glossary', emoji: '🏠', articleType: 'glossary',
+    id: 'gl-home-company', category: 'glossary', articleType: 'glossary',
     titleTH: 'บริษัทหลัก (Home Company)', titleEN: 'Home Company',
     descTH: 'บริษัทที่เป็นเจ้าของพนักงานสำหรับการคำนวณ Payroll การเข้างาน เงินเดือน แผนก และตำแหน่ง กำหนดด้วย companies_id ของพนักงาน',
     descEN: 'The company that owns the employee record for payroll, attendance, salary, department, and position calculations. Defined by the employee\'s companies_id.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-attendance-settings', category: 'glossary', emoji: '⚙️', articleType: 'glossary',
+    id: 'gl-attendance-settings', category: 'glossary', articleType: 'glossary',
     titleTH: 'การตั้งค่าการเข้างาน', titleEN: 'Attendance Settings',
     descTH: 'การกำหนดเวลาทำงานมาตรฐาน อัตราค่าปรับมาสาย อัตราค่าล่วงเวลา และอัตราค่าทำงานวันหยุด ซึ่งเป็นพารามิเตอร์หลักในการคำนวณรายได้จากการเข้างาน',
     descEN: 'Configuration of standard work hours, late deduction rate, overtime rate, and holiday work rate — the main parameters for attendance-based pay calculations.',
     stepsTH: [], stepsEN: [],
   },
   {
-    id: 'gl-employee-company-access', category: 'glossary', emoji: '🔐', articleType: 'glossary',
+    id: 'gl-employee-company-access', category: 'glossary', articleType: 'glossary',
     titleTH: 'สิทธิ์เข้าถึงบริษัท', titleEN: 'Employee Company Access',
     descTH: 'การกำหนดว่าพนักงานคนไหนสามารถเข้าใช้งานระบบในนามบริษัทใดได้บ้าง และใช้ Role อะไรในบริษัทนั้น ไม่เกี่ยวกับ Payroll ownership',
     descEN: 'Defines which companies an employee can access in the system and what role they hold in each. This is application access only, not payroll ownership.',

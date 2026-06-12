@@ -115,8 +115,14 @@ export default function HelpPage() {
         </div>
       ) : selectedCategory === null ? (
         /* Category grid */
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-          {HELP_CATEGORIES.map((cat) => {
+        (() => {
+          const moduleCategories = HELP_CATEGORIES.filter(c =>
+            ['employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
+          )
+          const scenarioCategories = HELP_CATEGORIES.filter(c =>
+            !['employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
+          )
+          const renderCategoryCard = (cat) => {
             const count = HELP_ARTICLES.filter((a) => a.category === cat.id).length
             return (
               <div
@@ -135,8 +141,19 @@ export default function HelpPage() {
                 </div>
               </div>
             )
-          })}
-        </div>
+          }
+          return (
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                {moduleCategories.map(renderCategoryCard)}
+              </div>
+              <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', margin: '20px 0' }} />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                {scenarioCategories.map(renderCategoryCard)}
+              </div>
+            </div>
+          )
+        })()
       ) : (
         /* Module cards */
         <div>

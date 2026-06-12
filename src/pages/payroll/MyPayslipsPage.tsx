@@ -35,7 +35,8 @@ const MyPayslipsPage = () => {
         },
         {
             label: "Period",
-            sortable: false,
+            sortKey: "start_date",
+            sortValue: (row) => row.start_date || "",
             render: (row) => (
                 <span style={{ fontSize: "13px", color: "#64748b" }}>
                     {formatDate(row.start_date)} – {formatDate(row.end_date)}
@@ -109,7 +110,7 @@ const MyPayslipsPage = () => {
                         columns={columns}
                         data={slips}
                         onRowClick={(row) => setSelected(row)}
-                        defaultSort={{ key: "net_pay", order: "desc" }}
+                        defaultSort={{ key: "start_date", order: "desc" }}
                     />
                 )}
             </Card>

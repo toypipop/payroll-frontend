@@ -66,7 +66,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
         >
           <div>
             <div style={{ fontSize: '15px', fontWeight: 700 }}>
-              {article.emoji} {title}
+              {title}
             </div>
             <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
               {subtitle}
