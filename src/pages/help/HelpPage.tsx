@@ -117,10 +117,10 @@ export default function HelpPage() {
         /* Category grid */
         (() => {
           const moduleCategories = HELP_CATEGORIES.filter(c =>
-            ['employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
+            ['overview', 'employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
           )
           const scenarioCategories = HELP_CATEGORIES.filter(c =>
-            !['employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
+            !['overview', 'employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
           )
           const renderCategoryCard = (cat) => {
             const count = HELP_ARTICLES.filter((a) => a.category === cat.id).length

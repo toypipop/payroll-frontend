@@ -8,7 +8,7 @@ This agent manages **both** repos every session:
 |---|---|---|
 | Path | `payroll-frontend/` | `payroll-backend/` |
 | Stack | React 19 + Vite + TypeScript | Go (Fiber/Gin) + GORM + PostgreSQL |
-| Port | 5174 | 8001 (local) / 8000 (Docker) |
+| Port | 5174 | 8000 |
 
 **Before any task:** check whether changes are needed on both sides.
 **For routes, modules, auth, permissions, seed data, or API contracts:** read `../payroll-backend/CLAUDE.md` first.
@@ -17,7 +17,7 @@ This agent manages **both** repos every session:
 
 - API base: `/api/v1`; frontend calls `/api/v1`, Vite/nginx proxies `/api` → backend.
 - `.env` is local-only and gitignored; `.env.example` lists required keys only.
-- UAT: frontend `http://5.223.87.23:5174`, API `http://5.223.87.23:8001/api/v1`.
+- UAT: frontend `http://5.223.87.23:5174`, API `http://5.223.87.23:8000/api/v1`.
 - CORS default: `http://localhost:5174`; override with `CORS_ALLOWED_ORIGINS`.
 
 ## Auth

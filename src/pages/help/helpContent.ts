@@ -1,4 +1,5 @@
 export type HelpCategory =
+  | 'overview'
   | 'employees' | 'attendance' | 'payroll' | 'reports' | 'settings' | 'payroll-config'
   | 'getting-started' | 'troubleshooting' | 'faq' | 'business-rules' | 'glossary'
 
@@ -23,6 +24,7 @@ export type HelpCategoryMeta = {
 }
 
 export const HELP_CATEGORIES: HelpCategoryMeta[] = [
+  { id: 'overview', titleTH: 'หน้าหลัก', titleEN: 'Overview' },
   { id: 'employees', titleTH: 'พนักงาน', titleEN: 'Employees' },
   { id: 'attendance', titleTH: 'การเข้างาน', titleEN: 'Attendance' },
   { id: 'payroll', titleTH: 'เงินเดือน', titleEN: 'Payroll' },
@@ -37,6 +39,47 @@ export const HELP_CATEGORIES: HelpCategoryMeta[] = [
 ]
 
 export const HELP_ARTICLES: HelpArticle[] = [
+  // ─── OVERVIEW ────────────────────────────────────────────────────────────────
+  {
+    id: 'dashboard',
+    category: 'overview',
+    titleTH: 'Dashboard',
+    titleEN: 'Dashboard',
+    descTH: 'หน้าแรกของระบบแสดงภาพรวมข้อมูลสำคัญขององค์กร เช่น จำนวนพนักงาน สถานะรอบเงินเดือน และสรุปข้อมูลการเข้างานล่าสุด เพื่อให้ผู้ดูแลระบบเห็นภาพรวมได้ทันที',
+    descEN: 'The home screen gives you an at-a-glance view of key metrics — active employees, payroll cycle status, and recent attendance summaries — so admins can stay on top of the system at a glance.',
+    stepsTH: [
+      'เข้าสู่ระบบเพื่อเข้าหน้า Dashboard โดยอัตโนมัติ',
+      'ดูจำนวนพนักงานทั้งหมดและที่ active อยู่',
+      'ตรวจสอบสถานะรอบเงินเดือนปัจจุบัน (เปิด/ปิด)',
+      'คลิก card เพื่อ navigate ไปยังหน้านั้นโดยตรง',
+    ],
+    stepsEN: [
+      'Log in — Dashboard loads automatically as the home screen',
+      'View total and active employee counts',
+      'Check the current payroll cycle status (open / closed)',
+      'Click any summary card to navigate directly to that section',
+    ],
+  },
+  {
+    id: 'my-payslips',
+    category: 'overview',
+    titleTH: 'My Payslips',
+    titleEN: 'My Payslips',
+    descTH: 'หน้านี้ใช้สำหรับดูสลิปเงินเดือนของตัวเองทุกรอบที่ผ่านมา แสดงเฉพาะรอบที่ปิดแล้ว (Closed) เท่านั้น สามารถคลิกดูรายละเอียด รายได้ และรายการหักได้',
+    descEN: 'View your personal payslips for all closed payroll cycles. Click any row to see the full breakdown of earnings and deductions for that period.',
+    stepsTH: [
+      'ไปที่เมนู My Payslips ในแถบด้านซ้าย',
+      'รายการเรียงจากรอบล่าสุดไปเก่าสุด',
+      'คลิกแถวใดก็ได้เพื่อดูรายละเอียดสลิป',
+      'ตรวจสอบรายได้ รายการหัก SSO และภาษีในหน้าต่าง popup',
+    ],
+    stepsEN: [
+      'Go to My Payslips in the left sidebar',
+      'Payslips are sorted newest cycle first',
+      'Click any row to open the payslip detail',
+      'Review earnings, deductions, SSO, and tax in the popup',
+    ],
+  },
   // ─── EMPLOYEES ───────────────────────────────────────────────────────────────
   {
     id: 'employee-list',
