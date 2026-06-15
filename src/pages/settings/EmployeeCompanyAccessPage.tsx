@@ -59,13 +59,9 @@ const EmployeeCompanyAccessPage = () => {
     const selectedRoleId = watch("role_id");
 
     const filteredRoles = useMemo(() => {
-        if (!selectedCompanyId) return roles;
+        if (!selectedCompanyId) return [];
         return roles.filter((role) => String(role.companies_id) === String(selectedCompanyId));
     }, [roles, selectedCompanyId]);
-    const filteredEmployees = useMemo(() => {
-        if (!selectedCompanyId) return [];
-        return employees.filter((employee) => String(employee.companies_id) === String(selectedCompanyId));
-    }, [employees, selectedCompanyId]);
 
     const selectedEmployeeName = useMemo(() => {
         const employee = employees.find((item) => String(item.id) === String(selectedEmployeeId));
@@ -115,12 +111,11 @@ const EmployeeCompanyAccessPage = () => {
     }, []);
 
     useEffect(() => {
-        if (!selectedCompanyId) return;
         const selectedRoleStillValid = filteredRoles.some((role) => String(role.id) === String(selectedRoleId));
         if (!selectedRoleStillValid) {
             setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
         }
-    }, [filteredRoles, selectedCompanyId, selectedRoleId, setValue]);
+    }, [filteredRoles, selectedRoleId, setValue]);
 
     const onSubmit = async (data) => {
         try {
@@ -269,6 +264,19 @@ const EmployeeCompanyAccessPage = () => {
                 }
             >
                 <SelectField
+                    label="Employee"
+                    options={employees}
+                    {...register("employee_id")}
+                    value={watch("employee_id")}
+                    error={errors.employee_id?.message}
+                    onChange={(e) => {
+                        setValue("employee_id", e.target.value, { shouldValidate: true, shouldDirty: true });
+                        setValue("company_id", "", { shouldValidate: true, shouldDirty: true });
+                        setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
+                    }}
+                />
+
+                <SelectField
                     label="Company"
                     options={companies}
                     {...register("company_id")}
@@ -276,21 +284,9 @@ const EmployeeCompanyAccessPage = () => {
                     error={errors.company_id?.message}
                     onChange={(e) => {
                         setValue("company_id", e.target.value, { shouldValidate: true, shouldDirty: true });
-                        setValue("employee_id", "", { shouldValidate: true, shouldDirty: true });
                         setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
                     }}
-                />
-
-                <SelectField
-                    label="Employee"
-                    options={filteredEmployees}
-                    {...register("employee_id")}
-                    value={watch("employee_id")}
-                    error={errors.employee_id?.message}
-                    onChange={(e) => {
-                        setValue("employee_id", e.target.value, { shouldValidate: true, shouldDirty: true });
-                    }}
-                    disabled={!selectedCompanyId}
+                    disabled={!selectedEmployeeId}
                 />
 
                 <SelectField

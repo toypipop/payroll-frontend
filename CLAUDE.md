@@ -17,7 +17,6 @@ This agent manages **both** repos every session:
 
 - API base: `/api/v1`; frontend calls `/api/v1`, Vite/nginx proxies `/api` → backend.
 - `.env` is local-only and gitignored; `.env.example` lists required keys only.
-- UAT: frontend `http://5.223.87.23:5174`, API `http://5.223.87.23:8000/api/v1`.
 - CORS default: `http://localhost:5174`; override with `CORS_ALLOWED_ORIGINS`.
 
 ## Auth
@@ -37,7 +36,6 @@ This agent manages **both** repos every session:
 
 - Company options: `GET /companies/options` (not `/companies`).
 - Companies list: `GET /companies/all` (not `/companies`).
-- Payroll categories: `/master/earning-categories`, `/master/deduction-categories`.
 - Protected endpoints need `AuthMiddleware()` + `CheckPermission(...)`.
 
 ## Business Rules (Always Apply)
@@ -65,4 +63,5 @@ gofmt -w <files> && go vet ./...    # required after edits
 go test ./...                       # tests
 go run ./seed                       # reseed data
 docker compose -f docker-compose.local.yml up -d   # local Docker
+docker compose -f docker-compose.uat.yml up -d     # UAT Docker
 ```
