@@ -10,8 +10,7 @@ This agent manages **both** repos every session:
 | Stack | React 19 + Vite + TypeScript | Go (Fiber/Gin) + GORM + PostgreSQL |
 | Port | 5174 | 8000 |
 
-**Before any task:** check whether changes are needed on both sides.
-**For routes, modules, auth, permissions, seed data, or API contracts:** read `../payroll-backend/CLAUDE.md` first.
+**Before any task:** read `../payroll-backend/CLAUDE.md` first, then check whether changes are needed on both sides.
 
 ## Environment
 
