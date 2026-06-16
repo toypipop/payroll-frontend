@@ -17,18 +17,13 @@ const accessSchema = z.object({
     employee_id: z.string().min(1, "Please select an employee"),
     company_id: z.string().min(1, "Please select a company"),
     role_id: z.string().min(1, "Please select a role"),
-    is_default: z.boolean().default(false),
     is_active: z.boolean().default(true),
-}).refine((data) => !(data.is_default && !data.is_active), {
-    message: "Default access must be active",
-    path: ["is_default"],
 });
 
 const EMPTY_FORM = {
     employee_id: "",
     company_id: "",
     role_id: "",
-    is_default: false,
     is_active: true,
 };
 
@@ -123,7 +118,6 @@ const EmployeeCompanyAccessPage = () => {
                 employee_id: Number(data.employee_id),
                 company_id: Number(data.company_id),
                 role_id: Number(data.role_id),
-                is_default: data.is_default,
                 is_active: data.is_active,
             };
 
@@ -152,7 +146,6 @@ const EmployeeCompanyAccessPage = () => {
             employee_id: row.employee_id ? String(row.employee_id) : "",
             company_id: row.company_id ? String(row.company_id) : "",
             role_id: row.role_id ? String(row.role_id) : "",
-            is_default: !!row.is_default,
             is_active: row.is_active !== false,
         });
         setIsModalOpen(true);
@@ -196,12 +189,6 @@ const EmployeeCompanyAccessPage = () => {
             sortKey: "role.roles_name",
             searchableKeys: ["role.roles_name"],
             render: (row) => row.role?.roles_name || "-",
-        },
-        {
-            label: "Default",
-            sortKey: "is_default",
-            searchValue: (row) => row.is_default ? "Default" : "",
-            render: (row) => row.is_default ? <Badge status>Default</Badge> : "-",
         },
         {
             label: "Status",
@@ -314,20 +301,6 @@ const EmployeeCompanyAccessPage = () => {
                         {selectedEmployeeName}
                     </div>
                 )}
-
-                <Controller
-                    name="is_default"
-                    control={control}
-                    render={({ field }) => (
-                        <CheckboxField
-                            label="Default company after login"
-                            id="is_default"
-                            checked={field.value}
-                            onChange={(event) => field.onChange(event.target.checked)}
-                            error={errors.is_default?.message}
-                        />
-                    )}
-                />
 
                 <Controller
                     name="is_active"
