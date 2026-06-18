@@ -8,6 +8,8 @@ import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
 import Table from "../../components/common/Table";
 
+const ALL_OR_NOTHING_MODULES = new Set(["CompaniesPage", "MasterBankPage"]);
+
 const PermissionSettings = () => {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState(null);
@@ -49,6 +51,7 @@ const PermissionSettings = () => {
                 const access = res.data.access.find((a) => a.module_id === m.id);
                 return {
                     module_id: m.id,
+                    module_key: m.module_key,
                     module_name: m.module_name,
                     companies_name: role.companies?.name || "System",
                     can_view: Boolean(access?.can_view),
@@ -82,11 +85,15 @@ const PermissionSettings = () => {
         fetchRoles();
     }, [fetchRoles]);
 
-    const handleUpdateLocal = (index, field, value) => {
+    const handleUpdateLocal = (index, field, value?) => {
         if (index === undefined) return;
         setPermissions((prev) => {
             const newData = [...prev];
-            newData[index] = { ...newData[index], [field]: value };
+            if (typeof field === "object") {
+                newData[index] = { ...newData[index], ...field };
+            } else {
+                newData[index] = { ...newData[index], [field]: value };
+            }
             return newData;
         });
     };
@@ -238,45 +245,65 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             label: "View",
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
-            render: (item) => (
-                <CheckboxField
-                    checked={permissions[item._flatIdx]?.can_view || false}
-                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_view", e.target.checked)}
-                />
-            ),
+            render: (item) => {
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) {
+                    const allGranted = permissions[item._flatIdx]?.can_view && permissions[item._flatIdx]?.can_create && permissions[item._flatIdx]?.can_edit && permissions[item._flatIdx]?.can_delete;
+                    return (
+                        <CheckboxField
+                            checked={Boolean(allGranted)}
+                            onChange={(e) => handleUpdateLocal(item._flatIdx, { can_view: e.target.checked, can_create: e.target.checked, can_edit: e.target.checked, can_delete: e.target.checked })}
+                        />
+                    );
+                }
+                return (
+                    <CheckboxField
+                        checked={permissions[item._flatIdx]?.can_view || false}
+                        onChange={(e) => handleUpdateLocal(item._flatIdx, "can_view", e.target.checked)}
+                    />
+                );
+            },
         },
         {
             label: "Create",
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
-            render: (item) => (
-                <CheckboxField
-                    checked={permissions[item._flatIdx]?.can_create || false}
-                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_create", e.target.checked)}
-                />
-            ),
+            render: (item) => {
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return <span style={{ color: "#d1d5db" }}>—</span>;
+                return (
+                    <CheckboxField
+                        checked={permissions[item._flatIdx]?.can_create || false}
+                        onChange={(e) => handleUpdateLocal(item._flatIdx, "can_create", e.target.checked)}
+                    />
+                );
+            },
         },
         {
             label: "Edit",
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
-            render: (item) => (
-                <CheckboxField
-                    checked={permissions[item._flatIdx]?.can_edit || false}
-                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_edit", e.target.checked)}
-                />
-            ),
+            render: (item) => {
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return <span style={{ color: "#d1d5db" }}>—</span>;
+                return (
+                    <CheckboxField
+                        checked={permissions[item._flatIdx]?.can_edit || false}
+                        onChange={(e) => handleUpdateLocal(item._flatIdx, "can_edit", e.target.checked)}
+                    />
+                );
+            },
         },
         {
             label: "Delete",
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
-            render: (item) => (
-                <CheckboxField
-                    checked={permissions[item._flatIdx]?.can_delete || false}
-                    onChange={(e) => handleUpdateLocal(item._flatIdx, "can_delete", e.target.checked)}
-                />
-            ),
+            render: (item) => {
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return <span style={{ color: "#d1d5db" }}>—</span>;
+                return (
+                    <CheckboxField
+                        checked={permissions[item._flatIdx]?.can_delete || false}
+                        onChange={(e) => handleUpdateLocal(item._flatIdx, "can_delete", e.target.checked)}
+                    />
+                );
+            },
         },
         {
             label: "Data Scope",
