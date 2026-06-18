@@ -13,6 +13,9 @@ import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 const schema = z.object({
     companies_id: z.string().optional(),
     weekday: z.string().min(1, "Weekday is required"),
@@ -41,7 +44,7 @@ const DayOffPage = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { companies_id: "", weekday: "", name: "", is_paid: true },
+        defaultValues: { companies_id: homeCompanyId, weekday: "", name: "", is_paid: true },
     });
 
     const fetchData = async () => {
@@ -96,7 +99,7 @@ const DayOffPage = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ companies_id: "", weekday: "", name: "", is_paid: true });
+        reset({ companies_id: homeCompanyId, weekday: "", name: "", is_paid: true });
     };
 
     const handleDelete = async (id) => {
@@ -138,7 +141,7 @@ const DayOffPage = () => {
             <PageHeader
                 title="Day Off"
                 actionButton={
-                    <Button onClick={() => { setEditingId(null); reset({ companies_id: "", weekday: "", name: "", is_paid: true }); setIsModalOpen(true); }} style={{ width: "auto" }}>
+                    <Button onClick={() => { setEditingId(null); reset({ companies_id: homeCompanyId, weekday: "", name: "", is_paid: true }); setIsModalOpen(true); }} style={{ width: "auto" }}>
                         + Add Day Off
                     </Button>
                 }

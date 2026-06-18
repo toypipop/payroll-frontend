@@ -16,6 +16,9 @@ import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
 import HelpIcon from "../../components/common/HelpIcon";
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 // Validation schema for employee
 const createEmployeesSchema = (isEditing, requireCompany) => z.object({
     employees_code: z.string().min(2, "Employees code is required"),
@@ -47,7 +50,7 @@ const EMPTY_EMPLOYEE_FORM = {
     pos_id: "",
     roles_id: "",
     employment_type_id: "",
-    companies_id: "",
+    companies_id: homeCompanyId,
     is_active: true,
     password: "",
     bank_id: "",
@@ -376,7 +379,16 @@ const EmployeesListPage = () => {
                     </>
                 }
             >
-                {/* 5. Inputs using register (English Comment) */}
+                {/* Companies — shown only for super-admin; drives cascade filter */}
+                {masterCompanies.length > 0 && (
+                    <SelectField
+                        label="Companies"
+                        options={masterCompanies}
+                        {...register("companies_id")}
+                        value={watch("companies_id")}
+                        error={errors.companies_id?.message}
+                    />
+                )}
 
                 <InputField
                     label="Employees Code"
@@ -414,16 +426,6 @@ const EmployeesListPage = () => {
                             : "Required (min 6 chars)"
                     }
                 />
-                {/* Companies — shown only for super-admin; drives cascade filter */}
-                {masterCompanies.length > 0 && (
-                    <SelectField
-                        label="Companies"
-                        options={masterCompanies}
-                        {...register("companies_id")}
-                        value={watch("companies_id")}
-                        error={errors.companies_id?.message}
-                    />
-                )}
                 <SelectField
                     label="Department"
                     options={filteredDepts}

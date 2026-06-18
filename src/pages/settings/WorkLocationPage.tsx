@@ -8,29 +8,41 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
+import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
 const schema = z.object({
+    companies_id: z.string().min(1, "Company is required"),
     name: z.string().min(1, "Location name is required"),
 });
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
+const emptyForm = { companies_id: homeCompanyId, name: "" };
+
 const WorkLocationPage = () => {
     const [items, setItems] = useState([]);
+    const [companyOptions, setCompanyOptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { name: "" },
+        defaultValues: emptyForm,
     });
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await api.get("/master/work-locations");
+            const [res, companiesRes] = await Promise.all([
+                api.get("/master/work-locations"),
+                api.get("/companies/options"),
+            ]);
             setItems(res.data || []);
+            setCompanyOptions((companiesRes.data || []).map((c) => ({ id: c.id, name: c.name })));
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -42,10 +54,11 @@ const WorkLocationPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            const payload = { ...data, companies_id: Number(data.companies_id) };
             if (editingId) {
-                await api.put(`/master/work-locations/${editingId}`, data);
+                await api.put(`/master/work-locations/${editingId}`, payload);
             } else {
-                await api.post("/master/work-locations", data);
+                await api.post("/master/work-locations", payload);
             }
             fetchData();
             closeModal();
@@ -56,14 +69,17 @@ const WorkLocationPage = () => {
 
     const handleEdit = (item) => {
         setEditingId(item.id);
-        reset({ name: item.name });
+        reset({
+            companies_id: item.companies_id ? String(item.companies_id) : "",
+            name: item.name,
+        });
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ name: "" });
+        reset(emptyForm);
     };
 
     const handleDelete = async (id) => {
@@ -97,7 +113,7 @@ const WorkLocationPage = () => {
             <PageHeader
                 title="Work Locations"
                 actionButton={
-                    <Button onClick={() => { setEditingId(null); reset({ name: "" }); setIsModalOpen(true); }} style={{ width: "auto" }}>
+                    <Button onClick={() => { setEditingId(null); reset(emptyForm); setIsModalOpen(true); }} style={{ width: "auto" }}>
                         + Add Location
                     </Button>
                 }
@@ -117,6 +133,12 @@ const WorkLocationPage = () => {
                     </>
                 }
             >
+                <SelectField
+                    label="Company"
+                    options={companyOptions}
+                    {...register("companies_id")}
+                    error={errors.companies_id?.message}
+                />
                 <InputField label="Location Name (e.g. Office, WFH)" {...register("name")} error={errors.name?.message} />
             </Modal>
         </>

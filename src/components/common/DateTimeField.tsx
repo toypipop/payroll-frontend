@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import type { ChangeEvent, CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -125,17 +125,22 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
         }
     };
 
-    const timeValue = useMemo(() => {
-        if (!value) return "00:00";
+    const { timeHour, timeMinute } = useMemo(() => {
+        if (!value) return { timeHour: 0, timeMinute: 0 };
         const d = new Date(value);
-        if (isNaN(d.getTime())) return "00:00";
-        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        if (isNaN(d.getTime())) return { timeHour: 0, timeMinute: 0 };
+        return { timeHour: d.getHours(), timeMinute: Math.floor(d.getMinutes() / 5) * 5 };
     }, [value]);
 
-    const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const [hours, minutes] = e.target.value.split(":");
+    const handleHourChange = (h: string | number) => {
         const base = value && !isNaN(new Date(value).getTime()) ? new Date(value) : new Date();
-        base.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+        base.setHours(Number(h), timeMinute, 0, 0);
+        onChange?.(toLocalISO(base));
+    };
+
+    const handleMinuteChange = (m: string | number) => {
+        const base = value && !isNaN(new Date(value).getTime()) ? new Date(value) : new Date();
+        base.setHours(timeHour, Number(m), 0, 0);
         onChange?.(toLocalISO(base));
     };
 
@@ -192,11 +197,16 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                         
                         <div className="time-row">
                             <span className="time-label">Time:</span>
-                            <input
-                                type="time"
-                                value={timeValue}
-                                onChange={handleTimeChange}
-                                className="header-time-input"
+                            <CalendarSelect
+                                value={timeHour}
+                                options={Array.from({ length: 24 }, (_, h) => ({ value: h, label: String(h).padStart(2, "0") }))}
+                                onChange={handleHourChange}
+                            />
+                            <span style={{ color: "#94a3b8", fontWeight: "600" }}>:</span>
+                            <CalendarSelect
+                                value={timeMinute}
+                                options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: String(i * 5).padStart(2, "0") }))}
+                                onChange={handleMinuteChange}
                             />
                         </div>
                     </div>

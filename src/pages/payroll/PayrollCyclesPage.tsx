@@ -16,6 +16,9 @@ import SelectField from "../../components/common/SelectField";
 import Badge from "../../components/common/Badge";
 import HelpIcon from "../../components/common/HelpIcon";
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 const cycleSchema = z.object({
     cycle_name: z.string().min(1, "Cycle name is required"),
     start_date: z.string().min(1, "Start date is required"),
@@ -38,6 +41,7 @@ const PayrollCyclesPage = () => {
 
     const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
         resolver: zodResolver(cycleSchema),
+        defaultValues: { companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" },
     });
 
     const fetchCycles = async () => {
@@ -93,7 +97,7 @@ const PayrollCyclesPage = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        reset();
+        reset({ companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" });
     };
 
     const columns = [

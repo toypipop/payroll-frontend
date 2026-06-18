@@ -12,6 +12,9 @@ import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 // Department schema definition
 const departmentSchema = z.object({
     dept_name: z.string().min(1, "Department name is required"),
@@ -32,7 +35,7 @@ const DepartmentSettings = () => {
         formState: { errors },
     } = useForm({
         resolver: zodResolver(departmentSchema),
-        defaultValues: { dept_name: "", companies_id: "" },
+        defaultValues: { dept_name: "", companies_id: homeCompanyId },
     });
 
     const fetchData = async () => {
@@ -82,7 +85,7 @@ const DepartmentSettings = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ dept_name: "", companies_id: "" });
+        reset({ dept_name: "", companies_id: homeCompanyId });
     };
 
     const handleDelete = async (id) => {
@@ -128,7 +131,7 @@ const DepartmentSettings = () => {
                     <Button
                         onClick={() => {
                             setEditingId(null);
-                            reset({ dept_name: "", companies_id: "" });
+                            reset({ dept_name: "", companies_id: homeCompanyId });
                             setIsModalOpen(true);
                         }}
                         style={{ width: "auto" }}
@@ -162,7 +165,6 @@ const DepartmentSettings = () => {
                     </>
                 }
             >
-                // Form fields with SelectField
                 <SelectField
                     label="Companies"
                     {...register("companies_id")}

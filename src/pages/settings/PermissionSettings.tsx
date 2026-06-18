@@ -268,7 +268,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return <span style={{ color: "#d1d5db" }}>—</span>;
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_create || false}
@@ -282,7 +282,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return <span style={{ color: "#d1d5db" }}>—</span>;
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_edit || false}
@@ -296,7 +296,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return <span style={{ color: "#d1d5db" }}>—</span>;
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_delete || false}

@@ -12,6 +12,9 @@ import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 const positionSchema = z.object({
     pos_name: z.string().min(1, "Position name is required"),
     companies_id: z.coerce.number().min(1, "Please select a companies"),
@@ -31,7 +34,7 @@ const PositionSettings = () => {
         formState: { errors },
     } = useForm({
         resolver: zodResolver(positionSchema),
-        defaultValues: { pos_name: "", companies_id: "" },
+        defaultValues: { pos_name: "", companies_id: homeCompanyId },
     });
 
     const fetchData = async () => {
@@ -80,7 +83,7 @@ const PositionSettings = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ pos_name: "", companies_id: "" });
+        reset({ pos_name: "", companies_id: homeCompanyId });
     };
 
     const handleDelete = async (id) => {
@@ -129,7 +132,7 @@ const PositionSettings = () => {
                     <Button
                         onClick={() => {
                             setEditingId(null);
-                            reset({ pos_name: "", companies_id: "" });
+                            reset({ pos_name: "", companies_id: homeCompanyId });
                             setIsModalOpen(true);
                         }}
                         style={{ width: "auto" }}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -8,32 +8,45 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
+import DateField from "../../components/common/DateField";
 import CheckboxField from "../../components/common/CheckboxField";
+import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 
 const schema = z.object({
+    companies_id: z.string().min(1, "Company is required"),
     date: z.string().min(1, "Date is required"),
     name: z.string().min(1, "Holiday name is required"),
     is_paid: z.boolean().default(true),
 });
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
+const emptyForm = { companies_id: homeCompanyId, date: "", name: "", is_paid: true };
+
 const HolidayCalendarPage = () => {
     const [items, setItems] = useState([]);
+    const [companyOptions, setCompanyOptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { date: "", name: "", is_paid: true },
+        defaultValues: emptyForm,
     });
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const res = await api.get("/master/holidays");
+            const [res, companiesRes] = await Promise.all([
+                api.get("/master/holidays"),
+                api.get("/companies/options"),
+            ]);
             setItems(res.data || []);
+            setCompanyOptions((companiesRes.data || []).map((c) => ({ id: c.id, name: c.name })));
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -45,10 +58,11 @@ const HolidayCalendarPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            const payload = { ...data, companies_id: Number(data.companies_id) };
             if (editingId) {
-                await api.put(`/master/holidays/${editingId}`, data);
+                await api.put(`/master/holidays/${editingId}`, payload);
             } else {
-                await api.post("/master/holidays", data);
+                await api.post("/master/holidays", payload);
             }
             fetchData();
             closeModal();
@@ -59,15 +73,19 @@ const HolidayCalendarPage = () => {
 
     const handleEdit = (item) => {
         setEditingId(item.id);
-        const dateStr = item.date ? item.date.substring(0, 10) : "";
-        reset({ date: dateStr, name: item.name, is_paid: item.is_paid });
+        reset({
+            companies_id: item.companies_id ? String(item.companies_id) : "",
+            date: item.date ? item.date.substring(0, 10) : "",
+            name: item.name,
+            is_paid: item.is_paid,
+        });
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ date: "", name: "", is_paid: true });
+        reset(emptyForm);
     };
 
     const handleDelete = async (id) => {
@@ -107,7 +125,7 @@ const HolidayCalendarPage = () => {
             <PageHeader
                 title="Holiday Calendar"
                 actionButton={
-                    <Button onClick={() => { setEditingId(null); reset({ date: "", name: "", is_paid: true }); setIsModalOpen(true); }} style={{ width: "auto" }}>
+                    <Button onClick={() => { setEditingId(null); reset(emptyForm); setIsModalOpen(true); }} style={{ width: "auto" }}>
                         + Add Holiday
                     </Button>
                 }
@@ -127,7 +145,26 @@ const HolidayCalendarPage = () => {
                     </>
                 }
             >
-                <InputField label="Date" type="date" {...register("date")} error={errors.date?.message} />
+                <SelectField
+                    label="Company"
+                    options={companyOptions}
+                    {...register("companies_id")}
+                    error={errors.companies_id?.message}
+                />
+                <Controller
+                    name="date"
+                    control={control}
+                    render={({ field }) => (
+                        <DateField
+                            name={field.name}
+                            label="Date"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            error={errors.date?.message}
+                        />
+                    )}
+                />
                 <InputField label="Holiday Name" {...register("name")} error={errors.name?.message} />
                 <CheckboxField label="Paid Holiday" {...register("is_paid")} />
             </Modal>
