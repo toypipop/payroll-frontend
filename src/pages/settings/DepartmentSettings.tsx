@@ -19,11 +19,14 @@ const homeCompanyId = String(userData.companies_id || "");
 const departmentSchema = z.object({
     dept_name: z.string().min(1, "Department name is required"),
     companies_id: z.coerce.number().min(1, "Please select a companies"),
+    category_id: z.string().min(1, "Please select a category"),
 });
 
 const DepartmentSettings = () => {
     const [departments, setDepartments] = useState([]);
     const [companies, setCompanies] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [newCategoryName, setNewCategoryName] = useState("");
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -32,21 +35,26 @@ const DepartmentSettings = () => {
         register,
         handleSubmit,
         reset,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(departmentSchema),
-        defaultValues: { dept_name: "", companies_id: homeCompanyId },
+        defaultValues: { dept_name: "", companies_id: homeCompanyId, category_id: "" },
     });
+
+    const watchedCategoryId = watch("category_id");
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [deptRes, compRes] = await Promise.all([
+            const [deptRes, compRes, catRes] = await Promise.all([
                 api.get("/departments"),
                 api.get("/companies/options"),
+                api.get("/department-categories"),
             ]);
             setDepartments(deptRes.data || []);
             setCompanies(compRes.data || []);
+            setCategories(catRes.data || []);
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -60,10 +68,22 @@ const DepartmentSettings = () => {
 
     const onSubmit = async (data) => {
         try {
+            let categoryId = data.category_id;
+            if (categoryId === "__new__") {
+                if (!newCategoryName.trim()) {
+                    alert("Please enter a name for the new category");
+                    return;
+                }
+                const catRes = await api.post("/department-categories", { name: newCategoryName.trim() });
+                categoryId = String(catRes.data.id);
+                setCategories((prev) => [...prev, catRes.data]);
+            }
+
+            const payload = { ...data, category_id: Number(categoryId) };
             if (editingId) {
-                await api.put(`/departments/${editingId}`, data);
+                await api.put(`/departments/${editingId}`, payload);
             } else {
-                await api.post("/departments", data);
+                await api.post("/departments", payload);
             }
             fetchData();
             closeModal();
@@ -78,14 +98,17 @@ const DepartmentSettings = () => {
         reset({
             dept_name: item.dept_name,
             companies_id: item.companies_id,
+            category_id: String(item.category_id || ""),
         });
+        setNewCategoryName("");
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingId(null);
-        reset({ dept_name: "", companies_id: homeCompanyId });
+        setNewCategoryName("");
+        reset({ dept_name: "", companies_id: homeCompanyId, category_id: "" });
     };
 
     const handleDelete = async (id) => {
@@ -104,9 +127,13 @@ const DepartmentSettings = () => {
     // Table columns configuration
     const columns = [
         { label: "Department Name", key: "dept_name" },
-        { 
-            label: "Companies", 
-            render: (row) => row.companies?.name || "N/A" 
+        {
+            label: "Companies",
+            render: (row) => row.companies?.name || "N/A"
+        },
+        {
+            label: "Category",
+            render: (row) => row.category?.name || "N/A"
         },
         {
             label: "Actions",
@@ -131,7 +158,8 @@ const DepartmentSettings = () => {
                     <Button
                         onClick={() => {
                             setEditingId(null);
-                            reset({ dept_name: "", companies_id: homeCompanyId });
+                            setNewCategoryName("");
+                            reset({ dept_name: "", companies_id: homeCompanyId, category_id: "" });
                             setIsModalOpen(true);
                         }}
                         style={{ width: "auto" }}
@@ -181,6 +209,24 @@ const DepartmentSettings = () => {
                     {...register("dept_name")}
                     error={errors.dept_name?.message}
                 />
+
+                <SelectField
+                    label="Category"
+                    {...register("category_id")}
+                    error={errors.category_id?.message}
+                    options={[
+                        ...categories.map((cat) => ({ id: cat.id, name: cat.name })),
+                        { id: "__new__", name: "+ Add New Category" },
+                    ]}
+                />
+
+                {watchedCategoryId === "__new__" && (
+                    <InputField
+                        label="New Category Name"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                    />
+                )}
             </Modal>
         </>
     );
