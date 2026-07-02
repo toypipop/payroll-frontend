@@ -21,7 +21,6 @@ const PermissionSettings = () => {
         { id: "Own", name: "Own Data Only" },
         { id: "Department", name: "Department Scope" },
         { id: "Companies", name: "Full Companies" },
-        { id: "All", name: "Full Organization" },
     ], []);
 
     // Fetch module tree once — same source as the Sidebar
@@ -58,7 +57,7 @@ const PermissionSettings = () => {
                     can_create: Boolean(access?.can_create),
                     can_edit: Boolean(access?.can_edit),
                     can_delete: Boolean(access?.can_delete),
-                    data_scope: access?.data_scope || "Own",
+                    data_scope: ALL_OR_NOTHING_MODULES.has(m.module_key) ? "Companies" : (access?.data_scope || "Own"),
                 };
             });
             setPermissions(matrixData);
@@ -308,14 +307,17 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
         {
             label: "Data Scope",
             headerStyle: { width: "32%" },
-            render: (item) => (
-                <SelectField
-                    options={dataScopeOptions}
-                    value={permissions[item._flatIdx]?.data_scope || "Own"}
-                    onChange={(e) => handleUpdateLocal(item._flatIdx, "data_scope", e.target.value)}
-                    style={{ marginBottom: 0 }}
-                />
-            ),
+            render: (item) => {
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
+                return (
+                    <SelectField
+                        options={dataScopeOptions}
+                        value={permissions[item._flatIdx]?.data_scope || "Own"}
+                        onChange={(e) => handleUpdateLocal(item._flatIdx, "data_scope", e.target.value)}
+                        style={{ marginBottom: 0 }}
+                    />
+                );
+            },
         },
     ];
 
