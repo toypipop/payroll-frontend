@@ -25,9 +25,15 @@ const LeaveApprovedPage = () => {
         fetchPending();
     }, []);
 
-    const handleAction = async (id, newStatus) => {
-        const confirmMsg = `Are you sure you want to ${newStatus.toLowerCase()} this request?`;
+    const handleAction = async (row, newStatus) => {
+        let confirmMsg = `Are you sure you want to ${newStatus.toLowerCase()} this request?`;
+        if (newStatus === "Approved" && row.quota_exceeded) {
+            confirmMsg = `⚠ This employee will exceed the yearly quota for ${row.leave_type} `
+                + `(used ${row.quota_used_days} of ${row.quota_max_days} days, requesting ${row.total_days} more).\n\n`
+                + `Approve anyway?`;
+        }
         if (!window.confirm(confirmMsg)) return;
+        const id = row.id;
 
         try {
             const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -85,9 +91,21 @@ const LeaveApprovedPage = () => {
         },
         {
             label: "Days",
-            key: "total_days",
             sortKey: "total_days",
             sortValue: (row) => Number(row.total_days) || 0,
+            render: (row) => (
+                <div style={{ whiteSpace: "nowrap" }}>
+                    {row.total_days}
+                    {row.quota_exceeded && (
+                        <div
+                            style={{ fontSize: "11px", color: "#dc2626", fontWeight: "600" }}
+                            title={`Used ${row.quota_used_days} of ${row.quota_max_days} days this year`}
+                        >
+                            ⚠ Over quota ({row.quota_used_days}/{row.quota_max_days})
+                        </div>
+                    )}
+                </div>
+            ),
         },
         {
             label: "Reason",
@@ -115,14 +133,14 @@ const LeaveApprovedPage = () => {
             render: (row) => (
                 <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>
                     <Button
-                        onClick={() => handleAction(row.id, "Approved")}
+                        onClick={() => handleAction(row, "Approved")}
                         style={{ ...actionBtn, backgroundColor: "#10b981", color: "#fff" }}
                     >
                         Approve
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleAction(row.id, "Rejected")}
+                        onClick={() => handleAction(row, "Rejected")}
                         style={actionBtn}
                     >
                         Reject
