@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -89,6 +90,7 @@ const TimelogsListPage = () => {
     const [masterWorkLocations, setMasterWorkLocations] = useState([]);
     const [employeeData, setEmployeeData] = useState({});
     const [attendanceConfigs, setAttendanceConfigs] = useState({});
+    const [canManageAttendanceSettings, setCanManageAttendanceSettings] = useState(false);
 
     // Initialize form with hook form
     const {
@@ -128,11 +130,12 @@ const TimelogsListPage = () => {
         const fetchMasterData = async () => {
             try {
                 // Fetch employees to show in dropdown
-                const [empRes, locRes, attConfigRes, companyRes] = await Promise.all([
+                const [empRes, locRes, schedRes, companyRes, modulesRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/work-locations").catch(() => ({ data: [] })),
-                    api.get("/attendance/config").catch(() => ({ data: [] })),
+                    api.get("/timelogs/schedule-config").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
+                    api.get("/modules").catch(() => ({ data: [] })),
                 ]);
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
@@ -156,13 +159,22 @@ const TimelogsListPage = () => {
                 })));
 
                 const configMap = {};
-                (attConfigRes.data || []).forEach((c) => {
-                    const compId = c.id || c.companies_id;
-                    if (compId) {
-                        configMap[compId] = c.attendance_config || null;
+                (schedRes.data || []).forEach((c) => {
+                    if (c.companies_id) {
+                        configMap[c.companies_id] = c;
                     }
                 });
                 setAttendanceConfigs(configMap);
+
+                const moduleKeys = [];
+                const collectKeys = (items) => {
+                    (items || []).forEach((m) => {
+                        if (m.module_key) moduleKeys.push(m.module_key);
+                        if (m.children) collectKeys(m.children);
+                    });
+                };
+                collectKeys(modulesRes.data);
+                setCanManageAttendanceSettings(moduleKeys.includes("AttendanceSettingsPage"));
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }
@@ -173,6 +185,11 @@ const TimelogsListPage = () => {
 
     // Submit handler with time conversion
     const onSubmit = async (data) => {
+        const cfg = data.companies_id ? attendanceConfigs[data.companies_id] : null;
+        if (!(cfg && cfg.is_configured)) {
+            alert("This company has no Attendance Config. Please set it up before saving.");
+            return;
+        }
         try {
             const payload = {
                 ...data,
@@ -236,17 +253,27 @@ const TimelogsListPage = () => {
         : null);
     
     const filteredWorkLocations = selectedEmployeeCompaniesId
-        ? masterWorkLocations.filter((loc) => 
+        ? masterWorkLocations.filter((loc) =>
             !loc.companies_id || String(loc.companies_id) === String(selectedEmployeeCompaniesId)
         )
         : masterWorkLocations;
 
+    const selectedCompanyConfig = selectedCompanyId ? attendanceConfigs[selectedCompanyId] : null;
+    const showNoConfigWarning = !!selectedCompanyId && !(selectedCompanyConfig && selectedCompanyConfig.is_configured);
+
+    // Returns the configured schedule for a company, or null when that company
+    // has no attendance config (so callers skip auto-filling times).
+    const getScheduleConfig = (companiesId) => {
+        const cfg = companiesId ? attendanceConfigs[companiesId] : null;
+        return cfg && cfg.is_configured ? cfg : null;
+    };
+
     const getScheduleDurationMinutes = (empId) => {
         const emp = employeeData[empId];
-        const companiesId = emp?.companies_id;
-        const config = companiesId ? attendanceConfigs[companiesId] : null;
-        const { hour: startHour, min: startMin } = parseTimeFromConfig(config?.work_start_time, 9, 0);
-        const { hour: endHour, min: endMin } = parseTimeFromConfig(config?.work_end_time, 18, 0);
+        const config = getScheduleConfig(emp?.companies_id);
+        if (!config) return null;
+        const { hour: startHour, min: startMin } = parseTimeFromConfig(config.work_start_time, 9, 0);
+        const { hour: endHour, min: endMin } = parseTimeFromConfig(config.work_end_time, 18, 0);
         const startMinutes = minutesFromTime({ hour: startHour, min: startMin });
         const endMinutes = minutesFromTime({ hour: endHour, min: endMin });
         return endMinutes > startMinutes
@@ -257,11 +284,14 @@ const TimelogsListPage = () => {
     const setCheckOutFromCheckIn = (checkInValue, empId = selectedEmployeeId) => {
         if (!checkInValue || !empId) return;
 
+        const duration = getScheduleDurationMinutes(empId);
+        if (duration == null) return; // no config → leave check-out as-is
+
         const checkInDate = new Date(checkInValue);
         if (Number.isNaN(checkInDate.getTime())) return;
 
         const checkOutDate = new Date(checkInDate);
-        checkOutDate.setMinutes(checkOutDate.getMinutes() + getScheduleDurationMinutes(empId));
+        checkOutDate.setMinutes(checkOutDate.getMinutes() + duration);
         setValue("check_out", toLocalDateTimeValue(checkOutDate), { shouldValidate: true, shouldDirty: true });
     };
 
@@ -273,8 +303,14 @@ const TimelogsListPage = () => {
         }
 
         const emp = employeeData[empId];
-        const companiesId = emp?.companies_id;
-        const config = companiesId ? attendanceConfigs[companiesId] : null;
+        const config = getScheduleConfig(emp?.companies_id);
+        if (!config) {
+            // Company has no attendance config → don't prefill times
+            setValue("check_in", "");
+            setValue("check_out", "");
+            return;
+        }
+
         const currentCheckIn = getValues("check_in");
         const selectedDate = currentCheckIn && !Number.isNaN(new Date(currentCheckIn).getTime())
             ? new Date(currentCheckIn)
@@ -423,6 +459,7 @@ const TimelogsListPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
+                            disabled={showNoConfigWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -440,6 +477,21 @@ const TimelogsListPage = () => {
                         handleCompanyChange(e);
                     }}
                 />
+
+                {showNoConfigWarning && (
+                    <div style={warningBox}>
+                        This company has no Attendance Config yet, so check-in/out
+                        cannot be auto-filled and time logs cannot be saved.
+                        {canManageAttendanceSettings && (
+                            <>
+                                {" "}
+                                <Link to="/attendance-settings" style={warningLink}>
+                                    Set it up
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                )}
 
                 <SelectField
                     label="Employee"
@@ -498,5 +550,22 @@ const TimelogsListPage = () => {
 };
 
 const smallBtn = { padding: "6px 12px", fontSize: "12px" };
+
+const warningBox = {
+    margin: "0 0 16px",
+    padding: "10px 12px",
+    borderRadius: "8px",
+    background: "#fef3c7",
+    border: "1px solid #fcd34d",
+    color: "#92400e",
+    fontSize: "13px",
+    lineHeight: 1.5,
+};
+
+const warningLink = {
+    color: "#92400e",
+    fontWeight: 600,
+    textDecoration: "underline",
+};
 
 export default TimelogsListPage;

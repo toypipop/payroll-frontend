@@ -15,6 +15,7 @@ const Button = ({
     type = "button",
     variant = "primary",
     style = {},
+    disabled,
     ...props
 }: ButtonProps) => {
     const [isHovered, setIsHovered] = React.useState(false);
@@ -81,17 +82,22 @@ const Button = ({
         <button
             type={type}
             onClick={onClick}
+            disabled={disabled}
             style={{
                 ...defaultStyle,
-                ...(isHovered ? hoverStyle : {}),
-                ...(isActive ? { transform: "scale(0.98)", opacity: 0.9 } : {}),
+                ...(disabled
+                    ? { opacity: 0.5, cursor: "not-allowed" }
+                    : isHovered
+                    ? hoverStyle
+                    : {}),
+                ...(isActive && !disabled ? { transform: "scale(0.98)", opacity: 0.9 } : {}),
             }}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => !disabled && setIsHovered(true)}
             onMouseLeave={() => {
                 setIsHovered(false);
                 setIsActive(false);
             }}
-            onMouseDown={() => setIsActive(true)}
+            onMouseDown={() => !disabled && setIsActive(true)}
             onMouseUp={() => setIsActive(false)}
             {...props}
         >
