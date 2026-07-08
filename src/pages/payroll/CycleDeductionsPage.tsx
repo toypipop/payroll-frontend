@@ -11,6 +11,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -63,6 +64,8 @@ const CycleDeductionsPage = () => {
         ? deductionTypes.filter((dt) => String(dt.companies_id) === String(cycleCompanyId))
         : [];
 
+    const showNoDeductionTypesWarning = !!watchedCycleId && filteredDeductionTypes.length === 0;
+
     const cycleField = register("cycle_id");
     const employeeField = register("employees_id");
 
@@ -73,7 +76,7 @@ const CycleDeductionsPage = () => {
                     api.get("/companies/options"),
                     api.get("/payroll/cycles"),
                     api.get("/employees"),
-                    api.get("/deduction-types"),
+                    api.get("/deduction-types/options").catch(() => ({ data: [] })),
                 ]);
                 setCompanies(companyRes.data);
                 setCycles(cycleRes.data);
@@ -279,6 +282,7 @@ const CycleDeductionsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
+                            disabled={showNoDeductionTypesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -333,6 +337,13 @@ const CycleDeductionsPage = () => {
                         options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
                         disabled={!watchedCycleId}
                     />
+                    {showNoDeductionTypesWarning && (
+                        <MasterDataWarning
+                            message="This company has no deduction types yet."
+                            routePath="/deduction-types"
+                            moduleKey="DeductionTypesPage"
+                        />
+                    )}
                     <InputField
                         label="Amount (฿)"
                         type="number"

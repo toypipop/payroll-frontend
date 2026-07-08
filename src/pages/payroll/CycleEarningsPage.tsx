@@ -11,6 +11,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -65,6 +66,8 @@ const CycleEarningsPage = () => {
         ? earningTypes.filter((et) => String(et.companies_id) === String(cycleCompanyId))
         : [];
 
+    const showNoEarningTypesWarning = !!watchedCycleId && filteredEarningTypes.length === 0;
+
     const cycleField = register("cycle_id");
     const employeeField = register("employees_id");
 
@@ -76,7 +79,7 @@ const CycleEarningsPage = () => {
                     api.get("/companies/options"),
                     api.get("/payroll/cycles"),
                     api.get("/employees"),
-                    api.get("/earning-types"),
+                    api.get("/earning-types/options").catch(() => ({ data: [] })),
                 ]);
                 setCompanies(companyRes.data);
                 setCycles(cycleRes.data);
@@ -284,6 +287,7 @@ const CycleEarningsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
+                            disabled={showNoEarningTypesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -338,6 +342,13 @@ const CycleEarningsPage = () => {
                         options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}
                         disabled={!watchedCycleId}
                     />
+                    {showNoEarningTypesWarning && (
+                        <MasterDataWarning
+                            message="This company has no earning types yet."
+                            routePath="/earning-types"
+                            moduleKey="EarningTypesPage"
+                        />
+                    )}
                     <InputField
                         label="Amount (฿)"
                         type="number"

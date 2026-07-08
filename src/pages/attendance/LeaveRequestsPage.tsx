@@ -14,6 +14,7 @@ import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 import DateField from "../../components/common/DateField";
 import HelpIcon from "../../components/common/HelpIcon";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 import { Controller } from "react-hook-form";
 
@@ -86,7 +87,7 @@ const LeaveRequestsPage = () => {
             try {
                 const [empRes, ltRes, companyRes] = await Promise.all([
                     api.get("/employees"),
-                    api.get("/master/leave-types").catch(() => ({ data: [] })),
+                    api.get("/master/leave-types/options").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
                 ]);
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
@@ -217,10 +218,12 @@ const LeaveRequestsPage = () => {
         : null);
     
     const filteredLeaveTypes = selectedEmployeeCompaniesId
-        ? masterLeaveTypes.filter((lt) => 
+        ? masterLeaveTypes.filter((lt) =>
             !lt.companies_id || String(lt.companies_id) === String(selectedEmployeeCompaniesId)
         )
         : masterLeaveTypes;
+
+    const showNoLeaveTypesWarning = !!selectedEmployeeCompaniesId && filteredLeaveTypes.length === 0;
 
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
@@ -364,6 +367,7 @@ const LeaveRequestsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
+                            disabled={showNoLeaveTypesWarning}
                         >
                             {editingId ? "Update" : "Submit"}
                         </Button>
@@ -399,6 +403,13 @@ const LeaveRequestsPage = () => {
                     onChange={handleLeaveTypeChange}
                     disabled={!selectedEmployeeId}
                 />
+                {showNoLeaveTypesWarning && (
+                    <MasterDataWarning
+                        message="This company has no leave types yet."
+                        routePath="/leave-types"
+                        moduleKey="MasterLeaveTypePage"
+                    />
+                )}
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                     <Controller

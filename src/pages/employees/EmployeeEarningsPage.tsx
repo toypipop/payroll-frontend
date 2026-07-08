@@ -12,6 +12,7 @@ import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import DecimalField from "../../components/common/DecimalField";
 import SelectField from "../../components/common/SelectField";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -51,6 +52,8 @@ const EmployeeEarningsPage = () => {
         });
     }, [earningTypes, selectedCompanyId]);
 
+    const showNoEarningTypesWarning = !!selectedCompanyId && filteredEarningTypes.length === 0;
+
     const employeeField = register("employees_id");
 
     const fetchData = async () => {
@@ -59,7 +62,7 @@ const EmployeeEarningsPage = () => {
             const [itemsRes, empRes, etRes, companyRes] = await Promise.all([
                 api.get("/employee-earnings"),
                 api.get("/employees"),
-                api.get("/earning-types"),
+                api.get("/earning-types/options").catch(() => ({ data: [] })),
                 api.get("/companies/options"),
             ]);
             setItems(itemsRes.data);
@@ -202,6 +205,7 @@ const EmployeeEarningsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
+                            disabled={showNoEarningTypesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -241,6 +245,13 @@ const EmployeeEarningsPage = () => {
                         options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}
                         disabled={!selectedEmployeeId}
                     />
+                    {showNoEarningTypesWarning && (
+                        <MasterDataWarning
+                            message="This company has no earning types yet."
+                            routePath="/earning-types"
+                            moduleKey="EarningTypesPage"
+                        />
+                    )}
                     <Controller
                         name="amount"
                         control={control}

@@ -12,6 +12,7 @@ import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import DecimalField from "../../components/common/DecimalField";
 import SelectField from "../../components/common/SelectField";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -51,6 +52,8 @@ const EmployeeDeductionsPage = () => {
         });
     }, [deductionTypes, selectedCompanyId]);
 
+    const showNoDeductionTypesWarning = !!selectedCompanyId && filteredDeductionTypes.length === 0;
+
     const employeeField = register("employees_id");
 
     const fetchData = async () => {
@@ -59,7 +62,7 @@ const EmployeeDeductionsPage = () => {
             const [itemsRes, empRes, dtRes, companyRes] = await Promise.all([
                 api.get("/employee-deductions"),
                 api.get("/employees"),
-                api.get("/deduction-types"),
+                api.get("/deduction-types/options").catch(() => ({ data: [] })),
                 api.get("/companies/options"),
             ]);
             setItems(itemsRes.data);
@@ -202,6 +205,7 @@ const EmployeeDeductionsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
+                            disabled={showNoDeductionTypesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -241,6 +245,13 @@ const EmployeeDeductionsPage = () => {
                         options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
                         disabled={!selectedEmployeeId}
                     />
+                    {showNoDeductionTypesWarning && (
+                        <MasterDataWarning
+                            message="This company has no deduction types yet."
+                            routePath="/deduction-types"
+                            moduleKey="DeductionTypesPage"
+                        />
+                    )}
                     <Controller
                         name="amount"
                         control={control}

@@ -12,6 +12,7 @@ import Modal from "../../components/common/Modal";
 import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
 import Badge from "../../components/common/Badge";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const accessSchema = z.object({
     employee_id: z.string().min(1, "Please select an employee"),
@@ -58,6 +59,8 @@ const EmployeeCompanyAccessPage = () => {
         return roles.filter((role) => String(role.companies_id) === String(selectedCompanyId));
     }, [roles, selectedCompanyId]);
 
+    const showNoRolesWarning = !!selectedCompanyId && filteredRoles.length === 0;
+
     const selectedEmployeeName = useMemo(() => {
         const employee = employees.find((item) => String(item.id) === String(selectedEmployeeId));
         return employee?.name || "";
@@ -75,7 +78,7 @@ const EmployeeCompanyAccessPage = () => {
                 api.get("/employee-company-access"),
                 api.get("/employees"),
                 api.get("/companies/options"),
-                api.get("/roles"),
+                api.get("/roles/options").catch(() => ({ data: [] })),
             ]);
 
             setAccessRows(accessRes.data || []);
@@ -90,8 +93,7 @@ const EmployeeCompanyAccessPage = () => {
             })));
             setRoles((rolesRes.data || []).map((role) => ({
                 id: role.id,
-                name: `${role.roles_name}${role.companies?.name ? ` (${role.companies.name})` : ""}`,
-                roles_name: role.roles_name,
+                name: role.name,
                 companies_id: role.companies_id,
             })));
         } catch (err) {
@@ -244,7 +246,7 @@ const EmployeeCompanyAccessPage = () => {
                         <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
+                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }} disabled={showNoRolesWarning}>
                             {editingId ? "Update" : "Save"}
                         </Button>
                     </>
@@ -287,6 +289,13 @@ const EmployeeCompanyAccessPage = () => {
                     }}
                     disabled={!selectedCompanyId}
                 />
+                {showNoRolesWarning && (
+                    <MasterDataWarning
+                        message="This company has no roles yet."
+                        routePath="/roles"
+                        moduleKey="RolesPage"
+                    />
+                )}
 
                 {selectedEmployeeName && (
                     <div style={{

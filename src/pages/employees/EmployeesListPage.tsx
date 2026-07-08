@@ -15,6 +15,7 @@ import NumberField from "../../components/common/NumberField";
 import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
 import HelpIcon from "../../components/common/HelpIcon";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const userData = JSON.parse(localStorage.getItem("user") || "{}");
 const homeCompanyId = String(userData.companies_id || "");
@@ -126,6 +127,13 @@ const EmployeesListPage = () => {
         ? masterEmploymentTypes.filter((t) => String(t.companies_id) === String(selectedCompaniesId))
         : masterEmploymentTypes;
 
+    // Warn when the selected company has zero records for a required master
+    // type (e.g. a freshly created company with no departments yet).
+    const showNoDeptWarning = !!selectedCompaniesId && filteredDepts.length === 0;
+    const showNoPosWarning = !!selectedCompaniesId && filteredPos.length === 0;
+    const showNoRolesWarning = !!selectedCompaniesId && filteredRoles.length === 0;
+    const hasMissingRequiredMaster = showNoDeptWarning || showNoPosWarning || showNoRolesWarning;
+
     const fetchEmployees = async () => {
         try {
             setLoading(true);
@@ -143,10 +151,10 @@ const EmployeesListPage = () => {
         const fetchMasterData = async () => {
             try {
                 const [deptRes, posRes, rolesRes, empTypesRes, banksRes, compRes] = await Promise.all([
-                    api.get("/departments"),
-                    api.get("/positions"),
-                    api.get("/roles"),
-                    api.get("/master/employment-types").catch(() => ({ data: [] })),
+                    api.get("/departments/options").catch(() => ({ data: [] })),
+                    api.get("/positions/options").catch(() => ({ data: [] })),
+                    api.get("/roles/options").catch(() => ({ data: [] })),
+                    api.get("/master/employment-types/options").catch(() => ({ data: [] })),
                     api.get("/master/banks").catch(() => ({ data: [] })),
                     api.get("/companies/options").catch(() => ({ data: [] })),
                 ]);
@@ -373,6 +381,7 @@ const EmployeesListPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
+                            disabled={hasMissingRequiredMaster}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -434,6 +443,13 @@ const EmployeesListPage = () => {
                     error={errors.dept_id?.message}
                     disabled={!selectedCompaniesId}
                 />
+                {showNoDeptWarning && (
+                    <MasterDataWarning
+                        message="This company has no departments yet."
+                        routePath="/departments"
+                        moduleKey="DepartmentSettings"
+                    />
+                )}
 
                 <SelectField
                     label="Position"
@@ -443,6 +459,13 @@ const EmployeesListPage = () => {
                     error={errors.pos_id?.message}
                     disabled={!selectedCompaniesId}
                 />
+                {showNoPosWarning && (
+                    <MasterDataWarning
+                        message="This company has no positions yet."
+                        routePath="/positions"
+                        moduleKey="PositionSettings"
+                    />
+                )}
 
                 <SelectField
                     label="System Roles"
@@ -452,6 +475,13 @@ const EmployeesListPage = () => {
                     error={errors.roles_id?.message}
                     disabled={!selectedCompaniesId}
                 />
+                {showNoRolesWarning && (
+                    <MasterDataWarning
+                        message="This company has no roles yet."
+                        routePath="/roles"
+                        moduleKey="RolesPage"
+                    />
+                )}
 
                 {masterEmploymentTypes.length > 0 && (
                     <SelectField
