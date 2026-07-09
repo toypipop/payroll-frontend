@@ -13,6 +13,7 @@ import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import DateTimeField from "../../components/common/DateTimeField";
 import SelectField from "../../components/common/SelectField";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 import { Controller } from "react-hook-form";
 
 // Validation schema for timelog form
@@ -21,7 +22,7 @@ const timeLogSchema = z.object({
     employees_id: z.string().min(1, "Please select an employee"),
     check_in: z.string().min(1, "Check-in time is required"),
     check_out: z.string().optional().or(z.literal("")),
-    work_location_id: z.coerce.number().optional().nullable(),
+    work_location_id: z.coerce.number().min(1, "Please select a work location"),
     remark: z.string().optional(),
 }).refine((data) => {
     if (data.check_in && data.check_out) {
@@ -260,6 +261,7 @@ const TimelogsListPage = () => {
 
     const selectedCompanyConfig = selectedCompanyId ? attendanceConfigs[selectedCompanyId] : null;
     const showNoConfigWarning = !!selectedCompanyId && !(selectedCompanyConfig && selectedCompanyConfig.is_configured);
+    const showNoWorkLocationsWarning = !!selectedEmployeeCompaniesId && filteredWorkLocations.length === 0;
 
     // Returns the configured schedule for a company, or null when that company
     // has no attendance config (so callers skip auto-filling times).
@@ -459,7 +461,7 @@ const TimelogsListPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
-                            disabled={showNoConfigWarning}
+                            disabled={showNoConfigWarning || showNoWorkLocationsWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -531,12 +533,19 @@ const TimelogsListPage = () => {
                 />
 
                 <SelectField
-                    label="Work Location (Optional)"
+                    label="Work Location"
                     options={filteredWorkLocations}
                     {...register("work_location_id")}
                     error={errors.work_location_id?.message}
                     disabled={!selectedEmployeeId}
                 />
+                {showNoWorkLocationsWarning && (
+                    <MasterDataWarning
+                        message="This company has no work locations yet."
+                        routePath="/work-locations"
+                        moduleKey="WorkLocationPage"
+                    />
+                )}
 
                 <InputField
                     label="Remark"
