@@ -155,7 +155,7 @@ const EmployeesListPage = () => {
                     api.get("/positions/options").catch(() => ({ data: [] })),
                     api.get("/roles/options").catch(() => ({ data: [] })),
                     api.get("/master/employment-types/options").catch(() => ({ data: [] })),
-                    api.get("/master/banks").catch(() => ({ data: [] })),
+                    api.get("/master/banks/options").catch(() => ({ data: [] })),
                     api.get("/companies/options").catch(() => ({ data: [] })),
                 ]);
                 setMasterBanks((banksRes.data || []).map((b) => ({ id: b.id, name: `${b.bank_code} — ${b.bank_name}` })));

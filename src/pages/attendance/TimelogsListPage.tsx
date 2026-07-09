@@ -132,7 +132,7 @@ const TimelogsListPage = () => {
                 // Fetch employees to show in dropdown
                 const [empRes, locRes, schedRes, companyRes, modulesRes] = await Promise.all([
                     api.get("/employees"),
-                    api.get("/master/work-locations").catch(() => ({ data: [] })),
+                    api.get("/master/work-locations/options").catch(() => ({ data: [] })),
                     api.get("/timelogs/schedule-config").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
                     api.get("/modules").catch(() => ({ data: [] })),
