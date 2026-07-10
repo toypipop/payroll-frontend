@@ -183,21 +183,25 @@ const CompaniesPage = () => {
                     label="Companies Name"
                     {...register("name")}
                     error={errors.name?.message}
+                    required
                 />
                 <InputField
                     label="Tax ID (13 Digits)"
                     {...register("tax_id")}
                     error={errors.tax_id?.message}
+                    required
                 />
                 <InputField
                     label="Address"
                     {...register("address")}
                     error={errors.address?.message}
+                    required
                 />
                 <InputField
                     label="Phone Number"
                     {...register("phone")}
                     error={errors.phone?.message}
+                    required
                 />
             </Modal>
         </>

@@ -159,16 +159,18 @@ const RolesPage = () => {
                 }
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <SelectField 
+                    <SelectField
                         label="Companies"
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
+                        required
                     />
-                    <InputField 
-                        label="Role Name" 
-                        {...register("roles_name")} 
-                        error={errors.roles_name?.message} 
+                    <InputField
+                        label="Role Name"
+                        {...register("roles_name")}
+                        error={errors.roles_name?.message}
+                        required
                     />
                 </div>
             </Modal>

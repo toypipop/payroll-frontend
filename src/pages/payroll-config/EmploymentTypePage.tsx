@@ -142,8 +142,9 @@ const EmploymentTypePage = () => {
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
+                        required
                     />
-                    <InputField label="Name (e.g. Full-time, Contract)" {...register("name")} error={errors.name?.message} />
+                    <InputField label="Name (e.g. Full-time, Contract)" {...register("name")} error={errors.name?.message} required />
                     <InputField label="Description" {...register("description")} error={errors.description?.message} />
                 </div>
             </Modal>

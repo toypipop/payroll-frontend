@@ -128,8 +128,8 @@ const MasterBankPage = () => {
                     </>
                 }
             >
-                <InputField label="Bank Code (e.g. BBL, KBANK)" {...register("bank_code")} error={errors.bank_code?.message} />
-                <InputField label="Bank Name" {...register("bank_name")} error={errors.bank_name?.message} />
+                <InputField label="Bank Code (e.g. BBL, KBANK)" {...register("bank_code")} error={errors.bank_code?.message} required />
+                <InputField label="Bank Name" {...register("bank_name")} error={errors.bank_name?.message} required />
                 <InputField label="SWIFT Code" {...register("swift_code")} error={errors.swift_code?.message} />
             </Modal>
         </>

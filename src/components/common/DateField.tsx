@@ -99,9 +99,10 @@ interface DateFieldProps {
     onBlur?: () => void;
     id?: string;
     name?: string;
+    required?: boolean;
 }
 
-const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, value, onChange, id }, ref) => {
+const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, value, onChange, id, required }, ref) => {
     const selectedDate = (() => {
         if (value && typeof value === "string" && value !== "") {
             const date = new Date(value + "T00:00:00");
@@ -149,8 +150,13 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
 
     return (
         <div style={styles.container}>
-            {label && <label htmlFor={id} style={styles.label}>{label}</label>}
-            
+            {label && (
+                <label htmlFor={id} style={styles.label}>
+                    {label}
+                    {required && <span style={{ color: "#ef4444" }}> *</span>}
+                </label>
+            )}
+
             <DatePicker
                 ref={ref}
                 selected={selectedDate}

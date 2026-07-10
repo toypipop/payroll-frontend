@@ -122,18 +122,19 @@ const PayrollGlobalSettingsPage = () => {
     }
 >
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <InputField label="SSO Rate (%)" type="number" step="0.1" {...register("sso_rate")} error={errors.sso_rate?.message} />
-        <InputField label="Max SSO Amount" type="number" {...register("sso_max_amount")} error={errors.sso_max_amount?.message} />
-        <InputField label="Min Salary for SSO" type="number" {...register("sso_min_salary")} error={errors.sso_min_salary?.message} />
-        <SelectField 
-            label="Tax Calculation" 
-            {...register("tax_calculation")} 
+        <InputField label="SSO Rate (%)" type="number" step="0.1" {...register("sso_rate")} error={errors.sso_rate?.message} required />
+        <InputField label="Max SSO Amount" type="number" {...register("sso_max_amount")} error={errors.sso_max_amount?.message} required />
+        <InputField label="Min Salary for SSO" type="number" {...register("sso_min_salary")} error={errors.sso_min_salary?.message} required />
+        <SelectField
+            label="Tax Calculation"
+            {...register("tax_calculation")}
             error={errors.tax_calculation?.message}
             options={[
                 { id: "Progressive", name: "Progressive Rate" },
                 { id: "Fixed", name: "Fixed Rate" },
                 { id: "None", name: "No Tax" }
             ]}
+            required
         />
     </div>
 </Modal>

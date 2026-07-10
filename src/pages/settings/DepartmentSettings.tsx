@@ -202,12 +202,14 @@ const DepartmentSettings = () => {
                         id: c.id,
                         name: c.name
                     }))}
+                    required
                 />
 
                 <InputField
                     label="Department Name"
                     {...register("dept_name")}
                     error={errors.dept_name?.message}
+                    required
                 />
 
                 <SelectField
@@ -218,6 +220,7 @@ const DepartmentSettings = () => {
                         ...categories.map((cat) => ({ id: cat.id, name: cat.name })),
                         { id: "__new__", name: "+ Add New Category" },
                     ]}
+                    required
                 />
 
                 {watchedCategoryId === "__new__" && (

@@ -211,6 +211,7 @@ const PayrollCyclesPage = () => {
                         label="Cycle Name"
                         error={errors.cycle_name?.message}
                         {...register("cycle_name")}
+                        required
                     />
                     <Controller
                         name="companies_id"
@@ -222,6 +223,7 @@ const PayrollCyclesPage = () => {
                                 value={field.value}
                                 onChange={(e) => field.onChange(e.target.value)}
                                 error={errors.companies_id?.message}
+                                required
                             />
                         )}
                     />
@@ -234,6 +236,7 @@ const PayrollCyclesPage = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={errors.start_date?.message}
+                                required
                             />
                         )}
                     />
@@ -246,6 +249,7 @@ const PayrollCyclesPage = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={errors.end_date?.message}
+                                required
                             />
                         )}
                     />

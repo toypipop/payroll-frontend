@@ -174,11 +174,13 @@ const PositionSettings = () => {
                         id: c.id,
                         name: c.name
                     }))}
+                    required
                 />
                 <InputField
                     label="Position Name"
                     {...register("pos_name")}
                     error={errors.pos_name?.message}
+                    required
                 />
             </Modal>
         </>

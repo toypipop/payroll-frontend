@@ -445,6 +445,7 @@ const SalariesStructurePage = () => {
                             onBlur={field.onBlur}
                             onChange={(e) => field.onChange(e?.target?.value ?? e)}
                             error={errors.base_salaries?.message}
+                            required
                         />
                     )}
                 />
@@ -460,6 +461,7 @@ const SalariesStructurePage = () => {
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             error={errors.effective_date?.message}
+                            required
                         />
                     )}
                 />

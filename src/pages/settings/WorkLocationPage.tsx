@@ -138,8 +138,9 @@ const WorkLocationPage = () => {
                     options={companyOptions}
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
+                    required
                 />
-                <InputField label="Location Name (e.g. Office, WFH)" {...register("name")} error={errors.name?.message} />
+                <InputField label="Location Name (e.g. Office, WFH)" {...register("name")} error={errors.name?.message} required />
             </Modal>
         </>
     );

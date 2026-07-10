@@ -301,6 +301,7 @@ const CycleDeductionsPage = () => {
                             setValue("deduction_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        required
                     />
                     <SelectField
                         label="Payroll Cycle"
@@ -316,6 +317,7 @@ const CycleDeductionsPage = () => {
                             name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
                         }))}
                         disabled={!watchedCompanyId}
+                        required
                     />
                     <SelectField
                         label="Employee"
@@ -329,6 +331,7 @@ const CycleDeductionsPage = () => {
                             name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
                         }))}
                         disabled={!watchedCycleId}
+                        required
                     />
                     <SelectField
                         label="Deduction Type"
@@ -336,6 +339,7 @@ const CycleDeductionsPage = () => {
                         error={errors.deduction_type_id?.message}
                         options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
                         disabled={!watchedCycleId}
+                        required
                     />
                     {showNoDeductionTypesWarning && (
                         <MasterDataWarning
@@ -351,6 +355,7 @@ const CycleDeductionsPage = () => {
                         min="0"
                         {...register("amount")}
                         error={errors.amount?.message}
+                        required
                     />
                 </div>
             </Modal>

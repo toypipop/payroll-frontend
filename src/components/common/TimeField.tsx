@@ -6,9 +6,10 @@ interface TimeFieldProps extends Omit<HTMLAttributes<HTMLButtonElement>, "onChan
     value?: string | Date | null;
     onChange: (value: string) => void;
     error?: string;
+    required?: boolean;
 }
 
-const TimeField = ({ label, value, onChange, error, ...props }: TimeFieldProps) => {
+const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFieldProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -206,7 +207,12 @@ const TimeField = ({ label, value, onChange, error, ...props }: TimeFieldProps) 
 
     return (
         <div style={styles.container} ref={containerRef}>
-            {label && <label style={styles.label}>{label}</label>}
+            {label && (
+                <label style={styles.label}>
+                    {label}
+                    {required && <span style={{ color: "#ef4444" }}> *</span>}
+                </label>
+            )}
             <button
                 type="button"
                 style={styles.trigger}

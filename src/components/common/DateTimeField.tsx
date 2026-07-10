@@ -102,9 +102,10 @@ interface DateTimeFieldProps {
     value?: string | Date | null;
     onChange?: (value: string) => void;
     id?: string;
+    required?: boolean;
 }
 
-const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label, error, value, onChange, id }, ref) => {
+const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label, error, value, onChange, id, required }, ref) => {
     const styles: Record<string, CSSProperties> = {
         container: {
             display: "flex",
@@ -151,8 +152,13 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
 
     return (
         <div style={styles.container}>
-            {label && <label htmlFor={id} style={styles.label}>{label}</label>}
-            
+            {label && (
+                <label htmlFor={id} style={styles.label}>
+                    {label}
+                    {required && <span style={{ color: "#ef4444" }}> *</span>}
+                </label>
+            )}
+
             <DatePicker
                 ref={ref}
                 selected={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}

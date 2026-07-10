@@ -168,8 +168,9 @@ const EarningTypesPage = () => {
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
+                        required
                     />
-                    <InputField label="Earning Name" {...register("name")} error={errors.name?.message} />
+                    <InputField label="Earning Name" {...register("name")} error={errors.name?.message} required />
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                         <CheckboxField label="Is Taxable" id="is_taxable" {...register("is_taxable")} />
                         <CheckboxField label="Include in SSO" id="is_sso" {...register("is_sso")} />

@@ -9,6 +9,7 @@ interface DecimalFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
     value?: unknown;
     decimals?: number;
     onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+    required?: boolean;
 }
 
 const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
@@ -22,6 +23,7 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
             value,
             onChange,
             decimals = 2,
+            required,
             ...props
         },
         ref,
@@ -106,7 +108,12 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
 
         return (
             <div style={{ ...styles.container, ...containerStyle }}>
-                {label && <label style={styles.label}>{label}</label>}
+                {label && (
+                    <label style={styles.label}>
+                        {label}
+                        {required && <span style={{ color: "#ef4444" }}> *</span>}
+                    </label>
+                )}
                 <input
                     ref={ref}
                     type="text"

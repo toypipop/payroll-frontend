@@ -166,13 +166,14 @@ const DeductionTypesPage = () => {
                 }
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <SelectField 
+                    <SelectField
                         label="Companies"
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
+                        required
                     />
-                    <InputField label="Deduction Name" {...register("name")} error={errors.name?.message} />
+                    <InputField label="Deduction Name" {...register("name")} error={errors.name?.message} required />
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                         <CheckboxField label="Tax Deductible" id="is_tax_deductible" {...register("is_tax_deductible")} />
                         <CheckboxField label="SSO Deductible" id="is_sso_deductible" {...register("is_sso_deductible")} />

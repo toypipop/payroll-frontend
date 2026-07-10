@@ -396,6 +396,7 @@ const EmployeesListPage = () => {
                         {...register("companies_id")}
                         value={watch("companies_id")}
                         error={errors.companies_id?.message}
+                        required
                     />
                 )}
 
@@ -403,18 +404,21 @@ const EmployeesListPage = () => {
                     label="Employees Code"
                     {...register("employees_code")}
                     error={errors.employees_code?.message}
+                    required
                 />
 
                 <InputField
                     label="First Name"
                     {...register("first_name")}
                     error={errors.first_name?.message}
+                    required
                 />
 
                 <InputField
                     label="Last Name"
                     {...register("last_name")}
                     error={errors.last_name?.message}
+                    required
                 />
 
                 <InputField
@@ -422,6 +426,7 @@ const EmployeesListPage = () => {
                     type="email"
                     {...register("email")}
                     error={errors.email?.message}
+                    required
                 />
 
                 <InputField
@@ -434,6 +439,7 @@ const EmployeesListPage = () => {
                             ? "Leave blank to keep same"
                             : "Required (min 6 chars)"
                     }
+                    required={!editingId}
                 />
                 <SelectField
                     label="Department"
@@ -442,6 +448,7 @@ const EmployeesListPage = () => {
                     value={watch("dept_id")}
                     error={errors.dept_id?.message}
                     disabled={!selectedCompaniesId}
+                    required
                 />
                 {showNoDeptWarning && (
                     <MasterDataWarning
@@ -458,6 +465,7 @@ const EmployeesListPage = () => {
                     value={watch("pos_id")}
                     error={errors.pos_id?.message}
                     disabled={!selectedCompaniesId}
+                    required
                 />
                 {showNoPosWarning && (
                     <MasterDataWarning
@@ -474,6 +482,7 @@ const EmployeesListPage = () => {
                     value={watch("roles_id")}
                     error={errors.roles_id?.message}
                     disabled={!selectedCompaniesId}
+                    required
                 />
                 {showNoRolesWarning && (
                     <MasterDataWarning

@@ -167,8 +167,8 @@ const DayOffPage = () => {
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
                 />
-                <SelectField label="Weekday" options={weekdayOptions} {...register("weekday")} error={errors.weekday?.message} />
-                <InputField label="Day Off Name" {...register("name")} error={errors.name?.message} />
+                <SelectField label="Weekday" options={weekdayOptions} {...register("weekday")} error={errors.weekday?.message} required />
+                <InputField label="Day Off Name" {...register("name")} error={errors.name?.message} required />
                 <CheckboxField label="Paid Day Off" {...register("is_paid")} />
             </Modal>
         </>

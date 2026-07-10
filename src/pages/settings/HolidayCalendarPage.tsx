@@ -150,6 +150,7 @@ const HolidayCalendarPage = () => {
                     options={companyOptions}
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
+                    required
                 />
                 <Controller
                     name="date"
@@ -162,10 +163,11 @@ const HolidayCalendarPage = () => {
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                             error={errors.date?.message}
+                            required
                         />
                     )}
                 />
-                <InputField label="Holiday Name" {...register("name")} error={errors.name?.message} />
+                <InputField label="Holiday Name" {...register("name")} error={errors.name?.message} required />
                 <CheckboxField label="Paid Holiday" {...register("is_paid")} />
             </Modal>
         </>

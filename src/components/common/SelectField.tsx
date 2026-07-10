@@ -19,10 +19,11 @@ interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
         event: React.ChangeEvent<HTMLSelectElement> | { target: { name?: string; value: string } }
     ) => void;
     searchable?: boolean;
+    required?: boolean;
 }
 
 const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
-    ({ label, options = [], error, placeholder, style, containerStyle, value, onChange, onBlur, name, disabled, searchable = true, ...props }, ref) => {
+    ({ label, options = [], error, placeholder, style, containerStyle, value, onChange, onBlur, name, disabled, searchable = true, required, ...props }, ref) => {
         const [open, setOpen] = useState(false);
         const [hovered, setHovered] = useState<unknown>(null);
         const [searchTerm, setSearchTerm] = useState("");
@@ -249,6 +250,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                 {label && (
                     <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#64748b", marginBottom: "6px" }}>
                         {label}
+                        {required && <span style={{ color: "#ef4444" }}> *</span>}
                     </label>
                 )}
 

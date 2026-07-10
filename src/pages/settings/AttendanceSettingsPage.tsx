@@ -264,6 +264,7 @@ const AttendanceSettingsPage = () => {
                             step="0.01"
                             {...register("late_rate_per_minute")}
                             error={errors.late_rate_per_minute?.message}
+                            required
                         />
                         
                         <Controller
@@ -283,6 +284,7 @@ const AttendanceSettingsPage = () => {
                             step="0.01"
                             {...register("absent_rate_per_day")}
                             error={errors.absent_rate_per_day?.message}
+                            required
                         />
                     </div>
                     

@@ -8,6 +8,7 @@ interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "
     containerStyle?: CSSProperties;
     value?: string | number;
     onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+    required?: boolean;
 }
 
 const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
@@ -20,6 +21,7 @@ const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
             containerStyle,
             value,
             onChange,
+            required,
             ...props
         },
         ref,
@@ -83,7 +85,12 @@ const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
 
         return (
             <div style={{ ...styles.container, ...containerStyle }}>
-                {label && <label style={styles.label}>{label}</label>}
+                {label && (
+                    <label style={styles.label}>
+                        {label}
+                        {required && <span style={{ color: "#ef4444" }}> *</span>}
+                    </label>
+                )}
                 <input
                     ref={ref}
                     type="text"

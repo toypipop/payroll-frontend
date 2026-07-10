@@ -382,6 +382,7 @@ const LeaveRequestsPage = () => {
                     onChange={(e) => {
                         handleCompanyChange(e);
                     }}
+                    required
                 />
 
                 <SelectField
@@ -393,6 +394,7 @@ const LeaveRequestsPage = () => {
                         handleEmployeeChange(e);
                     }}
                     disabled={!selectedCompanyId}
+                    required
                 />
 
                 <SelectField
@@ -402,6 +404,7 @@ const LeaveRequestsPage = () => {
                     error={errors.leave_type_id?.message}
                     onChange={handleLeaveTypeChange}
                     disabled={!selectedEmployeeId}
+                    required
                 />
                 {showNoLeaveTypesWarning && (
                     <MasterDataWarning
@@ -421,6 +424,7 @@ const LeaveRequestsPage = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={errors.start_date?.message}
+                                required
                             />
                         )}
                     />
@@ -434,6 +438,7 @@ const LeaveRequestsPage = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={errors.end_date?.message}
+                                required
                             />
                         )}
                     />

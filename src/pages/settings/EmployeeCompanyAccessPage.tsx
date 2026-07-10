@@ -263,6 +263,7 @@ const EmployeeCompanyAccessPage = () => {
                         setValue("company_id", "", { shouldValidate: true, shouldDirty: true });
                         setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
                     }}
+                    required
                 />
 
                 <SelectField
@@ -276,6 +277,7 @@ const EmployeeCompanyAccessPage = () => {
                         setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
                     }}
                     disabled={!selectedEmployeeId}
+                    required
                 />
 
                 <SelectField
@@ -288,6 +290,7 @@ const EmployeeCompanyAccessPage = () => {
                         setValue("role_id", e.target.value, { shouldValidate: true, shouldDirty: true });
                     }}
                     disabled={!selectedCompanyId}
+                    required
                 />
                 {showNoRolesWarning && (
                     <MasterDataWarning

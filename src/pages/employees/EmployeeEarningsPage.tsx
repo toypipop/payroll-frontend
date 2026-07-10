@@ -223,6 +223,7 @@ const EmployeeEarningsPage = () => {
                             setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        required
                     />
                     <SelectField
                         label="Employee"
@@ -237,6 +238,7 @@ const EmployeeEarningsPage = () => {
                             name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
                         }))}
                         disabled={!selectedCompanyId}
+                        required
                     />
                     <SelectField
                         label="Earning Type"
@@ -244,6 +246,7 @@ const EmployeeEarningsPage = () => {
                         error={errors.earning_type_id?.message}
                         options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}
                         disabled={!selectedEmployeeId}
+                        required
                     />
                     {showNoEarningTypesWarning && (
                         <MasterDataWarning
@@ -263,6 +266,7 @@ const EmployeeEarningsPage = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={errors.amount?.message}
+                                required
                             />
                         )}
                     />

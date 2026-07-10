@@ -146,8 +146,9 @@ const MasterLeaveTypePage = () => {
                     options={companyOptions}
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
+                    required
                 />
-                <InputField label="Leave Type Name" {...register("name")} error={errors.name?.message} />
+                <InputField label="Leave Type Name" {...register("name")} error={errors.name?.message} required />
                 <InputField label="Max Days Per Year (0 = Unlimited)" type="number" {...register("max_days_per_year")} error={errors.max_days_per_year?.message} />
                 <CheckboxField label="Paid Leave" {...register("is_paid")} />
             </Modal>

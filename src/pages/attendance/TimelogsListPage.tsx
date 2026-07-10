@@ -478,6 +478,7 @@ const TimelogsListPage = () => {
                     onChange={(e) => {
                         handleCompanyChange(e);
                     }}
+                    required
                 />
 
                 {showNoConfigWarning && (
@@ -504,6 +505,7 @@ const TimelogsListPage = () => {
                         handleEmployeeChange(e);
                     }}
                     disabled={!selectedCompanyId}
+                    required
                 />
 
                 <Controller
@@ -515,6 +517,7 @@ const TimelogsListPage = () => {
                             value={field.value}
                             onChange={handleCheckInChange}
                             error={errors.check_in?.message}
+                            required
                         />
                     )}
                 />
@@ -538,6 +541,7 @@ const TimelogsListPage = () => {
                     {...register("work_location_id")}
                     error={errors.work_location_id?.message}
                     disabled={!selectedEmployeeId}
+                    required
                 />
                 {showNoWorkLocationsWarning && (
                     <MasterDataWarning

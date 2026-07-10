@@ -6,6 +6,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     error?: unknown;
     style?: CSSProperties;
     containerStyle?: CSSProperties;
+    required?: boolean;
 }
 
 // Wrap with forwardRef for React Hook Form
@@ -18,6 +19,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             error,
             style, // Allow external style overrides
             containerStyle, // Allow overriding container-level styles
+            required,
             ...props // This includes name, onChange, onBlur from register()
         },
         ref,
@@ -58,7 +60,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
 
         return (
             <div style={{ ...styles.container, ...containerStyle }}>
-                {label && <label style={styles.label}>{label}</label>}
+                {label && (
+                    <label style={styles.label}>
+                        {label}
+                        {required && <span style={{ color: "#ef4444" }}> *</span>}
+                    </label>
+                )}
                 <input
                     ref={ref} // Attach the ref here
                     type={type}

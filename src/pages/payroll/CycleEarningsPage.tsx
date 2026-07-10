@@ -306,6 +306,7 @@ const CycleEarningsPage = () => {
                             setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        required
                     />
                     <SelectField
                         label="Payroll Cycle"
@@ -321,6 +322,7 @@ const CycleEarningsPage = () => {
                             name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
                         }))}
                         disabled={!watchedCompanyId}
+                        required
                     />
                     <SelectField
                         label="Employee"
@@ -334,6 +336,7 @@ const CycleEarningsPage = () => {
                             name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
                         }))}
                         disabled={!watchedCycleId}
+                        required
                     />
                     <SelectField
                         label="Earning Type"
@@ -341,6 +344,7 @@ const CycleEarningsPage = () => {
                         error={errors.earning_type_id?.message}
                         options={filteredEarningTypes.map((et) => ({ id: et.id, name: et.name }))}
                         disabled={!watchedCycleId}
+                        required
                     />
                     {showNoEarningTypesWarning && (
                         <MasterDataWarning
@@ -356,6 +360,7 @@ const CycleEarningsPage = () => {
                         min="0"
                         {...register("amount")}
                         error={errors.amount?.message}
+                        required
                     />
                 </div>
             </Modal>

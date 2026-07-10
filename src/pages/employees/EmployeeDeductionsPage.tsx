@@ -223,6 +223,7 @@ const EmployeeDeductionsPage = () => {
                             setValue("deduction_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        required
                     />
                     <SelectField
                         label="Employee"
@@ -237,6 +238,7 @@ const EmployeeDeductionsPage = () => {
                             name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
                         }))}
                         disabled={!selectedCompanyId}
+                        required
                     />
                     <SelectField
                         label="Deduction Type"
@@ -244,6 +246,7 @@ const EmployeeDeductionsPage = () => {
                         error={errors.deduction_type_id?.message}
                         options={filteredDeductionTypes.map((dt) => ({ id: dt.id, name: dt.name }))}
                         disabled={!selectedEmployeeId}
+                        required
                     />
                     {showNoDeductionTypesWarning && (
                         <MasterDataWarning
@@ -263,6 +266,7 @@ const EmployeeDeductionsPage = () => {
                                 value={field.value}
                                 onChange={field.onChange}
                                 error={errors.amount?.message}
+                                required
                             />
                         )}
                     />
