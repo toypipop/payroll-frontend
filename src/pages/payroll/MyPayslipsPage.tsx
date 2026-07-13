@@ -126,6 +126,20 @@ const MyPayslipsPage = () => {
                             <span style={{ color: "#64748b" }}>Period</span>
                             <span style={{ fontWeight: 600 }}>{formatDate(selected.start_date)} – {formatDate(selected.end_date)}</span>
                         </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
+                            <span style={{ color: "#64748b" }}>Position (at payout)</span>
+                            <span style={{ fontWeight: 600 }}>{selected.position_name || "-"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
+                            <span style={{ color: "#64748b" }}>Department (at payout)</span>
+                            <span style={{ fontWeight: 600 }}>{selected.department_name || "-"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
+                            <span style={{ color: "#64748b" }}>Paid to Bank Account</span>
+                            <span style={{ fontWeight: 600 }}>
+                                {selected.bank_name || "-"} {selected.bank_account_no ? `(${selected.bank_account_no})` : ""}
+                            </span>
+                        </div>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
                             <span style={{ color: "#64748b" }}>Net Pay</span>
                             <span style={{ fontWeight: 700, color: "#0f172a" }}>฿{formatCurrency(selected.net_pay)}</span>

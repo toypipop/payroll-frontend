@@ -396,6 +396,7 @@ const EmployeesListPage = () => {
                         {...register("companies_id")}
                         value={watch("companies_id")}
                         error={errors.companies_id?.message}
+                        disabled={!!editingId}
                         required
                     />
                 )}

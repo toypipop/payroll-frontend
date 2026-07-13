@@ -168,6 +168,7 @@ const EarningTypesPage = () => {
                         {...register("companies_id")}
                         error={errors.companies_id?.message}
                         options={companies.map(c => ({ id: c.id, name: c.name }))}
+                        disabled={!!editingId}
                         required
                     />
                     <InputField label="Earning Name" {...register("name")} error={errors.name?.message} required />

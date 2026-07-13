@@ -8,6 +8,7 @@ import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
 import HelpIcon from "../../components/common/HelpIcon";
+import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -360,12 +361,12 @@ const RunPayrollPage = () => {
                     </div>
                 ) : !payrollConfig ? (
                     selectedCycle && (
-                        <div style={{
-                            marginTop: "16px", padding: "10px 14px",
-                            borderRadius: "8px", backgroundColor: "#fff1f2",
-                            border: "1px solid #fecdd3", color: "#be123c", fontSize: "13px",
-                        }}>
-                            No payroll config found for <strong>{selectedCycle.companies?.name || "this company"}</strong>. Configure it in Payroll Setup.
+                        <div style={{ marginTop: "16px" }}>
+                            <MasterDataWarning
+                                message={`No payroll config found for ${selectedCycle.companies?.name || "this company"}. Configure it in Payroll Setup.`}
+                                routePath="/payroll-global"
+                                moduleKey="PayrollGlobalSettingsPage"
+                            />
                         </div>
                     )
                 ) : (
@@ -403,7 +404,7 @@ const RunPayrollPage = () => {
                         border: "1px solid #fcd34d",
                     }}>
                         <div style={{ fontWeight: "600", color: "#92400e", marginBottom: "8px", fontSize: "13px" }}>
-                            ⚠ พบปัญหาก่อน Run Payroll
+                            ⚠ Issues found before Run Payroll
                         </div>
                         {preCheckIssues.map((issue, i) => (
                             <div key={i} style={{ marginBottom: "8px" }}>
@@ -451,6 +452,11 @@ const RunPayrollPage = () => {
                         <strong>{calcResult.processed_count}</strong> employees processed
                         {calcResult.skipped_count > 0 && (
                             <span style={{ color: "#92400e" }}> · {calcResult.skipped_count} skipped (no salary record)</span>
+                        )}
+                        {calcResult.skipped_employees?.length > 0 && (
+                            <ul style={{ margin: "6px 0 0 16px", padding: 0, fontSize: "12px", color: "#92400e" }}>
+                                {calcResult.skipped_employees.map((name: string) => <li key={name}>{name}</li>)}
+                            </ul>
                         )}
                     </div>
                 )}

@@ -174,6 +174,7 @@ const PositionSettings = () => {
                         id: c.id,
                         name: c.name
                     }))}
+                    disabled={!!editingId}
                     required
                 />
                 <InputField

@@ -243,6 +243,20 @@ const TransactionsPage = () => {
                             <span style={{ color: "#64748b" }}>Cycle</span>
                             <span style={{ fontWeight: 600 }}>{slipData.cycle?.cycle_name || "-"}</span>
                         </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
+                            <span style={{ color: "#64748b" }}>Position (at payout)</span>
+                            <span style={{ fontWeight: 600 }}>{slipData.slip.position_name || "-"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
+                            <span style={{ color: "#64748b" }}>Department (at payout)</span>
+                            <span style={{ fontWeight: 600 }}>{slipData.slip.department_name || "-"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
+                            <span style={{ color: "#64748b" }}>Paid to Bank Account</span>
+                            <span style={{ fontWeight: 600 }}>
+                                {slipData.slip.bank_name || "-"} {slipData.slip.bank_account_no ? `(${slipData.slip.bank_account_no})` : ""}
+                            </span>
+                        </div>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
                             <span style={{ color: "#64748b" }}>Net Pay</span>
                             <span style={{ fontWeight: 700 }}>฿{formatCurrency(slipData.slip.net_pay)}</span>

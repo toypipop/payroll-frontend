@@ -166,6 +166,7 @@ const DayOffPage = () => {
                     options={companyOptions}
                     {...register("companies_id")}
                     error={errors.companies_id?.message}
+                    disabled={!!editingId}
                 />
                 <SelectField label="Weekday" options={weekdayOptions} {...register("weekday")} error={errors.weekday?.message} required />
                 <InputField label="Day Off Name" {...register("name")} error={errors.name?.message} required />
