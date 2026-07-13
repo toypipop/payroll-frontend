@@ -29,7 +29,7 @@ const MasterDataWarning: React.FC<MasterDataWarningProps> = ({
             {canManage && (
                 <>
                     {" "}
-                    <Link to={routePath} style={warningLink}>
+                    <Link to={routePath} target="_blank" rel="noopener noreferrer" style={warningLink}>
                         {linkLabel}
                     </Link>
                 </>

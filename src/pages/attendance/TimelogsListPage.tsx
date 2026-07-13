@@ -488,7 +488,7 @@ const TimelogsListPage = () => {
                         {canManageAttendanceSettings && (
                             <>
                                 {" "}
-                                <Link to="/attendance-settings" style={warningLink}>
+                                <Link to="/attendance-settings" target="_blank" rel="noopener noreferrer" style={warningLink}>
                                     Set it up
                                 </Link>
                             </>
