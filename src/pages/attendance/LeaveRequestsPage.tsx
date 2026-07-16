@@ -130,6 +130,11 @@ const LeaveRequestsPage = () => {
                 return;
             }
 
+            if (filteredEmployees.length === 0) {
+                alert("This company has no employees. Please add one before saving.");
+                return;
+            }
+
             if (!Number.isFinite(leaveTypeId) || leaveTypeId <= 0) {
                 alert("Please select leave type");
                 return;
@@ -224,6 +229,7 @@ const LeaveRequestsPage = () => {
         : masterLeaveTypes;
 
     const showNoLeaveTypesWarning = !!selectedEmployeeCompaniesId && filteredLeaveTypes.length === 0;
+    const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
 
     const handleEmployeeChange = (e) => {
         const empId = e.target.value;
@@ -367,7 +373,7 @@ const LeaveRequestsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
-                            disabled={showNoLeaveTypesWarning}
+                            disabled={showNoLeaveTypesWarning || showNoEmployeesWarning}
                         >
                             {editingId ? "Update" : "Submit"}
                         </Button>
@@ -396,6 +402,13 @@ const LeaveRequestsPage = () => {
                     disabled={!selectedCompanyId}
                     required
                 />
+                {showNoEmployeesWarning && (
+                    <MasterDataWarning
+                        message="This company has no employees yet."
+                        routePath="/employees"
+                        moduleKey="EmployeesListPage"
+                    />
+                )}
 
                 <SelectField
                     label="Leave Type"

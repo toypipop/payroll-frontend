@@ -65,6 +65,7 @@ const CycleDeductionsPage = () => {
         : [];
 
     const showNoDeductionTypesWarning = !!watchedCycleId && filteredDeductionTypes.length === 0;
+    const showNoEmployeesWarning = !!watchedCycleId && filteredEmployees.length === 0;
 
     const cycleField = register("cycle_id");
     const employeeField = register("employees_id");
@@ -116,6 +117,10 @@ const CycleDeductionsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            if (filteredEmployees.length === 0) {
+                alert("This company has no employees. Please add one before saving.");
+                return;
+            }
             if (data.id) {
                 await api.put(`/cycle-deductions/${data.id}`, data);
             } else {
@@ -282,7 +287,7 @@ const CycleDeductionsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
-                            disabled={showNoDeductionTypesWarning}
+                            disabled={showNoDeductionTypesWarning || showNoEmployeesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -333,6 +338,13 @@ const CycleDeductionsPage = () => {
                         disabled={!watchedCycleId}
                         required
                     />
+                    {showNoEmployeesWarning && (
+                        <MasterDataWarning
+                            message="This company has no employees yet."
+                            routePath="/employees"
+                            moduleKey="EmployeesListPage"
+                        />
+                    )}
                     <SelectField
                         label="Deduction Type"
                         {...register("deduction_type_id")}

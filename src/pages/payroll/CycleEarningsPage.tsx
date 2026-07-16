@@ -67,6 +67,7 @@ const CycleEarningsPage = () => {
         : [];
 
     const showNoEarningTypesWarning = !!watchedCycleId && filteredEarningTypes.length === 0;
+    const showNoEmployeesWarning = !!watchedCycleId && filteredEmployees.length === 0;
 
     const cycleField = register("cycle_id");
     const employeeField = register("employees_id");
@@ -120,6 +121,10 @@ const CycleEarningsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            if (filteredEmployees.length === 0) {
+                alert("This company has no employees. Please add one before saving.");
+                return;
+            }
             if (data.id) {
                 await api.put(`/cycle-earnings/${data.id}`, data);
             } else {
@@ -287,7 +292,7 @@ const CycleEarningsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
-                            disabled={showNoEarningTypesWarning}
+                            disabled={showNoEarningTypesWarning || showNoEmployeesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -338,6 +343,13 @@ const CycleEarningsPage = () => {
                         disabled={!watchedCycleId}
                         required
                     />
+                    {showNoEmployeesWarning && (
+                        <MasterDataWarning
+                            message="This company has no employees yet."
+                            routePath="/employees"
+                            moduleKey="EmployeesListPage"
+                        />
+                    )}
                     <SelectField
                         label="Earning Type"
                         {...register("earning_type_id")}

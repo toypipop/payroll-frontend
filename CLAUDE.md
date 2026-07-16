@@ -36,6 +36,7 @@ This agent manages **both** repos every session:
 - Company options: `GET /companies/options` (not `/companies`).
 - Companies list: `GET /companies/all` (not `/companies`).
 - Protected endpoints need `AuthMiddleware()` + `CheckPermission(...)`.
+- Any master-data type used by a page other than its own settings page needs a `.../options` sibling endpoint (ungated by page permission) — never assume a plain CRUD `GET` is safe to call cross-page. See backend CLAUDE.md "Master-data `/options` convention" for the full list.
 
 ## Business Rules (Always Apply)
 
@@ -44,6 +45,13 @@ This agent manages **both** repos every session:
 - Employee-linked forms must cascade company → department/position/role/employment type/employee and reject mismatches.
 - Time Logs: end <= start means overnight (e.g. `16:00` → `00:00` checks out next day).
 - Leave Requests: only `Pending` status can be edited.
+- **Company field is immutable after creation** everywhere: the "Companies" `SelectField` must be `disabled={!!editingId}` on any edit form (Employees, Departments, Positions, Roles, EarningTypes, DeductionTypes, DayOff, ...) to match the backend rejecting `companies_id` changes on update.
+- All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`, which is wrong whenever the viewer's machine isn't set to Bangkok. See `AttendanceSettingsPage.tsx`'s `toBangkokHM()` helper for the pattern.
+
+## Shared UI Patterns
+
+- **Missing master data**: use `src/components/common/MasterDataWarning.tsx` (message + conditional "Set it up" link, shown only if the user can access that settings module) instead of a bespoke warning box, whenever a form depends on a master-data type that might not be configured yet for the selected company (work locations, day-offs, leave types, attendance config, etc).
+- Links to settings pages from these warnings use `target="_blank" rel="noopener noreferrer"` so the user doesn't lose in-progress form state — apply this to any new "Set it up" style link too.
 
 ## Commands
 

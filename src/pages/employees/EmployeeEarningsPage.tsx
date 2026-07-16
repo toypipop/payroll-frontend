@@ -53,6 +53,7 @@ const EmployeeEarningsPage = () => {
     }, [earningTypes, selectedCompanyId]);
 
     const showNoEarningTypesWarning = !!selectedCompanyId && filteredEarningTypes.length === 0;
+    const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
 
     const employeeField = register("employees_id");
 
@@ -80,6 +81,10 @@ const EmployeeEarningsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            if (filteredEmployees.length === 0) {
+                alert("This company has no employees. Please add one before saving.");
+                return;
+            }
             const selectedType = earningTypes.find((et) => String(et.id) === String(data.earning_type_id));
             if (
                 selectedCompanyId &&
@@ -205,7 +210,7 @@ const EmployeeEarningsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
-                            disabled={showNoEarningTypesWarning}
+                            disabled={showNoEarningTypesWarning || showNoEmployeesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -240,6 +245,13 @@ const EmployeeEarningsPage = () => {
                         disabled={!selectedCompanyId}
                         required
                     />
+                    {showNoEmployeesWarning && (
+                        <MasterDataWarning
+                            message="This company has no employees yet."
+                            routePath="/employees"
+                            moduleKey="EmployeesListPage"
+                        />
+                    )}
                     <SelectField
                         label="Earning Type"
                         {...register("earning_type_id")}

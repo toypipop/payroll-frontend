@@ -60,6 +60,7 @@ const EmployeeCompanyAccessPage = () => {
     }, [roles, selectedCompanyId]);
 
     const showNoRolesWarning = !!selectedCompanyId && filteredRoles.length === 0;
+    const showNoEmployeesWarning = employees.length === 0;
 
     const selectedEmployeeName = useMemo(() => {
         const employee = employees.find((item) => String(item.id) === String(selectedEmployeeId));
@@ -116,6 +117,10 @@ const EmployeeCompanyAccessPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            if (employees.length === 0) {
+                alert("There are no employees yet. Please add one before saving.");
+                return;
+            }
             const payload = {
                 employee_id: Number(data.employee_id),
                 company_id: Number(data.company_id),
@@ -246,7 +251,7 @@ const EmployeeCompanyAccessPage = () => {
                         <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }} disabled={showNoRolesWarning}>
+                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }} disabled={showNoRolesWarning || showNoEmployeesWarning}>
                             {editingId ? "Update" : "Save"}
                         </Button>
                     </>
@@ -265,6 +270,13 @@ const EmployeeCompanyAccessPage = () => {
                     }}
                     required
                 />
+                {showNoEmployeesWarning && (
+                    <MasterDataWarning
+                        message="There are no employees yet."
+                        routePath="/employees"
+                        moduleKey="EmployeesListPage"
+                    />
+                )}
 
                 <SelectField
                     label="Company"

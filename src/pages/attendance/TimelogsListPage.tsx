@@ -228,6 +228,14 @@ const TimelogsListPage = () => {
             alert("This company has no Attendance Config. Please set it up before saving.");
             return;
         }
+        if (data.companies_id && (dayOffWeekdaysByCompany[data.companies_id] || []).length === 0) {
+            alert("This company has no day-offs configured. Please set it up before saving.");
+            return;
+        }
+        if (data.companies_id && filteredEmployees.length === 0) {
+            alert("This company has no employees. Please add one before saving.");
+            return;
+        }
         try {
             const payload = {
                 ...data,
@@ -299,6 +307,8 @@ const TimelogsListPage = () => {
     const selectedCompanyConfig = selectedCompanyId ? attendanceConfigs[selectedCompanyId] : null;
     const showNoConfigWarning = !!selectedCompanyId && !(selectedCompanyConfig && selectedCompanyConfig.is_configured);
     const showNoWorkLocationsWarning = !!selectedEmployeeCompaniesId && filteredWorkLocations.length === 0;
+    const showNoDayOffsWarning = !!selectedCompanyId && (dayOffWeekdaysByCompany[selectedCompanyId] || []).length === 0;
+    const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
 
     // Bulk Add derived state
     const bulkFilteredEmployees = bulkCompanyId
@@ -309,6 +319,8 @@ const TimelogsListPage = () => {
         : [];
     const bulkCompanyConfig = bulkCompanyId ? attendanceConfigs[bulkCompanyId] : null;
     const bulkShowNoConfigWarning = !!bulkCompanyId && !(bulkCompanyConfig && bulkCompanyConfig.is_configured);
+    const bulkShowNoDayOffsWarning = !!bulkCompanyId && (dayOffWeekdaysByCompany[bulkCompanyId] || []).length === 0;
+    const bulkShowNoEmployeesWarning = !!bulkCompanyId && bulkFilteredEmployees.length === 0;
 
     const toggleBulkWeekday = (value) => {
         setBulkWeekdays((prev) =>
@@ -352,6 +364,7 @@ const TimelogsListPage = () => {
         setBulkResult(null);
 
         if (!bulkCompanyId) return setBulkError("Please select a company");
+        if (bulkShowNoEmployeesWarning) return setBulkError("This company has no employees. Please add one before saving.");
         if (!bulkEmployeeId) return setBulkError("Please select an employee");
         if (!bulkWorkLocationId) return setBulkError("Please select a work location");
         if (!bulkStartDate || !bulkEndDate) return setBulkError("Please select a date range");
@@ -360,6 +373,9 @@ const TimelogsListPage = () => {
         if (!bulkCheckInTime || !bulkCheckOutTime) return setBulkError("Please set check-in and check-out time");
         if (!(bulkCompanyConfig && bulkCompanyConfig.is_configured)) {
             return setBulkError("This company has no Attendance Config. Please set it up before saving.");
+        }
+        if (bulkShowNoDayOffsWarning) {
+            return setBulkError("This company has no day-offs configured. Please set it up before saving.");
         }
 
         setBulkSubmitting(true);
@@ -590,7 +606,7 @@ const TimelogsListPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             style={{ width: "auto" }}
-                            disabled={showNoConfigWarning || showNoWorkLocationsWarning}
+                            disabled={showNoConfigWarning || showNoWorkLocationsWarning || showNoDayOffsWarning || showNoEmployeesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -636,6 +652,13 @@ const TimelogsListPage = () => {
                     disabled={!selectedCompanyId}
                     required
                 />
+                {showNoEmployeesWarning && (
+                    <MasterDataWarning
+                        message="This company has no employees yet."
+                        routePath="/employees"
+                        moduleKey="EmployeesListPage"
+                    />
+                )}
 
                 <Controller
                     control={control}
@@ -663,6 +686,14 @@ const TimelogsListPage = () => {
                         />
                     )}
                 />
+
+                {showNoDayOffsWarning && (
+                    <MasterDataWarning
+                        message="This company has no day-offs configured yet."
+                        routePath="/day-offs"
+                        moduleKey="DayOffPage"
+                    />
+                )}
 
                 <SelectField
                     label="Work Location"
@@ -701,7 +732,7 @@ const TimelogsListPage = () => {
                             <Button
                                 onClick={handleBulkSubmit}
                                 style={{ width: "auto" }}
-                                disabled={bulkSubmitting || bulkShowNoConfigWarning}
+                                disabled={bulkSubmitting || bulkShowNoConfigWarning || bulkShowNoDayOffsWarning || bulkShowNoEmployeesWarning}
                             >
                                 {bulkSubmitting ? "Creating..." : "Create Logs"}
                             </Button>
@@ -755,6 +786,13 @@ const TimelogsListPage = () => {
                             disabled={!bulkCompanyId}
                             required
                         />
+                        {bulkShowNoEmployeesWarning && (
+                            <MasterDataWarning
+                                message="This company has no employees yet."
+                                routePath="/employees"
+                                moduleKey="EmployeesListPage"
+                            />
+                        )}
 
                         <SelectField
                             label="Work Location"
@@ -771,7 +809,6 @@ const TimelogsListPage = () => {
                                 moduleKey="WorkLocationPage"
                             />
                         )}
-
                         <div style={{ display: "flex", gap: "12px" }}>
                             <div style={{ flex: 1 }}>
                                 <DateField
@@ -839,6 +876,14 @@ const TimelogsListPage = () => {
                                 />
                             </div>
                         </div>
+
+                        {bulkShowNoDayOffsWarning && (
+                            <MasterDataWarning
+                                message="This company has no day-offs configured yet."
+                                routePath="/day-offs"
+                                moduleKey="DayOffPage"
+                            />
+                        )}
 
                         {bulkError && (
                             <div style={{ ...warningBox, background: "#fff1f2", border: "1px solid #fecdd3", color: "#be123c" }}>

@@ -53,6 +53,7 @@ const EmployeeDeductionsPage = () => {
     }, [deductionTypes, selectedCompanyId]);
 
     const showNoDeductionTypesWarning = !!selectedCompanyId && filteredDeductionTypes.length === 0;
+    const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
 
     const employeeField = register("employees_id");
 
@@ -80,6 +81,10 @@ const EmployeeDeductionsPage = () => {
 
     const onSubmit = async (data) => {
         try {
+            if (filteredEmployees.length === 0) {
+                alert("This company has no employees. Please add one before saving.");
+                return;
+            }
             const selectedType = deductionTypes.find((dt) => String(dt.id) === String(data.deduction_type_id));
             if (
                 selectedCompanyId &&
@@ -205,7 +210,7 @@ const EmployeeDeductionsPage = () => {
                         <Button
                             onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
                             style={{ width: "auto" }}
-                            disabled={showNoDeductionTypesWarning}
+                            disabled={showNoDeductionTypesWarning || showNoEmployeesWarning}
                         >
                             {editingId ? "Update" : "Save"}
                         </Button>
@@ -240,6 +245,13 @@ const EmployeeDeductionsPage = () => {
                         disabled={!selectedCompanyId}
                         required
                     />
+                    {showNoEmployeesWarning && (
+                        <MasterDataWarning
+                            message="This company has no employees yet."
+                            routePath="/employees"
+                            moduleKey="EmployeesListPage"
+                        />
+                    )}
                     <SelectField
                         label="Deduction Type"
                         {...register("deduction_type_id")}
