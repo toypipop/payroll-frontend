@@ -12,9 +12,21 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import DateTimeField from "../../components/common/DateTimeField";
+import DateField from "../../components/common/DateField";
+import TimeField from "../../components/common/TimeField";
 import SelectField from "../../components/common/SelectField";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
 import { Controller } from "react-hook-form";
+
+const WEEKDAY_OPTIONS = [
+    { value: 1, label: "Mon" },
+    { value: 2, label: "Tue" },
+    { value: 3, label: "Wed" },
+    { value: 4, label: "Thu" },
+    { value: 5, label: "Fri" },
+    { value: 6, label: "Sat" },
+    { value: 0, label: "Sun" },
+];
 
 // Validation schema for timelog form
 const timeLogSchema = z.object({
@@ -72,6 +84,8 @@ const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
 
 const minutesFromTime = ({ hour, min }) => (hour * 60) + min;
 
+const formatHHMM = ({ hour, min }) => `${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+
 const buildDateWithTime = (baseDate, hour, min) => {
     const date = new Date(baseDate);
     date.setHours(hour, min, 0, 0);
@@ -91,7 +105,22 @@ const TimelogsListPage = () => {
     const [masterWorkLocations, setMasterWorkLocations] = useState([]);
     const [employeeData, setEmployeeData] = useState({});
     const [attendanceConfigs, setAttendanceConfigs] = useState({});
+    const [dayOffWeekdaysByCompany, setDayOffWeekdaysByCompany] = useState({});
     const [canManageAttendanceSettings, setCanManageAttendanceSettings] = useState(false);
+
+    // Bulk Add state
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [bulkCompanyId, setBulkCompanyId] = useState("");
+    const [bulkEmployeeId, setBulkEmployeeId] = useState("");
+    const [bulkWorkLocationId, setBulkWorkLocationId] = useState("");
+    const [bulkStartDate, setBulkStartDate] = useState("");
+    const [bulkEndDate, setBulkEndDate] = useState("");
+    const [bulkWeekdays, setBulkWeekdays] = useState([1, 2, 3, 4, 5]);
+    const [bulkCheckInTime, setBulkCheckInTime] = useState("09:00");
+    const [bulkCheckOutTime, setBulkCheckOutTime] = useState("18:00");
+    const [bulkSubmitting, setBulkSubmitting] = useState(false);
+    const [bulkResult, setBulkResult] = useState(null);
+    const [bulkError, setBulkError] = useState("");
 
     // Initialize form with hook form
     const {
@@ -131,12 +160,13 @@ const TimelogsListPage = () => {
         const fetchMasterData = async () => {
             try {
                 // Fetch employees to show in dropdown
-                const [empRes, locRes, schedRes, companyRes, modulesRes] = await Promise.all([
+                const [empRes, locRes, schedRes, companyRes, modulesRes, dayOffRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/work-locations/options").catch(() => ({ data: [] })),
                     api.get("/timelogs/schedule-config").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
                     api.get("/modules").catch(() => ({ data: [] })),
+                    api.get("/master/day-offs/options").catch(() => ({ data: [] })),
                 ]);
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
@@ -166,6 +196,13 @@ const TimelogsListPage = () => {
                     }
                 });
                 setAttendanceConfigs(configMap);
+
+                const dayOffMap = {};
+                (dayOffRes.data || []).forEach((d) => {
+                    if (!dayOffMap[d.companies_id]) dayOffMap[d.companies_id] = [];
+                    dayOffMap[d.companies_id].push(d.weekday);
+                });
+                setDayOffWeekdaysByCompany(dayOffMap);
 
                 const moduleKeys = [];
                 const collectKeys = (items) => {
@@ -262,6 +299,89 @@ const TimelogsListPage = () => {
     const selectedCompanyConfig = selectedCompanyId ? attendanceConfigs[selectedCompanyId] : null;
     const showNoConfigWarning = !!selectedCompanyId && !(selectedCompanyConfig && selectedCompanyConfig.is_configured);
     const showNoWorkLocationsWarning = !!selectedEmployeeCompaniesId && filteredWorkLocations.length === 0;
+
+    // Bulk Add derived state
+    const bulkFilteredEmployees = bulkCompanyId
+        ? masterEmployees.filter((emp) => String(emp.companies_id) === String(bulkCompanyId))
+        : [];
+    const bulkFilteredWorkLocations = bulkCompanyId
+        ? masterWorkLocations.filter((loc) => !loc.companies_id || String(loc.companies_id) === String(bulkCompanyId))
+        : [];
+    const bulkCompanyConfig = bulkCompanyId ? attendanceConfigs[bulkCompanyId] : null;
+    const bulkShowNoConfigWarning = !!bulkCompanyId && !(bulkCompanyConfig && bulkCompanyConfig.is_configured);
+
+    const toggleBulkWeekday = (value) => {
+        setBulkWeekdays((prev) =>
+            prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value].sort()
+        );
+    };
+
+    const handleBulkCompanyChange = (e) => {
+        const companyId = e.target.value;
+        setBulkCompanyId(companyId);
+        setBulkEmployeeId("");
+        setBulkWorkLocationId("");
+
+        // Default weekdays/times to this company's actual attendance config
+        const dayOffWeekdays = dayOffWeekdaysByCompany[companyId] || [];
+        setBulkWeekdays([0, 1, 2, 3, 4, 5, 6].filter((d) => !dayOffWeekdays.includes(d)));
+
+        const cfg = attendanceConfigs[companyId];
+        if (cfg && cfg.is_configured) {
+            setBulkCheckInTime(formatHHMM(parseTimeFromConfig(cfg.work_start_time, 9, 0)));
+            setBulkCheckOutTime(formatHHMM(parseTimeFromConfig(cfg.work_end_time, 18, 0)));
+        }
+    };
+
+    const closeBulkModal = () => {
+        setIsBulkModalOpen(false);
+        setBulkCompanyId("");
+        setBulkEmployeeId("");
+        setBulkWorkLocationId("");
+        setBulkStartDate("");
+        setBulkEndDate("");
+        setBulkWeekdays([1, 2, 3, 4, 5]);
+        setBulkCheckInTime("09:00");
+        setBulkCheckOutTime("18:00");
+        setBulkResult(null);
+        setBulkError("");
+    };
+
+    const handleBulkSubmit = async () => {
+        setBulkError("");
+        setBulkResult(null);
+
+        if (!bulkCompanyId) return setBulkError("Please select a company");
+        if (!bulkEmployeeId) return setBulkError("Please select an employee");
+        if (!bulkWorkLocationId) return setBulkError("Please select a work location");
+        if (!bulkStartDate || !bulkEndDate) return setBulkError("Please select a date range");
+        if (bulkEndDate < bulkStartDate) return setBulkError("End date cannot be before start date");
+        if (bulkWeekdays.length === 0) return setBulkError("Select at least one weekday");
+        if (!bulkCheckInTime || !bulkCheckOutTime) return setBulkError("Please set check-in and check-out time");
+        if (!(bulkCompanyConfig && bulkCompanyConfig.is_configured)) {
+            return setBulkError("This company has no Attendance Config. Please set it up before saving.");
+        }
+
+        setBulkSubmitting(true);
+        try {
+            const res = await api.post("/timelogs/bulk", {
+                employees_id: parseInt(bulkEmployeeId),
+                companies_id: parseInt(bulkCompanyId),
+                work_location_id: parseInt(bulkWorkLocationId),
+                start_date: bulkStartDate,
+                end_date: bulkEndDate,
+                weekdays: bulkWeekdays,
+                check_in_time: bulkCheckInTime,
+                check_out_time: bulkCheckOutTime,
+            });
+            setBulkResult(res.data);
+            fetchTimeLogs();
+        } catch (err) {
+            setBulkError(err.response?.data?.error || "Bulk add failed");
+        } finally {
+            setBulkSubmitting(false);
+        }
+    };
 
     // Returns the configured schedule for a company, or null when that company
     // has no attendance config (so callers skip auto-filling times).
@@ -427,12 +547,21 @@ const TimelogsListPage = () => {
             <PageHeader
                 title="Attendance Time Logs"
                 actionButton={
-                    <Button
-                        onClick={() => setIsModalOpen(true)}
-                        style={{ width: "auto" }}
-                    >
-                        + Add Manual Log
-                    </Button>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => setIsBulkModalOpen(true)}
+                            style={{ width: "auto" }}
+                        >
+                            Bulk Add
+                        </Button>
+                        <Button
+                            onClick={() => setIsModalOpen(true)}
+                            style={{ width: "auto" }}
+                        >
+                            + Add Manual Log
+                        </Button>
+                    </div>
                 }
             />
             <Card style={{ padding: "0px" }}>
@@ -557,6 +686,167 @@ const TimelogsListPage = () => {
                     error={errors.remark?.message}
                     placeholder="Optional remark"
                 />
+            </Modal>
+
+            <Modal
+                isOpen={isBulkModalOpen}
+                onClose={closeBulkModal}
+                title="Bulk Add Time Log"
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={closeBulkModal} style={{ width: "auto" }}>
+                            {bulkResult ? "Close" : "Cancel"}
+                        </Button>
+                        {!bulkResult && (
+                            <Button
+                                onClick={handleBulkSubmit}
+                                style={{ width: "auto" }}
+                                disabled={bulkSubmitting || bulkShowNoConfigWarning}
+                            >
+                                {bulkSubmitting ? "Creating..." : "Create Logs"}
+                            </Button>
+                        )}
+                    </>
+                }
+            >
+                {bulkResult ? (
+                    <div>
+                        <div style={{ ...warningBox, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d" }}>
+                            Created <strong>{bulkResult.created_count}</strong> time log(s).
+                            {bulkResult.skipped_count > 0 && (
+                                <span> Skipped {bulkResult.skipped_count} date(s) that already had a log.</span>
+                            )}
+                        </div>
+                        {bulkResult.skipped_dates?.length > 0 && (
+                            <ul style={{ margin: "8px 0 0 16px", padding: 0, fontSize: "12px", color: "#64748b" }}>
+                                {bulkResult.skipped_dates.map((d) => <li key={d}>{d}</li>)}
+                            </ul>
+                        )}
+                    </div>
+                ) : (
+                    <>
+                        <SelectField
+                            label="Company"
+                            options={masterCompanies}
+                            value={bulkCompanyId}
+                            onChange={handleBulkCompanyChange}
+                            required
+                        />
+
+                        {bulkShowNoConfigWarning && (
+                            <div style={warningBox}>
+                                This company has no Attendance Config yet, so time logs cannot be saved.
+                                {canManageAttendanceSettings && (
+                                    <>
+                                        {" "}
+                                        <Link to="/attendance-settings" target="_blank" rel="noopener noreferrer" style={warningLink}>
+                                            Set it up
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        <SelectField
+                            label="Employee"
+                            options={bulkFilteredEmployees}
+                            value={bulkEmployeeId}
+                            onChange={(e) => setBulkEmployeeId(e.target.value)}
+                            disabled={!bulkCompanyId}
+                            required
+                        />
+
+                        <SelectField
+                            label="Work Location"
+                            options={bulkFilteredWorkLocations}
+                            value={bulkWorkLocationId}
+                            onChange={(e) => setBulkWorkLocationId(e.target.value)}
+                            disabled={!bulkCompanyId}
+                            required
+                        />
+                        {!!bulkCompanyId && bulkFilteredWorkLocations.length === 0 && (
+                            <MasterDataWarning
+                                message="This company has no work locations yet."
+                                routePath="/work-locations"
+                                moduleKey="WorkLocationPage"
+                            />
+                        )}
+
+                        <div style={{ display: "flex", gap: "12px" }}>
+                            <div style={{ flex: 1 }}>
+                                <DateField
+                                    label="From"
+                                    value={bulkStartDate}
+                                    onChange={setBulkStartDate}
+                                    required
+                                />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <DateField
+                                    label="To"
+                                    value={bulkEndDate}
+                                    onChange={setBulkEndDate}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: "20px" }}>
+                            <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#64748b", marginBottom: "6px" }}>
+                                Apply to weekdays<span style={{ color: "#ef4444" }}> *</span>
+                            </label>
+                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                                {WEEKDAY_OPTIONS.map((wd) => {
+                                    const active = bulkWeekdays.includes(wd.value);
+                                    return (
+                                        <button
+                                            key={wd.value}
+                                            type="button"
+                                            onClick={() => toggleBulkWeekday(wd.value)}
+                                            style={{
+                                                padding: "6px 12px",
+                                                borderRadius: "8px",
+                                                border: `1px solid ${active ? "#6259ca" : "#e2e8f0"}`,
+                                                background: active ? "#6259ca" : "#f8fafc",
+                                                color: active ? "#fff" : "#334155",
+                                                fontSize: "13px",
+                                                fontWeight: 600,
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            {wd.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "12px" }}>
+                            <div style={{ flex: 1 }}>
+                                <TimeField
+                                    label="Check-in time"
+                                    value={bulkCheckInTime}
+                                    onChange={setBulkCheckInTime}
+                                    required
+                                />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <TimeField
+                                    label="Check-out time"
+                                    value={bulkCheckOutTime}
+                                    onChange={setBulkCheckOutTime}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {bulkError && (
+                            <div style={{ ...warningBox, background: "#fff1f2", border: "1px solid #fecdd3", color: "#be123c" }}>
+                                {bulkError}
+                            </div>
+                        )}
+                    </>
+                )}
             </Modal>
         </>
     );

@@ -13,6 +13,16 @@ import InputField from "../../components/common/InputField";
 import ToggleField from "../../components/common/ToggleField";
 import TimeField from "../../components/common/TimeField";
 
+// Business timezone is fixed to Asia/Bangkok (UTC+7, no DST) — never rely on
+// the viewer's browser timezone, which may not be Bangkok.
+const BANGKOK_OFFSET_MINUTES = 7 * 60;
+
+const toBangkokHM = (date) => {
+    const totalMinutes = date.getUTCHours() * 60 + date.getUTCMinutes() + BANGKOK_OFFSET_MINUTES;
+    const wrapped = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+    return { hours: Math.floor(wrapped / 60), minutes: wrapped % 60 };
+};
+
 const attendanceConfigSchema = z.object({
     companies_id: z.number(),
     late_rate_per_minute: z.preprocess((val) => parseFloat(String(val)), z.number().min(0, "Invalid rate")),
@@ -84,7 +94,8 @@ const AttendanceSettingsPage = () => {
                 }
                 const date = new Date(timeValue);
                 if (!Number.isNaN(date.getTime())) {
-                    return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+                    const { hours, minutes } = toBangkokHM(date);
+                    return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
                 }
             }
             return "09:00";
@@ -123,8 +134,7 @@ const AttendanceSettingsPage = () => {
             }
             const date = new Date(timeValue);
             if (!Number.isNaN(date.getTime())) {
-                const hours = date.getHours();
-                const minutes = date.getMinutes();
+                const { hours, minutes } = toBangkokHM(date);
                 const ampm = hours >= 12 ? 'PM' : 'AM';
                 const displayHour = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
                 return `${displayHour}:${String(minutes).padStart(2, '0')} ${ampm}`;
