@@ -22,6 +22,9 @@ const schema = z.object({
     amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
 });
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 const formatDate = (value) => {
     if (!value) return "-";
     return new Date(value).toLocaleDateString("en-GB", {
@@ -37,14 +40,14 @@ const CycleDeductionsPage = () => {
     const [cycles, setCycles] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [deductionTypes, setDeductionTypes] = useState([]);
-    const [selectedCompanyId, setSelectedCompanyId] = useState("");
+    const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [selectedCycleId, setSelectedCycleId] = useState("");
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { companies_id: "", cycle_id: "", employees_id: "", deduction_type_id: "", amount: "" },
+        defaultValues: { companies_id: homeCompanyId, cycle_id: "", employees_id: "", deduction_type_id: "", amount: "" },
     });
 
     const editingId = watch("id");

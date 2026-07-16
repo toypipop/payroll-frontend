@@ -18,6 +18,9 @@ import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 import { Controller } from "react-hook-form";
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 // Validation schema for leave requests
 const leaveSchema = z.object({
     companies_id: z.string().min(1, "Please select a company"),
@@ -61,7 +64,7 @@ const LeaveRequestsPage = () => {
     } = useForm({
         resolver: zodResolver(leaveSchema),
         defaultValues: {
-            companies_id: "",
+            companies_id: homeCompanyId,
             employees_id: "",
             leave_type_id: "",
             start_date: "",
@@ -205,7 +208,7 @@ const LeaveRequestsPage = () => {
         setSelectedEmployeeId("");
         reset({
             employees_id: "",
-            companies_id: "",
+            companies_id: homeCompanyId,
             leave_type_id: "",
             start_date: "",
             end_date: "",

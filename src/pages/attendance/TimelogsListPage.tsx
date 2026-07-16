@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,9 @@ import TimeField from "../../components/common/TimeField";
 import SelectField from "../../components/common/SelectField";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
 import { Controller } from "react-hook-form";
+
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
 
 const WEEKDAY_OPTIONS = [
     { value: 1, label: "Mon" },
@@ -110,7 +113,7 @@ const TimelogsListPage = () => {
 
     // Bulk Add state
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-    const [bulkCompanyId, setBulkCompanyId] = useState("");
+    const [bulkCompanyId, setBulkCompanyId] = useState(homeCompanyId);
     const [bulkEmployeeId, setBulkEmployeeId] = useState("");
     const [bulkWorkLocationId, setBulkWorkLocationId] = useState("");
     const [bulkStartDate, setBulkStartDate] = useState("");
@@ -135,7 +138,7 @@ const TimelogsListPage = () => {
     } = useForm({
         resolver: zodResolver(timeLogSchema),
         defaultValues: {
-            companies_id: "",
+            companies_id: homeCompanyId,
             employees_id: "",
             check_in: "",
             check_out: "",
@@ -328,13 +331,8 @@ const TimelogsListPage = () => {
         );
     };
 
-    const handleBulkCompanyChange = (e) => {
-        const companyId = e.target.value;
-        setBulkCompanyId(companyId);
-        setBulkEmployeeId("");
-        setBulkWorkLocationId("");
-
-        // Default weekdays/times to this company's actual attendance config
+    // Default weekdays/times to a company's actual day-offs/attendance config
+    const applyBulkDefaultsForCompany = (companyId) => {
         const dayOffWeekdays = dayOffWeekdaysByCompany[companyId] || [];
         setBulkWeekdays([0, 1, 2, 3, 4, 5, 6].filter((d) => !dayOffWeekdays.includes(d)));
 
@@ -345,9 +343,28 @@ const TimelogsListPage = () => {
         }
     };
 
+    const handleBulkCompanyChange = (e) => {
+        const companyId = e.target.value;
+        setBulkCompanyId(companyId);
+        setBulkEmployeeId("");
+        setBulkWorkLocationId("");
+        applyBulkDefaultsForCompany(companyId);
+    };
+
+    // Master data (attendance config / day-offs) loads asynchronously after
+    // mount, so re-apply defaults once for the pre-selected home company.
+    const bulkDefaultsAppliedRef = useRef(false);
+    useEffect(() => {
+        if (bulkDefaultsAppliedRef.current) return;
+        if (!homeCompanyId) return;
+        if (Object.keys(attendanceConfigs).length === 0 && Object.keys(dayOffWeekdaysByCompany).length === 0) return;
+        bulkDefaultsAppliedRef.current = true;
+        applyBulkDefaultsForCompany(homeCompanyId);
+    }, [attendanceConfigs, dayOffWeekdaysByCompany]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const closeBulkModal = () => {
         setIsBulkModalOpen(false);
-        setBulkCompanyId("");
+        setBulkCompanyId(homeCompanyId);
         setBulkEmployeeId("");
         setBulkWorkLocationId("");
         setBulkStartDate("");
