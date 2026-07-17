@@ -247,7 +247,6 @@ const RunPayrollPage = () => {
             render: (row) => {
                 const extras = (row.details || []).filter(d => d.type === "earning" && d.item_name !== "Base Salary");
                 const extrasTotal = extras.reduce((s, d) => s + (d.amount || 0), 0);
-                if (!extras.length) return <span style={{ color: "#cbd5e1", fontSize: "12px" }}>—</span>;
                 return (
                     <DetailDropdown
                         total={extrasTotal}

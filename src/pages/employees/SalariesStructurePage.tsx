@@ -186,6 +186,10 @@ const SalariesStructurePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmp, setSelectedEmp] = useState(null);
     const [selectedSalaryId, setSelectedSalaryId] = useState(null);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [historyEmp, setHistoryEmp] = useState(null);
+    const [historyRows, setHistoryRows] = useState([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
 
     const {
         handleSubmit,
@@ -300,6 +304,52 @@ const SalariesStructurePage = () => {
         reset(DEFAULT_FORM_VALUES);
     };
 
+    const fetchHistory = async (empId) => {
+        try {
+            setHistoryLoading(true);
+            const response = await api.get(`/salaries/history/${empId}`);
+            setHistoryRows(Array.isArray(response.data) ? response.data : []);
+        } catch (err) {
+            console.error("Fetch salary history failed:", err);
+            setHistoryRows([]);
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
+
+    const handleShowHistory = (emp) => {
+        const empId = getEmployeeId(emp);
+        if (!empId) {
+            alert("Unable to find employee id for this row.");
+            return;
+        }
+        setHistoryEmp(emp);
+        setIsHistoryOpen(true);
+        fetchHistory(empId);
+    };
+
+    const closeHistoryModal = () => {
+        setIsHistoryOpen(false);
+        setHistoryEmp(null);
+        setHistoryRows([]);
+    };
+
+    const handleDeleteHistoryRecord = async (recordId) => {
+        if (!window.confirm("Delete this salary record permanently? This cannot be undone.")) return;
+        try {
+            await api.delete(`/salaries/${recordId}`);
+            const empId = getEmployeeId(historyEmp);
+            if (empId) fetchHistory(empId);
+            fetchSalaries();
+        } catch (err) {
+            alert(
+                err.response?.data?.error ||
+                    err.response?.data?.message ||
+                    "Delete failed"
+            );
+        }
+    };
+
     const columns = [
         { label: "Code", key: "employees_code", searchableKeys: ['employees_code'] },
         {
@@ -391,13 +441,22 @@ const SalariesStructurePage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => handleEditSalaries(row)}
-                    style={{ padding: "6px 12px", fontSize: "12px" }}
-                >
-                    Update Salaries
-                </Button>
+                <div style={{ display: "flex", gap: "6px" }}>
+                    <Button
+                        variant="ghost"
+                        onClick={() => handleEditSalaries(row)}
+                        style={{ padding: "6px 12px", fontSize: "12px" }}
+                    >
+                        Update Salaries
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        onClick={() => handleShowHistory(row)}
+                        style={{ padding: "6px 12px", fontSize: "12px" }}
+                    >
+                        History
+                    </Button>
+                </div>
             ),
         },
     ];
@@ -482,6 +541,70 @@ const SalariesStructurePage = () => {
                         />
                     )}
                 />
+            </Modal>
+
+            <Modal
+                isOpen={isHistoryOpen}
+                onClose={closeHistoryModal}
+                title={`Salary History: ${historyEmp?.first_name} ${historyEmp?.last_name}`}
+                footer={
+                    <Button variant="ghost" onClick={closeHistoryModal} style={{ width: "auto" }}>
+                        Close
+                    </Button>
+                }
+            >
+                {historyLoading ? (
+                    <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                ) : historyRows.length === 0 ? (
+                    <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>No salary history yet.</div>
+                ) : (
+                    <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse", fontSize: "13px" }}>
+                            <thead>
+                                <tr style={{ color: "#94a3b8", fontWeight: 600, fontSize: "11px" }}>
+                                    <th style={{ width: "25%", textAlign: "left", padding: "4px 8px 8px 0" }}>Effective Date</th>
+                                    <th style={{ width: "25%", textAlign: "right", padding: "4px 8px" }}>Base Salary</th>
+                                    <th style={{ width: "25%", textAlign: "left", padding: "4px 8px" }}>Status</th>
+                                    <th style={{ width: "25%", textAlign: "right", padding: "4px 0 8px 8px" }}>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {historyRows.map((rec) => {
+                                    const date = rec.effective_date;
+                                    const dateLabel = date && !date.startsWith("0001")
+                                        ? new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                                        : "-";
+                                    return (
+                                        <tr key={rec.id} style={{ borderTop: "1px solid #f1f5f9" }}>
+                                            <td style={{ width: "25%", padding: "7px 8px 7px 0" }}>{dateLabel}</td>
+                                            <td style={{ width: "25%", textAlign: "right", padding: "7px 8px", fontFamily: "monospace" }}>
+                                                {Number(rec.base_salaries || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </td>
+                                            <td style={{ width: "25%", padding: "7px 8px" }}>
+                                                <Badge status={rec.is_active}>{rec.is_active ? "Active" : "Archived"}</Badge>
+                                            </td>
+                                            <td style={{ width: "25%", textAlign: "right", padding: "7px 0 7px 8px" }}>
+                                                {rec.can_delete ? (
+                                                    <Button
+                                                        variant="ghost"
+                                                        onClick={() => handleDeleteHistoryRecord(rec.id)}
+                                                        style={{ padding: "4px 10px", fontSize: "12px", width: "auto", color: "#dc2626" }}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                ) : (
+                                                    <span style={{ fontSize: "11px", color: "#cbd5e1" }} title="Already used in a payroll calculation">
+                                                        Locked
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </Modal>
         </>
     );
