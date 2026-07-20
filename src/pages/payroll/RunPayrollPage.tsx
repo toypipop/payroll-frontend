@@ -13,7 +13,7 @@ import MasterDataWarning from "../../components/common/MasterDataWarning";
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const DetailDropdown = ({ total, details, color, filterFn }) => {
+const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
     const [open, setOpen] = useState(false);
     const [pos, setPos] = useState({ top: 0, left: 0 });
     const btnRef = useRef(null);
@@ -59,16 +59,21 @@ const DetailDropdown = ({ total, details, color, filterFn }) => {
                         boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "8px 0", minWidth: "210px",
                     }}
                 >
-                    {filtered.map((d, i) => (
-                        <div key={i} style={{
-                            display: "flex", justifyContent: "space-between", alignItems: "center",
-                            padding: "5px 14px", fontSize: "12px", gap: "16px",
-                            borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                        }}>
-                            <span style={{ color: "#475569", whiteSpace: "nowrap" }}>{d.item_name}</span>
-                            <span style={{ color, fontWeight: "600", whiteSpace: "nowrap" }}>฿{formatCurrency(d.amount)}</span>
-                        </div>
-                    ))}
+                    {filtered.map((d, i) => {
+                        const itemColor = itemColorFn ? itemColorFn(d) : color;
+                        return (
+                            <div key={i} style={{
+                                display: "flex", justifyContent: "space-between", alignItems: "center",
+                                padding: "5px 14px", fontSize: "12px", gap: "16px",
+                                borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
+                            }}>
+                                <span style={{ color: "#475569", whiteSpace: "nowrap" }}>{d.item_name}</span>
+                                <span style={{ color: itemColor, fontWeight: "600", whiteSpace: "nowrap" }}>
+                                    {d.type === "deduction" ? "-" : ""}฿{formatCurrency(d.amount)}
+                                </span>
+                            </div>
+                        );
+                    })}
                 </div>,
                 document.body
             )}
@@ -148,18 +153,26 @@ const RunPayrollPage = () => {
 
     useEffect(() => { fetchCycles(); }, []);
 
-    // Load cycle and fetch its config
+    // Every cycle listed here is open (fetchCycles filters out closed ones), so
+    // there's never a "frozen, audit-locked" snapshot to preserve — recalculate
+    // automatically whenever a different cycle is selected, instead of showing
+    // whatever was last calculated (which may predate a settings change).
     useEffect(() => {
         if (selectedCycleId && cycles.length > 0) {
             const cycle = cycles.find((c) => String(c.id) === String(selectedCycleId));
             if (cycle) {
                 setSelectedCycle(cycle);
-                fetchTransactions(selectedCycleId);
-                // Fetch config for this cycle's company
                 fetchPayrollConfigForCycle(cycle);
             }
         }
     }, [selectedCycleId, cycles]);
+
+    useEffect(() => {
+        if (selectedCycle) {
+            handleCalculate();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCycle?.id]);
 
     const runCalculate = async () => {
         if (!selectedCycleId || !selectedCycle) return;
@@ -241,32 +254,20 @@ const RunPayrollPage = () => {
             ),
         },
         {
-            label: "Earning",
-            sortKey: "total_earning",
-            sortValue: (row) => row.total_earning || 0,
-            render: (row) => {
-                const extras = (row.details || []).filter(d => d.type === "earning" && d.item_name !== "Base Salary");
-                const extrasTotal = extras.reduce((s, d) => s + (d.amount || 0), 0);
-                return (
-                    <DetailDropdown
-                        total={extrasTotal}
-                        details={row.details || []}
-                        color="#10b981"
-                        filterFn={(d) => d.type === "earning" && d.item_name !== "Base Salary"}
-                    />
-                );
-            },
-        },
-        {
-            label: "Deductions",
-            sortKey: "total_deduction",
-            sortValue: (row) => row.total_deduction || 0,
+            label: "Taxable Income",
+            sortKey: "taxable_income",
+            sortValue: (row) => row.taxable_income || 0,
             render: (row) => (
                 <DetailDropdown
-                    total={row.total_deduction}
+                    total={row.taxable_income}
                     details={row.details || []}
-                    color="#ef4444"
-                    filterFn={(d) => d.type === "deduction" && d.item_name !== "Social Security (SSO)" && d.item_name !== "Income Tax"}
+                    color="#475569"
+                    filterFn={(d) =>
+                        (d.type === "earning" || d.type === "deduction") &&
+                        d.item_name !== "Base Salary" &&
+                        d.item_name !== "Income Tax"
+                    }
+                    itemColorFn={(d) => (d.is_tax_relevant ? (d.type === "earning" ? "#10b981" : "#ef4444") : "#94a3b8")}
                 />
             ),
         },

@@ -277,25 +277,38 @@ const PayrollAnalysisPage = () => {
                 </div>
             )}
 
-            {/* Actions & Tab Switcher */}
+            {/* Tab Switcher & Actions */}
             {data && transactions.length > 0 && (
-                <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap", alignItems: "center" }}>
-                    <Button
-                        variant={activeTab === "register" ? "primary" : "secondary"}
-                        onClick={() => setActiveTab("register")}
-                        style={{ width: "auto", padding: "9px 18px" }}
-                    >
-                        Payroll Register
-                    </Button>
-                    <Button
-                        variant={activeTab === "journal" ? "primary" : "secondary"}
-                        onClick={() => setActiveTab("journal")}
-                        style={{ width: "auto", padding: "9px 18px" }}
-                    >
-                        Journal Summary
-                    </Button>
+                <div style={{
+                    display: "flex", alignItems: "center", flexWrap: "wrap",
+                    marginBottom: "16px", borderBottom: "1px solid #e2e8f0", gap: "4px",
+                }}>
+                    {[
+                        { key: "register", label: "Payroll Register" },
+                        { key: "journal", label: "Journal Summary" },
+                    ].map((tab) => (
+                        <button
+                            key={tab.key}
+                            type="button"
+                            onClick={() => setActiveTab(tab.key)}
+                            style={{
+                                padding: "10px 16px",
+                                background: "transparent",
+                                border: "none",
+                                borderBottom: activeTab === tab.key ? "2px solid #6259ca" : "2px solid transparent",
+                                marginBottom: "-1px",
+                                fontSize: "13px",
+                                fontWeight: activeTab === tab.key ? 700 : 500,
+                                color: activeTab === tab.key ? "#6259ca" : "#64748b",
+                                cursor: "pointer",
+                                transition: "color 0.15s, border-color 0.15s",
+                            }}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
                     <div style={{ flex: 1 }} />
-                    <Button variant="secondary" onClick={() => exportExcel(data)} style={{ width: "auto", padding: "9px 18px" }}>
+                    <Button variant="secondary" onClick={() => exportExcel(data)} style={{ width: "auto", padding: "9px 18px", marginBottom: "8px" }}>
                         Export to Excel/CSV
                     </Button>
                 </div>

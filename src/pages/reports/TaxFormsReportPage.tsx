@@ -205,6 +205,13 @@ const TaxFormsReportPage = () => {
         };
     }, [viewMode]);
 
+    useEffect(() => {
+        if (viewMode !== "pnd1-print" && viewMode !== "tawi") return;
+        const handleEsc = (e) => { if (e.key === "Escape") setViewMode("pnd1"); };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [viewMode]);
+
     const handleView50Tawi = async (txId) => {
         try {
             setLoadingTawi(true);
@@ -373,7 +380,7 @@ const TaxFormsReportPage = () => {
             {pnd1Data && pnd1Data.rows?.length > 0 && (
                 <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
                     <Button
-                        variant={viewMode === "pnd1-print" ? "primary" : "ghost"}
+                        variant="primary"
                         onClick={() => setViewMode("pnd1-print")}
                         style={{ width: "auto", padding: "9px 18px" }}
                     >

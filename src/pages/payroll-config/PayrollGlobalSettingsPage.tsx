@@ -84,7 +84,7 @@ const PayrollGlobalSettingsPage = () => {
         {
             label: "Tax Method",
             render: (row) => {
-                const labels = { Progressive: "Progressive Rate", Fixed: "Fixed Rate", None: "No Tax" };
+                const labels = { Progressive: "Thai Progressive Rate", None: "No Tax" };
                 const val = row.payroll_config?.tax_calculation;
                 return val ? (labels[val] || val) : <span style={{ color: '#94a3b8' }}>Not Set</span>;
             }
@@ -130,8 +130,7 @@ const PayrollGlobalSettingsPage = () => {
             {...register("tax_calculation")}
             error={errors.tax_calculation?.message}
             options={[
-                { id: "Progressive", name: "Progressive Rate" },
-                { id: "Fixed", name: "Fixed Rate" },
+                { id: "Progressive", name: "Thai Progressive Rate" },
                 { id: "None", name: "No Tax" }
             ]}
             required

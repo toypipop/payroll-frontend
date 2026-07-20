@@ -282,6 +282,18 @@ const PayslipsReportPage = () => {
         };
     }, [isSlipOpen]);
 
+    useEffect(() => {
+        if (!isSlipOpen) return;
+        const handleEsc = (e) => {
+            if (e.key === "Escape") {
+                setIsSlipOpen(false);
+                setSlip(null);
+            }
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [isSlipOpen]);
+
     const handleViewSlip = async (transactionId) => {
         try {
             setLoadingSlip(true);

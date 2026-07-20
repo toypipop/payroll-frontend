@@ -184,6 +184,13 @@ const SSOReportPage = () => {
         };
     }, [isPrintOpen]);
 
+    useEffect(() => {
+        if (!isPrintOpen) return;
+        const handleEsc = (e) => { if (e.key === "Escape") setIsPrintOpen(false); };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [isPrintOpen]);
+
     const handlePrint = () => {
         const style = document.createElement("style");
         style.innerHTML = `@media print { body * { visibility: hidden !important; } #sso-a4, #sso-a4 * { visibility: visible !important; } #sso-a4 { position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; box-shadow: none !important; margin: 0 !important; } @page { margin: 0; size: A4; } }`;
@@ -276,7 +283,7 @@ const SSOReportPage = () => {
                     <Button variant="primary" onClick={() => exportEFiling(data)} style={{ width: "auto", padding: "9px 18px" }}>
                         Export E-Filing (.txt)
                     </Button>
-                    <Button variant="secondary" onClick={() => setIsPrintOpen(true)} style={{ width: "auto", padding: "9px 18px" }}>
+                    <Button variant="primary" onClick={() => setIsPrintOpen(true)} style={{ width: "auto", padding: "9px 18px" }}>
                         Print SSO 1-10 PDF
                     </Button>
                 </div>
