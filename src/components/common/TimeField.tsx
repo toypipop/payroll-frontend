@@ -12,6 +12,8 @@ interface TimeFieldProps extends Omit<HTMLAttributes<HTMLButtonElement>, "onChan
 const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFieldProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const selectedHourRef = useRef<HTMLDivElement | null>(null);
+    const selectedMinuteRef = useRef<HTMLDivElement | null>(null);
 
     const parseTime = (timeStr: string | Date | null | undefined) => {
         if (!timeStr) return { hours: 9, minutes: 0 };
@@ -86,6 +88,12 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        selectedHourRef.current?.scrollIntoView({ block: "center" });
+        selectedMinuteRef.current?.scrollIntoView({ block: "center" });
+    }, [isOpen]);
 
     const styles: Record<string, CSSProperties> = {
         container: {
@@ -234,6 +242,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                             {hoursList.map((h) => (
                                 <div
                                     key={h}
+                                    ref={displayHours === h ? selectedHourRef : undefined}
                                     style={{
                                         ...styles.timeOption,
                                         ...(displayHours === h ? styles.timeOptionSelected : {}),
@@ -257,6 +266,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                             {minutesList.map((m) => (
                                 <div
                                     key={m}
+                                    ref={minutes === m ? selectedMinuteRef : undefined}
                                     style={{
                                         ...styles.timeOption,
                                         ...(minutes === m ? styles.timeOptionSelected : {}),

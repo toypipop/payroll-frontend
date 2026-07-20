@@ -21,12 +21,18 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
     const [open, setOpen] = useState(false);
     const [hovered, setHovered] = useState<string | number | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const selectedRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (!open) return;
         const handler = (e: MouseEvent) => { if (!containerRef.current?.contains(e.target as Node)) setOpen(false); };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
+        document.addEventListener("mousedown", handler, true);
+        return () => document.removeEventListener("mousedown", handler, true);
+    }, [open]);
+
+    useEffect(() => {
+        if (!open) return;
+        selectedRef.current?.scrollIntoView({ block: "center" });
     }, [open]);
 
     return (
@@ -64,6 +70,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                         const isHov = hovered === opt.value;
                         return (
                             <div key={opt.value}
+                                ref={isSel ? selectedRef : undefined}
                                 onMouseEnter={() => setHovered(opt.value)}
                                 onMouseLeave={() => setHovered(null)}
                                 onMouseDown={(e) => { e.preventDefault(); onChange(opt.value); setOpen(false); }}
@@ -174,14 +181,14 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
                         </button>
                         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                             <CalendarSelect
-                                value={MONTHS[date.getMonth()]}
-                                options={MONTHS.map((m) => ({ value: m, label: m }))}
-                                onChange={(m) => changeMonth(MONTHS.indexOf(String(m)))}
-                            />
-                            <CalendarSelect
                                 value={date.getFullYear()}
                                 options={YEARS.map((y) => ({ value: y, label: String(y) }))}
                                 onChange={(y) => changeYear(Number(y))}
+                            />
+                            <CalendarSelect
+                                value={MONTHS[date.getMonth()]}
+                                options={MONTHS.map((m) => ({ value: m, label: m }))}
+                                onChange={(m) => changeMonth(MONTHS.indexOf(String(m)))}
                             />
                         </div>
                         <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled}

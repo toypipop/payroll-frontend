@@ -207,12 +207,6 @@ const PayrollCyclesPage = () => {
                 }
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <InputField
-                        label="Cycle Name"
-                        error={errors.cycle_name?.message}
-                        {...register("cycle_name")}
-                        required
-                    />
                     <Controller
                         name="companies_id"
                         control={control}
@@ -226,6 +220,12 @@ const PayrollCyclesPage = () => {
                                 required
                             />
                         )}
+                    />
+                    <InputField
+                        label="Cycle Name"
+                        error={errors.cycle_name?.message}
+                        {...register("cycle_name")}
+                        required
                     />
                     <Controller
                         name="start_date"

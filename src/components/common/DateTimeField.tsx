@@ -21,12 +21,18 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
     const [open, setOpen] = useState(false);
     const [hovered, setHovered] = useState<string | number | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const selectedRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (!open) return;
         const handler = (e: MouseEvent) => { if (!containerRef.current?.contains(e.target as Node)) setOpen(false); };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
+        document.addEventListener("mousedown", handler, true);
+        return () => document.removeEventListener("mousedown", handler, true);
+    }, [open]);
+
+    useEffect(() => {
+        if (!open) return;
+        selectedRef.current?.scrollIntoView({ block: "center" });
     }, [open]);
 
     return (
@@ -64,6 +70,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                         const isHov = hovered === opt.value;
                         return (
                             <div key={opt.value}
+                                ref={isSel ? selectedRef : undefined}
                                 onMouseEnter={() => setHovered(opt.value)}
                                 onMouseLeave={() => setHovered(null)}
                                 onMouseDown={(e) => { e.preventDefault(); onChange(opt.value); setOpen(false); }}
@@ -106,6 +113,22 @@ interface DateTimeFieldProps {
 }
 
 const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label, error, value, onChange, id, required }, ref) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        // Capture phase: runs before our own option buttons (CalendarSelect)
+        // unmount themselves on click, so the clicked node is still attached
+        // to the DOM when we check containment — bubble phase would see a
+        // detached node and wrongly report the click as "outside".
+        const handler = (e: MouseEvent) => {
+            if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
+        };
+        document.addEventListener("mousedown", handler, true);
+        return () => document.removeEventListener("mousedown", handler, true);
+    }, [isOpen]);
+
     const styles: Record<string, CSSProperties> = {
         container: {
             display: "flex",
@@ -147,11 +170,13 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
 
     const handleCalendarChange = (date: Date | null) => {
         if (!date) { onChange?.(""); return; }
-        onChange?.(toLocalISO(date));
+        const merged = new Date(date);
+        merged.setHours(timeHour, timeMinute, 0, 0);
+        onChange?.(toLocalISO(merged));
     };
 
     return (
-        <div style={styles.container}>
+        <div ref={containerRef} style={styles.container}>
             {label && (
                 <label htmlFor={id} style={styles.label}>
                     {label}
@@ -168,6 +193,9 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                 className={`custom-date-input ${error ? 'error' : ''}`}
                 placeholderText="Select date and time"
                 autoComplete="off"
+                shouldCloseOnSelect={false}
+                open={isOpen}
+                onInputClick={() => setIsOpen(true)}
                 renderCustomHeader={({
                     date,
                     changeYear,
@@ -185,14 +213,14 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                             </button>
                             <div className="selectors">
                                 <CalendarSelect
-                                    value={MONTHS[date.getMonth()]}
-                                    options={MONTHS.map((m) => ({ value: m, label: m }))}
-                                onChange={(m) => changeMonth(MONTHS.indexOf(String(m)))}
-                                />
-                                <CalendarSelect
                                     value={date.getFullYear()}
                                     options={YEARS.map((y) => ({ value: y, label: String(y) }))}
                                     onChange={(y) => changeYear(Number(y))}
+                                />
+                                <CalendarSelect
+                                    value={MONTHS[date.getMonth()]}
+                                    options={MONTHS.map((m) => ({ value: m, label: m }))}
+                                onChange={(m) => changeMonth(MONTHS.indexOf(String(m)))}
                                 />
                             </div>
                             <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled}
@@ -200,24 +228,32 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                                 {"\u203a"}
                             </button>
                         </div>
-                        
-                        <div className="time-row">
-                            <span className="time-label">Time:</span>
-                            <CalendarSelect
-                                value={timeHour}
-                                options={Array.from({ length: 24 }, (_, h) => ({ value: h, label: String(h).padStart(2, "0") }))}
-                                onChange={handleHourChange}
-                            />
-                            <span style={{ color: "#94a3b8", fontWeight: "600" }}>:</span>
-                            <CalendarSelect
-                                value={timeMinute}
-                                options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: String(i * 5).padStart(2, "0") }))}
-                                onChange={handleMinuteChange}
-                            />
-                        </div>
                     </div>
                 )}
-            />
+            >
+                <div className="time-row">
+                    <span className="time-label">Time:</span>
+                    <CalendarSelect
+                        value={timeHour}
+                        options={Array.from({ length: 24 }, (_, h) => ({ value: h, label: String(h).padStart(2, "0") }))}
+                        onChange={handleHourChange}
+                    />
+                    <span style={{ color: "#94a3b8", fontWeight: "600" }}>:</span>
+                    <CalendarSelect
+                        value={timeMinute}
+                        options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: String(i * 5).padStart(2, "0") }))}
+                        onChange={handleMinuteChange}
+                    />
+                </div>
+                <button
+                    type="button"
+                    className="confirm-btn"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setIsOpen(false)}
+                >
+                    Done
+                </button>
+            </DatePicker>
 
             {error && <span style={styles.error}>{error}</span>}
 
@@ -263,13 +299,35 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                 .nav-btn {
                     display: none;
                 }
+                .react-datepicker__children-container {
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
                 .time-row {
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     gap: 10px;
-                    padding-top: 5px;
+                    padding: 8px 10px 10px;
                     border-top: 1px dashed #e2e8f0;
+                }
+                .confirm-btn {
+                    display: block;
+                    width: calc(100% - 20px);
+                    margin: 8px 10px 10px;
+                    padding: 8px;
+                    border: none;
+                    border-radius: 8px;
+                    background-color: #6259ca;
+                    color: #fff;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                }
+                .confirm-btn:hover {
+                    background-color: #564fc0;
                 }
                 .time-label {
                     font-size: 12px;

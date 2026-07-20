@@ -32,6 +32,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
         const triggerRef = useRef<HTMLDivElement | null>(null);
         const hiddenRef = useRef<HTMLSelectElement | null>(null);
         const searchInputRef = useRef<HTMLInputElement | null>(null);
+        const selectedItemRef = useRef<HTMLDivElement | null>(null);
         const pollIntervalRef = useRef<number | null>(null);
 
         // Merge RHF ref with our internal ref
@@ -124,6 +125,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
             window.addEventListener("resize", handleReposition);
             window.requestAnimationFrame(() => {
                 searchInputRef.current?.focus();
+                selectedItemRef.current?.scrollIntoView({ block: "center" });
             });
             return () => {
                 document.removeEventListener("mousedown", handleClose);
@@ -213,6 +215,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                             return (
                                 <div
                                     key={String(opt.id)}
+                                    ref={isSelected ? selectedItemRef : undefined}
                                     onMouseEnter={() => setHovered(opt.id)}
                                     onMouseLeave={() => setHovered(null)}
                                     onMouseDown={(e) => { e.preventDefault(); handleSelect(opt.id); }}
