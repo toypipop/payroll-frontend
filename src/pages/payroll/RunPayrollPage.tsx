@@ -459,6 +459,24 @@ const RunPayrollPage = () => {
                         )}
                     </div>
                 )}
+
+                {/* Informational note: new hires whose first pay this cycle was
+                    pro-rated because they started mid-cycle. Not a warning — just
+                    explaining why their amount looks lower than a full month. */}
+                {calcResult?.prorated_employees?.length > 0 && (
+                    <div style={{
+                        marginTop: "10px", padding: "10px 14px",
+                        borderRadius: "8px", backgroundColor: "#eff6ff",
+                        border: "1px solid #bfdbfe", color: "#1d4ed8", fontSize: "13px",
+                    }}>
+                        <strong>{calcResult.prorated_employees.length}</strong> new hire{calcResult.prorated_employees.length > 1 ? "s" : ""} paid pro-rated this cycle (started mid-cycle)
+                        <ul style={{ margin: "6px 0 0 16px", padding: 0, fontSize: "12px" }}>
+                            {calcResult.prorated_employees.map((p: { name: string; days: number; total_days: number }) => (
+                                <li key={p.name}>{p.name} — {p.days}/{p.total_days} days</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </Card>
 
             {/* Diff summary vs previous cycle */}
