@@ -145,11 +145,11 @@ export default function HelpPage() {
           return (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                {moduleCategories.map(renderCategoryCard)}
+                {scenarioCategories.map(renderCategoryCard)}
               </div>
               <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', margin: '20px 0' }} />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                {scenarioCategories.map(renderCategoryCard)}
+                {moduleCategories.map(renderCategoryCard)}
               </div>
             </div>
           )

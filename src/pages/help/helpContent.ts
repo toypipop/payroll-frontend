@@ -1,9 +1,9 @@
 export type HelpCategory =
   | 'overview'
   | 'employees' | 'attendance' | 'payroll' | 'reports' | 'settings' | 'payroll-config'
-  | 'getting-started' | 'troubleshooting' | 'faq' | 'business-rules' | 'glossary'
+  | 'getting-started'
 
-export type ArticleType = 'how-to' | 'faq' | 'troubleshooting' | 'business-rule' | 'glossary' | 'checklist'
+export type ArticleType = 'how-to' | 'checklist'
 
 export type HelpArticle = {
   id: string
@@ -32,10 +32,6 @@ export const HELP_CATEGORIES: HelpCategoryMeta[] = [
   { id: 'settings', titleTH: 'การตั้งค่า', titleEN: 'Settings' },
   { id: 'payroll-config', titleTH: 'ตั้งค่า Payroll', titleEN: 'Payroll Config' },
   { id: 'getting-started', titleTH: 'เริ่มต้นใช้งาน', titleEN: 'Getting Started' },
-  { id: 'troubleshooting', titleTH: 'แก้ปัญหา', titleEN: 'Troubleshooting' },
-  { id: 'faq', titleTH: 'คำถามที่พบบ่อย', titleEN: 'FAQ' },
-  { id: 'business-rules', titleTH: 'กฎการคำนวณ', titleEN: 'Business Rules' },
-  { id: 'glossary', titleTH: 'คำศัพท์', titleEN: 'Glossary' },
 ]
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -82,7 +78,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'overview-employees',
-    category: 'overview',
+    category: 'employees',
     titleTH: 'พนักงาน',
     titleEN: 'Employees',
     descTH: 'จัดการข้อมูลพนักงานทั้งหมด ตั้งแต่ข้อมูลพื้นฐาน โครงสร้างเงินเดือน รายได้ประจำ และรายการหักประจำ',
@@ -102,7 +98,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'overview-attendance',
-    category: 'overview',
+    category: 'attendance',
     titleTH: 'การเข้างาน',
     titleEN: 'Attendance',
     descTH: 'บันทึกและจัดการการเข้า-ออกงาน คำขอลา การอนุมัติลา และดูสรุปรายได้/รายการหักจากการเข้างาน',
@@ -124,7 +120,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'overview-payroll',
-    category: 'overview',
+    category: 'payroll',
     titleTH: 'เงินเดือน',
     titleEN: 'Payroll Processing',
     descTH: 'สร้างและจัดการรอบเงินเดือน คำนวณเงินเดือน เพิ่มรายได้/รายการหักพิเศษประจำรอบ และดูธุรกรรม',
@@ -146,7 +142,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'overview-reports',
-    category: 'overview',
+    category: 'reports',
     titleTH: 'รายงาน',
     titleEN: 'Reports',
     descTH: 'ออกรายงานเงินเดือน สลิปเงินเดือน ข้อมูลการโอนธนาคาร แบบฟอร์มภาษี และรายงานประกันสังคม',
@@ -168,7 +164,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'overview-settings',
-    category: 'overview',
+    category: 'settings',
     titleTH: 'การตั้งค่า',
     titleEN: 'Settings',
     descTH: 'ตั้งค่าโครงสร้างองค์กร ได้แก่ บริษัท แผนก ตำแหน่ง บทบาท สิทธิ์ สถานที่ทำงาน วันหยุด ประเภทการลา และการเข้างาน',
@@ -190,7 +186,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: 'overview-payroll-config',
-    category: 'overview',
+    category: 'payroll-config',
     titleTH: 'ตั้งค่า Payroll',
     titleEN: 'Payroll Config',
     descTH: 'กำหนดพารามิเตอร์การคำนวณเงินเดือน ได้แก่ อัตราประกันสังคม วิธีคำนวณภาษี ประเภทรายได้-รายการหัก หมวดหมู่ และประเภทการจ้างงาน',
@@ -975,292 +971,5 @@ export const HELP_ARTICLES: HelpArticle[] = [
     descEN: 'Once everything is configured, run payroll for the first cycle.',
     stepsTH: ['ไปที่ Payroll Processing → Payroll Cycles แล้วสร้าง Cycle ใหม่', 'บันทึก Time Logs ของพนักงานในรอบนั้น', 'ไปที่ Run Payroll แล้วกด Calculate', 'ตรวจสอบผลลัพธ์ใน Transactions', 'ปิด Cycle เมื่อยืนยันข้อมูลถูกต้อง'],
     stepsEN: ['Go to Payroll Processing → Payroll Cycles and create a new cycle', 'Record employee Time Logs for that period', 'Go to Run Payroll and click Calculate', 'Review results in Transactions', 'Close the Cycle once everything is confirmed'],
-  },
-
-  // ─── TROUBLESHOOTING ─────────────────────────────────────────────────────────
-  {
-    id: 'ts-cant-run-payroll', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'รัน Payroll ไม่ได้', titleEN: 'Cannot Run Payroll',
-    descTH: 'ไม่สามารถกดปุ่ม Calculate ใน Run Payroll ได้ หรือได้รับข้อความ error',
-    descEN: 'Unable to click Calculate in Run Payroll, or receiving an error message.',
-    stepsTH: ['ตรวจสอบว่าเลือก Company ที่ถูกต้องไว้ก่อน (Cycle dropdown จะกรองตาม Company ที่เลือก)', 'ตรวจสอบว่าเลือก Payroll Cycle แล้วหรือยัง', 'ตรวจสอบว่า Cycle ยังอยู่ในสถานะ Open (ยังไม่ถูกปิด)', 'ตรวจสอบว่าพนักงานทุกคนมีข้อมูลเงินเดือนพื้นฐาน', 'ตรวจสอบว่า Time Logs ครบถ้วนก่อนคำนวณ'],
-    stepsEN: ['Verify you have the correct Company selected first (the Cycle dropdown is filtered by Company)', 'Verify you have selected a Payroll Cycle', 'Check that the Cycle status is still Open (not Closed)', 'Ensure all employees have a base salary set', 'Review Time Logs for completeness before calculating'],
-  },
-  {
-    id: 'ts-employee-missing', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'ไม่เห็นพนักงานในรายการ', titleEN: 'Employee Not Appearing in List',
-    descTH: 'พนักงานที่เพิ่มไปแล้วไม่โชว์ในหน้า Employee List หรือตัวเลือกเลือกพนักงาน',
-    descEN: 'A previously added employee does not appear in the Employee List or employee dropdowns.',
-    stepsTH: ['ตรวจสอบว่าพนักงานถูกเพิ่มในบริษัทที่ถูกต้อง', 'ตรวจสอบว่าตัวกรอง (Filter) ในตารางไม่ได้บังพนักงานไว้', 'ตรวจสอบว่า Employee Company Access ถูกตั้งค่าแล้ว'],
-    stepsEN: ['Verify the employee was added under the correct company', 'Check that table filters are not hiding the employee', 'Ensure Employee Company Access has been configured'],
-  },
-  {
-    id: 'ts-wrong-salary', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'เงินเดือนคำนวณผิด', titleEN: 'Incorrect Salary Calculation',
-    descTH: 'ยอดเงินเดือนสุทธิที่คำนวณออกมาไม่ตรงกับที่คาดไว้',
-    descEN: 'The calculated net salary does not match the expected amount.',
-    stepsTH: ['ตรวจสอบเงินเดือนพื้นฐานใน Employees → Salaries', 'ตรวจสอบ Employee Earnings และ Employee Deductions ที่กำหนดไว้', 'ตรวจสอบ Cycle Earnings และ Cycle Deductions ของรอบนั้น', 'ตรวจสอบการตั้งค่า SSO และภาษีใน Payroll Config → Global Settings'],
-    stepsEN: ['Verify the base salary in Employees → Salaries', 'Review Employee Earnings and Employee Deductions on file', 'Check Cycle Earnings and Cycle Deductions for this cycle', 'Review SSO and tax settings in Payroll Config → Global Settings'],
-  },
-  {
-    id: 'ts-sso-not-deducted', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'ไม่มีการหักประกันสังคม', titleEN: 'Social Security Not Being Deducted',
-    descTH: 'ยอดประกันสังคมไม่ถูกหักในสลิปเงินเดือน',
-    descEN: 'Social security deduction is missing from payslips.',
-    stepsTH: ['ไปที่ Payroll Config → Global Settings', 'ตรวจสอบว่าตั้งค่า SSO Rate ไว้แล้ว (ปกติ 5%)', 'ตรวจสอบว่าเงินเดือนพนักงานไม่ต่ำกว่าเกณฑ์ขั้นต่ำที่กำหนด'],
-    stepsEN: ['Go to Payroll Config → Global Settings', 'Verify the SSO Rate is configured (typically 5%)', 'Check that the employee salary meets the minimum threshold'],
-  },
-  {
-    id: 'ts-payslip-empty', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'สลิปเงินเดือนไม่มีข้อมูล', titleEN: 'Payslip Shows No Data',
-    descTH: 'เข้าหน้า My Payslips แต่ไม่มีข้อมูลโชว์ หรือ Reports → Payslips ไม่มีข้อมูล',
-    descEN: 'No data appears on My Payslips page or in Reports → Payslips.',
-    stepsTH: ['ตรวจสอบว่า Payroll Cycle ถูก Calculate แล้ว (ไม่ใช่แค่สร้าง Cycle)', 'ตรวจสอบว่าเลือก Cycle ที่ถูกต้อง', 'ตรวจสอบว่าพนักงานมี transactions ในรอบนั้น'],
-    stepsEN: ['Verify the Payroll Cycle has been Calculated (not just created)', 'Make sure you have selected the correct cycle', 'Confirm the employee has transactions in that cycle'],
-  },
-  {
-    id: 'ts-leave-not-approved', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'คำขอลาไม่ผ่านการอนุมัติ', titleEN: 'Leave Request Not Getting Approved',
-    descTH: 'ส่งคำขอลาแล้วแต่ไม่มีการอนุมัติ หรือไม่สามารถอนุมัติได้',
-    descEN: 'Leave request was submitted but not being approved, or cannot be approved.',
-    stepsTH: ['ตรวจสอบว่าผู้ใช้ที่อนุมัติมีสิทธิ์เข้าถึง Leave Approved', 'ตรวจสอบว่าคำขอลายังอยู่ในสถานะ Pending', 'ตรวจสอบว่าไม่ได้เลือก Leave Type ที่ไม่มีในระบบ'],
-    stepsEN: ['Verify the approving user has access to Leave Approved page', 'Confirm the leave request is still in Pending status', 'Check that the selected Leave Type exists in the system'],
-  },
-  {
-    id: 'ts-timelog-overnight', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'บันทึกเวลาออกงานข้ามวันไม่ถูกต้อง', titleEN: 'Overnight Shift Not Calculating Correctly',
-    descTH: 'ต้องการบันทึกเวลาทำงานที่ออกงานหลังเที่ยงคืน แต่ระบบคำนวณผิด',
-    descEN: 'Need to record a shift that ends after midnight but the system calculates incorrectly.',
-    stepsTH: ['เวลาออกงานที่น้อยกว่าเวลาเข้างานหมายถึงข้ามวัน', 'ตัวอย่าง: เข้า 22:00 ออก 06:00 ระบบนับเป็นออกงานเช้าวันถัดไปอัตโนมัติ', 'ไม่ต้องป้อนวันที่สองแยก'],
-    stepsEN: ['A check-out time earlier than check-in means an overnight shift', 'Example: In 22:00 / Out 06:00 — system automatically treats check-out as next morning', 'No need to enter a separate date for check-out'],
-  },
-  {
-    id: 'ts-cant-edit-leave', category: 'troubleshooting', articleType: 'troubleshooting',
-    titleTH: 'แก้ไขคำขอลาไม่ได้', titleEN: 'Cannot Edit Leave Request',
-    descTH: 'กดแก้ไขคำขอลาแล้วปุ่มไม่ทำงาน หรือไม่มีปุ่มแก้ไขให้กด',
-    descEN: 'Edit button does not work or is missing on a leave request.',
-    stepsTH: ['คำขอลาสามารถแก้ไขได้เฉพาะสถานะ Pending เท่านั้น', 'ถ้าอนุมัติหรือปฏิเสธไปแล้ว ต้องสร้างคำขอใหม่แทน', 'ติดต่อ HR admin เพื่อยกเลิก Leave ที่อนุมัติแล้วถ้าจำเป็น'],
-    stepsEN: ['Leave requests can only be edited when status is Pending', 'If already Approved or Rejected, create a new request instead', 'Contact HR admin to cancel an approved leave if needed'],
-  },
-
-  // ─── FAQ ─────────────────────────────────────────────────────────────────────
-  {
-    id: 'faq-change-salary-mid-cycle', category: 'faq', articleType: 'faq',
-    titleTH: 'เปลี่ยนเงินเดือนกลางรอบได้ไหม', titleEN: 'Can I change salary mid-cycle?',
-    descTH: 'เปลี่ยนได้ครับ ระบบจะใช้เงินเดือนตาม effective date ที่กำหนด หากต้องการให้มีผลในรอบปัจจุบัน ให้กำหนด effective date ภายในช่วงรอบนั้น แล้วรัน payroll ใหม่',
-    descEN: 'Yes. The system uses the salary with the effective date that falls within the payroll cycle. Set the effective date within the current cycle period, then re-run payroll.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-employee-view-payslip', category: 'faq', articleType: 'faq',
-    titleTH: 'พนักงานดู Payslip เองได้ไหม', titleEN: 'Can employees view their own payslips?',
-    descTH: 'ได้ครับ พนักงานที่ login เข้าระบบสามารถดู Payslip ของตัวเองได้ที่เมนู My Payslips โดยจะเห็นเฉพาะข้อมูลของตัวเองเท่านั้น',
-    descEN: 'Yes. Employees who log in can view their own payslips under the My Payslips menu. They can only see their own data.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-add-admin', category: 'faq', articleType: 'faq',
-    titleTH: 'เพิ่ม Admin ใหม่ทำยังไง', titleEN: 'How do I add a new admin?',
-    descTH: 'สร้างพนักงานใหม่ในระบบก่อน จากนั้นไปที่ Settings → Roles เพื่อสร้าง Role ที่มีสิทธิ์ที่ต้องการ แล้วไปที่ Employee Company Access เพื่อกำหนด Role ให้พนักงานคนนั้น',
-    descEN: 'First create the employee record, then go to Settings → Roles to create a role with the required permissions, then go to Employee Company Access to assign that role to the employee.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-close-cycle-edit', category: 'faq', articleType: 'faq',
-    titleTH: 'ปิด Payroll Cycle แล้วแก้ไขได้ไหม', titleEN: 'Can I edit a closed payroll cycle?',
-    descTH: 'Cycle ที่ปิดแล้วไม่สามารถแก้ไขได้โดยตรง ถ้ามีข้อผิดพลาด ต้องติดต่อ System Admin เพื่อเปิด Cycle ใหม่ หรือปรับใน Cycle ถัดไปแทน',
-    descEN: 'Closed cycles cannot be edited directly. If there is an error, contact your System Admin to reopen the cycle, or adjust it in the next payroll cycle instead.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-multi-company', category: 'faq', articleType: 'faq',
-    titleTH: 'พนักงานทำงานหลายบริษัทได้ไหม', titleEN: 'Can an employee work across multiple companies?',
-    descTH: 'ได้ครับ ใช้ Employee Company Access เพื่อกำหนดว่าพนักงานคนไหนเข้าถึงบริษัทใดบ้าง อย่างไรก็ตาม Payroll จะคำนวณตามบริษัทหลัก (companies_id) ของพนักงานเท่านั้น',
-    descEN: 'Yes. Use Employee Company Access to define which companies an employee can access. However, payroll is always calculated based on the employee\'s home company (companies_id).',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-add-leave-type', category: 'faq', articleType: 'faq',
-    titleTH: 'เพิ่มประเภทการลาใหม่ได้ไหม', titleEN: 'Can I add custom leave types?',
-    descTH: 'ได้ครับ ไปที่ Settings → Leave Types แล้วเพิ่มประเภทการลาที่ต้องการ สามารถกำหนดจำนวนวันสูงสุดต่อปีและว่าเป็นการลาแบบได้รับเงินหรือไม่ได้รับเงินได้',
-    descEN: 'Yes. Go to Settings → Leave Types to add custom leave types. You can set maximum days per year and whether it is paid or unpaid leave.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-tax-report-when', category: 'faq', articleType: 'faq',
-    titleTH: 'ออกรายงานภาษีได้เมื่อไหร่', titleEN: 'When can I generate tax reports?',
-    descTH: 'รายงานภาษีสามารถออกได้หลังจาก Run Payroll สำเร็จในแต่ละรอบ ไปที่ Reports → Tax Forms เพื่อออก ภ.ง.ด.1 หรือหนังสือรับรอง 50 ทวิ',
-    descEN: 'Tax reports can be generated after payroll has been successfully calculated for a cycle. Go to Reports → Tax Forms to generate PND1 or 50 Tawi certificates.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-forgot-password', category: 'faq', articleType: 'faq',
-    titleTH: 'ลืมรหัสผ่านทำยังไง', titleEN: 'What if I forget my password?',
-    descTH: 'ติดต่อ System Admin ขอให้รีเซ็ตรหัสผ่านให้ครับ ขณะนี้ระบบยังไม่รองรับการรีเซ็ตรหัสผ่านด้วยตัวเอง',
-    descEN: 'Contact your System Admin to reset your password. Self-service password reset is not currently supported.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-ot-calculation', category: 'faq', articleType: 'faq',
-    titleTH: 'OT คิดยังไง', titleEN: 'How is overtime calculated?',
-    descTH: 'OT จะถูกคำนวณจาก Time Logs โดยอิงตามอัตราที่ตั้งไว้ใน Attendance Settings ชั่วโมงเกินเวลามาตรฐานจะถูกคิดในอัตรา OT ที่กำหนด ส่วนการทำงานวันหยุดจะใช้อัตรา Holiday Rate',
-    descEN: 'OT is calculated from Time Logs based on rates configured in Attendance Settings. Hours beyond standard working time are multiplied by the OT rate. Work on holidays uses the Holiday Rate.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'faq-delete-employee', category: 'faq', articleType: 'faq',
-    titleTH: 'ลบพนักงานออกจากระบบได้ไหม', titleEN: 'Can I delete an employee?',
-    descTH: 'ระบบไม่แนะนำให้ลบพนักงานที่มีประวัติ Payroll อยู่ เพราะจะกระทบข้อมูลย้อนหลัง แนะนำให้ปล่อยไว้ในระบบโดยไม่ได้ใช้งาน หรือติดต่อ System Admin',
-    descEN: 'Deleting employees with payroll history is not recommended as it affects historical data. It is better to leave them inactive in the system, or contact your System Admin.',
-    stepsTH: [], stepsEN: [],
-  },
-
-  // ─── BUSINESS RULES ──────────────────────────────────────────────────────────
-  {
-    id: 'br-sso', category: 'business-rules', articleType: 'business-rule',
-    titleTH: 'ประกันสังคม (SSO)', titleEN: 'Social Security (SSO)',
-    descTH: 'ประกันสังคมคิดจากเงินเดือนพื้นฐาน ในอัตรา 5% โดยมีเพดานเงินเดือนที่ 15,000 บาท/เดือน ดังนั้นยอดหักสูงสุดคือ 750 บาท/เดือน ทั้งลูกจ้างและนายจ้างจ่ายในอัตราเดียวกัน',
-    descEN: 'Social security is calculated at 5% of base salary, capped at 15,000 THB/month. Maximum deduction is 750 THB/month. Both employee and employer contribute at the same rate.',
-    stepsTH: ['อัตรา: 5% ของเงินเดือนพื้นฐาน', 'เพดานเงินเดือนที่ใช้คำนวณ: 15,000 บาท/เดือน', 'ยอดหักสูงสุด: 750 บาท/เดือน', 'นายจ้างจ่ายสมทบเท่ากัน: 750 บาท/เดือน', 'ตั้งค่าได้ที่ Payroll Config → Global Settings'],
-    stepsEN: ['Rate: 5% of base salary', 'Salary cap for calculation: 15,000 THB/month', 'Maximum deduction: 750 THB/month', 'Employer matches same amount: 750 THB/month', 'Configure at Payroll Config → Global Settings'],
-  },
-  {
-    id: 'br-overtime', category: 'business-rules', articleType: 'business-rule',
-    titleTH: 'การคำนวณค่าล่วงเวลา (OT)', titleEN: 'Overtime Calculation',
-    descTH: 'OT คิดจากชั่วโมงทำงานที่เกินเวลามาตรฐาน โดยอ้างอิงจาก Time Logs ระบบจะเปรียบเทียบเวลาเข้า-ออกจริงกับเวลามาตรฐานที่ตั้งไว้ใน Attendance Settings',
-    descEN: 'OT is calculated from hours worked beyond the standard schedule, based on Time Logs. The system compares actual check-in/out times against the standard hours set in Attendance Settings.',
-    stepsTH: ['ชั่วโมงมาตรฐาน: ตามที่ตั้งไว้ใน Attendance Settings', 'OT วันทำงาน: (เงินเดือน ÷ วันทำงาน ÷ ชั่วโมง) × OT Rate × ชั่วโมง OT', 'OT วันหยุด: ใช้ Holiday Rate แทน OT Rate', 'ผลรวม OT โชว์ใน Attendance → Earning Summary'],
-    stepsEN: ['Standard hours: configured in Attendance Settings', 'Weekday OT: (salary ÷ working days ÷ hours) × OT rate × OT hours', 'Holiday OT: uses Holiday Rate instead of OT Rate', 'OT totals appear in Attendance → Earning Summary'],
-  },
-  {
-    id: 'br-tax', category: 'business-rules', articleType: 'business-rule',
-    titleTH: 'ภาษีหัก ณ ที่จ่าย', titleEN: 'Withholding Tax',
-    descTH: 'ระบบคำนวณภาษีหัก ณ ที่จ่ายแบบสะสม (Cumulative Method) โดยคาดการณ์รายได้ทั้งปีแล้วคำนวณภาษีตามขั้นบันได จากนั้นหารเฉลี่ยออกมาเป็นรายเดือน',
-    descEN: 'The system uses the cumulative method to calculate withholding tax. It projects annual income, applies progressive tax brackets, then divides into equal monthly deductions.',
-    stepsTH: ['อัตราภาษีขั้นบันได: 0%, 5%, 10%, 15%, 20%, 25%, 30%, 35%', 'ค่าลดหย่อนส่วนตัว: 60,000 บาท/ปี', 'ค่าลดหย่อนเงินเดือน: 50% ของรายได้ สูงสุด 100,000 บาท/ปี', 'ตั้งค่าได้ที่ Payroll Config → Global Settings'],
-    stepsEN: ['Progressive rates: 0%, 5%, 10%, 15%, 20%, 25%, 30%, 35%', 'Personal allowance: 60,000 THB/year', 'Salary deduction: 50% of income, max 100,000 THB/year', 'Configure at Payroll Config → Global Settings'],
-  },
-  {
-    id: 'br-daily-rate', category: 'business-rules', articleType: 'business-rule',
-    titleTH: 'การคำนวณเงินเดือนรายวัน', titleEN: 'Daily Salary Calculation',
-    descTH: 'สำหรับพนักงานที่เข้างานไม่ครบเดือน ระบบจะคำนวณเงินเดือนตามวันทำงานจริง โดยหารเงินเดือนพื้นฐานด้วยจำนวนวันทำงานในรอบนั้น',
-    descEN: 'For employees who did not work the full month, salary is prorated based on actual days worked divided by total working days in the cycle.',
-    stepsTH: ['สูตร: เงินเดือนพื้นฐาน ÷ วันทำงานในรอบ × วันที่เข้างานจริง', 'วันทำงาน = วันทั้งหมด ลบ วันหยุดนักขัตฤกษ์ ลบ วันหยุดประจำสัปดาห์', 'คำนวณอัตโนมัติจาก Attendance Settings และ Holiday Calendar'],
-    stepsEN: ['Formula: Base salary ÷ working days in cycle × actual days worked', 'Working days = total days minus public holidays minus weekly off days', 'Calculated automatically from Attendance Settings and Holiday Calendar'],
-  },
-  {
-    id: 'br-leave-deduction', category: 'business-rules', articleType: 'business-rule',
-    titleTH: 'การหักเงินเมื่อลาไม่ได้รับเงิน', titleEN: 'Unpaid Leave Deduction',
-    descTH: 'การลาแบบไม่ได้รับเงิน (Unpaid Leave) จะถูกหักจากเงินเดือนโดยอัตโนมัติ โดยคิดตามจำนวนวันลาและอัตราเงินเดือนรายวัน',
-    descEN: 'Unpaid leave days are automatically deducted from the salary using the daily salary rate multiplied by the number of unpaid leave days.',
-    stepsTH: ['สูตร: (เงินเดือนพื้นฐาน ÷ วันทำงาน) × จำนวนวันลาไม่ได้รับเงิน', 'ตั้งค่าประเภทการลาแบบไม่รับเงินได้ที่ Settings → Leave Types', 'ยอดหักโชว์ใน Attendance → Deduction Summary'],
-    stepsEN: ['Formula: (Base salary ÷ working days) × unpaid leave days', 'Configure unpaid leave types at Settings → Leave Types', 'Deduction totals appear in Attendance → Deduction Summary'],
-  },
-
-  // ─── GLOSSARY ────────────────────────────────────────────────────────────────
-  {
-    id: 'gl-payroll-cycle', category: 'glossary', articleType: 'glossary',
-    titleTH: 'รอบเงินเดือน', titleEN: 'Payroll Cycle',
-    descTH: 'ช่วงเวลาที่ใช้คำนวณเงินเดือน มักเป็นรายเดือน กำหนดโดยวันเริ่มต้นและวันสิ้นสุด เมื่อปิด Cycle แล้วจะไม่สามารถแก้ไขข้อมูลในรอบนั้นได้',
-    descEN: 'The time period used to calculate payroll, typically monthly, defined by a start and end date. Once closed, data within it cannot be modified.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-pnd1', category: 'glossary', articleType: 'glossary',
-    titleTH: 'ภ.ง.ด.1', titleEN: 'PND1 (Withholding Tax Form)',
-    descTH: 'แบบฟอร์มภาษีที่นายจ้างต้องยื่นต่อกรมสรรพากรทุกเดือน เพื่อรายงานภาษีหัก ณ ที่จ่ายของพนักงานแต่ละคน',
-    descEN: 'Monthly tax form submitted to the Revenue Department by employers, reporting withholding tax deducted from each employee.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-50-tawi', category: 'glossary', articleType: 'glossary',
-    titleTH: 'หนังสือรับรอง 50 ทวิ', titleEN: '50 Tawi Certificate',
-    descTH: 'เอกสารที่นายจ้างออกให้พนักงานทุกสิ้นปี รับรองว่าได้หักภาษี ณ ที่จ่ายและนำส่งกรมสรรพากรแล้ว พนักงานใช้ยื่นภาษีประจำปี',
-    descEN: 'Annual certificate issued by employers to employees, certifying that withholding tax has been deducted and remitted. Used for the annual personal income tax filing.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-net-pay', category: 'glossary', articleType: 'glossary',
-    titleTH: 'เงินเดือนสุทธิ (Net Pay)', titleEN: 'Net Pay',
-    descTH: 'เงินที่พนักงานได้รับจริง คำนวณจากรายได้ทั้งหมด หักรายการหักทั้งหมด เช่น ประกันสังคม ภาษี และกองทุนสำรองเลี้ยงชีพ',
-    descEN: 'The actual amount the employee receives: total earnings minus all deductions such as SSO, tax, and provident fund.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-gross-pay', category: 'glossary', articleType: 'glossary',
-    titleTH: 'รายได้รวม (Gross Pay)', titleEN: 'Gross Pay',
-    descTH: 'รายได้รวมทั้งหมดก่อนหักรายการใดๆ รวมทั้งเงินเดือนพื้นฐาน เบี้ยเลี้ยง โบนัส และค่าล่วงเวลา',
-    descEN: 'Total income before any deductions, including base salary, allowances, bonuses, and overtime pay.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-provident-fund', category: 'glossary', articleType: 'glossary',
-    titleTH: 'กองทุนสำรองเลี้ยงชีพ (PVD)', titleEN: 'Provident Fund (PVD)',
-    descTH: 'กองทุนที่พนักงานและนายจ้างสมทบเงินร่วมกัน เพื่อเป็นหลักประกันเมื่อออกจากงาน อัตราการสมทบกำหนดตามนโยบายบริษัท',
-    descEN: 'A fund contributed jointly by employee and employer to provide financial security upon leaving the job. Contribution rate is defined by company policy.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-allowance', category: 'glossary', articleType: 'glossary',
-    titleTH: 'เบี้ยเลี้ยง', titleEN: 'Allowance',
-    descTH: 'รายได้เพิ่มเติมนอกเหนือจากเงินเดือนพื้นฐาน เช่น ค่าตำแหน่ง ค่าที่พัก ค่าอาหาร หรือค่าโทรศัพท์ กำหนดเป็นรายได้ประจำได้ใน Employee Earnings',
-    descEN: 'Additional income beyond base salary, such as position allowance, housing, meal, or phone allowance. Can be set as a recurring earning in Employee Earnings.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-ytd', category: 'glossary', articleType: 'glossary',
-    titleTH: 'รายได้สะสมตั้งแต่ต้นปี (YTD)', titleEN: 'Year-to-Date (YTD)',
-    descTH: 'ยอดรวมสะสมนับตั้งแต่ต้นปีจนถึงปัจจุบัน ใช้ในการคำนวณภาษีแบบสะสม (Cumulative Method) เพื่อให้ภาษีที่หักแต่ละเดือนถูกต้อง',
-    descEN: 'Cumulative total from the beginning of the year to the current date. Used in cumulative tax calculations to ensure accurate monthly withholding.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-withholding-tax', category: 'glossary', articleType: 'glossary',
-    titleTH: 'ภาษีหัก ณ ที่จ่าย', titleEN: 'Withholding Tax',
-    descTH: 'ภาษีเงินได้บุคคลธรรมดาที่นายจ้างหักจากเงินเดือนพนักงานทุกเดือน แล้วนำส่งกรมสรรพากรแทนพนักงาน คิดตามอัตราภาษีขั้นบันได',
-    descEN: 'Personal income tax withheld from employee salary each month by the employer and remitted to the Revenue Department on the employee\'s behalf.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-payslip', category: 'glossary', articleType: 'glossary',
-    titleTH: 'สลิปเงินเดือน', titleEN: 'Payslip',
-    descTH: 'เอกสารสรุปรายละเอียดเงินเดือนของพนักงานในแต่ละรอบ แสดงรายได้ รายการหัก และเงินเดือนสุทธิ พนักงานดูได้ที่ My Payslips',
-    descEN: 'Document summarizing an employee\'s salary details for each cycle, showing earnings, deductions, and net pay. Employees can view theirs under My Payslips.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-overtime', category: 'glossary', articleType: 'glossary',
-    titleTH: 'ค่าล่วงเวลา (OT)', titleEN: 'Overtime (OT)',
-    descTH: 'ค่าตอบแทนสำหรับการทำงานเกินเวลามาตรฐาน คำนวณจากอัตราเงินเดือนรายชั่วโมงคูณด้วย OT Rate ที่กำหนดใน Attendance Settings',
-    descEN: 'Compensation for hours worked beyond the standard schedule. Calculated from the hourly salary rate multiplied by the OT Rate set in Attendance Settings.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-probation', category: 'glossary', articleType: 'glossary',
-    titleTH: 'ทดลองงาน (Probation)', titleEN: 'Probation',
-    descTH: 'ช่วงเวลาทดลองงานสำหรับพนักงานใหม่ก่อนได้รับสถานะพนักงานประจำ สามารถกำหนดเป็นประเภทการจ้างงาน (Employment Type) ในระบบได้',
-    descEN: 'Trial period for new employees before they receive permanent status. Can be defined as an Employment Type in the system.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-home-company', category: 'glossary', articleType: 'glossary',
-    titleTH: 'บริษัทหลัก (Home Company)', titleEN: 'Home Company',
-    descTH: 'บริษัทที่เป็นเจ้าของพนักงานสำหรับการคำนวณ Payroll การเข้างาน เงินเดือน แผนก และตำแหน่ง กำหนดด้วย companies_id ของพนักงาน',
-    descEN: 'The company that owns the employee record for payroll, attendance, salary, department, and position calculations. Defined by the employee\'s companies_id.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-attendance-settings', category: 'glossary', articleType: 'glossary',
-    titleTH: 'การตั้งค่าการเข้างาน', titleEN: 'Attendance Settings',
-    descTH: 'การกำหนดเวลาทำงานมาตรฐาน อัตราค่าปรับมาสาย อัตราค่าล่วงเวลา และอัตราค่าทำงานวันหยุด ซึ่งเป็นพารามิเตอร์หลักในการคำนวณรายได้จากการเข้างาน',
-    descEN: 'Configuration of standard work hours, late deduction rate, overtime rate, and holiday work rate — the main parameters for attendance-based pay calculations.',
-    stepsTH: [], stepsEN: [],
-  },
-  {
-    id: 'gl-employee-company-access', category: 'glossary', articleType: 'glossary',
-    titleTH: 'สิทธิ์เข้าถึงบริษัท', titleEN: 'Employee Company Access',
-    descTH: 'การกำหนดว่าพนักงานคนไหนสามารถเข้าใช้งานระบบในนามบริษัทใดได้บ้าง และใช้ Role อะไรในบริษัทนั้น ไม่เกี่ยวกับ Payroll ownership',
-    descEN: 'Defines which companies an employee can access in the system and what role they hold in each. This is application access only, not payroll ownership.',
-    stepsTH: [], stepsEN: [],
   },
 ]

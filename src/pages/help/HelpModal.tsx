@@ -10,20 +10,9 @@ type Props = {
 
 function getStepsLabel(articleType: string | undefined, lang: 'th' | 'en'): string {
   if (lang === 'th') {
-    switch (articleType) {
-      case 'troubleshooting': return 'วิธีแก้ไข'
-      case 'business-rule': return 'รายละเอียด'
-      case 'checklist': return 'ขั้นตอน'
-      default: return 'วิธีใช้งาน'
-    }
-  } else {
-    switch (articleType) {
-      case 'troubleshooting': return 'Solution'
-      case 'business-rule': return 'Details'
-      case 'checklist': return 'Steps'
-      default: return 'How to use'
-    }
+    return articleType === 'checklist' ? 'ขั้นตอน' : 'วิธีใช้งาน'
   }
+  return articleType === 'checklist' ? 'Steps' : 'How to use'
 }
 
 export default function HelpModal({ article, lang, onClose }: Props) {
