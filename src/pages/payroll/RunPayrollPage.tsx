@@ -13,6 +13,9 @@ import MasterDataWarning from "../../components/common/MasterDataWarning";
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
     const [open, setOpen] = useState(false);
     const [pos, setPos] = useState({ top: 0, left: 0 });
@@ -82,6 +85,8 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
 };
 
 const RunPayrollPage = () => {
+    const [companies, setCompanies] = useState([]);
+    const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [cycles, setCycles] = useState([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
     const [selectedCycle, setSelectedCycle] = useState(null); // Track cycle object
@@ -151,7 +156,34 @@ const RunPayrollPage = () => {
         }
     };
 
-    useEffect(() => { fetchCycles(); }, []);
+    useEffect(() => {
+        const fetchCompanies = async () => {
+            try {
+                const res = await api.get("/companies/options");
+                setCompanies(res.data || []);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchCompanies();
+        fetchCycles();
+    }, []);
+
+    const filteredCycles = selectedCompanyId
+        ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId))
+        : cycles;
+
+    const handleCompanyChange = (companyId) => {
+        setSelectedCompanyId(companyId);
+        setSelectedCycleId("");
+        setSelectedCycle(null);
+        setTransactions([]);
+        setPayrollConfig(null);
+        setCalcResult(null);
+        setDiffData(null);
+        setPreCheckIssues([]);
+        setPendingCalculate(false);
+    };
 
     // Every cycle listed here is open (fetchCycles filters out closed ones), so
     // there's never a "frozen, audit-locked" snapshot to preserve — recalculate
@@ -313,15 +345,25 @@ const RunPayrollPage = () => {
             {/* Cycle selector + Run button */}
             <Card style={{ marginBottom: "20px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, minWidth: "220px" }}>
+                    <div style={{ flex: 2, minWidth: "220px" }}>
+                        <SelectField
+                            label="Company"
+                            options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                            value={selectedCompanyId}
+                            onChange={(e) => handleCompanyChange(e.target.value)}
+                            containerStyle={{ marginBottom: 0 }}
+                        />
+                    </div>
+
+                    <div style={{ flex: 3, minWidth: "220px" }}>
                         {loadingCycles ? (
                             <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
-                        ) : cycles.length === 0 ? (
+                        ) : filteredCycles.length === 0 ? (
                             <div style={{ color: "#94a3b8", fontSize: "14px" }}>No open cycles available.</div>
                         ) : (
                             <SelectField
                                 label="Select Open Cycle"
-                                options={cycles.map((c) => {
+                                options={filteredCycles.map((c) => {
                                     const fmt = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "";
                                     const dateRange = (c.start_date && c.end_date) ? ` · ${fmt(c.start_date)} – ${fmt(c.end_date)}` : "";
                                     return { id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}${dateRange}` };
@@ -333,7 +375,7 @@ const RunPayrollPage = () => {
                                     setPreCheckIssues([]);
                                     setPendingCalculate(false);
                                     setDiffData(null);
-                                    const cycle = cycles.find((c) => String(c.id) === String(cycleId));
+                                    const cycle = filteredCycles.find((c) => String(c.id) === String(cycleId));
                                     if (cycle) setSelectedCycle(cycle);
                                 }}
                                 containerStyle={{ marginBottom: 0 }}
@@ -385,7 +427,7 @@ const RunPayrollPage = () => {
                                 { label: "SSO Rate", value: `${payrollConfig.sso_rate}%` },
                                 { label: "SSO Max", value: `฿${formatCurrency(payrollConfig.sso_max_amount)}` },
                                 { label: "Min Salary", value: `฿${formatCurrency(payrollConfig.sso_min_salary)}` },
-                                { label: "Tax Method", value: payrollConfig.tax_calculation || "Progressive" },
+                                { label: "Tax Method", value: { Progressive: "Thai Progressive Rate", None: "No Tax" }[payrollConfig.tax_calculation] || payrollConfig.tax_calculation || "Thai Progressive Rate" },
                             ].map((item) => (
                                 <div key={item.label}>
                                     <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "3px" }}>{item.label}</div>

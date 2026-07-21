@@ -57,7 +57,7 @@ const CycleEarningsPage = () => {
     const watchedCycleId = watch("cycle_id");
 
     const filteredCycles = watchedCompanyId
-        ? cycles.filter((c) => String(c.companies_id) === String(watchedCompanyId))
+        ? cycles.filter((c) => String(c.companies_id) === String(watchedCompanyId) && !c.is_closed)
         : [];
     const cycleCompanyId = cycles.find((c) => String(c.id) === String(watchedCycleId))?.companies_id || watchedCompanyId;
 
@@ -182,6 +182,7 @@ const CycleEarningsPage = () => {
 
     const pageCycles = selectedCompanyId ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId)) : [];
     const selectedCycleLabel = cycles.find((c) => String(c.id) === String(selectedCycleId));
+    const selectedCycleClosed = !!selectedCycleLabel?.is_closed;
 
     const columns = [
         {
@@ -219,10 +220,10 @@ const CycleEarningsPage = () => {
             sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => handleEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>
+                    <Button variant="ghost" onClick={() => handleEdit(row)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px" }}>
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "#ef4444" }}>
+                    <Button variant="danger" onClick={() => handleDelete(row.id)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px", color: "#ef4444" }}>
                         Delete
                     </Button>
                 </div>
@@ -235,7 +236,7 @@ const CycleEarningsPage = () => {
             <PageHeader
                 title="Cycle Variable Earnings"
                 actionButton={
-                    <Button onClick={handleAdd} disabled={!selectedCycleId} style={{ width: "auto" }}>
+                    <Button onClick={handleAdd} disabled={!selectedCycleId || selectedCycleClosed} style={{ width: "auto" }}>
                         + Add Variable Earning
                     </Button>
                 }
@@ -263,9 +264,14 @@ const CycleEarningsPage = () => {
                         containerStyle={{ minWidth: "280px", marginBottom: 0 }}
                     />
                 </div>
-                {selectedCycleLabel && (                    
+                {selectedCycleLabel && (
                     <div style={{ marginTop: "12px", fontSize: "13px", color: "#64748b" }}>
                         Period: {formatDate(selectedCycleLabel.start_date)} - {formatDate(selectedCycleLabel.end_date)}
+                    </div>
+                )}
+                {selectedCycleClosed && (
+                    <div style={{ marginTop: "8px", fontSize: "13px", color: "#ef4444" }}>
+                        This cycle is closed. Variable earnings can no longer be added, edited, or deleted.
                     </div>
                 )}
                 <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "#94a3b8" }}>
@@ -314,6 +320,7 @@ const CycleEarningsPage = () => {
                             setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                         }}
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        disabled={!editingId}
                         required
                     />
                     <SelectField
@@ -329,7 +336,7 @@ const CycleEarningsPage = () => {
                             id: c.id,
                             name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
                         }))}
-                        disabled={!watchedCompanyId}
+                        disabled={!watchedCompanyId || !editingId}
                         required
                     />
                     <SelectField

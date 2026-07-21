@@ -25,6 +25,9 @@ const formatDate = (value) => {
     });
 };
 
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const homeCompanyId = String(userData.companies_id || "");
+
 const TransactionsPage = () => {
     const [searchParams] = useSearchParams();
     const cycleFromQuery = searchParams.get("cycle_id") || "";
@@ -44,11 +47,41 @@ const TransactionsPage = () => {
     const [slipError, setSlipError] = useState<string | null>(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
 
+    const [companies, setCompanies] = useState([]);
+    const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
+
+    useEffect(() => {
+        const fetchCompanies = async () => {
+            try {
+                const res = await api.get("/companies/options");
+                setCompanies(res.data || []);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchCompanies();
+    }, []);
+
+    const filteredCycles = selectedCompanyId
+        ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId))
+        : cycles;
+
     useEffect(() => {
         if (cycleFromQuery) {
             setSelectedCycleId(String(cycleFromQuery));
         }
     }, [cycleFromQuery, setSelectedCycleId]);
+
+    // Keep the selected cycle in sync with the company filter: the data hook
+    // auto-selects the first closed cycle overall, which may not belong to
+    // the default (home) company, so re-pin it to the first filtered cycle.
+    useEffect(() => {
+        if (cycleFromQuery || !selectedCycleId) return;
+        const belongsToCompany = filteredCycles.some((c) => String(c.id) === String(selectedCycleId));
+        if (belongsToCompany) return;
+        setSelectedCycleId(filteredCycles.length > 0 ? String(filteredCycles[0].id) : "");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cycles, selectedCompanyId]);
 
     const openDetails = async (tx) => {
         setSelectedTransaction(tx);
@@ -180,11 +213,21 @@ const TransactionsPage = () => {
             <Card style={{ marginBottom: "16px" }}>
                 <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "end" }}>
                     <SelectField
+                        label="Company"
+                        options={companies.map((c) => ({ id: c.id, name: c.name }))}
+                        value={selectedCompanyId}
+                        onChange={(e) => {
+                            setSelectedCompanyId(e.target.value);
+                            setSelectedCycleId("");
+                        }}
+                        containerStyle={{ flex: 1, minWidth: "220px", marginBottom: 0 }}
+                    />
+                    <SelectField
                         label="Closed Payroll Cycle"
-                        options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
+                        options={filteredCycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        containerStyle={{ minWidth: "260px", marginBottom: 0 }}
+                        containerStyle={{ flex: 1, minWidth: "220px", marginBottom: 0 }}
                     />
 
                     <div style={{ marginLeft: "auto" }}>
