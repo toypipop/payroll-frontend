@@ -11,7 +11,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const res = await api.get<AppModule[]>('/modules');
+        const res = await api.get<AppModule[]>('/modules/mine');
         const findParent = (items: AppModule[]): AppModule | null => {
           for (const item of items) {
             if (item.route_path === location.pathname) {

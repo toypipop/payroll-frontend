@@ -26,7 +26,7 @@ export const useModulePermission = (moduleKey: string): boolean => {
         let cancelled = false;
 
         api
-            .get("/modules")
+            .get("/modules/mine")
             .then((res) => {
                 if (cancelled) return;
                 const keys = new Set<string>();

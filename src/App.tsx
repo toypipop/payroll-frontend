@@ -49,7 +49,7 @@ function App() {
 
         const fetchRoutes = async () => {
             try {
-                const res = await api.get<AppModule[]>("/modules");
+                const res = await api.get<AppModule[]>("/modules/mine");
                 const flatList: AppModule[] = [];
                 const extract = (items: AppModule[]) => {
                     if (!Array.isArray(items)) return;

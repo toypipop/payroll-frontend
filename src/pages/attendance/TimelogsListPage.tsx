@@ -168,7 +168,7 @@ const TimelogsListPage = () => {
                     api.get("/master/work-locations/options").catch(() => ({ data: [] })),
                     api.get("/timelogs/schedule-config").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
-                    api.get("/modules").catch(() => ({ data: [] })),
+                    api.get("/modules/mine").catch(() => ({ data: [] })),
                     api.get("/master/day-offs/options").catch(() => ({ data: [] })),
                 ]);
                 setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));

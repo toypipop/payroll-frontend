@@ -118,7 +118,7 @@ const Sidebar = () => {
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = await api.get<SidebarModule[]>("/modules");
+                const response = await api.get<SidebarModule[]>("/modules/mine");
                 const allModules = response.data;
 
                 const tree = allModules
@@ -153,10 +153,11 @@ const Sidebar = () => {
         const IconComponent = Icons[item.icon] || Icons.Default;
 
         if (item.is_category && !isSub) {
+            if (!item.children || item.children.length === 0) return null;
             return (
                 <div key={item.id} style={{ marginBottom: "16px" }}>
                     <div style={styles.categoryLabel}>{item.module_name}</div>
-                    {item.children?.map(child => renderMenuItem(child, true))}
+                    {item.children.map(child => renderMenuItem(child, true))}
                 </div>
             );
         }
