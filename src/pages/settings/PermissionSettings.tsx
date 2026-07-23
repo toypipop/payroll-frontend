@@ -8,11 +8,12 @@ import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
 import Table from "../../components/common/Table";
 
-// Modules with no create/edit/delete actions in the API (view-only, GET-only
-// routes) — rendered as a single on/off toggle instead of a V/C/E/D matrix.
-const ALL_OR_NOTHING_MODULES = new Set([
-    "CompaniesPage",
-    "MasterBankPage",
+// Single on/off toggle with a fixed Companies scope (no scope selector).
+const ALL_OR_NOTHING_MODULES = new Set(["CompaniesPage", "MasterBankPage", "HelpPage"]);
+
+// Report pages: GET-only APIs, so no create/edit/delete — show the View toggle
+// and the Data Scope selector, but hide the C/E/D columns.
+const VIEW_ONLY_MODULES = new Set([
     "PayslipsReportPage",
     "BankTransferReportPage",
     "TaxFormsReportPage",
@@ -137,13 +138,9 @@ const PermissionSettings = () => {
             }
         }
 
-        // Catch any orphaned permissions not found in the tree
-        const seen = new Set(groups.flatMap(g => g.items.map(i => i.module_id)));
-        const orphans = permissions
-            .map((p, idx) => ({ ...p, _flatIdx: idx }))
-            .filter(p => !seen.has(p.module_id));
-        if (orphans.length > 0) groups.push({ categoryName: "Other", items: orphans });
-
+        // Modules not present in the sidebar tree (e.g. category parents, which
+        // carry no configurable permission of their own) are intentionally not
+        // shown — no "Other" bucket.
         return groups;
     }, [moduleTree, permissions]);
 
@@ -277,7 +274,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key) || VIEW_ONLY_MODULES.has(item.module_key)) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_create || false}
@@ -291,7 +288,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key) || VIEW_ONLY_MODULES.has(item.module_key)) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_edit || false}
@@ -305,7 +302,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
+                if (ALL_OR_NOTHING_MODULES.has(item.module_key) || VIEW_ONLY_MODULES.has(item.module_key)) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_delete || false}
