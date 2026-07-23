@@ -8,7 +8,17 @@ import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
 import Table from "../../components/common/Table";
 
-const ALL_OR_NOTHING_MODULES = new Set(["CompaniesPage", "MasterBankPage"]);
+// Modules with no create/edit/delete actions in the API (view-only, GET-only
+// routes) — rendered as a single on/off toggle instead of a V/C/E/D matrix.
+const ALL_OR_NOTHING_MODULES = new Set([
+    "CompaniesPage",
+    "MasterBankPage",
+    "PayslipsReportPage",
+    "BankTransferReportPage",
+    "TaxFormsReportPage",
+    "SSOReportPage",
+    "PayrollAnalysisPage",
+]);
 
 const PermissionSettings = () => {
     const [roles, setRoles] = useState([]);
