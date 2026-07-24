@@ -1,7 +1,7 @@
 export type HelpCategory =
   | 'overview'
   | 'employees' | 'attendance' | 'payroll' | 'reports' | 'settings' | 'payroll-config'
-  | 'getting-started'
+  | 'getting-started-general' | 'getting-started-admin'
 
 export type ArticleType = 'how-to' | 'checklist'
 
@@ -31,7 +31,8 @@ export const HELP_CATEGORIES: HelpCategoryMeta[] = [
   { id: 'reports', titleTH: 'รายงาน', titleEN: 'Reports' },
   { id: 'settings', titleTH: 'การตั้งค่า', titleEN: 'Settings' },
   { id: 'payroll-config', titleTH: 'ตั้งค่า Payroll', titleEN: 'Payroll Config' },
-  { id: 'getting-started', titleTH: 'เริ่มต้นใช้งาน', titleEN: 'Getting Started' },
+  { id: 'getting-started-general', titleTH: 'เริ่มต้นใช้งานทั่วไป', titleEN: 'Getting Started — General' },
+  { id: 'getting-started-admin', titleTH: 'เริ่มต้นใช้งานผู้ดูแลระบบ', titleEN: 'Getting Started — Admin' },
 ]
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -931,9 +932,43 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
 
-  // ─── GETTING STARTED ─────────────────────────────────────────────────────────
+  // ─── GETTING STARTED — GENERAL ───────────────────────────────────────────────
   {
-    id: 'gs-setup-company', category: 'getting-started', articleType: 'checklist',
+    id: 'gsg-first-login', category: 'getting-started-general', articleType: 'checklist',
+    titleTH: 'เข้าสู่ระบบครั้งแรก', titleEN: 'Log In for the First Time',
+    descTH: 'เริ่มต้นใช้งานด้วยการเข้าสู่ระบบด้วยบัญชีที่ผู้ดูแลระบบสร้างให้ และทำความรู้จักหน้าจอหลัก',
+    descEN: 'Get started by signing in with the account your administrator created for you, and get familiar with the main screen.',
+    stepsTH: ['เปิดหน้าเว็บของระบบแล้วกรอกอีเมลและรหัสผ่านที่ได้รับ', 'กด Login เพื่อเข้าสู่หน้า Dashboard', 'ดูแถบเมนูด้านซ้าย — จะแสดงเฉพาะเมนูที่คุณมีสิทธิ์เข้าถึง', 'กดชื่อของคุณมุมขวาบนเพื่อออกจากระบบเมื่อเลิกใช้งาน'],
+    stepsEN: ['Open the system URL and enter the email and password you were given', 'Click Login to reach the Dashboard', 'Look at the left sidebar — it shows only the menus you have access to', 'Click your name at the top-right to log out when you are done'],
+  },
+  {
+    id: 'gsg-view-payslip', category: 'getting-started-general', articleType: 'checklist',
+    titleTH: 'ดูสลิปเงินเดือนของฉัน', titleEN: 'View My Payslips',
+    descTH: 'ตรวจสอบสลิปเงินเดือนของตัวเองในแต่ละรอบที่ปิดแล้ว พร้อมรายละเอียดรายได้และรายการหัก',
+    descEN: 'Check your own payslip for each closed cycle, including the full breakdown of earnings and deductions.',
+    stepsTH: ['ไปที่เมนู My Payslips ในแถบด้านซ้าย', 'เลือกรอบเงินเดือนที่ต้องการดู (แสดงเฉพาะรอบที่ปิดแล้ว)', 'คลิกแถวเพื่อเปิดรายละเอียดสลิป', 'ตรวจสอบรายได้ รายการหัก ประกันสังคม และภาษี'],
+    stepsEN: ['Go to My Payslips in the left sidebar', 'Pick the cycle you want to view (only closed cycles appear)', 'Click a row to open the payslip detail', 'Review earnings, deductions, SSO, and tax'],
+  },
+  {
+    id: 'gsg-submit-leave', category: 'getting-started-general', articleType: 'checklist',
+    titleTH: 'ส่งคำขอลา', titleEN: 'Submit a Leave Request',
+    descTH: 'ยื่นคำขอลาผ่านระบบ เลือกประเภทการลาและช่วงวันที่ แล้วรอผู้ดูแลอนุมัติ',
+    descEN: 'Request time off through the system by choosing a leave type and date range, then wait for approval.',
+    stepsTH: ['ไปที่ Attendance → Leave Requests แล้วกด + Add', 'เลือกประเภทการลาและช่วงวันที่ที่ต้องการลา', 'กรอกเหตุผลการลาแล้วกด Save', 'ตรวจสอบสถานะ — แก้ไขได้เฉพาะคำขอที่ยังเป็น Pending'],
+    stepsEN: ['Go to Attendance → Leave Requests and click + Add', 'Choose the leave type and the date range', 'Enter a reason and click Save', 'Track the status — only Pending requests can still be edited'],
+  },
+  {
+    id: 'gsg-check-attendance', category: 'getting-started-general', articleType: 'checklist',
+    titleTH: 'ตรวจสอบการเข้างานของฉัน', titleEN: 'Check My Attendance',
+    descTH: 'ดูบันทึกเวลาเข้า-ออกงานของตัวเอง เพื่อยืนยันว่าข้อมูลถูกต้องก่อนรอบเงินเดือนจะปิด',
+    descEN: 'Review your own check-in/out records to make sure they are correct before the payroll cycle closes.',
+    stepsTH: ['ไปที่ Attendance → Timelogs', 'ตรวจสอบเวลาเข้า-ออกงานในแต่ละวัน', 'หากพบข้อมูลผิดพลาด แจ้งผู้ดูแลระบบเพื่อแก้ไข', 'ตรวจสอบให้ครบก่อนรอบเงินเดือนปิด'],
+    stepsEN: ['Go to Attendance → Timelogs', 'Review your daily check-in and check-out times', 'If anything looks wrong, tell your administrator to correct it', 'Verify everything before the payroll cycle is closed'],
+  },
+
+  // ─── GETTING STARTED — ADMIN ─────────────────────────────────────────────────
+  {
+    id: 'gs-setup-company', category: 'getting-started-admin', articleType: 'checklist',
     titleTH: 'ตั้งค่าบริษัท', titleEN: 'Set Up Your Company',
     descTH: 'ก่อนเริ่มใช้งาน กรุณาตั้งค่าข้อมูลบริษัทให้ครบถ้วน รวมถึงแผนก ตำแหน่ง และประเภทการจ้างงาน',
     descEN: 'Before you begin, configure your company information including departments, positions, and employment types.',
@@ -941,7 +976,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Settings → Companies and create your company', 'Add Departments for your company', 'Add Positions', 'Add Employment Types'],
   },
   {
-    id: 'gs-setup-payroll-config', category: 'getting-started', articleType: 'checklist',
+    id: 'gs-setup-payroll-config', category: 'getting-started-admin', articleType: 'checklist',
     titleTH: 'ตั้งค่า Payroll Config', titleEN: 'Configure Payroll Settings',
     descTH: 'ตั้งค่าพารามิเตอร์การคำนวณเงินเดือน เช่น อัตราประกันสังคม วิธีคำนวณภาษี และประเภทรายได้-รายการหัก',
     descEN: 'Set up payroll calculation parameters including SSO rate, tax method, earning types, and deduction types.',
@@ -949,7 +984,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Payroll Config → Global Settings', 'Set SSO rate and salary cap', 'Add Earning Types used in your organization', 'Add Deduction Types used in your organization'],
   },
   {
-    id: 'gs-add-employees', category: 'getting-started', articleType: 'checklist',
+    id: 'gs-add-employees', category: 'getting-started-admin', articleType: 'checklist',
     titleTH: 'เพิ่มพนักงาน', titleEN: 'Add Employees',
     descTH: 'เพิ่มข้อมูลพนักงานทุกคนในระบบ พร้อมกำหนดเงินเดือนพื้นฐานและข้อมูลที่เกี่ยวข้อง',
     descEN: 'Add all employees to the system with their base salary and related information.',
@@ -957,7 +992,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Employees → Employee List and click + Add', 'Fill in personal info and assign Department and Position', 'Go to Employees → Salaries and set the base salary', 'Add recurring Earnings/Deductions if applicable'],
   },
   {
-    id: 'gs-setup-attendance', category: 'getting-started', articleType: 'checklist',
+    id: 'gs-setup-attendance', category: 'getting-started-admin', articleType: 'checklist',
     titleTH: 'ตั้งค่าการเข้างาน', titleEN: 'Set Up Attendance',
     descTH: 'กำหนดเวลาทำงาน วันหยุด และกฎการคำนวณค่าล่วงเวลา เพื่อให้ระบบเข้างานทำงานได้ถูกต้อง',
     descEN: 'Configure work hours, holidays, and overtime rules so attendance calculations are accurate.',
@@ -965,7 +1000,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     stepsEN: ['Go to Settings → Attendance Settings and set standard work hours', 'Add public holidays in Holiday Calendar', 'Set weekly off days in Day Off', 'Add leave types in Leave Types'],
   },
   {
-    id: 'gs-first-payroll', category: 'getting-started', articleType: 'checklist',
+    id: 'gs-first-payroll', category: 'getting-started-admin', articleType: 'checklist',
     titleTH: 'รันเงินเดือนครั้งแรก', titleEN: 'Run Your First Payroll',
     descTH: 'เมื่อตั้งค่าทุกอย่างเรียบร้อยแล้ว ทดลองรันเงินเดือนสำหรับรอบแรก',
     descEN: 'Once everything is configured, run payroll for the first cycle.',
