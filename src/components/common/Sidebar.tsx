@@ -201,8 +201,6 @@ const Sidebar = () => {
                     const others = menuItems.filter(m => m.module_key !== 'DashboardPage' && m.module_key !== 'HelpPage');
                     return (
                         <>
-                            {dashboard.map(item => renderMenuItem(item))}
-                            {help.map(item => renderMenuItem(item))}
                             <NavLink
                                 to="/my-payslips"
                                 style={({ isActive }) => ({
@@ -222,6 +220,8 @@ const Sidebar = () => {
                                     </>
                                 )}
                             </NavLink>
+                            {dashboard.map(item => renderMenuItem(item))}
+                            {help.map(item => renderMenuItem(item))}
                             {others.map(item => renderMenuItem(item))}
                         </>
                     );
