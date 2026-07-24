@@ -134,7 +134,7 @@ const PermissionSettings = () => {
                 }
             } else {
                 const item = permMap.get(node.id);
-                if (item) groups.push({ categoryName: null, items: [item] });
+                if (item) groups.push({ categoryName: node.module_name, items: [item] });
             }
         }
 
