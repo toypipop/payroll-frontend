@@ -122,27 +122,27 @@ const PermissionSettings = () => {
     const groupedPermissions = useMemo(() => {
         if (!moduleTree.length) return [];
         const permMap = new Map(permissions.map((p, idx) => [p.module_id, { ...p, _flatIdx: idx }]));
-        const standalone = [];
-        const categories = [];
+        const groups = [];
 
+        // Render in the module tree's own order (driven by seed `Order`). Each
+        // standalone module (Dashboard, Help Center) gets its own header so it
+        // never reads as nested under a category. Category parents with no
+        // permission of their own are omitted (no "Other" bucket).
         for (const node of moduleTree) {
             if (node.is_category) {
                 const items = (node.children || [])
                     .map(child => permMap.get(child.id))
                     .filter(Boolean);
                 if (items.length > 0) {
-                    categories.push({ categoryName: node.module_name, items });
+                    groups.push({ categoryName: node.module_name, items });
                 }
             } else {
                 const item = permMap.get(node.id);
-                if (item) standalone.push({ categoryName: node.module_name, items: [item] });
+                if (item) groups.push({ categoryName: node.module_name, items: [item] });
             }
         }
 
-        // Standalone modules (Dashboard, Help Center) float to the top as their
-        // own headers — never nested under a category's rows. Category parents
-        // with no permission of their own are intentionally omitted (no "Other").
-        return [...standalone, ...categories];
+        return groups;
     }, [moduleTree, permissions]);
 
     const emptyStateStyle: CSSProperties = {
