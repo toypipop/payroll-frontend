@@ -122,7 +122,8 @@ const PermissionSettings = () => {
     const groupedPermissions = useMemo(() => {
         if (!moduleTree.length) return [];
         const permMap = new Map(permissions.map((p, idx) => [p.module_id, { ...p, _flatIdx: idx }]));
-        const groups = [];
+        const standalone = [];
+        const categories = [];
 
         for (const node of moduleTree) {
             if (node.is_category) {
@@ -130,18 +131,18 @@ const PermissionSettings = () => {
                     .map(child => permMap.get(child.id))
                     .filter(Boolean);
                 if (items.length > 0) {
-                    groups.push({ categoryName: node.module_name, items });
+                    categories.push({ categoryName: node.module_name, items });
                 }
             } else {
                 const item = permMap.get(node.id);
-                if (item) groups.push({ categoryName: node.module_name, items: [item] });
+                if (item) standalone.push({ categoryName: node.module_name, items: [item] });
             }
         }
 
-        // Modules not present in the sidebar tree (e.g. category parents, which
-        // carry no configurable permission of their own) are intentionally not
-        // shown — no "Other" bucket.
-        return groups;
+        // Standalone modules (Dashboard, Help Center) float to the top as their
+        // own headers — never nested under a category's rows. Category parents
+        // with no permission of their own are intentionally omitted (no "Other").
+        return [...standalone, ...categories];
     }, [moduleTree, permissions]);
 
     const emptyStateStyle: CSSProperties = {

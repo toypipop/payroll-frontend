@@ -202,6 +202,7 @@ const Sidebar = () => {
                     return (
                         <>
                             {dashboard.map(item => renderMenuItem(item))}
+                            {help.map(item => renderMenuItem(item))}
                             <NavLink
                                 to="/my-payslips"
                                 style={({ isActive }) => ({
@@ -221,7 +222,6 @@ const Sidebar = () => {
                                     </>
                                 )}
                             </NavLink>
-                            {help.map(item => renderMenuItem(item))}
                             {others.map(item => renderMenuItem(item))}
                         </>
                     );
