@@ -8,18 +8,25 @@ import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
 import Table from "../../components/common/Table";
 
-// Single on/off toggle with a fixed Companies scope (no scope selector).
-const ALL_OR_NOTHING_MODULES = new Set(["CompaniesPage", "MasterBankPage", "HelpPage"]);
+// Which actions and data scopes a module supports is declared by the backend
+// (models/module_capability.go) and served on every AppModule as
+// allowed_actions / allowed_scopes / actions_atomic. This page must not keep
+// its own copy of that knowledge: a hardcoded list here would silently drift
+// from what the API actually enforces, which is how the permission matrix
+// ended up offering scopes the server ignored.
 
-// Report pages: GET-only APIs, so no create/edit/delete — show the View toggle
-// and the Data Scope selector, but hide the C/E/D columns.
-const VIEW_ONLY_MODULES = new Set([
-    "PayslipsReportPage",
-    "BankTransferReportPage",
-    "TaxFormsReportPage",
-    "SSOReportPage",
-    "PayrollAnalysisPage",
-]);
+const ACTION_FIELD = {
+    VIEW: "can_view",
+    CREATE: "can_create",
+    EDIT: "can_edit",
+    DELETE: "can_delete",
+};
+
+const allowsAction = (item, action) => (item?.allowed_actions || []).includes(action);
+
+// A module with a single permitted scope has nothing to choose, so the
+// selector is replaced by a plain label explaining why.
+const hasScopeChoice = (item) => (item?.allowed_scopes || []).length > 1;
 
 const PermissionSettings = () => {
     const [roles, setRoles] = useState([]);
@@ -59,16 +66,26 @@ const PermissionSettings = () => {
             const res = await api.get(`/permissions/${role.id}`);
             const matrixData = res.data.modules.map((m) => {
                 const access = res.data.access.find((a) => a.module_id === m.id);
+                const allowedScopes = m.allowed_scopes || ["Companies"];
+                const savedScope = access?.data_scope;
                 return {
                     module_id: m.id,
                     module_key: m.module_key,
                     module_name: m.module_name,
                     companies_name: role.companies?.name || "System",
+                    // Capability travels with the row so every column can ask
+                    // the backend's answer instead of guessing from the key.
+                    allowed_actions: m.allowed_actions || [],
+                    allowed_scopes: allowedScopes,
+                    actions_atomic: Boolean(m.actions_atomic),
                     can_view: Boolean(access?.can_view),
                     can_create: Boolean(access?.can_create),
                     can_edit: Boolean(access?.can_edit),
                     can_delete: Boolean(access?.can_delete),
-                    data_scope: ALL_OR_NOTHING_MODULES.has(m.module_key) ? "Companies" : (access?.data_scope || "Own"),
+                    // Clamp to something this module can honour — a stored
+                    // scope from before the module was locked down would
+                    // otherwise show a value the server will not apply.
+                    data_scope: allowedScopes.includes(savedScope) ? savedScope : allowedScopes[0],
                 };
             });
             setPermissions(matrixData);
@@ -221,6 +238,19 @@ const PermissionSettings = () => {
     );
 };
 
+const fixedScopeStyle: CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
+    fontSize: "13px",
+    color: "#6b7280",
+};
+
+const fixedScopeHintStyle: CSSProperties = {
+    fontSize: "11px",
+    color: "#9ca3af",
+};
+
 const categoryRowStyle = {
     padding: "8px 20px",
     fontSize: "11px",
@@ -253,18 +283,27 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) {
-                    const allGranted = permissions[item._flatIdx]?.can_view && permissions[item._flatIdx]?.can_create && permissions[item._flatIdx]?.can_edit && permissions[item._flatIdx]?.can_delete;
+                const row = permissions[item._flatIdx];
+                if (item.actions_atomic) {
+                    // One switch drives every action this module supports.
+                    const fields = (item.allowed_actions || []).map((a) => ACTION_FIELD[a]).filter(Boolean);
+                    const allGranted = fields.length > 0 && fields.every((f) => row?.[f]);
                     return (
                         <CheckboxField
-                            checked={Boolean(allGranted)}
-                            onChange={(e) => handleUpdateLocal(item._flatIdx, { can_view: e.target.checked, can_create: e.target.checked, can_edit: e.target.checked, can_delete: e.target.checked })}
+                            checked={allGranted}
+                            onChange={(e) =>
+                                handleUpdateLocal(
+                                    item._flatIdx,
+                                    Object.fromEntries(fields.map((f) => [f, e.target.checked])),
+                                )
+                            }
                         />
                     );
                 }
+                if (!allowsAction(item, "VIEW")) return null;
                 return (
                     <CheckboxField
-                        checked={permissions[item._flatIdx]?.can_view || false}
+                        checked={row?.can_view || false}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "can_view", e.target.checked)}
                     />
                 );
@@ -275,7 +314,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key) || VIEW_ONLY_MODULES.has(item.module_key)) return null;
+                if (item.actions_atomic || !allowsAction(item, "CREATE")) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_create || false}
@@ -289,7 +328,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key) || VIEW_ONLY_MODULES.has(item.module_key)) return null;
+                if (item.actions_atomic || !allowsAction(item, "EDIT")) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_edit || false}
@@ -303,7 +342,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key) || VIEW_ONLY_MODULES.has(item.module_key)) return null;
+                if (item.actions_atomic || !allowsAction(item, "DELETE")) return null;
                 return (
                     <CheckboxField
                         checked={permissions[item._flatIdx]?.can_delete || false}
@@ -316,11 +355,24 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             label: "Data Scope",
             headerStyle: { width: "32%" },
             render: (item) => {
-                if (ALL_OR_NOTHING_MODULES.has(item.module_key)) return null;
+                if (item.actions_atomic) return null;
+
+                // Only one scope is enforceable, so there is nothing to pick.
+                // Say why instead of hiding the cell — the old UI showed a
+                // full selector here and silently ignored whatever was chosen.
+                if (!hasScopeChoice(item)) {
+                    return (
+                        <span style={fixedScopeStyle}>
+                            Full Companies
+                            <span style={fixedScopeHintStyle}>this module has no per-person data</span>
+                        </span>
+                    );
+                }
+
                 return (
                     <SelectField
-                        options={dataScopeOptions}
-                        value={permissions[item._flatIdx]?.data_scope || "Own"}
+                        options={dataScopeOptions.filter((o) => item.allowed_scopes.includes(o.id))}
+                        value={permissions[item._flatIdx]?.data_scope || item.allowed_scopes[0]}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "data_scope", e.target.value)}
                         style={{ marginBottom: 0 }}
                     />

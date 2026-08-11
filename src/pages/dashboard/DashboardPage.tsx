@@ -32,23 +32,25 @@ const DashboardPage = () => {
 
     useEffect(() => {
         const load = async () => {
-            try {
-                const [empRes, cycleRes] = await Promise.all([
-                    api.get('/employees'),
-                    api.get('/payroll/cycles'),
-                ]);
-                const cycles = cycleRes.data || [];
-                setStats({
-                    employees:    (empRes.data || []).length,
-                    totalCycles:  cycles.length,
-                    activeCycles: cycles.filter(c => !c.is_closed).length,
-                    closedCycles: cycles.filter(c =>  c.is_closed).length,
-                });
-            } catch {
-                setStats({ employees: 0, totalCycles: 0, activeCycles: 0, closedCycles: 0 });
-            } finally {
-                setLoading(false);
-            }
+            // allSettled, not all: the dashboard reads from two modules the
+            // viewer may not both have. A role without Payroll Cycles used to
+            // lose the employee count too, because one 403 rejected the pair
+            // and the catch zeroed every tile. Each source now stands alone.
+            const [empRes, cycleRes] = await Promise.allSettled([
+                api.get('/employees'),
+                api.get('/payroll/cycles'),
+            ]);
+
+            const employees = empRes.status === 'fulfilled' ? (empRes.value.data || []) : [];
+            const cycles = cycleRes.status === 'fulfilled' ? (cycleRes.value.data || []) : [];
+
+            setStats({
+                employees:    employees.length,
+                totalCycles:  cycles.length,
+                activeCycles: cycles.filter(c => !c.is_closed).length,
+                closedCycles: cycles.filter(c =>  c.is_closed).length,
+            });
+            setLoading(false);
         };
         load();
     }, []);

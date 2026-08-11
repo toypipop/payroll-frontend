@@ -196,9 +196,8 @@ const Sidebar = () => {
 
             <nav style={{ flexGrow: 1, overflowY: "auto" }}>
                 {loading ? <div>Loading...</div> : (() => {
-                    const dashboard = menuItems.filter(m => m.module_key === 'DashboardPage');
                     const help = menuItems.filter(m => m.module_key === 'HelpPage');
-                    const others = menuItems.filter(m => m.module_key !== 'DashboardPage' && m.module_key !== 'HelpPage');
+                    const others = menuItems.filter(m => m.module_key !== 'HelpPage');
                     return (
                         <>
                             <NavLink
@@ -220,7 +219,28 @@ const Sidebar = () => {
                                     </>
                                 )}
                             </NavLink>
-                            {dashboard.map(item => renderMenuItem(item))}
+                            {/* Dashboard is not a permission module — it is the
+                                universal landing page "/" redirects to, so the
+                                link is always drawn, same as My Payslips. */}
+                            <NavLink
+                                to="/dashboard"
+                                style={({ isActive }) => ({
+                                    ...styles.navLink,
+                                    backgroundColor: isActive ? "var(--sidebar-active)" : "transparent",
+                                    color: isActive ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
+                                })}
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
+                                            {Icons.Dashboard(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
+                                        </div>
+                                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                                            Dashboard
+                                        </span>
+                                    </>
+                                )}
+                            </NavLink>
                             {help.map(item => renderMenuItem(item))}
                             {others.map(item => renderMenuItem(item))}
                         </>

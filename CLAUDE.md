@@ -29,7 +29,9 @@ This agent manages **both** repos every session:
 - `GET /api/v1/modules` is public and drives all frontend routes, sidebar, and breadcrumbs.
 - Backend `ModuleKey` must match frontend page filename exactly (e.g. `EmployeesListPage`).
 - Backend `Icon` must exist in `src/components/common/Sidebar.tsx`.
-- **New page checklist:** backend seed module + route + permission → frontend page file + API calls + icon mapping.
+- **New page checklist:** backend seed module + route + permission + an entry in `models/module_capability.go` (the server refuses to boot without one) → frontend page file + API calls + icon mapping.
+- **Dashboard and My Payslips are not modules.** Their routes are hardcoded in `App.tsx` and their sidebar links in `Sidebar.tsx`, so every signed-in user gets both — `"/"` redirects to `/dashboard`. Do not add them back to the module tree; a permission row there only hides the sidebar link while the page stays reachable. The Dashboard's numbers are governed by the modules it reads from, and it uses `Promise.allSettled` so a 403 on one source does not blank the others.
+- Each module on `/modules` carries `scope_level`, `allowed_actions`, `allowed_scopes`, `actions_atomic` — what the backend can actually enforce. `PermissionSettings.tsx` is driven entirely by these; it must not keep its own hardcoded module lists, which is how the matrix previously offered Data Scope values the server silently ignored.
 
 ## Critical API Contracts
 
@@ -60,14 +62,12 @@ This agent manages **both** repos every session:
 npm install && npm run dev          # run
 npm run typecheck && npm run lint   # required after edits
 npm run build                       # verify build
-npx vitest run                      # tests
 ```
 
 **Backend:**
 ```bash
 go run .                            # run
 gofmt -w <files> && go vet ./...    # required after edits
-go test ./...                       # tests
 go run ./seed                       # reseed data
 docker compose -f docker-compose.local.yml up -d   # local Docker
 docker compose -f docker-compose.uat.yml up -d     # UAT Docker
