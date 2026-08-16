@@ -13,8 +13,7 @@ import InputField from "../../components/common/InputField";
 import ToggleField from "../../components/common/ToggleField";
 import TimeField from "../../components/common/TimeField";
 
-// Business timezone is fixed to Asia/Bangkok (UTC+7, no DST) — never rely on
-// the viewer's browser timezone, which may not be Bangkok.
+// Business timezone is fixed to Asia/Bangkok (UTC+7, no DST) — never rely on the viewer's browser timezone, which may not be Bangkok.
 const BANGKOK_OFFSET_MINUTES = 7 * 60;
 
 const toBangkokHM = (date) => {

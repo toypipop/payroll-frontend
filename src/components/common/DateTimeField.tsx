@@ -119,9 +119,6 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
     useEffect(() => {
         if (!isOpen) return;
         // Capture phase: runs before our own option buttons (CalendarSelect)
-        // unmount themselves on click, so the clicked node is still attached
-        // to the DOM when we check containment — bubble phase would see a
-        // detached node and wrongly report the click as "outside".
         const handler = (e: MouseEvent) => {
             if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
         };

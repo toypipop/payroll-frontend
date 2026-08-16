@@ -13,12 +13,7 @@ const collectKeys = (items: ModuleNode[] | undefined, keys: Set<string>) => {
     });
 };
 
-/**
- * Checks whether the current user can access a given module (page), by
- * walking the same /modules tree the sidebar is built from. Used to decide
- * whether to show a "Set it up" link to a settings page the caller may not
- * have permission to visit.
- */
+// Checks whether the current user can access a module, walking the same /modules tree the sidebar is built from.
 export const useModulePermission = (moduleKey: string): boolean => {
     const [canAccess, setCanAccess] = useState(false);
 

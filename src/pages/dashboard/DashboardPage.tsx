@@ -32,10 +32,7 @@ const DashboardPage = () => {
 
     useEffect(() => {
         const load = async () => {
-            // allSettled, not all: the dashboard reads from two modules the
-            // viewer may not both have. A role without Payroll Cycles used to
-            // lose the employee count too, because one 403 rejected the pair
-            // and the catch zeroed every tile. Each source now stands alone.
+            // allSettled, not all: the dashboard reads from two modules the viewer may not both have.
             const [empRes, cycleRes] = await Promise.allSettled([
                 api.get('/employees'),
                 api.get('/payroll/cycles'),

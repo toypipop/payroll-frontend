@@ -9,11 +9,6 @@ import SelectField from "../../components/common/SelectField";
 import Table from "../../components/common/Table";
 
 // Which actions and data scopes a module supports is declared by the backend
-// (models/module_capability.go) and served on every AppModule as
-// allowed_actions / allowed_scopes / actions_atomic. This page must not keep
-// its own copy of that knowledge: a hardcoded list here would silently drift
-// from what the API actually enforces, which is how the permission matrix
-// ended up offering scopes the server ignored.
 
 const ACTION_FIELD = {
     VIEW: "can_view",
@@ -24,8 +19,7 @@ const ACTION_FIELD = {
 
 const allowsAction = (item, action) => (item?.allowed_actions || []).includes(action);
 
-// A module with a single permitted scope has nothing to choose, so the
-// selector is replaced by a plain label explaining why.
+// A module with a single permitted scope has nothing to choose, so the selector is replaced by a plain label explaining why.
 const hasScopeChoice = (item) => (item?.allowed_scopes || []).length > 1;
 
 const PermissionSettings = () => {
@@ -73,8 +67,7 @@ const PermissionSettings = () => {
                     module_key: m.module_key,
                     module_name: m.module_name,
                     companies_name: role.companies?.name || "System",
-                    // Capability travels with the row so every column can ask
-                    // the backend's answer instead of guessing from the key.
+                    // Capability travels with the row so every column can ask the backend's answer instead of guessing from the key.
                     allowed_actions: m.allowed_actions || [],
                     allowed_scopes: allowedScopes,
                     actions_atomic: Boolean(m.actions_atomic),
@@ -82,9 +75,7 @@ const PermissionSettings = () => {
                     can_create: Boolean(access?.can_create),
                     can_edit: Boolean(access?.can_edit),
                     can_delete: Boolean(access?.can_delete),
-                    // Clamp to something this module can honour — a stored
-                    // scope from before the module was locked down would
-                    // otherwise show a value the server will not apply.
+                    // Clamp to something this module can honour — a stored scope from before the module was locked down would otherwise show a value the server will not apply.
                     data_scope: allowedScopes.includes(savedScope) ? savedScope : allowedScopes[0],
                 };
             });
@@ -141,10 +132,7 @@ const PermissionSettings = () => {
         const permMap = new Map(permissions.map((p, idx) => [p.module_id, { ...p, _flatIdx: idx }]));
         const groups = [];
 
-        // Render in the module tree's own order (driven by seed `Order`). Each
-        // standalone module (Dashboard, Help Center) gets its own header so it
-        // never reads as nested under a category. Category parents with no
-        // permission of their own are omitted (no "Other" bucket).
+        // Render in the module tree's own order (driven by seed `Order`).
         for (const node of moduleTree) {
             if (node.is_category) {
                 const items = (node.children || [])
@@ -358,8 +346,6 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
                 if (item.actions_atomic) return null;
 
                 // Only one scope is enforceable, so there is nothing to pick.
-                // Say why instead of hiding the cell — the old UI showed a
-                // full selector here and silently ignored whatever was chosen.
                 if (!hasScopeChoice(item)) {
                     return (
                         <span style={fixedScopeStyle}>

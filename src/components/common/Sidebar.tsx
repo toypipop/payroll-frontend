@@ -219,9 +219,7 @@ const Sidebar = () => {
                                     </>
                                 )}
                             </NavLink>
-                            {/* Dashboard is not a permission module — it is the
-                                universal landing page "/" redirects to, so the
-                                link is always drawn, same as My Payslips. */}
+                            {/* Dashboard is not a permission module but the universal landing page, so the link is always drawn. */}
                             <NavLink
                                 to="/dashboard"
                                 style={({ isActive }) => ({

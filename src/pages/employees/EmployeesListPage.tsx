@@ -127,8 +127,7 @@ const EmployeesListPage = () => {
         ? masterEmploymentTypes.filter((t) => String(t.companies_id) === String(selectedCompaniesId))
         : masterEmploymentTypes;
 
-    // Warn when the selected company has zero records for a required master
-    // type (e.g. a freshly created company with no departments yet).
+    // Warn when the selected company has zero records for a required master type (e.g.
     const showNoDeptWarning = !!selectedCompaniesId && filteredDepts.length === 0;
     const showNoPosWarning = !!selectedCompaniesId && filteredPos.length === 0;
     const showNoRolesWarning = !!selectedCompaniesId && filteredRoles.length === 0;
@@ -168,8 +167,7 @@ const EmployeesListPage = () => {
                 );
                 setMasterCompanies((compRes.data || []).map((c) => ({ id: c.id, name: c.name })));
 
-                // Check property names from API
-                // match your Backend JSON response (English Comment)
+                // Check property names from API match your Backend JSON response (English Comment)
                 setMasterDepts(
                     deptRes.data.map((d) => ({
                         id: d.id,

@@ -268,9 +268,7 @@ const TaxFormsReportPage = () => {
         },
     ];
 
-    // PND1 has employees via transaction
-    // API returns EmployeesCode not ID
-    // Fetch transaction list, store IDs by code
+    // PND1 has employees via transaction API returns EmployeesCode not ID Fetch transaction list, store IDs by code
     const [txMap, setTxMap] = useState({}); // employees_code -> tx.id
 
     useEffect(() => {

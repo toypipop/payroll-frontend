@@ -9,12 +9,7 @@ interface MasterDataWarningProps {
     linkLabel?: string;
 }
 
-/**
- * Warns that a company has no records for a required master data type
- * (department, earning type, leave type, etc). The warning text always
- * shows; the "Set it up" link only shows if the current user can access
- * that settings page, since linking to a page they'd be denied is useless.
- */
+// Warns that a company has no records for a required master data type, linking to its settings page only if the user may open it.
 const MasterDataWarning: React.FC<MasterDataWarningProps> = ({
     message,
     routePath,

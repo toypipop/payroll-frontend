@@ -73,8 +73,6 @@ const TransactionsPage = () => {
     }, [cycleFromQuery, setSelectedCycleId]);
 
     // Keep the selected cycle in sync with the company filter: the data hook
-    // auto-selects the first closed cycle overall, which may not belong to
-    // the default (home) company, so re-pin it to the first filtered cycle.
     useEffect(() => {
         if (cycleFromQuery || !selectedCycleId) return;
         const belongsToCompany = filteredCycles.some((c) => String(c.id) === String(selectedCycleId));

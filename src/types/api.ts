@@ -29,11 +29,7 @@ export interface AppModule {
     parent_id?: ApiId | null;
     order?: number;
     icon?: string;
-    /**
-     * What the backend can actually enforce for this module, declared in
-     * models/module_capability.go. The permission matrix is driven entirely by
-     * these — never reintroduce a hardcoded module list on the frontend.
-     */
+    // What the backend can enforce for this module; the matrix is driven by these, never by a hardcoded frontend list.
     scope_level?: "company" | "employee";
     allowed_actions?: ("VIEW" | "CREATE" | "EDIT" | "DELETE")[];
     allowed_scopes?: ("Own" | "Department" | "Companies")[];

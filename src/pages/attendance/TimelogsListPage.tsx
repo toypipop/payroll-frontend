@@ -351,8 +351,7 @@ const TimelogsListPage = () => {
         applyBulkDefaultsForCompany(companyId);
     };
 
-    // Master data (attendance config / day-offs) loads asynchronously after
-    // mount, so re-apply defaults once for the pre-selected home company.
+    // Master data (attendance config / day-offs) loads asynchronously after mount, so re-apply defaults once for the pre-selected home company.
     const bulkDefaultsAppliedRef = useRef(false);
     useEffect(() => {
         if (bulkDefaultsAppliedRef.current) return;
@@ -416,8 +415,7 @@ const TimelogsListPage = () => {
         }
     };
 
-    // Returns the configured schedule for a company, or null when that company
-    // has no attendance config (so callers skip auto-filling times).
+    // Returns the configured schedule for a company, or null when that company has no attendance config (so callers skip auto-filling times).
     const getScheduleConfig = (companiesId) => {
         const cfg = companiesId ? attendanceConfigs[companiesId] : null;
         return cfg && cfg.is_configured ? cfg : null;

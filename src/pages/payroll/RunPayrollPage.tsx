@@ -185,10 +185,7 @@ const RunPayrollPage = () => {
         setPendingCalculate(false);
     };
 
-    // Every cycle listed here is open (fetchCycles filters out closed ones), so
-    // there's never a "frozen, audit-locked" snapshot to preserve — recalculate
-    // automatically whenever a different cycle is selected, instead of showing
-    // whatever was last calculated (which may predate a settings change).
+    // Every listed cycle is open, so there is no audit-locked snapshot to preserve: recalculate on every selection.
     useEffect(() => {
         if (selectedCycleId && cycles.length > 0) {
             const cycle = cycles.find((c) => String(c.id) === String(selectedCycleId));
@@ -503,9 +500,7 @@ const RunPayrollPage = () => {
                     </div>
                 )}
 
-                {/* Informational note: new hires whose first pay this cycle was
-                    pro-rated because they started mid-cycle. Not a warning — just
-                    explaining why their amount looks lower than a full month. */}
+                {/* Informational, not a warning: new hires pro-rated because they started mid-cycle. */}
                 {calcResult?.prorated_employees?.length > 0 && (
                     <div style={{
                         marginTop: "10px", padding: "10px 14px",
