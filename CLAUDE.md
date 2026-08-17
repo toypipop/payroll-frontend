@@ -68,6 +68,7 @@ npm run build                       # verify build
 ```bash
 go run .                            # run
 gofmt -w <files> && go vet ./...    # required after edits
+go test ./...                       # required after touching service/
 go run ./seed                       # reseed data
 docker compose -f docker-compose.local.yml up -d   # local Docker
 docker compose -f docker-compose.uat.yml up -d     # UAT Docker
