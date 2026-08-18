@@ -11,6 +11,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
+import { useAuth } from "../../hooks/useAuth";
 
 const roleSchema = z.object({
     id: z.number().optional(),
@@ -24,8 +25,7 @@ const RolesPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const defaultCompanieId = userData.companies_id;
+    const { homeCompanyId: defaultCompanieId } = useAuth();
 
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
         resolver: zodResolver(roleSchema),

@@ -4,8 +4,10 @@ import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
+import { useAuth } from "../../hooks/useAuth";
 
 const LeaveApprovedPage = () => {
+    const { user } = useAuth();
     const [pendingRequests, setPendingRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -36,10 +38,9 @@ const LeaveApprovedPage = () => {
         const id = row.id;
 
         try {
-            const userData = JSON.parse(localStorage.getItem("user") || "{}");
             await api.put(`/leaves/approve/${id}`, {
                 status: newStatus,
-                approved_by: userData.id
+                approved_by: user?.id
             });
             fetchPending();
         } catch (err) {

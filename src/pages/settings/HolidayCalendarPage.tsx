@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,6 +13,7 @@ import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
+import { useAuth } from "../../hooks/useAuth";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
@@ -21,12 +22,11 @@ const schema = z.object({
     is_paid: z.boolean().default(true),
 });
 
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
-const emptyForm = { companies_id: homeCompanyId, date: "", name: "", is_paid: true };
+const makeEmptyForm = (homeCompanyId: string) => ({ companies_id: homeCompanyId, date: "", name: "", is_paid: true });
 
 const HolidayCalendarPage = () => {
+    const { homeCompanyId } = useAuth();
+    const emptyForm = useMemo(() => makeEmptyForm(homeCompanyId), [homeCompanyId]);
     const [items, setItems] = useState([]);
     const [companyOptions, setCompanyOptions] = useState([]);
     const [loading, setLoading] = useState(true);

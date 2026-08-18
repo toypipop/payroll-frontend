@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,9 +16,7 @@ import SelectField from "../../components/common/SelectField";
 import CheckboxField from "../../components/common/CheckboxField";
 import HelpIcon from "../../components/common/HelpIcon";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+import { useAuth } from "../../hooks/useAuth";
 
 // Validation schema for employee
 const createEmployeesSchema = (isEditing, requireCompany) => z.object({
@@ -42,7 +40,7 @@ const createEmployeesSchema = (isEditing, requireCompany) => z.object({
     account_no: z.string().optional(),
 });
 
-const EMPTY_EMPLOYEE_FORM = {
+const makeEmptyEmployeeForm = (homeCompanyId: string) => ({
     employees_code: "",
     first_name: "",
     last_name: "",
@@ -57,9 +55,11 @@ const EMPTY_EMPLOYEE_FORM = {
     bank_id: "",
     account_name: "",
     account_no: "",
-};
+});
 
 const EmployeesListPage = () => {
+    const { homeCompanyId } = useAuth();
+    const EMPTY_EMPLOYEE_FORM = useMemo(() => makeEmptyEmployeeForm(homeCompanyId), [homeCompanyId]);
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);

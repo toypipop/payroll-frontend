@@ -9,12 +9,10 @@ import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
 import HelpIcon from "../../components/common/HelpIcon";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
+import { useAuth } from "../../hooks/useAuth";
 
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
 
 const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
     const [open, setOpen] = useState(false);
@@ -85,6 +83,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
 };
 
 const RunPayrollPage = () => {
+    const { homeCompanyId } = useAuth();
     const [companies, setCompanies] = useState([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [cycles, setCycles] = useState([]);

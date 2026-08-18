@@ -11,9 +11,7 @@ import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+import { useAuth } from "../../hooks/useAuth";
 
 const positionSchema = z.object({
     pos_name: z.string().min(1, "Position name is required"),
@@ -21,6 +19,7 @@ const positionSchema = z.object({
 });
 
 const PositionSettings = () => {
+    const { homeCompanyId } = useAuth();
     const [positions, setPositions] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -17,9 +17,7 @@ import HelpIcon from "../../components/common/HelpIcon";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
 
 import { Controller } from "react-hook-form";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+import { useAuth } from "../../hooks/useAuth";
 
 // Validation schema for leave requests
 const leaveSchema = z.object({
@@ -42,6 +40,7 @@ const leaveSchema = z.object({
 });
 
 const LeaveRequestsPage = () => {
+    const { homeCompanyId } = useAuth();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);

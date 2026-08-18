@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../../api/axiosInstance';
 import type { AppModule, UserProfile } from '../../types/api';
+import { useAuth } from '../../hooks/useAuth';
 
 const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
   const location = useLocation();
@@ -38,7 +39,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
     fetchCategory();
   }, [location.pathname, pageTitle]);
 
-  const storedUser = JSON.parse(localStorage.getItem('user') || '{}') as Partial<UserProfile>;
+  const { user: storedUser } = useAuth();
   const displayName = storedUser?.fullName || 'Admin';
   const initials = displayName.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 
@@ -46,7 +47,6 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
     try {
       await api.post('/auth/logout');
     } finally {
-      localStorage.removeItem('user');
       window.location.href = '/login';
     }
   };

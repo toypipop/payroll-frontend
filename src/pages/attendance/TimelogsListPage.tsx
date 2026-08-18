@@ -17,9 +17,7 @@ import TimeField from "../../components/common/TimeField";
 import SelectField from "../../components/common/SelectField";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
 import { Controller } from "react-hook-form";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+import { useAuth } from "../../hooks/useAuth";
 
 const WEEKDAY_OPTIONS = [
     { value: 1, label: "Mon" },
@@ -96,6 +94,7 @@ const buildDateWithTime = (baseDate, hour, min) => {
 };
 
 const TimelogsListPage = () => {
+    const { homeCompanyId } = useAuth();
     const [timeLogs, setTimeLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);

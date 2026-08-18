@@ -15,9 +15,7 @@ import DateField from "../../components/common/DateField";
 import SelectField from "../../components/common/SelectField";
 import Badge from "../../components/common/Badge";
 import HelpIcon from "../../components/common/HelpIcon";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+import { useAuth } from "../../hooks/useAuth";
 
 const cycleSchema = z.object({
     cycle_name: z.string().min(1, "Cycle name is required"),
@@ -33,6 +31,7 @@ const formatDate = (d) =>
     new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
 const PayrollCyclesPage = () => {
+    const { homeCompanyId } = useAuth();
     const navigate = useNavigate();
     const [cycles, setCycles] = useState([]);
     const [companies, setCompanies] = useState([]);

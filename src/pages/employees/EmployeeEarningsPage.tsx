@@ -13,6 +13,7 @@ import InputField from "../../components/common/InputField";
 import DecimalField from "../../components/common/DecimalField";
 import SelectField from "../../components/common/SelectField";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
+import { useAuth } from "../../hooks/useAuth";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -22,10 +23,8 @@ const schema = z.object({
     amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
 });
 
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
 const EmployeeEarningsPage = () => {
+    const { homeCompanyId } = useAuth();
     const [items, setItems] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [employees, setEmployees] = useState([]);

@@ -22,7 +22,9 @@ This agent manages **both** repos every session:
 
 - Cookie-based JWT via httpOnly `auth_token` — never return JWTs in bodies, never use `Authorization` header.
 - Login / check / logout: `POST /auth/login`, `GET /auth/me`, `POST /auth/logout`.
-- Store only: `id`, `fullName`, `roles`, `companies_id`, `accessible_company_ids`.
+- The signed-in user lives in `AuthProvider` (`src/contexts/AuthContext.tsx`), fed once by `App.tsx` from `GET /auth/me`. Read it with `useAuth()` (`src/hooks/useAuth.ts`), which returns `user` and `homeCompanyId` (the string a company `SelectField` defaults to).
+- **Nothing writes or reads `localStorage`.** Pages used to parse a `user` key at module load, which froze the value for the whole session; a page that needs the user calls `useAuth()` inside the component instead. Login just navigates to `/dashboard` — the full page load re-runs `/auth/me`, which is the only source of the user.
+- The user carries only: `id`, `fullName`, `roles`, `companies_id`, `accessible_company_ids`.
 
 ## Modules / Navigation
 

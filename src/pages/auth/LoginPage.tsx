@@ -34,15 +34,7 @@ const LoginPage = () => {
             });
 
             if (response.data?.id) {
-                const userPayload = {
-                    id: response.data.id,
-                    fullName: response.data.full_name,
-                    roles: response.data.roles,
-                    companies_id: response.data.companies_id,
-                    accessible_company_ids: response.data.accessible_company_ids || [],
-                };
-                localStorage.setItem("user", JSON.stringify(userPayload));
-
+                // A full page load is what re-runs App's /auth/me, which is the single source of the signed-in user.
                 window.location.href = "/dashboard";
             }
         } catch (loginError) {

@@ -13,6 +13,7 @@ import InputField from "../../components/common/InputField";
 import CheckboxField from "../../components/common/CheckboxField";
 import SelectField from "../../components/common/SelectField";
 import Badge from "../../components/common/Badge";
+import { useAuth } from "../../hooks/useAuth";
 
 const deductionSchema = z.object({
     id: z.number().optional(),
@@ -28,8 +29,7 @@ const DeductionTypesPage = () => {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const defaultCompanieId = userData.companies_id;
+    const { homeCompanyId: defaultCompanieId } = useAuth();
 
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
         resolver: zodResolver(deductionSchema),

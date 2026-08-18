@@ -4,6 +4,7 @@ import api from '../../api/axiosInstance';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Badge from '../../components/common/Badge';
+import { useAuth } from "../../hooks/useAuth";
 
 const StatCard = ({ label, value, sub, color = '#0f172a', loading }) => (
     <Card style={{ flex: 1, minWidth: '150px' }}>
@@ -28,7 +29,7 @@ const DashboardPage = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const { user: storedUser } = useAuth();
 
     useEffect(() => {
         const load = async () => {

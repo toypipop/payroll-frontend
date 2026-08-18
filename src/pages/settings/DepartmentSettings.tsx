@@ -11,9 +11,7 @@ import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+import { useAuth } from "../../hooks/useAuth";
 
 // Department schema definition
 const departmentSchema = z.object({
@@ -23,6 +21,7 @@ const departmentSchema = z.object({
 });
 
 const DepartmentSettings = () => {
+    const { homeCompanyId } = useAuth();
     const [departments, setDepartments] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [categories, setCategories] = useState([]);

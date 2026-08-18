@@ -11,6 +11,7 @@ import InputField from "../../components/common/InputField";
 import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
+import { useAuth } from "../../hooks/useAuth";
 
 const schema = z.object({
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
@@ -25,8 +26,7 @@ const EmploymentTypePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const defaultCompanieId = userData.companies_id;
+    const { homeCompanyId: defaultCompanieId } = useAuth();
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),

@@ -9,6 +9,7 @@ import Table from "../../components/common/Table";
 import Modal from "../../components/common/Modal";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import { useAuth } from "../../hooks/useAuth";
 
 const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("en-US", {
@@ -25,10 +26,8 @@ const formatDate = (value) => {
     });
 };
 
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
 const TransactionsPage = () => {
+    const { homeCompanyId } = useAuth();
     const [searchParams] = useSearchParams();
     const cycleFromQuery = searchParams.get("cycle_id") || "";
 
