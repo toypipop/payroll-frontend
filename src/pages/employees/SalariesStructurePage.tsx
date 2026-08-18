@@ -1,323 +1,56 @@
-import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from "react";
 
-import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
-import Modal from "../../components/common/Modal";
-import DecimalField from "../../components/common/DecimalField";
-import DateField from "../../components/common/DateField";
-import CheckboxField from "../../components/common/CheckboxField";
 import Badge from "../../components/common/Badge";
+import useSalaries from "./salaries/useSalaries";
+import SalaryFormModal from "./salaries/SalaryFormModal";
+import SalaryHistoryModal from "./salaries/SalaryHistoryModal";
+import {
+    getEmployeeId,
+    getSalaryBaseAmount,
+    getSalaryDeletedAt,
+    getSalaryEffectiveDate,
+    getSalaryRecordId,
+    isSoftDeleted,
+} from "./salaries/salaryShape";
 
-/* --- 1. Validation Schema (English Comment) --- */
-const salariesSchema = z.object({
-    companies_id: z.preprocess(
-        (val) => Number(val),
-        z.number().min(1, "Company is required")
-    ),
-    employees_id: z.preprocess(
-        (val) => Number(val),
-        z.number().min(1, "Please select an employee")
-    ),
-    base_salaries: z.preprocess(
-        (val) => Number(val),
-        z.number().min(0, "Salaries must be a positive number")
-    ),
-    effective_date: z.string().min(1, "Effective date is required").regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
-    is_active: z.boolean().default(true),
-});
-
-const DEFAULT_FORM_VALUES = {
-    companies_id: "",
-    employees_id: "",
-    base_salaries: "",
-    effective_date: new Date().toISOString().split("T")[0],
-    is_active: true,
-};
-
-const getEmployeeId = (emp) =>
-    emp?.ID ?? emp?.id ?? emp?.employees_id ?? emp?.employee_id ?? emp?.employees?.id ?? null;
-
-const getSalaryStructure = (emp) =>
-    emp?.salaries_structure ?? emp?.salary_structure ?? emp?.salaries ?? null;
-
-const getSalaryRecordId = (salary, row) =>
-    Number(
-        salary?.id ??
-            salary?.ID ??
-            salary?.salary_id ??
-            salary?.SalaryID ??
-            salary?.salaries_id ??
-            salary?.salaries_structure_id ??
-            row?.salary_id ??
-            row?.SalaryID ??
-            row?.salaries_id ??
-            row?.salaries_structure_id ??
-            0,
-    );
-
-const getSalaryBaseAmount = (salary, row) =>
-    Number(
-        salary?.base_salaries ??
-            salary?.base_salary ??
-            salary?.BaseSalaries ??
-            salary?.BaseSalary ??
-            row?.base_salaries ??
-            row?.base_salary ??
-            row?.BaseSalaries ??
-            row?.BaseSalary ??
-            0,
-    );
-
-const getSalaryEffectiveDate = (salary, row) =>
-    salary?.effective_date ??
-    salary?.effectiveDate ??
-    salary?.EffectiveDate ??
-    row?.effective_date ??
-    row?.effectiveDate ??
-    row?.EffectiveDate ??
-    "";
-
-const getSalaryDeletedAt = (salary, row) =>
-    salary?.deleted_at ??
-    salary?.deletedAt ??
-    salary?.DeletedAt ??
-    row?.deleted_at ??
-    row?.deletedAt ??
-    row?.DeletedAt;
-
-const getSalaryStructures = (emp) => {
-    const direct = getSalaryStructure(emp);
-    if (Array.isArray(direct)) return direct;
-    if (direct && typeof direct === "object") return [direct];
-
-    const fromArray =
-        emp?.salaries_structures ??
-        emp?.salary_structures ??
-        emp?.salaries_history ??
-        emp?.salaryHistory ??
-        emp?.SalaryStructures;
-    if (Array.isArray(fromArray)) return fromArray;
-
-    if (
-        emp?.base_salaries !== undefined ||
-        emp?.base_salary !== undefined ||
-        emp?.effective_date !== undefined ||
-        emp?.deleted_at !== undefined ||
-        emp?.salary_id !== undefined ||
-        emp?.salaries_id !== undefined ||
-        emp?.salaries_structure_id !== undefined
-    ) {
-        return [{
-            id: emp?.salary_id ?? emp?.salaries_id ?? emp?.salaries_structure_id ?? 0,
-            base_salaries: emp?.base_salaries,
-            base_salary: emp?.base_salary,
-            effective_date: emp?.effective_date,
-            deleted_at: emp?.deleted_at,
-            created_at: emp?.created_at,
-            updated_at: emp?.updated_at,
-            deletedAt: emp?.deletedAt,
-            effectiveDate: emp?.effectiveDate,
-            BaseSalaries: emp?.BaseSalaries,
-            BaseSalary: emp?.BaseSalary,
-        }];
+// formatDate renders a stored effective date as YYYY/MM/DD, or the fallback when the row carries Go's zero date.
+const formatDate = (date, fallback) => {
+    if (!date || date.startsWith("0001")) return fallback;
+    try {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+    } catch {
+        return fallback;
     }
-
-    return [];
-};
-
-const getLatestSalaryStructure = (emp) => {
-    const structures = getSalaryStructures(emp);
-    if (!structures.length) return null;
-    return [...structures].sort((a, b) => getSalaryRecordId(b, emp) - getSalaryRecordId(a, emp))[0];
-};
-
-const isSoftDeleted = (deletedAt) => {
-    if (deletedAt && typeof deletedAt === "object") {
-        if (Object.prototype.hasOwnProperty.call(deletedAt, "Valid") && deletedAt.Valid === false) {
-            return false;
-        }
-
-        const nested =
-            deletedAt.Time ??
-            deletedAt.time ??
-            deletedAt.Bool ??
-            deletedAt.bool ??
-            deletedAt.Int64 ??
-            deletedAt.int64 ??
-            deletedAt.value;
-
-        if (nested !== undefined) return isSoftDeleted(nested);
-    }
-
-    if (
-        deletedAt === null ||
-        deletedAt === undefined ||
-        deletedAt === false ||
-        deletedAt === 0 ||
-        deletedAt === "0" ||
-        deletedAt === "" ||
-        deletedAt === "false" ||
-        deletedAt === "null"
-    ) {
-        return false;
-    }
-
-    if (typeof deletedAt === "number") return deletedAt !== 0;
-
-    if (typeof deletedAt === "string") {
-        const normalized = deletedAt.trim().toLowerCase();
-        if (["0", "false", "null", "", "0001-01-01t00:00:00z", "0001-01-01 00:00:00 +0000 utc"].includes(normalized)) return false;
-        if (normalized.startsWith("0001-01-01")) return false;
-        return true;
-    }
-
-    return Boolean(deletedAt);
 };
 
 const SalariesStructurePage = () => {
-    const [salariesData, setSalariesData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        salariesData, loading, fetchSalaries,
+        historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord,
+    } = useSalaries();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmp, setSelectedEmp] = useState(null);
-    const [selectedSalaryId, setSelectedSalaryId] = useState(null);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [historyEmp, setHistoryEmp] = useState(null);
-    const [historyRows, setHistoryRows] = useState([]);
-    const [historyLoading, setHistoryLoading] = useState(false);
 
-    const {
-        handleSubmit,
-        reset,
-        control,
-        formState: { errors },
-    } = useForm({
-        resolver: zodResolver(salariesSchema),
-        defaultValues: DEFAULT_FORM_VALUES,
-    });
-
-    const fetchSalaries = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get("/salaries");
-            const rows = Array.isArray(response.data) ? response.data : [];
-            const normalized = rows
-                .map((row) => {
-                    const latest = getLatestSalaryStructure(row);
-                    const updatedAt = latest?.updated_at || latest?.created_at || null;
-                    const latestId = getSalaryRecordId(latest, row);
-                    const recentSort = updatedAt ? new Date(updatedAt).getTime() : latestId;
-                    return {
-                        ...row,
-                        __salary: latest,
-                        __salary_id: latestId,
-                        __recent_sort: Number.isNaN(recentSort) ? latestId : recentSort,
-                    };
-                });
-            setSalariesData(normalized);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchSalaries();
-    }, []);
-
-    const onSubmit = async (data) => {
-        try {
-            const payload = {
-                ...data,
-                companies_id: Number(data.companies_id),
-                employees_id: Number(data.employees_id),
-                base_salaries: Number(data.base_salaries),
-                base_salary: Number(data.base_salaries),
-                effective_date: data.effective_date,
-                is_active: Boolean(data.is_active),
-                deleted_at: !data.is_active,
-            };
-
-            if (!data.is_active && selectedSalaryId) {
-                payload.id = selectedSalaryId;
-            }
-
-            // Backend uses POST /salaries for both create and update.
-            await api.post("/salaries", payload);
-            fetchSalaries();
-            closeModal();
-        } catch (err) {
-            console.error("Save salary failed:", err.response?.data || err);
-            alert(
-                err.response?.data?.error ||
-                    err.response?.data?.message ||
-                    "Save Failed"
-            );
-        }
-    };
-
-    const handleEditSalaries = (emp) => {
-        const empId = getEmployeeId(emp);
-        if (!empId) {
+    const openEdit = (emp) => {
+        if (!getEmployeeId(emp)) {
             alert("Unable to find employee id for this row.");
             return;
         }
-
         setSelectedEmp(emp);
-        const ss = emp.__salary || getLatestSalaryStructure(emp) || null;
-        setSelectedSalaryId(ss?.id || null);
-
-        const existingDate = getSalaryEffectiveDate(ss, emp);
-        let finalDate = new Date().toISOString().split("T")[0];
-
-        if (existingDate && !existingDate.startsWith("0001")) {
-            try {
-                const d = new Date(existingDate);
-                finalDate = d.toISOString().split("T")[0];
-            } catch {
-                finalDate = new Date().toISOString().split("T")[0];
-            }
-        }
-        reset({
-            companies_id: emp.companies_id ? String(emp.companies_id) : "",
-            employees_id: String(empId),
-            base_salaries: getSalaryBaseAmount(ss, emp) || "",
-            effective_date: finalDate,
-            is_active: typeof ss?.is_active === "boolean"
-                ? ss.is_active
-                : !isSoftDeleted(getSalaryDeletedAt(ss, emp)),
-        });
-
         setIsModalOpen(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedEmp(null);
-        setSelectedSalaryId(null);
-        reset(DEFAULT_FORM_VALUES);
-    };
-
-    const fetchHistory = async (empId) => {
-        try {
-            setHistoryLoading(true);
-            const response = await api.get(`/salaries/history/${empId}`);
-            setHistoryRows(Array.isArray(response.data) ? response.data : []);
-        } catch (err) {
-            console.error("Fetch salary history failed:", err);
-            setHistoryRows([]);
-        } finally {
-            setHistoryLoading(false);
-        }
-    };
-
-    const handleShowHistory = (emp) => {
+    const openHistory = (emp) => {
         const empId = getEmployeeId(emp);
         if (!empId) {
             alert("Unable to find employee id for this row.");
@@ -328,26 +61,10 @@ const SalariesStructurePage = () => {
         fetchHistory(empId);
     };
 
-    const closeHistoryModal = () => {
+    const closeHistory = () => {
         setIsHistoryOpen(false);
         setHistoryEmp(null);
-        setHistoryRows([]);
-    };
-
-    const handleDeleteHistoryRecord = async (recordId) => {
-        if (!window.confirm("Delete this salary record permanently? This cannot be undone.")) return;
-        try {
-            await api.delete(`/salaries/${recordId}`);
-            const empId = getEmployeeId(historyEmp);
-            if (empId) fetchHistory(empId);
-            fetchSalaries();
-        } catch (err) {
-            alert(
-                err.response?.data?.error ||
-                    err.response?.data?.message ||
-                    "Delete failed"
-            );
-        }
+        clearHistory();
     };
 
     const columns = [
@@ -363,49 +80,19 @@ const SalariesStructurePage = () => {
             sortKey: "base_salaries_sort",
             searchValue: (row) => getSalaryBaseAmount(row.__salary || null, row).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,/g, ''),
             sortValue: (row) => getSalaryBaseAmount(row.__salary || null, row),
-            render: (row) => {
-                const ss = row.__salary || null;
-                const amount = getSalaryBaseAmount(ss, row);
-                return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            },
+            render: (row) => getSalaryBaseAmount(row.__salary || null, row).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         },
         {
             label: "Effective Date",
             sortKey: "effective_date_sort",
-            searchValue: (row) => {
-                const ss = row.__salary || null;
-                const date = getSalaryEffectiveDate(ss, row);
-                if (!date || date.startsWith("0001")) return "";
-                try {
-                    const d = new Date(date);
-                    const year = d.getFullYear();
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    return `${year}/${month}/${day}`;
-                } catch {
-                    return "";
-                }
-            },
+            searchValue: (row) => formatDate(getSalaryEffectiveDate(row.__salary || null, row), ""),
             sortValue: (row) => {
                 const date = getSalaryEffectiveDate(row.__salary || null, row);
                 if (!date || date.startsWith("0001")) return 0;
                 const ts = new Date(date).getTime();
                 return Number.isNaN(ts) ? 0 : ts;
             },
-            render: (row) => {
-                const ss = row.__salary || null;
-                const date = getSalaryEffectiveDate(ss, row);
-                if (!date || date.startsWith("0001")) return "-";
-                try {
-                    const d = new Date(date);
-                    const year = d.getFullYear();
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    return `${year}/${month}/${day}`;
-                } catch {
-                    return "-";
-                }
-            },
+            render: (row) => formatDate(getSalaryEffectiveDate(row.__salary || null, row), "-"),
         },
         {
             label: "Salary Status",
@@ -442,18 +129,10 @@ const SalariesStructurePage = () => {
             sortable: false,
             render: (row) => (
                 <div style={{ display: "flex", gap: "6px" }}>
-                    <Button
-                        variant="ghost"
-                        onClick={() => handleEditSalaries(row)}
-                        style={{ padding: "6px 12px", fontSize: "12px" }}
-                    >
+                    <Button variant="ghost" onClick={() => openEdit(row)} style={{ padding: "6px 12px", fontSize: "12px" }}>
                         Update Salaries
                     </Button>
-                    <Button
-                        variant="ghost"
-                        onClick={() => handleShowHistory(row)}
-                        style={{ padding: "6px 12px", fontSize: "12px" }}
-                    >
+                    <Button variant="ghost" onClick={() => openHistory(row)} style={{ padding: "6px 12px", fontSize: "12px" }}>
                         History
                     </Button>
                 </div>
@@ -468,144 +147,29 @@ const SalariesStructurePage = () => {
                 {loading ? (
                     <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
                 ) : (
-                    <Table 
-                        columns={columns} 
+                    <Table
+                        columns={columns}
                         data={salariesData}
                         defaultSort={{ key: "id", order: "asc" }}
                     />
                 )}
             </Card>
 
-            <Modal
+            <SalaryFormModal
                 isOpen={isModalOpen}
-                onClose={closeModal}
-                title={`Adjust Salaries: ${selectedEmp?.first_name} ${selectedEmp?.last_name}`}
-                footer={
-                    <>
-                        <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
-                            Save Changes
-                        </Button>
-                    </>
-                }
-            >
-                <Controller
-                    name="base_salaries"
-                    control={control}
-                    render={({ field }) => (
-                        <DecimalField
-                            name={field.name}
-                            label="Base Salaries (Monthly)"
-                            decimals={2}
-                            placeholder="0.00"
-                            value={field.value ?? ""}
-                            onBlur={field.onBlur}
-                            onChange={(e) => field.onChange(e?.target?.value ?? e)}
-                            error={errors.base_salaries?.message}
-                            required
-                        />
-                    )}
-                />
+                onClose={() => setIsModalOpen(false)}
+                onSaved={fetchSalaries}
+                employee={selectedEmp}
+            />
 
-                <Controller
-                    name="effective_date"
-                    control={control}
-                    render={({ field }) => (
-                        <DateField
-                            name={field.name}
-                            label="Effective Date"
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            error={errors.effective_date?.message}
-                            required
-                        />
-                    )}
-                />
-
-                <p style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
-                    * Adjustments will be applied to payroll calculations from this date onwards.
-                </p>
-                <Controller
-                    name="is_active"
-                    control={control}
-                    render={({ field }) => (
-                        <CheckboxField
-                            label="Active Salary Structure"
-                            id="is_active"
-                            checked={field.value}
-                            onChange={(e) => field.onChange(e.target.checked)}
-                            error={errors.is_active?.message}
-                        />
-                    )}
-                />
-            </Modal>
-
-            <Modal
+            <SalaryHistoryModal
                 isOpen={isHistoryOpen}
-                onClose={closeHistoryModal}
-                title={`Salary History: ${historyEmp?.first_name} ${historyEmp?.last_name}`}
-                footer={
-                    <Button variant="ghost" onClick={closeHistoryModal} style={{ width: "auto" }}>
-                        Close
-                    </Button>
-                }
-            >
-                {historyLoading ? (
-                    <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
-                ) : historyRows.length === 0 ? (
-                    <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>No salary history yet.</div>
-                ) : (
-                    <div style={{ overflowX: "auto" }}>
-                        <table style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse", fontSize: "13px" }}>
-                            <thead>
-                                <tr style={{ color: "#94a3b8", fontWeight: 600, fontSize: "11px" }}>
-                                    <th style={{ width: "25%", textAlign: "left", padding: "4px 8px 8px 0" }}>Effective Date</th>
-                                    <th style={{ width: "25%", textAlign: "right", padding: "4px 8px" }}>Base Salary</th>
-                                    <th style={{ width: "25%", textAlign: "left", padding: "4px 8px" }}>Status</th>
-                                    <th style={{ width: "25%", textAlign: "right", padding: "4px 0 8px 8px" }}>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {historyRows.map((rec) => {
-                                    const date = rec.effective_date;
-                                    const dateLabel = date && !date.startsWith("0001")
-                                        ? new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-                                        : "-";
-                                    return (
-                                        <tr key={rec.id} style={{ borderTop: "1px solid #f1f5f9" }}>
-                                            <td style={{ width: "25%", padding: "7px 8px 7px 0" }}>{dateLabel}</td>
-                                            <td style={{ width: "25%", textAlign: "right", padding: "7px 8px", fontFamily: "monospace" }}>
-                                                {Number(rec.base_salaries || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                            <td style={{ width: "25%", padding: "7px 8px" }}>
-                                                <Badge status={rec.is_active}>{rec.is_active ? "Active" : "Archived"}</Badge>
-                                            </td>
-                                            <td style={{ width: "25%", textAlign: "right", padding: "7px 0 7px 8px" }}>
-                                                {rec.can_delete ? (
-                                                    <Button
-                                                        variant="ghost"
-                                                        onClick={() => handleDeleteHistoryRecord(rec.id)}
-                                                        style={{ padding: "4px 10px", fontSize: "12px", width: "auto", color: "#dc2626" }}
-                                                    >
-                                                        Delete
-                                                    </Button>
-                                                ) : (
-                                                    <span style={{ fontSize: "11px", color: "#cbd5e1" }} title="Already used in a payroll calculation">
-                                                        Locked
-                                                    </span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </Modal>
+                onClose={closeHistory}
+                employee={historyEmp}
+                rows={historyRows}
+                loading={historyLoading}
+                onDelete={(recordId) => deleteHistoryRecord(recordId, getEmployeeId(historyEmp))}
+            />
         </>
     );
 };
