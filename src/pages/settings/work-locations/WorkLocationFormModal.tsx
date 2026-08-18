@@ -51,8 +51,8 @@ const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             title={editing ? "Edit Work Location" : "Add Work Location"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>{editing ? "Update" : "Save"}</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)}>{editing ? "Update" : "Save"}</Button>
                 </>
             }
         >

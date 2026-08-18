@@ -24,7 +24,7 @@ const detailColumns = [
         sortKey: "amount",
         sortValue: (row) => Number(row.amount) || 0,
         render: (row) => (
-            <span style={{ fontFamily: "monospace", fontWeight: 600 }}>฿{formatCurrency(row.amount)}</span>
+            <span className="font-mono font-semibold">฿{formatCurrency(row.amount)}</span>
         ),
     },
 ];
@@ -38,32 +38,32 @@ const PayslipDetailsModal = ({ slip, onClose }) => (
     >
         {slip && (
             <>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Period</span>
-                    <span style={{ fontWeight: 600 }}>{formatDate(slip.start_date)} – {formatDate(slip.end_date)}</span>
+                <div className="flex justify-between mb-[10px] text-[13px]">
+                    <span className="text-muted">Period</span>
+                    <span className="font-semibold">{formatDate(slip.start_date)} – {formatDate(slip.end_date)}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Position (at payout)</span>
-                    <span style={{ fontWeight: 600 }}>{slip.position_name || "-"}</span>
+                <div className="flex justify-between mb-[6px] text-[13px]">
+                    <span className="text-muted">Position (at payout)</span>
+                    <span className="font-semibold">{slip.position_name || "-"}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Department (at payout)</span>
-                    <span style={{ fontWeight: 600 }}>{slip.department_name || "-"}</span>
+                <div className="flex justify-between mb-[6px] text-[13px]">
+                    <span className="text-muted">Department (at payout)</span>
+                    <span className="font-semibold">{slip.department_name || "-"}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Paid to Bank Account</span>
-                    <span style={{ fontWeight: 600 }}>
+                <div className="flex justify-between mb-[10px] text-[13px]">
+                    <span className="text-muted">Paid to Bank Account</span>
+                    <span className="font-semibold">
                         {slip.bank_name || "-"} {slip.bank_account_no ? `(${slip.bank_account_no})` : ""}
                     </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Net Pay</span>
-                    <span style={{ fontWeight: 700, color: "var(--text-main)" }}>฿{formatCurrency(slip.net_pay)}</span>
+                <div className="flex justify-between mb-[12px] text-[13px]">
+                    <span className="text-muted">Net Pay</span>
+                    <span className="font-bold text-main">฿{formatCurrency(slip.net_pay)}</span>
                 </div>
-                <div style={{ margin: "12px 0" }}>
+                <div className="m-[12px_0]">
                     <Badge status="cancelled">Read-only audit trail</Badge>
                 </div>
-                <Card style={{ padding: "0px" }}>
+                <Card className="p-0">
                     <Table columns={detailColumns} data={slip.details || []} />
                 </Card>
             </>

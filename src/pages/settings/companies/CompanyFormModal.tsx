@@ -65,10 +65,10 @@ const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }) => {
             title={editing ? "Edit Companies" : "Add New Companies"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
+                    <Button onClick={handleSubmit(onSubmit)}>
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>

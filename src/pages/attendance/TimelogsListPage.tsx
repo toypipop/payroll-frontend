@@ -76,7 +76,7 @@ const TimelogsListPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button
                         variant="ghost"
                         onClick={() => openEdit(row)}
@@ -101,26 +101,25 @@ const TimelogsListPage = () => {
             <PageHeader
                 title="Attendance Time Logs"
                 actionButton={
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div className="flex gap-[8px]">
                         <Button
                             variant="ghost"
                             onClick={() => setIsBulkModalOpen(true)}
-                            style={{ width: "auto" }}
+                            className="w-auto"
                         >
                             Bulk Add
                         </Button>
                         <Button
                             onClick={openAdd}
-                            style={{ width: "auto" }}
                         >
                             + Add Manual Log
                         </Button>
                     </div>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>
+                    <div className="p-[40px] text-center">
                         Loading...
                     </div>
                 ) : (

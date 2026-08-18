@@ -218,7 +218,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             {label && (
                 <label style={styles.label}>
                     {label}
-                    {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
+                    {required && <span className="text-danger"> *</span>}
                 </label>
             )}
             <button

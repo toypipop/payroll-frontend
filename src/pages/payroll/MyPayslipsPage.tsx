@@ -24,14 +24,14 @@ const MyPayslipsPage = () => {
             label: "Payroll Cycle",
             sortKey: "cycle_name",
             sortValue: (row) => row.cycle_name?.toLowerCase() || "",
-            render: (row) => <span style={{ fontWeight: 600, color: "var(--text-main)" }}>{row.cycle_name || "-"}</span>,
+            render: (row) => <span className="font-semibold text-main">{row.cycle_name || "-"}</span>,
         },
         {
             label: "Period",
             sortKey: "start_date",
             sortValue: (row) => row.start_date || "",
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                <span className="text-[13px] text-muted">
                     {formatDate(row.start_date)} – {formatDate(row.end_date)}
                 </span>
             ),
@@ -41,7 +41,7 @@ const MyPayslipsPage = () => {
             sortKey: "total_earning",
             sortValue: (row) => row.total_earning || 0,
             render: (row) => (
-                <span style={{ color: "var(--status-success)", fontFamily: "monospace" }}>฿{formatCurrency(row.total_earning)}</span>
+                <span className="text-success font-mono">฿{formatCurrency(row.total_earning)}</span>
             ),
         },
         {
@@ -49,7 +49,7 @@ const MyPayslipsPage = () => {
             sortKey: "total_deduction",
             sortValue: (row) => row.total_deduction || 0,
             render: (row) => (
-                <span style={{ color: "var(--status-danger)", fontFamily: "monospace" }}>฿{formatCurrency(row.total_deduction)}</span>
+                <span className="text-danger font-mono">฿{formatCurrency(row.total_deduction)}</span>
             ),
         },
         {
@@ -57,7 +57,7 @@ const MyPayslipsPage = () => {
             sortKey: "net_pay",
             sortValue: (row) => row.net_pay || 0,
             render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: 700, color: "var(--text-main)" }}>
+                <span className="font-mono font-bold text-main">
                     ฿{formatCurrency(row.net_pay)}
                 </span>
             ),
@@ -73,11 +73,11 @@ const MyPayslipsPage = () => {
         <>
             <PageHeader title="My Payslips" />
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
+                    <div className="p-[40px] text-center text-subtle">Loading...</div>
                 ) : slips.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         No payslips available yet.
                     </div>
                 ) : (

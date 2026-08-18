@@ -21,20 +21,20 @@ const PayrollGlobalSettingsPage = () => {
         { label: "Companies", key: "name" },
         {
             label: "SSO Rate",
-            render: (row) => row.payroll_config ? `${row.payroll_config.sso_rate}%` : <span style={{ color: 'var(--text-subtle)' }}>Not Set</span>
+            render: (row) => row.payroll_config ? `${row.payroll_config.sso_rate}%` : <span className="text-subtle">Not Set</span>
         },
         {
             label: "Tax Method",
             render: (row) => {
                 const labels = { Progressive: "Thai Progressive Rate", None: "No Tax" };
                 const val = row.payroll_config?.tax_calculation;
-                return val ? (labels[val] || val) : <span style={{ color: 'var(--text-subtle)' }}>Not Set</span>;
+                return val ? (labels[val] || val) : <span className="text-subtle">Not Set</span>;
             }
         },
         {
             label: "Actions",
             render: (row) => (
-                <Button variant="ghost" onClick={() => openEdit(row)} style={{ fontSize: "12px" }}>
+                <Button variant="ghost" onClick={() => openEdit(row)} className="text-xs">
                     {row.payroll_config ? "Update Setup" : "Initial Setup"}
                 </Button>
             ),
@@ -44,9 +44,9 @@ const PayrollGlobalSettingsPage = () => {
     return (
         <>
             <PageHeader title="Global Payroll Settings" />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={configs} />
                 )}

@@ -29,7 +29,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
     }, [open]);
 
     return (
-        <div style={{ fontFamily: "monospace", fontSize: "12px" }}>
+        <div className="font-mono text-[12px]">
             <button
                 ref={btnRef}
                 type="button"
@@ -40,7 +40,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                 }}
             >
                 <span style={{ fontWeight: "700", color }}>฿{formatCurrency(total)}</span>
-                {hasDetails && <span style={{ fontSize: "10px", color: "var(--text-subtle)" }}>{open ? "▲" : "▼"}</span>}
+                {hasDetails && <span className="text-[10px] text-subtle">{open ? "▲" : "▼"}</span>}
             </button>
             {open && hasDetails && ReactDOM.createPortal(
                 <div
@@ -59,7 +59,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                                 padding: "5px 14px", fontSize: "12px", gap: "16px",
                                 borderBottom: i < filtered.length - 1 ? "1px solid var(--surface-hover)" : "none",
                             }}>
-                                <span style={{ color: "var(--text-body)", whiteSpace: "nowrap" }}>{d.item_name}</span>
+                                <span className="text-body whitespace-nowrap">{d.item_name}</span>
                                 <span style={{ color: itemColor, fontWeight: "600", whiteSpace: "nowrap" }}>
                                     {d.type === "deduction" ? "-" : ""}฿{formatCurrency(d.amount)}
                                 </span>

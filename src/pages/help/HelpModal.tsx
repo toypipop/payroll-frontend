@@ -54,10 +54,10 @@ export default function HelpModal({ article, lang, onClose }: Props) {
           }}
         >
           <div>
-            <div style={{ fontSize: '15px', fontWeight: 700 }}>
+            <div className="text-[15px] font-bold">
               {title}
             </div>
-            <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
+            <div className="text-[11px] opacity-60 mt-[2px]">
               {subtitle}
             </div>
           </div>
@@ -74,20 +74,20 @@ export default function HelpModal({ article, lang, onClose }: Props) {
         </div>
 
         {/* Body */}
-        <div style={{ padding: '20px', overflowY: 'auto' }}>
-          <p style={{ color: '#444', lineHeight: 1.7, marginBottom: '16px', fontSize: '14px' }}>
+        <div className="p-[20px] overflow-y-auto">
+          <p className="text-[#444] leading-[1.7] mb-[16px] text-[14px]">
             {desc}
           </p>
           {steps.length > 0 && (
             <>
-              <div style={{ fontWeight: 600, color: 'var(--ink-deep)', marginBottom: '10px', fontSize: '13px' }}>
+              <div className="font-semibold text-[color:var(--ink-deep)] mb-[10px] text-[13px]">
                 {getStepsLabel(article.articleType, lang)}
               </div>
-              <div style={{ background: '#f8fffe', borderLeft: '3px solid var(--ink-deep)', padding: '12px 16px', borderRadius: '4px' }}>
+              <div className="bg-[#f8fffe] border-l-[3px] border-l-[color:var(--ink-deep)] p-[12px_16px] rounded-[4px]">
                 {steps.map((step, i) => (
-                  <div key={i} style={{ fontSize: '13px', lineHeight: 2, color: '#333' }}>
+                  <div key={i} className="text-[13px] leading-[2] text-[#333]">
                     {article.articleType === 'checklist'
-                      ? <><span style={{ color: 'var(--ink-deep)', fontWeight: 700, marginRight: '6px' }}>✓</span>{step}</>
+                      ? <><span className="text-[color:var(--ink-deep)] font-bold mr-[6px]">✓</span>{step}</>
                       : `${i + 1}. ${step}`
                     }
                   </div>

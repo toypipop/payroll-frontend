@@ -77,10 +77,10 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
             title={editing ? "Edit Department" : "Add New Department"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
+                    <Button onClick={handleSubmit(onSubmit)}>
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>

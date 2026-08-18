@@ -69,7 +69,7 @@ const EmployeesListPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>
                         Edit
                     </Button>
@@ -84,16 +84,16 @@ const EmployeesListPage = () => {
     return (
         <>
             <PageHeader
-                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Employees Directory<HelpIcon articleId="employee-list" /></span>}
+                title={<span className="flex items-center gap-[8px]">Employees Directory<HelpIcon articleId="employee-list" /></span>}
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Add Employees
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>
+                    <div className="p-[40px] text-center">
                         Loading...
                     </div>
                 ) : (

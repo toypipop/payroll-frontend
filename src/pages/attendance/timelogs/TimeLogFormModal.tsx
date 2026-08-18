@@ -248,13 +248,11 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
                             <Button
                                 variant="ghost"
                                 onClick={onClose}
-                                style={{ width: "auto" }}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleSubmit(onSubmit)}
-                                style={{ width: "auto" }}
                                 disabled={showNoConfigWarning || showNoWorkLocationsWarning || showNoDayOffsWarning || showNoEmployeesWarning}
                             >
                                 {editing ? "Update" : "Save"}

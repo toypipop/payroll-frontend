@@ -23,7 +23,7 @@ const detailColumns = [
         sortValue: (row) => Number(row.amount) || 0,
         searchValue: (row) => (Number(row.amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
         render: (row) => (
-            <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
+            <span className="font-mono font-semibold">
                 ฿{formatCurrency(row.amount)}
             </span>
         ),
@@ -38,39 +38,39 @@ const TransactionDetailsModal = ({ transaction, slipData, slipError, loading, on
         title={`Transaction Details${transaction?.employees ? ` - ${transaction.employees.first_name} ${transaction.employees.last_name}` : ""}`}
     >
         {loading ? (
-            <div style={{ padding: "12px 0", color: "var(--text-subtle)" }}>Loading details...</div>
+            <div className="p-[12px_0] text-subtle">Loading details...</div>
         ) : slipError ? (
-            <div style={{ padding: "12px 0", color: "var(--status-danger)" }}>{slipError}</div>
+            <div className="p-[12px_0] text-danger">{slipError}</div>
         ) : !slipData?.slip ? (
-            <div style={{ padding: "12px 0", color: "var(--text-subtle)" }}>No data available.</div>
+            <div className="p-[12px_0] text-subtle">No data available.</div>
         ) : (
             <>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Cycle</span>
-                    <span style={{ fontWeight: 600 }}>{slipData.cycle?.cycle_name || "-"}</span>
+                <div className="flex justify-between mb-[12px] text-[13px]">
+                    <span className="text-muted">Cycle</span>
+                    <span className="font-semibold">{slipData.cycle?.cycle_name || "-"}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Position (at payout)</span>
-                    <span style={{ fontWeight: 600 }}>{slipData.slip.position_name || "-"}</span>
+                <div className="flex justify-between mb-[6px] text-[13px]">
+                    <span className="text-muted">Position (at payout)</span>
+                    <span className="font-semibold">{slipData.slip.position_name || "-"}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Department (at payout)</span>
-                    <span style={{ fontWeight: 600 }}>{slipData.slip.department_name || "-"}</span>
+                <div className="flex justify-between mb-[6px] text-[13px]">
+                    <span className="text-muted">Department (at payout)</span>
+                    <span className="font-semibold">{slipData.slip.department_name || "-"}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Paid to Bank Account</span>
-                    <span style={{ fontWeight: 600 }}>
+                <div className="flex justify-between mb-[12px] text-[13px]">
+                    <span className="text-muted">Paid to Bank Account</span>
+                    <span className="font-semibold">
                         {slipData.slip.bank_name || "-"} {slipData.slip.bank_account_no ? `(${slipData.slip.bank_account_no})` : ""}
                     </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                    <span style={{ color: "var(--text-muted)" }}>Net Pay</span>
-                    <span style={{ fontWeight: 700 }}>฿{formatCurrency(slipData.slip.net_pay)}</span>
+                <div className="flex justify-between mb-[12px] text-[13px]">
+                    <span className="text-muted">Net Pay</span>
+                    <span className="font-bold">฿{formatCurrency(slipData.slip.net_pay)}</span>
                 </div>
-                <div style={{ margin: "12px 0" }}>
+                <div className="m-[12px_0]">
                     <Badge status="cancelled">Read-only audit trail</Badge>
                 </div>
-                <Card style={{ padding: "0px" }}>
+                <Card className="p-0">
                     <Table columns={detailColumns} data={slipData.slip.details || []} />
                 </Card>
             </>

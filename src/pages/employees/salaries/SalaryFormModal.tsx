@@ -124,10 +124,10 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
             title={`Adjust Salaries: ${employee?.first_name} ${employee?.last_name}`}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
+                    <Button onClick={handleSubmit(onSubmit)}>
                         Save Changes
                     </Button>
                 </>
@@ -167,7 +167,7 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
                 )}
             />
 
-            <p style={{ fontSize: "12px", color: "#666", marginTop: "8px" }}>
+            <p className="text-[12px] text-[#666] mt-[8px]">
                 * Adjustments will be applied to payroll calculations from this date onwards.
             </p>
             <Controller

@@ -52,9 +52,9 @@ const DeductionTypesPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => openEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>Edit</Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "var(--status-danger)" }}>Delete</Button>
+                <div className="flex gap-[8px]">
+                    <Button variant="ghost" onClick={() => openEdit(row)} className="text-xs px-2 py-1">Edit</Button>
+                    <Button variant="danger" onClick={() => remove(row.id)} className="text-xs px-2 py-1 text-danger">Delete</Button>
                 </div>
             ),
         },
@@ -65,11 +65,11 @@ const DeductionTypesPage = () => {
             <PageHeader
                 title="Deduction Types"
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>+ Add Deduction Type</Button>
+                    <Button onClick={openAdd}>+ Add Deduction Type</Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
-                {loading ? <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div> : <Table columns={columns} data={deductions} />}
+            <Card className="p-0">
+                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={deductions} />}
             </Card>
 
             <DeductionTypeFormModal

@@ -40,7 +40,7 @@ const DayOffPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>Edit</Button>
                     <Button variant="danger" onClick={() => remove(row.id)} style={smallBtn}>Delete</Button>
                 </div>
@@ -53,13 +53,13 @@ const DayOffPage = () => {
             <PageHeader
                 title="Day Off"
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Add Day Off
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
-                {loading ? <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div> : <Table columns={columns} data={items} />}
+            <Card className="p-0">
+                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
             </Card>
 
             <DayOffFormModal

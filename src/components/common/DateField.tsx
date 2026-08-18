@@ -36,7 +36,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
     }, [open]);
 
     return (
-        <div ref={containerRef} style={{ position: "relative" }}>
+        <div ref={containerRef} className="relative">
             <div
                 onClick={() => setOpen((p) => !p)}
                 style={{
@@ -85,7 +85,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                                 }}>
                                 <span>{opt.label}</span>
                                 {isSel && (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--control-accent)" }} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="stroke-control" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="20 6 9 17 4 12" />
                                     </svg>
                                 )}
@@ -160,7 +160,7 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
             {label && (
                 <label htmlFor={id} style={styles.label}>
                     {label}
-                    {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
+                    {required && <span className="text-danger"> *</span>}
                 </label>
             )}
 
@@ -174,12 +174,12 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
                 placeholderText="Select date"
                 autoComplete="off"
                 renderCustomHeader={({ date, changeYear, changeMonth, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px 10px" }}>
+                    <div className="flex justify-between items-center p-[8px_10px_10px]">
                         <button type="button" onClick={decreaseMonth} disabled={prevMonthButtonDisabled}
                             style={{ background: "none", border: "none", cursor: prevMonthButtonDisabled ? "not-allowed" : "pointer", color: prevMonthButtonDisabled ? "var(--border-input)" : "var(--control-accent)", fontSize: "16px", fontWeight: "bold", padding: "0 4px", lineHeight: 1 }}>
                             {"\u2039"}
                         </button>
-                        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        <div className="flex gap-[6px] items-center">
                             <CalendarSelect
                                 value={date.getFullYear()}
                                 options={YEARS.map((y) => ({ value: y, label: String(y) }))}

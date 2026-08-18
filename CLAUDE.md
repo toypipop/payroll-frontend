@@ -52,6 +52,26 @@ This agent manages **both** repos every session:
 - **Company field is immutable after creation** everywhere: the "Companies" `SelectField` must be `disabled={!!editingId}` on any edit form (Employees, Departments, Positions, Roles, EarningTypes, DeductionTypes, DayOff, ...) to match the backend rejecting `companies_id` changes on update.
 - All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`, which is wrong whenever the viewer's machine isn't set to Bangkok. See `AttendanceSettingsPage.tsx`'s `toBangkokHM()` helper for the pattern.
 
+## Styling
+
+Tailwind v4 is wired through `@tailwindcss/vite`; `src/index.css` holds the tokens and `@theme` maps them onto
+utility names, so `bg-card`, `text-muted` and `border-line` resolve to the same variables the older inline
+styles read. Change a colour in `:root` and both spellings follow.
+
+Three rules the hard way:
+
+- **Project CSS belongs in `@layer base`.** An unlayered rule outranks every Tailwind utility whatever its
+  specificity, so the plain `*, *::before, *::after { padding: 0 }` reset silently flattened `px-4` everywhere.
+- **Do not name a token after a Tailwind scale.** The project declared `--radius-lg: 14px`, which is the name
+  Tailwind uses for its own scale, so every `rounded-lg` in the app became 14px instead of 8px. Same trap for
+  `--color-*`, `--font-*`, `--spacing-*`.
+- **A component that accepts `className` merges with `twMerge`.** Concatenating strings does not let a caller
+  override anything: Tailwind resolves conflicts by CSS order, not by attribute order, so `<Card className="p-0">`
+  would still be padded by the `px-6` in the component.
+
+Inline `style` is still right for a value computed at runtime (a colour that depends on a row, a transform that
+depends on a measurement). Everything static is a class.
+
 ## Page Layout
 
 Every page follows the same split, so a page file is table columns plus layout and nothing else:

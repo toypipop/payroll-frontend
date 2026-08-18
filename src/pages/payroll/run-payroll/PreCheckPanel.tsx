@@ -3,42 +3,31 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
     if (issues.length === 0) return null;
 
     return (
-        <div style={{
-            marginTop: "12px", padding: "14px 16px",
-            borderRadius: "8px", backgroundColor: "#fffbeb",
-            border: "1px solid #fcd34d",
-        }}>
-            <div style={{ fontWeight: "600", color: "#92400e", marginBottom: "8px", fontSize: "13px" }}>
+        <div className="mt-[12px] p-[14px_16px] rounded-[8px] bg-[#fffbeb] border border-[#fcd34d]">
+            <div className="font-semibold text-[#92400e] mb-[8px] text-[13px]">
                 ⚠ Issues found before Run Payroll
             </div>
             {issues.map((issue, i) => (
-                <div key={i} style={{ marginBottom: "8px" }}>
-                    <div style={{ fontSize: "13px", color: "#78350f" }}>{issue.message}</div>
+                <div key={i} className="mb-[8px]">
+                    <div className="text-[13px] text-[#78350f]">{issue.message}</div>
                     {issue.employees?.length > 0 && (
-                        <ul style={{ margin: "4px 0 0 16px", padding: 0, fontSize: "12px", color: "#92400e" }}>
+                        <ul className="m-[4px_0_0_16px] p-[0px] text-[12px] text-[#92400e]">
                             {issue.employees.map((name: string) => <li key={name}>{name}</li>)}
                         </ul>
                     )}
                 </div>
             ))}
             {pendingCalculate && (
-                <div style={{ marginTop: "10px", display: "flex", gap: "8px" }}>
+                <div className="mt-[10px] flex gap-[8px]">
                     <button
                         onClick={onProceed}
-                        style={{
-                            padding: "6px 14px", borderRadius: "6px", border: "1px solid #d97706",
-                            background: "var(--accent-color)", color: "#fff", fontSize: "13px",
-                            fontWeight: "600", cursor: "pointer",
-                        }}
+                        className="p-[6px_14px] rounded-[6px] border border-[#d97706] bg-accent text-[#fff] text-[13px] font-semibold cursor-pointer"
                     >
                         Proceed Anyway
                     </button>
                     <button
                         onClick={onDismiss}
-                        style={{
-                            padding: "6px 14px", borderRadius: "6px", border: "1px solid var(--border-muted)",
-                            background: "#fff", color: "var(--text-body)", fontSize: "13px", cursor: "pointer",
-                        }}
+                        className="p-[6px_14px] rounded-[6px] border border-line-muted bg-[#fff] text-body text-[13px] cursor-pointer"
                     >
                         Cancel
                     </button>

@@ -128,11 +128,11 @@ const SalariesStructurePage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "6px" }}>
-                    <Button variant="ghost" onClick={() => openEdit(row)} style={{ padding: "6px 12px", fontSize: "12px" }}>
+                <div className="flex gap-[6px]">
+                    <Button variant="ghost" onClick={() => openEdit(row)} className="px-3 py-1.5 text-xs">
                         Update Salaries
                     </Button>
-                    <Button variant="ghost" onClick={() => openHistory(row)} style={{ padding: "6px 12px", fontSize: "12px" }}>
+                    <Button variant="ghost" onClick={() => openHistory(row)} className="px-3 py-1.5 text-xs">
                         History
                     </Button>
                 </div>
@@ -143,9 +143,9 @@ const SalariesStructurePage = () => {
     return (
         <>
             <PageHeader title="Salaries Management" />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table
                         columns={columns}

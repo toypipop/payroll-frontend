@@ -98,10 +98,10 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
             title={editing ? "Edit Variable Earning" : "Add Variable Earning for Cycle"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
                     <Button
                         onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
-                        style={{ width: "auto" }}
+                        className="w-auto"
                         disabled={showNoEarningTypesWarning || showNoEmployeesWarning}
                     >
                         {editing ? "Update" : "Save"}
@@ -109,7 +109,7 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Company"
                     {...register("companies_id")}

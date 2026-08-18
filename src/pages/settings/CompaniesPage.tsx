@@ -29,7 +29,7 @@ const CompaniesPage = () => {
         {
             label: "Actions",
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>
                         Edit
                     </Button>
@@ -46,14 +46,14 @@ const CompaniesPage = () => {
             <PageHeader
                 title="Companies Directory"
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Add Companies
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>
+                    <div className="p-[40px] text-center">
                         Loading...
                     </div>
                 ) : (

@@ -55,12 +55,12 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }) 
             title="Create New Payroll Cycle"
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>Create Cycle</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)}>Create Cycle</Button>
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <div className="flex flex-col gap-[4px]">
                 <Controller
                     name="companies_id"
                     control={control}

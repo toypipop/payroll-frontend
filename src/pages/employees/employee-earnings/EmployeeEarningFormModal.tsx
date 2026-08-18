@@ -96,10 +96,10 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
             title={editing ? "Edit Employee Earning" : "Assign Earning to Employee"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
                     <Button
                         onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
-                        style={{ width: "auto" }}
+                        className="w-auto"
                         disabled={showNoEarningTypesWarning || showNoEmployeesWarning}
                     >
                         {editing ? "Update" : "Save"}
@@ -107,7 +107,7 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Company"
                     {...register("companies_id")}

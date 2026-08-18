@@ -55,10 +55,10 @@ const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, c
             title={editing ? "Edit Position" : "Add New Position"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
+                    <Button onClick={handleSubmit(onSubmit)}>
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>

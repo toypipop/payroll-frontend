@@ -59,11 +59,11 @@ const EmployeeEarningsPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => openEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>
+                <div className="flex gap-[8px]">
+                    <Button variant="ghost" onClick={() => openEdit(row)} className="text-xs px-2 py-1">
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "var(--status-danger)" }}>
+                    <Button variant="danger" onClick={() => remove(row.id)} className="text-xs px-2 py-1 text-danger">
                         Delete
                     </Button>
                 </div>
@@ -76,14 +76,14 @@ const EmployeeEarningsPage = () => {
             <PageHeader
                 title="Employee Earnings"
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Assign Earning
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={items} />
                 )}

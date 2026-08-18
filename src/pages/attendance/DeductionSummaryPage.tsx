@@ -78,55 +78,46 @@ const DeductionSummaryPage = () => {
         <>
             <PageHeader title="Deduction Summary" />
 
-            <Card style={{ marginBottom: "16px" }}>
-                <div style={{ display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, minWidth: "160px" }}>
+            <Card className="mb-4">
+                <div className="flex gap-[16px] items-end flex-wrap">
+                    <div className="flex-1 min-w-[160px]">
                         <DateField
                             label="From Date"
                             value={fromDate}
                             onChange={setFromDate}
                         />
                     </div>
-                    <div style={{ flex: 1, minWidth: "160px" }}>
+                    <div className="flex-1 min-w-[160px]">
                         <DateField
                             label="To Date"
                             value={toDate}
                             onChange={setToDate}
                         />
                     </div>
-                    <div style={{ marginTop: "16px", marginBottom: "20px" }}>
-                        <Button onClick={fetchSummary} style={{ width: "auto" }}>
+                    <div className="mt-[16px] mb-[20px]">
+                        <Button onClick={fetchSummary}>
                             Search
                         </Button>
                     </div>
                 </div>
                 {meta.from && (
-                    <div style={{ marginTop: "8px", fontSize: "13px", color: "var(--text-muted)" }}>
+                    <div className="mt-[8px] text-[13px] text-muted">
                         Showing: {meta.from} {"->"} {meta.to}
                     </div>
                 )}
             </Card>
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <>
                         <Table columns={columns} data={summary} />
                         {summary.length > 0 && (
-                            <div style={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                gap: "32px",
-                                padding: "12px 24px",
-                                borderTop: "1px solid var(--border-muted)",
-                                fontSize: "13px",
-                                fontWeight: 600,
-                                color: "#374151",
-                            }}>
+                            <div className="flex justify-end gap-[32px] p-[12px_24px] border-t border-t-line-muted text-[13px] font-semibold text-[#374151]">
                                 <span>Total Late: {totalLateMin.toFixed(1)} min</span>
                                 <span>Total Absent: {totalAbsent} days</span>
-                                <span style={{ color: "var(--status-danger-text)" }}>
+                                <span className="text-danger-text">
                                     Total Deduction: ${totalAmount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                                 </span>
                             </div>

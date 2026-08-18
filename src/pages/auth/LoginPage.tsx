@@ -98,22 +98,14 @@ const LoginPage = () => {
                     P
                 </div>
 
-                <h2 style={{ color: "var(--text-inverse)", marginBottom: "8px" }}>Payroll Pro</h2>
-                <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: "32px" }}>
+                <h2 className="mb-[8px] text-2xl font-bold text-inverse">Payroll Pro</h2>
+                <p className="text-[color:rgba(255,255,255,0.55)] mb-[32px]">
                     Please sign in to your account
                 </p>
 
                 {error && (
                     <div
-                        style={{
-                            color: "#fca5a5",
-                            backgroundColor: "rgba(239, 68, 68, 0.15)",
-                            padding: "12px",
-                            borderRadius: "10px",
-                            marginBottom: "20px",
-                            border: "1px solid rgba(239, 68, 68, 0.3)",
-                            fontSize: "14px",
-                        }}
+                        className="text-[#fca5a5] bg-[color:rgba(239,_68,_68,_0.15)] p-[12px] rounded-[10px] mb-[20px] border border-[color:rgba(239,_68,_68,_0.3)] text-[14px]"
                     >
                         {error}
                     </div>

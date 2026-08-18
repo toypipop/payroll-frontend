@@ -144,13 +144,12 @@ const BulkCreateModal = ({
                     title="Bulk Add Time Log"
                     footer={
                         <>
-                            <Button variant="ghost" onClick={closeBulkModal} style={{ width: "auto" }}>
+                            <Button variant="ghost" onClick={closeBulkModal}>
                                 {bulkResult ? "Close" : "Cancel"}
                             </Button>
                             {!bulkResult && (
                                 <Button
                                     onClick={handleBulkSubmit}
-                                    style={{ width: "auto" }}
                                     disabled={bulkSubmitting || bulkShowNoConfigWarning || bulkShowNoDayOffsWarning || bulkShowNoEmployeesWarning}
                                 >
                                     {bulkSubmitting ? "Creating..." : "Create Logs"}
@@ -168,7 +167,7 @@ const BulkCreateModal = ({
                                 )}
                             </div>
                             {bulkResult.skipped_dates?.length > 0 && (
-                                <ul style={{ margin: "8px 0 0 16px", padding: 0, fontSize: "12px", color: "var(--text-muted)" }}>
+                                <ul className="m-[8px_0_0_16px] p-[0px] text-[12px] text-muted">
                                     {bulkResult.skipped_dates.map((d) => <li key={d}>{d}</li>)}
                                 </ul>
                             )}
@@ -228,8 +227,8 @@ const BulkCreateModal = ({
                                     moduleKey="WorkLocationPage"
                                 />
                             )}
-                            <div style={{ display: "flex", gap: "12px" }}>
-                                <div style={{ flex: 1 }}>
+                            <div className="flex gap-[12px]">
+                                <div className="flex-1">
                                     <DateField
                                         label="From"
                                         value={bulkStartDate}
@@ -237,7 +236,7 @@ const BulkCreateModal = ({
                                         required
                                     />
                                 </div>
-                                <div style={{ flex: 1 }}>
+                                <div className="flex-1">
                                     <DateField
                                         label="To"
                                         value={bulkEndDate}
@@ -247,11 +246,11 @@ const BulkCreateModal = ({
                                 </div>
                             </div>
 
-                            <div style={{ marginBottom: "20px" }}>
-                                <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "var(--text-muted)", marginBottom: "6px" }}>
-                                    Apply to weekdays<span style={{ color: "var(--status-danger)" }}> *</span>
+                            <div className="mb-[20px]">
+                                <label className="block text-[13px] font-medium text-muted mb-[6px]">
+                                    Apply to weekdays<span className="text-danger"> *</span>
                                 </label>
-                                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                                <div className="flex gap-[6px] flex-wrap">
                                     {WEEKDAY_OPTIONS.map((wd) => {
                                         const active = bulkWeekdays.includes(wd.value);
                                         return (
@@ -277,8 +276,8 @@ const BulkCreateModal = ({
                                 </div>
                             </div>
 
-                            <div style={{ display: "flex", gap: "12px" }}>
-                                <div style={{ flex: 1 }}>
+                            <div className="flex gap-[12px]">
+                                <div className="flex-1">
                                     <TimeField
                                         label="Check-in time"
                                         value={bulkCheckInTime}
@@ -286,7 +285,7 @@ const BulkCreateModal = ({
                                         required
                                     />
                                 </div>
-                                <div style={{ flex: 1 }}>
+                                <div className="flex-1">
                                     <TimeField
                                         label="Check-out time"
                                         value={bulkCheckOutTime}

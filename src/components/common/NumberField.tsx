@@ -88,7 +88,7 @@ const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
                 {label && (
                     <label style={styles.label}>
                         {label}
-                        {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
+                        {required && <span className="text-danger"> *</span>}
                     </label>
                 )}
                 <input

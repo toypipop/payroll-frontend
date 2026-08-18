@@ -24,13 +24,13 @@ const PermissionSettings = () => {
             <PageHeader
                 title="System Permissions"
                 actionButton={
-                    <Button onClick={save} disabled={!selectedRoles} style={{ width: "auto" }}>
+                    <Button onClick={save} disabled={!selectedRoles}>
                         Save Permissions
                     </Button>
                 }
             />
 
-            <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: "24px" }}>
+            <div className="grid grid-cols-[300px_1fr] gap-6">
                 {/* Left Panel: Available Roles */}
                 <Card title="Available Roles">
                     <div style={{ display: "flex", flexFlow: "column", gap: "8px" }}>
@@ -48,10 +48,10 @@ const PermissionSettings = () => {
                                         transition: "all 0.2s",
                                     }}
                                 >
-                                    <div style={{ fontWeight: "600", color: "var(--sidebar-border)" }}>
+                                    <div className="font-semibold text-sidebar-line">
                                         {role.roles_name}
                                     </div>
-                                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                                    <div className="text-[12px] text-[#6b7280] mt-[4px]">
                                         🏢 {role.companies?.name || "Global / System"}
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@ const PermissionSettings = () => {
                 </Card>
 
                 {/* Right Panel: Permission Matrix grouped by category */}
-                <Card title={`Mapping: ${selectedRoles?.roles_name || ""}`} style={{ padding: 0 }}>
+                <Card title={`Mapping: ${selectedRoles?.roles_name || ""}`} className="p-0">
                     {loading ? (
                         <div style={emptyStateStyle}>Loading Matrix...</div>
                     ) : !selectedRoles ? (

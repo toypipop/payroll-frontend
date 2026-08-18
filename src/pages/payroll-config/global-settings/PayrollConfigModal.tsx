@@ -59,12 +59,12 @@ const PayrollConfigModal = ({ isOpen, onClose, onSaved, company }) => {
             title={`Payroll Setup: ${company?.name}`}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>Save Config</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)}>Save Config</Button>
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="flex flex-col gap-[12px]">
                 <InputField label="SSO Rate (%)" type="number" step="0.1" {...register("sso_rate")} error={errors.sso_rate?.message} required />
                 <InputField label="Max SSO Amount" type="number" {...register("sso_max_amount")} error={errors.sso_max_amount?.message} required />
                 <InputField label="Min Salary for SSO" type="number" {...register("sso_min_salary")} error={errors.sso_min_salary?.message} required />

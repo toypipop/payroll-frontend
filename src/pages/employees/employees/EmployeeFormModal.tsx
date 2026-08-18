@@ -173,12 +173,11 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             title={editing ? "Edit Employees" : "Add New Employees"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
-                        style={{ width: "auto" }}
                         disabled={hasMissingRequiredMaster}
                     >
                         {editing ? "Update" : "Save"}
@@ -313,8 +312,8 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             />
 
             {/* Bank Account Section */}
-            <div style={{ borderTop: "1px solid var(--border-color, var(--border-muted))", marginTop: "16px", paddingTop: "16px" }}>
-                <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted, var(--text-muted))", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <div className="border-t border-t-[color:var(--border-color,_var(--border-muted))] mt-[16px] pt-[16px]">
+                <div className="text-[13px] font-semibold text-[color:var(--text-muted,_var(--text-muted))] mb-[10px] uppercase tracking-[0.05em]">
                     Bank Account
                 </div>
                 <SelectField

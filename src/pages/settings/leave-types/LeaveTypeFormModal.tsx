@@ -59,8 +59,8 @@ const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, 
             title={editing ? "Edit Leave Type" : "Add Leave Type"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>{editing ? "Update" : "Save"}</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)}>{editing ? "Update" : "Save"}</Button>
                 </>
             }
         >

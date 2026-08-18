@@ -68,7 +68,7 @@ const SummaryCard = ({ label, value, color }) => (
         border: "1px solid var(--border-muted)", borderRadius: "10px", padding: "16px 20px",
         background: "#fff", flex: "1 1 160px",
     }}>
-        <div style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
+        <div className="text-[11px] font-bold text-subtle uppercase tracking-[0.06em]">{label}</div>
         <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "20px", color: color || "var(--text-main)", marginTop: "6px" }}>฿{fc(value)}</div>
     </div>
 );
@@ -79,27 +79,27 @@ const DetailPanel = ({ tx }) => {
     const earnings = tx.details?.filter((d) => d.type === "earning") || [];
     const deductions = tx.details?.filter((d) => d.type === "deduction") || [];
     return (
-        <div style={{ padding: "16px 24px", background: "var(--surface-subtle)", borderBottom: "1px solid var(--border-muted)" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="p-[16px_24px] bg-surface border-b border-b-line-muted">
+            <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <div style={{ fontSize: "11px", fontWeight: "700", color: "#059669", textTransform: "uppercase", marginBottom: "8px" }}>Earnings</div>
+                    <div className="text-[11px] font-bold text-[#059669] uppercase mb-[8px]">Earnings</div>
                     {earnings.map((d, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
-                            <span style={{ color: "var(--text-body)" }}>{d.item_name}</span>
-                            <span style={{ fontFamily: "monospace", color: "#059669" }}>+{fc(d.amount)}</span>
+                        <div key={i} className="flex justify-between text-[13px] mb-[4px]">
+                            <span className="text-body">{d.item_name}</span>
+                            <span className="font-mono text-[#059669]">+{fc(d.amount)}</span>
                         </div>
                     ))}
-                    {earnings.length === 0 && <div style={{ color: "var(--text-subtle)", fontSize: "12px" }}>—</div>}
+                    {earnings.length === 0 && <div className="text-subtle text-[12px]">—</div>}
                 </div>
                 <div>
-                    <div style={{ fontSize: "11px", fontWeight: "700", color: "var(--status-danger-text)", textTransform: "uppercase", marginBottom: "8px" }}>Deductions</div>
+                    <div className="text-[11px] font-bold text-danger-text uppercase mb-[8px]">Deductions</div>
                     {deductions.map((d, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
-                            <span style={{ color: "var(--text-body)" }}>{d.item_name}</span>
-                            <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)" }}>({fc(d.amount)})</span>
+                        <div key={i} className="flex justify-between text-[13px] mb-[4px]">
+                            <span className="text-body">{d.item_name}</span>
+                            <span className="font-mono text-danger-text">({fc(d.amount)})</span>
                         </div>
                     ))}
-                    {deductions.length === 0 && <div style={{ color: "var(--text-subtle)", fontSize: "12px" }}>—</div>}
+                    {deductions.length === 0 && <div className="text-subtle text-[12px]">—</div>}
                 </div>
             </div>
         </div>
@@ -129,35 +129,35 @@ const PayrollAnalysisPage = () => {
             label: "Employee",
             render: (tx) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "var(--text-main)" }}>
+                    <div className="font-semibold text-main">
                         {tx.employees?.first_name} {tx.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginTop: "2px" }}>
+                    <div className="text-[11px] text-subtle mt-[2px]">
                         {tx.employees?.employees_code} &middot; {tx.employees?.department?.dept_name || "—"}
                     </div>
                 </div>
             ),
         },
-        { label: "Base Salary", render: (tx) => <span style={{ fontFamily: "monospace" }}>฿{fc(tx.salaries_at_time)}</span> },
+        { label: "Base Salary", render: (tx) => <span className="font-mono">฿{fc(tx.salaries_at_time)}</span> },
         {
             label: "Gross Earnings",
-            render: (tx) => <span style={{ fontFamily: "monospace", color: "#059669", fontWeight: "600" }}>฿{fc(tx.total_earning)}</span>,
+            render: (tx) => <span className="font-mono text-[#059669] font-semibold">฿{fc(tx.total_earning)}</span>,
         },
         {
             label: "Deductions",
-            render: (tx) => <span style={{ fontFamily: "monospace", color: "var(--accent-color)" }}>({fc(tx.total_deduction)})</span>,
+            render: (tx) => <span className="font-mono text-accent">({fc(tx.total_deduction)})</span>,
         },
         {
             label: "SSO",
-            render: (tx) => <span style={{ fontFamily: "monospace", color: "#0369a1" }}>({fc(tx.sso_amount)})</span>,
+            render: (tx) => <span className="font-mono text-[#0369a1]">({fc(tx.sso_amount)})</span>,
         },
         {
             label: "Tax",
-            render: (tx) => <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)" }}>({fc(tx.tax_amount)})</span>,
+            render: (tx) => <span className="font-mono text-danger-text">({fc(tx.tax_amount)})</span>,
         },
         {
             label: "Net Pay",
-            render: (tx) => <span style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "14px", color: "var(--text-main)" }}>฿{fc(tx.net_pay)}</span>,
+            render: (tx) => <span className="font-mono font-extrabold text-[14px] text-main">฿{fc(tx.net_pay)}</span>,
         },
         { label: "Companies", render: (tx) => tx.employees?.companies?.name || "—" },
         {
@@ -175,18 +175,18 @@ const PayrollAnalysisPage = () => {
     ], [expandedTx]);
 
     const journalColumns = [
-        { label: "Account", render: (r) => <span style={{ fontWeight: "500" }}>{r.account}</span> },
+        { label: "Account", render: (r) => <span className="font-medium">{r.account}</span> },
         {
             label: "Debit (฿)",
             render: (r) => r.debit > 0
-                ? <span style={{ fontFamily: "monospace", color: "#059669", fontWeight: "600" }}>{fc(r.debit)}</span>
-                : <span style={{ color: "var(--text-subtle)" }}>—</span>,
+                ? <span className="font-mono text-[#059669] font-semibold">{fc(r.debit)}</span>
+                : <span className="text-subtle">—</span>,
         },
         {
             label: "Credit (฿)",
             render: (r) => r.credit > 0
-                ? <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)", fontWeight: "600" }}>{fc(r.credit)}</span>
-                : <span style={{ color: "var(--text-subtle)" }}>—</span>,
+                ? <span className="font-mono text-danger-text font-semibold">{fc(r.credit)}</span>
+                : <span className="text-subtle">—</span>,
         },
     ];
 
@@ -200,7 +200,7 @@ const PayrollAnalysisPage = () => {
                     if (expandedTx !== row.id) return null;
                     const isLastRow = rowIndex === allRows.length - 1;
                     return (
-                        <tr style={{ backgroundColor: "var(--surface-subtle)" }}>
+                        <tr className="bg-surface">
                             <td
                                 colSpan={registerColumns.length}
                                 style={{ padding: 0, borderBottom: isLastRow ? "none" : "1px solid var(--border-muted)" }}
@@ -218,11 +218,11 @@ const PayrollAnalysisPage = () => {
             <PageHeader title="Payroll Analysis" />
 
             {/* Cycle selector */}
-            <Card style={{ marginBottom: "20px" }}>
+            <Card className="mb-5">
                 {loadingCycles ? (
-                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>Loading cycles...</div>
+                    <div className="text-subtle text-[14px]">Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>No closed payroll cycles available.</div>
+                    <div className="text-subtle text-[14px]">No closed payroll cycles available.</div>
                 ) : (
                     <>
                         <SelectField
@@ -233,7 +233,7 @@ const PayrollAnalysisPage = () => {
                             containerStyle={{ marginBottom: 0 }}
                         />
                         {cycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">
                                 Period: <strong>{fd(cycle.start_date)}</strong> —&nbsp;<strong>{fd(cycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                             </div>
@@ -244,7 +244,7 @@ const PayrollAnalysisPage = () => {
 
             {/* Summary Cards */}
             {summary && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "20px" }}>
+                <div className="flex flex-wrap gap-[12px] mb-[20px]">
                     <SummaryCard label="Total Gross Earnings" value={summary.total_gross} color="#059669" />
                     <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="var(--accent-color)" />
                     <SummaryCard label="SSO (Employee + Employer)" value={summary.total_sso_employee + summary.total_sso_employer} color="#0369a1" />
@@ -255,10 +255,7 @@ const PayrollAnalysisPage = () => {
 
             {/* Tab Switcher & Actions */}
             {data && transactions.length > 0 && (
-                <div style={{
-                    display: "flex", alignItems: "center", flexWrap: "wrap",
-                    marginBottom: "16px", borderBottom: "1px solid var(--border-muted)", gap: "4px",
-                }}>
+                <div className="flex items-center flex-wrap mb-[16px] border-b border-b-line-muted gap-[4px]">
                     {[
                         { key: "register", label: "Payroll Register" },
                         { key: "journal", label: "Journal Summary" },
@@ -283,7 +280,7 @@ const PayrollAnalysisPage = () => {
                             {tab.label}
                         </button>
                     ))}
-                    <div style={{ flex: 1 }} />
+                    <div className="flex-1" />
                     <Button variant="secondary" onClick={() => exportExcel(data)} style={{ width: "auto", padding: "9px 18px", marginBottom: "8px" }}>
                         Export to Excel/CSV
                     </Button>
@@ -292,21 +289,21 @@ const PayrollAnalysisPage = () => {
 
             {/* Register Table */}
             {activeTab === "register" && (
-                <Card style={{ padding: 0 }}>
+                <Card className="p-0">
                     {loadingData ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
+                        <div className="p-[40px] text-center text-subtle">Loading...</div>
                     ) : transactions.length === 0 ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
+                        <div className="p-[40px] text-center text-subtle">
                             {selectedCycleId ? "No records found for this cycle." : "Select a closed cycle above."}
                         </div>
                     ) : (
                         <>
                             {renderRegisterTable()}
-                            <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-muted)", display: "flex", justifyContent: "flex-end", gap: "24px", fontSize: "13px", background: "var(--surface-subtle)", flexWrap: "wrap" }}>
-                                <span style={{ color: "var(--text-muted)" }}>Employees: <strong>{transactions.length}</strong></span>
-                                <span style={{ color: "#064e3b" }}>Gross: <strong style={{ fontFamily: "monospace" }}>฿{fc(summary?.total_gross)}</strong></span>
-                                <span style={{ color: "var(--status-danger-text)" }}>Tax: <strong style={{ fontFamily: "monospace" }}>{fc(summary?.total_tax)}</strong></span>
-                                <span style={{ color: "var(--text-main)", fontWeight: "800", fontFamily: "monospace", fontSize: "15px" }}>Net: ฿{fc(summary?.total_net)}</span>
+                            <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[24px] text-[13px] bg-surface flex-wrap">
+                                <span className="text-muted">Employees: <strong>{transactions.length}</strong></span>
+                                <span className="text-[#064e3b]">Gross: <strong className="font-mono">฿{fc(summary?.total_gross)}</strong></span>
+                                <span className="text-danger-text">Tax: <strong className="font-mono">{fc(summary?.total_tax)}</strong></span>
+                                <span className="text-main font-extrabold font-mono text-[15px]">Net: ฿{fc(summary?.total_net)}</span>
                             </div>
                         </>
                     )}
@@ -315,28 +312,28 @@ const PayrollAnalysisPage = () => {
 
             {/* Journal Summary */}
             {activeTab === "journal" && (
-                <Card style={{ padding: 0 }}>
+                <Card className="p-0">
                     {!journal.length ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>No journal data.</div>
+                        <div className="p-[40px] text-center text-subtle">No journal data.</div>
                     ) : (
                         <>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-muted)", background: "var(--surface-subtle)" }}>
-                                <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-main)" }}>
+                            <div className="p-[16px_20px] border-b border-b-line-muted bg-surface">
+                                <div className="text-[13px] font-bold text-main">
                                     Journal Entry — {cycle?.cycle_name}
                                 </div>
-                                <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
+                                <div className="text-[12px] text-muted mt-[2px]">
                                     {data?.company?.name} &nbsp;|&nbsp; {fd(cycle?.start_date)} — {fd(cycle?.end_date)}
                                 </div>
                             </div>
                             <Table columns={journalColumns} data={journal} />
-                            <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-muted)", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "var(--surface-subtle)" }}>
-                                <span style={{ color: "#064e3b" }}>
-                                    Total Debit: <strong style={{ fontFamily: "monospace" }}>
+                            <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
+                                <span className="text-[#064e3b]">
+                                    Total Debit: <strong className="font-mono">
                                         ฿{fc(journal.reduce((s, r) => s + r.debit, 0))}
                                     </strong>
                                 </span>
-                                <span style={{ color: "var(--status-danger-text)" }}>
-                                    Total Credit: <strong style={{ fontFamily: "monospace" }}>
+                                <span className="text-danger-text">
+                                    Total Credit: <strong className="font-mono">
                                         ฿{fc(journal.reduce((s, r) => s + r.credit, 0))}
                                     </strong>
                                 </span>

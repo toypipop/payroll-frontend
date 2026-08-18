@@ -37,7 +37,7 @@ const DepartmentSettings = () => {
         {
             label: "Actions",
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>
                         Edit
                     </Button>
@@ -54,14 +54,14 @@ const DepartmentSettings = () => {
             <PageHeader
                 title="Department Management"
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Add Department
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>
+                    <div className="p-[40px] text-center">
                         Loading...
                     </div>
                 ) : (

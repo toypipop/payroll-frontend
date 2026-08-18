@@ -6,14 +6,14 @@ import { useAuth } from "../../hooks/useAuth";
 import useDashboardStats from "./stats/useDashboardStats";
 
 const StatCard = ({ label, value, sub, color = 'var(--text-main)', loading }) => (
-    <Card style={{ flex: 1, minWidth: '150px' }}>
-        <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+    <Card className="flex-1 min-w-[150px]">
+        <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">
             {label}
         </div>
         <div style={{ fontSize: '28px', fontWeight: '800', color, marginTop: '6px', lineHeight: '1', fontVariantNumeric: 'tabular-nums' }}>
-            {loading ? <span style={{ fontSize: '13px', color: 'var(--border-input)' }}>&mdash;</span> : value}
+            {loading ? <span className="text-[13px] text-line-input">&mdash;</span> : value}
         </div>
-        {sub && <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '5px' }}>{sub}</div>}
+        {sub && <div className="text-[11px] text-subtle mt-[5px]">{sub}</div>}
     </Card>
 );
 
@@ -34,23 +34,13 @@ const DashboardPage = () => {
             <PageHeader title="Dashboard" />
 
             {/* Welcome banner */}
-            <div style={{
-                background: 'var(--bg-card)',
-                borderRadius: '10px',
-                padding: '22px 28px',
-                marginBottom: '18px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                border: '1px solid var(--border-muted)',
-                boxShadow: '0 1px 3px rgba(15,23,42,0.06)',
-            }}>
+            <div className="bg-card rounded-[10px] p-[22px_28px] mb-[18px] flex justify-between items-center border border-line-muted shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
                 <div>
-                    <div style={{ color: 'var(--text-subtle)', fontSize: '12px', marginBottom: '4px' }}>Welcome back,</div>
-                    <div style={{ color: 'var(--text-main)', fontSize: '20px', fontWeight: '800' }}>
+                    <div className="text-subtle text-[12px] mb-[4px]">Welcome back,</div>
+                    <div className="text-main text-[20px] font-extrabold">
                         {storedUser.fullName || 'Administrator'}
                     </div>
-                    <div style={{ color: 'var(--text-subtle)', fontSize: '12px', marginTop: '5px' }}>
+                    <div className="text-subtle text-[12px] mt-[5px]">
                         {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>
                 </div>
@@ -58,7 +48,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Stats row */}
-            <div style={{ display: 'flex', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' }}>
+            <div className="flex gap-[14px] mb-[24px] flex-wrap">
                 <StatCard label="Total Employees" value={stats?.employees  ?? 0} sub="Across all departments" color="var(--text-main)" loading={loading} />
                 <StatCard label="Payroll Cycles"  value={stats?.totalCycles ?? 0} sub="All time"              color="var(--text-main)" loading={loading} />
                 <StatCard label="Active Cycles"   value={stats?.activeCycles ?? 0} sub="Open for processing" color="#3b82f6" loading={loading} />
@@ -66,22 +56,15 @@ const DashboardPage = () => {
             </div>
 
             {/* Quick access */}
-            <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em] mb-[12px]">
                 Quick Access
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '12px' }}>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3">
                 {quickLinks.map(({ label, desc, path, color }) => (
                     <div
                         key={path}
                         onClick={() => navigate(path)}
-                        style={{
-                            backgroundColor: '#fff',
-                            border: '1px solid #e8edf2',
-                            borderRadius: '10px',
-                            padding: '18px 20px',
-                            cursor: 'pointer',
-                            transition: 'border-color 0.15s, box-shadow 0.15s',
-                        }}
+                        className="bg-[#fff] border border-[#e8edf2] rounded-[10px] p-[18px_20px] cursor-pointer transition-[border-color_0.15s,_box-shadow_0.15s]"
                         onMouseEnter={(e) => {
                             e.currentTarget.style.borderColor = color;
                             e.currentTarget.style.boxShadow = `0 4px 14px ${color}22`;
@@ -99,8 +82,8 @@ const DashboardPage = () => {
                         }}>
                             <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: color }} />
                         </div>
-                        <div style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-main)' }}>{label}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '3px', lineHeight: '1.4' }}>{desc}</div>
+                        <div className="font-bold text-[14px] text-main">{label}</div>
+                        <div className="text-[12px] text-subtle mt-[3px] leading-[1.4]">{desc}</div>
                     </div>
                 ))}
             </div>

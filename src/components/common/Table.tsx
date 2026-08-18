@@ -21,7 +21,7 @@ interface TableProps<T extends TableRow = TableRow> {
 const SortIcon = ({ direction }: { direction: SortState["order"] }) => {
     if (!direction) {
         return (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-30">
                 <path d="M7 15l5 5 5-5" />
                 <path d="M7 9l5-5 5 5" />
             </svg>
@@ -562,7 +562,7 @@ const Table = <T extends TableRow = TableRow>({
 
                             return (
                                 <React.Fragment key={pageNum}>
-                                    {showGap && <span style={{ padding: "0 2px", color: "var(--text-subtle)" }}>...</span>}
+                                    {showGap && <span className="p-[0_2px] text-subtle">...</span>}
                                     <button
                                         type="button"
                                         style={{

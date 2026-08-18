@@ -60,7 +60,7 @@ const EmployeeCompanyAccessPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>
                         Edit
                     </Button>
@@ -77,15 +77,15 @@ const EmployeeCompanyAccessPage = () => {
             <PageHeader
                 title="Employee Company Access"
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Add Access
                     </Button>
                 }
             />
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={accessRows} />
                 )}

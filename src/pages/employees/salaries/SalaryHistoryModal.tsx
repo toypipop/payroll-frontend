@@ -9,24 +9,24 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
         onClose={onClose}
         title={`Salary History: ${employee?.first_name} ${employee?.last_name}`}
         footer={
-            <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+            <Button variant="ghost" onClick={onClose}>
                 Close
             </Button>
         }
     >
         {loading ? (
-            <div style={{ padding: "20px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
+            <div className="p-[20px] text-center text-subtle">Loading...</div>
         ) : rows.length === 0 ? (
-            <div style={{ padding: "20px", textAlign: "center", color: "var(--text-subtle)" }}>No salary history yet.</div>
+            <div className="p-[20px] text-center text-subtle">No salary history yet.</div>
         ) : (
-            <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse", fontSize: "13px" }}>
+            <div className="overflow-x-auto">
+                <table className="w-[100%] table-fixed border-collapse text-[13px]">
                     <thead>
-                        <tr style={{ color: "var(--text-subtle)", fontWeight: 600, fontSize: "11px" }}>
-                            <th style={{ width: "25%", textAlign: "left", padding: "4px 8px 8px 0" }}>Effective Date</th>
-                            <th style={{ width: "25%", textAlign: "right", padding: "4px 8px" }}>Base Salary</th>
-                            <th style={{ width: "25%", textAlign: "left", padding: "4px 8px" }}>Status</th>
-                            <th style={{ width: "25%", textAlign: "right", padding: "4px 0 8px 8px" }}>Action</th>
+                        <tr className="text-subtle font-semibold text-[11px]">
+                            <th className="w-[25%] text-left p-[4px_8px_8px_0]">Effective Date</th>
+                            <th className="w-[25%] text-right p-[4px_8px]">Base Salary</th>
+                            <th className="w-[25%] text-left p-[4px_8px]">Status</th>
+                            <th className="w-[25%] text-right p-[4px_0_8px_8px]">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,15 +36,15 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                 ? new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
                                 : "-";
                             return (
-                                <tr key={rec.id} style={{ borderTop: "1px solid var(--surface-hover)" }}>
-                                    <td style={{ width: "25%", padding: "7px 8px 7px 0" }}>{dateLabel}</td>
-                                    <td style={{ width: "25%", textAlign: "right", padding: "7px 8px", fontFamily: "monospace" }}>
+                                <tr key={rec.id} className="border-t border-t-hover">
+                                    <td className="w-[25%] p-[7px_8px_7px_0]">{dateLabel}</td>
+                                    <td className="w-[25%] text-right p-[7px_8px] font-mono">
                                         {Number(rec.base_salaries || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </td>
-                                    <td style={{ width: "25%", padding: "7px 8px" }}>
+                                    <td className="w-[25%] p-[7px_8px]">
                                         <Badge status={rec.is_active}>{rec.is_active ? "Active" : "Archived"}</Badge>
                                     </td>
-                                    <td style={{ width: "25%", textAlign: "right", padding: "7px 0 7px 8px" }}>
+                                    <td className="w-[25%] text-right p-[7px_0_7px_8px]">
                                         {rec.can_delete ? (
                                             <Button
                                                 variant="ghost"
@@ -54,7 +54,7 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                                 Delete
                                             </Button>
                                         ) : (
-                                            <span style={{ fontSize: "11px", color: "var(--border-input)" }} title="Already used in a payroll calculation">
+                                            <span className="text-[11px] text-line-input" title="Already used in a payroll calculation">
                                                 Locked
                                             </span>
                                         )}

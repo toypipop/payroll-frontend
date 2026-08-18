@@ -82,12 +82,12 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
             title={`Attendance Config: ${company?.name}`}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>Save</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)}>Save</Button>
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="flex flex-col gap-[12px]">
                 <input type="hidden" {...register("companies_id", { valueAsNumber: true })} />
 
                 <Controller
@@ -116,8 +116,8 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
                     )}
                 />
 
-                <div style={{ borderTop: "1px solid var(--border-muted)", paddingTop: "16px", marginTop: "8px" }}>
-                    <h4 style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: "600", color: "var(--text-secondary)" }}>Deduction Settings</h4>
+                <div className="border-t border-t-line-muted pt-[16px] mt-[8px]">
+                    <h4 className="m-[0_0_16px] text-[15px] font-semibold text-secondary">Deduction Settings</h4>
 
                     <Controller
                         name="is_late_deduction_enabled"
@@ -160,8 +160,8 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
                     />
                 </div>
 
-                <div style={{ borderTop: "1px solid var(--border-muted)", paddingTop: "16px", marginTop: "8px" }}>
-                    <h4 style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: "600", color: "var(--text-secondary)" }}>Overtime & Extra Earnings</h4>
+                <div className="border-t border-t-line-muted pt-[16px] mt-[8px]">
+                    <h4 className="m-[0_0_16px] text-[15px] font-semibold text-secondary">Overtime & Extra Earnings</h4>
 
                     <Controller
                         name="is_overtime_earnings_enabled"

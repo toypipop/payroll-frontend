@@ -114,7 +114,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
     <nav style={styles.navbar}>
       <div style={styles.breadcrumb}>
         <span>{categoryName}</span>
-        <span style={{ color: '#9fb3b7' }}>/</span>
+        <span className="text-[#9fb3b7]">/</span>
         <span style={styles.pageTitle}>{pageTitle}</span>
       </div>
 
@@ -124,18 +124,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
         <div style={styles.separator} />
         <button
           onClick={handleLogout}
-          style={{
-            color: 'var(--text-muted)',
-            background: 'none',
-            border: '1px solid var(--border-color)',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: '500',
-            padding: '5px 12px',
-            fontFamily: 'inherit',
-            transition: 'all 0.15s',
-          }}
+          className="text-muted bg-none border border-line rounded-[6px] cursor-pointer text-[12px] font-medium p-[5px_12px] font-[inherit] transition-[all_0.15s]"
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary-color)'; e.currentTarget.style.color = 'var(--primary-color)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
         >

@@ -16,11 +16,11 @@ const LeaveApprovedPage = () => {
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             searchValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""} ${row.employees?.employees_code || ""}`.trim(),
             render: (row) => (
-                <div style={{ whiteSpace: "nowrap" }}>
-                    <span style={{ fontWeight: "600" }}>
+                <div className="whitespace-nowrap">
+                    <span className="font-semibold">
                         {row.employees?.first_name} {row.employees?.last_name}
                     </span>
-                    <span style={{ fontSize: "11px", color: "var(--text-muted)", marginLeft: "8px" }}>
+                    <span className="text-[11px] text-muted ml-[8px]">
                         ({row.employees?.employees_code})
                     </span>
                 </div>
@@ -45,7 +45,7 @@ const LeaveApprovedPage = () => {
                     });
                 };
                 return (
-                    <div style={{ whiteSpace: "nowrap", fontSize: "12px" }}>
+                    <div className="whitespace-nowrap text-[12px]">
                         {formatDT(row.start_date)} - {formatDT(row.end_date)}
                     </div>
                 );
@@ -56,11 +56,11 @@ const LeaveApprovedPage = () => {
             sortKey: "total_days",
             sortValue: (row) => Number(row.total_days) || 0,
             render: (row) => (
-                <div style={{ whiteSpace: "nowrap" }}>
+                <div className="whitespace-nowrap">
                     {row.total_days}
                     {row.quota_exceeded && (
                         <div
-                            style={{ fontSize: "11px", color: "var(--status-danger-text)", fontWeight: "600" }}
+                            className="text-[11px] text-danger-text font-semibold"
                             title={`Used ${row.quota_used_days} of ${row.quota_max_days} days this year`}
                         >
                             ⚠ Over quota ({row.quota_used_days}/{row.quota_max_days})
@@ -74,12 +74,7 @@ const LeaveApprovedPage = () => {
             sortKey: "reason",
             sortValue: (row) => (row.reason || "").toLowerCase(),
             render: (row) => (
-                <div style={{
-                    maxWidth: "200px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                }} title={row.reason}>
+                <div className="max-w-[200px] overflow-hidden truncate whitespace-nowrap" title={row.reason}>
                     {row.reason || "-"}
                 </div>
             )
@@ -93,7 +88,7 @@ const LeaveApprovedPage = () => {
             label: "Decision",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>
+                <div className="flex gap-[4px] whitespace-nowrap">
                     <Button
                         onClick={() => decide(row, "Approved")}
                         style={{ ...actionBtn, backgroundColor: "var(--status-success)", color: "#fff" }}
@@ -115,9 +110,9 @@ const LeaveApprovedPage = () => {
     return (
         <>
             <PageHeader title="Leave Approval Center" />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading pending requests...</div>
+                    <div className="p-[40px] text-center">Loading pending requests...</div>
                 ) : (
                     <Table
                         columns={columns}

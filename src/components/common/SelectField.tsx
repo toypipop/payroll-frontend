@@ -175,7 +175,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                 }}
             >
                 {searchable && (
-                    <div style={{ padding: "4px 4px 8px" }}>
+                    <div className="p-[4px_4px_8px]">
                         <input
                             ref={searchInputRef}
                             type="text"
@@ -189,23 +189,14 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                 }
                             }}
                             placeholder={`Search ${label || "options"}`}
-                            style={{
-                                width: "100%",
-                                height: "36px",
-                                padding: "0 12px",
-                                fontSize: "13.5px",
-                                borderRadius: "8px",
-                                border: "1px solid var(--border-muted)",
-                                backgroundColor: "var(--surface-subtle)",
-                                color: "var(--text-strong)",
-                            }}
+                            className="w-full h-[36px] p-[0_12px] text-[13.5px] rounded-[8px] border border-line-muted bg-surface text-strong"
                         />
                     </div>
                 )}
 
                 <div style={{ maxHeight: searchable ? "168px" : "212px", overflowY: "auto" }}>
                     {filteredOptions.length === 0 ? (
-                        <div style={{ padding: "10px 12px", fontSize: "13px", color: "var(--text-subtle)", textAlign: "center" }}>
+                        <div className="p-[10px_12px] text-[13px] text-subtle text-center">
                             {options.length === 0 ? "No options" : "No matches found"}
                         </div>
                     ) : (
@@ -235,7 +226,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                 >
                                     <span>{opt.name}</span>
                                     {isSelected && (
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--control-accent)" }} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="stroke-control" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
                                     )}
@@ -251,9 +242,9 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
         return (
             <div style={{ marginBottom: "20px", width: "100%", ...containerStyle }}>
                 {label && (
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "var(--text-muted)", marginBottom: "6px" }}>
+                    <label className="block text-[13px] font-medium text-muted mb-[6px]">
                         {label}
-                        {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
+                        {required && <span className="text-danger"> *</span>}
                     </label>
                 )}
 
@@ -265,7 +256,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         disabled={disabled}
                         onBlur={onBlur}
                         onChange={() => {}}
-                        style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 0, height: 0 }}
+                        className="absolute opacity-0 pointer-events-none w-[0px] h-[0px]"
                         tabIndex={-1}
                         {...props}
                     >
@@ -315,7 +306,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                             boxShadow: open ? "0 0 0 3px rgba(98,89,202,0.12)" : "none",
                         }}
                     >
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayText}</span>
+                        <span className="overflow-hidden truncate whitespace-nowrap">{displayText}</span>
                         <svg
                             width="14" height="14" viewBox="0 0 24 24" fill="none"
                             stroke={error ? "var(--status-danger)" : open ? "var(--control-accent)" : "var(--text-subtle)"}
@@ -330,7 +321,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     {dropdownList}
                 </div>
 
-                {error && <div style={{ fontSize: "12px", color: "var(--status-danger)", marginTop: "4px" }}>{String(error)}</div>}
+                {error && <div className="text-[12px] text-danger mt-[4px]">{String(error)}</div>}
             </div>
         );
     },

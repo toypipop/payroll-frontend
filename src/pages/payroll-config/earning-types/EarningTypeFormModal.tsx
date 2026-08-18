@@ -61,14 +61,14 @@ const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompan
             title={editing ? "Edit Earning Type" : "Add Earning Type"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))} className="w-auto">
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Companies"
                     {...register("companies_id")}
@@ -78,7 +78,7 @@ const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompan
                     required
                 />
                 <InputField label="Earning Name" {...register("name")} error={errors.name?.message} required />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div className="grid grid-cols-2 gap-3">
                     <CheckboxField label="Is Taxable" id="is_taxable" {...register("is_taxable")} />
                     <CheckboxField label="Include in SSO" id="is_sso" {...register("is_sso")} />
                 </div>

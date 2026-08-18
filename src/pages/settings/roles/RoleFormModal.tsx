@@ -54,17 +54,17 @@ const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, c
             title={editing ? "Edit Role" : "Add Role"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
                     <Button
                         onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
-                        style={{ width: "auto" }}
+                        className="w-auto"
                     >
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Companies"
                     {...register("companies_id")}

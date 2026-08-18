@@ -10,10 +10,10 @@ import { formatDisplayTime } from "./attendance-config/bangkokTime";
 
 // flag renders one of the config's on/off switches, or "Not Set" when the company has no config yet.
 const flag = (enabled) => {
-    if (enabled === undefined) return <span style={{ color: "var(--text-subtle)" }}>Not Set</span>;
+    if (enabled === undefined) return <span className="text-subtle">Not Set</span>;
     return enabled
-        ? <span style={{ color: "var(--status-success-text)", fontWeight: 600 }}>ON</span>
-        : <span style={{ color: "var(--status-danger)", fontWeight: 600 }}>OFF</span>;
+        ? <span className="text-success-text font-semibold">ON</span>
+        : <span className="text-danger font-semibold">OFF</span>;
 };
 
 const AttendanceSettingsPage = () => {
@@ -32,13 +32,13 @@ const AttendanceSettingsPage = () => {
             label: "Work Start",
             render: (row) => row.attendance_config
                 ? formatDisplayTime(row.attendance_config.work_start_time)
-                : <span style={{ color: "var(--text-subtle)" }}>-</span>,
+                : <span className="text-subtle">-</span>,
         },
         {
             label: "Work End",
             render: (row) => row.attendance_config
                 ? formatDisplayTime(row.attendance_config.work_end_time)
-                : <span style={{ color: "var(--text-subtle)" }}>-</span>,
+                : <span className="text-subtle">-</span>,
         },
         { label: "Late Amount", render: (row) => flag(row.attendance_config?.is_late_deduction_enabled) },
         { label: "Absent Amount", render: (row) => flag(row.attendance_config?.is_absent_deduction_enabled) },
@@ -47,7 +47,7 @@ const AttendanceSettingsPage = () => {
         {
             label: "Actions",
             render: (row) => (
-                <Button variant="ghost" onClick={() => openEdit(row)} style={{ fontSize: "12px" }}>
+                <Button variant="ghost" onClick={() => openEdit(row)} className="text-xs">
                     {row.attendance_config ? "Update" : "Setup"}
                 </Button>
             ),
@@ -57,9 +57,9 @@ const AttendanceSettingsPage = () => {
     return (
         <>
             <PageHeader title="Attendance Settings" />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={configs} />
                 )}

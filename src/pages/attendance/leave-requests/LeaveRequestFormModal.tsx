@@ -163,12 +163,11 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             title={editing ? "Edit Leave Request" : "New Leave Request"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
-                        style={{ width: "auto" }}
                         disabled={showNoLeaveTypesWarning || showNoEmployeesWarning}
                     >
                         {editing ? "Update" : "Submit"}
@@ -219,7 +218,7 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
                 />
             )}
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div className="grid grid-cols-2 gap-4">
                 <Controller
                     control={control}
                     name="start_date"

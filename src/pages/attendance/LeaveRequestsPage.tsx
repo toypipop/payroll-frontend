@@ -37,11 +37,11 @@ const LeaveRequestsPage = () => {
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             searchValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""} ${row.employees?.employees_code || ""}`.trim(),
             render: (row) => (
-                <div style={{ whiteSpace: "nowrap" }}>
-                    <div style={{ fontWeight: "600" }}>
+                <div className="whitespace-nowrap">
+                    <div className="font-semibold">
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                    <div className="text-[11px] text-muted">
                         {row.employees?.employees_code}
                     </div>
                 </div>
@@ -62,7 +62,7 @@ const LeaveRequestsPage = () => {
                 const formatD = (d) => new Date(d).toLocaleDateString('en-GB', {
                     day: '2-digit', month: '2-digit', year: '2-digit'
                 });
-                return <div style={{ whiteSpace: "nowrap" }}>{formatD(row.start_date)} - {formatD(row.end_date)}</div>;
+                return <div className="whitespace-nowrap">{formatD(row.start_date)} - {formatD(row.end_date)}</div>;
             }
         },
         {
@@ -76,13 +76,13 @@ const LeaveRequestsPage = () => {
             sortValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim().toLowerCase(),
             searchValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim(),
             render: (row) => (
-                <div style={{ fontSize: "13px", color: "var(--text-body)" }}>
+                <div className="text-[13px] text-body">
                     {row.approver ? (
-                        <div style={{ whiteSpace: "nowrap" }}>
+                        <div className="whitespace-nowrap">
                             {row.approver.first_name} {row.approver.last_name}
                         </div>
                     ) : (
-                        <span style={{ color: "var(--text-subtle)", fontStyle: "italic" }}>-</span>
+                        <span className="text-subtle italic">-</span>
                     )}
                 </div>
             ),
@@ -96,7 +96,7 @@ const LeaveRequestsPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button
                         variant="ghost"
                         onClick={() => openEdit(row)}
@@ -123,16 +123,16 @@ const LeaveRequestsPage = () => {
     return (
         <>
             <PageHeader
-                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Leave Requests<HelpIcon articleId="leave-requests" /></span>}
+                title={<span className="flex items-center gap-[8px]">Leave Requests<HelpIcon articleId="leave-requests" /></span>}
                 actionButton={
-                    <Button onClick={openAdd} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Create Request
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={requests} />
                 )}

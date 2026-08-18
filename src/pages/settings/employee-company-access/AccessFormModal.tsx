@@ -110,10 +110,10 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
             title={editing ? "Edit Company Access" : "Add Company Access"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>
+                    <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }} disabled={showNoRolesWarning || showNoEmployeesWarning}>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={showNoRolesWarning || showNoEmployeesWarning}>
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
@@ -175,15 +175,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
             )}
 
             {selectedEmployeeName && (
-                <div style={{
-                    margin: "0 0 18px",
-                    padding: "10px 12px",
-                    borderRadius: "8px",
-                    background: "var(--surface-subtle)",
-                    color: "var(--text-muted)",
-                    fontSize: "13px",
-                    border: "1px solid var(--border-muted)",
-                }}>
+                <div className="m-[0_0_18px] p-[10px_12px] rounded-[8px] bg-surface text-muted text-[13px] border border-line-muted">
                     {selectedEmployeeName}
                 </div>
             )}

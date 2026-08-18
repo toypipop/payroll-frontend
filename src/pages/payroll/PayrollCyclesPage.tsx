@@ -26,7 +26,7 @@ const PayrollCyclesPage = () => {
             sortKey: "cycle_name",
             searchableKeys: ["cycle_name"],
             render: (row) => (
-                <span style={{ fontWeight: "600", color: "var(--text-strong)" }}>{row.cycle_name}</span>
+                <span className="font-semibold text-strong">{row.cycle_name}</span>
             ),
         },
         {
@@ -35,7 +35,7 @@ const PayrollCyclesPage = () => {
             sortValue: (row) => new Date(row.start_date).getTime(),
             searchableKeys: ["start_date", "end_date"],
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "var(--text-body)" }}>
+                <span className="text-[13px] text-body">
                     {formatDate(row.start_date)} — {formatDate(row.end_date)}
                 </span>
             ),
@@ -56,7 +56,7 @@ const PayrollCyclesPage = () => {
             sortKey: "created_at",
             sortValue: (row) => new Date(row.created_at).getTime(),
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "var(--text-subtle)" }}>{formatDate(row.created_at)}</span>
+                <span className="text-[13px] text-subtle">{formatDate(row.created_at)}</span>
             ),
         },
         {
@@ -69,12 +69,12 @@ const PayrollCyclesPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <div className="flex gap-[8px] flex-wrap">
                     {row.is_closed ? (
                         <Button
                             variant="ghost"
                             onClick={() => navigate(`/transactions?cycle_id=${row.id}`)}
-                            style={{ fontSize: "12px", padding: "6px 14px" }}
+                            className="text-xs px-3.5 py-1.5"
                         >
                             View Transactions
                         </Button>
@@ -82,7 +82,7 @@ const PayrollCyclesPage = () => {
                         <Button
                             variant="danger"
                             onClick={() => closeCycle(row.id, row.cycle_name)}
-                            style={{ fontSize: "12px", padding: "6px 14px" }}
+                            className="text-xs px-3.5 py-1.5"
                         >
                             Close Cycle
                         </Button>
@@ -95,19 +95,19 @@ const PayrollCyclesPage = () => {
     return (
         <>
             <PageHeader
-                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Payroll Cycles<HelpIcon articleId="payroll-cycles" /></span>}
+                title={<span className="flex items-center gap-[8px]">Payroll Cycles<HelpIcon articleId="payroll-cycles" /></span>}
                 actionButton={
-                    <Button onClick={() => setIsModalOpen(true)} style={{ width: "auto" }}>
+                    <Button onClick={() => setIsModalOpen(true)} className="w-auto">
                         + New Cycle
                     </Button>
                 }
             />
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading cycles...</div>
+                    <div className="p-[40px] text-center text-subtle">Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         No payroll cycles yet. Create your first cycle to get started.
                     </div>
                 ) : (

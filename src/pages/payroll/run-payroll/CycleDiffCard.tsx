@@ -24,27 +24,27 @@ const CycleDiffCard = ({ diffData }) => {
     ];
 
     return (
-        <Card style={{ marginBottom: "20px", padding: "16px 20px" }}>
-            <div style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }}>
+        <Card className="mb-5 px-5 py-4">
+            <div className="text-[11px] font-bold text-subtle uppercase tracking-[0.06em] mb-[12px]">
                 เปรียบเทียบกับรอบที่แล้ว · {prv.cycle_name}
             </div>
-            <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+            <div className="overflow-x-auto">
+                <table className="w-[100%] border-collapse text-[13px]">
                     <thead>
-                        <tr style={{ color: "var(--text-subtle)", fontWeight: 600, fontSize: "11px" }}>
-                            <th style={{ textAlign: "left", padding: "4px 8px 8px 0" }}></th>
-                            <th style={{ textAlign: "right", padding: "4px 8px 8px" }}>{prv.cycle_name}</th>
-                            <th style={{ textAlign: "right", padding: "4px 8px 8px" }}>{cur.cycle_name}</th>
-                            <th style={{ textAlign: "right", padding: "4px 0 8px 8px" }}>เปลี่ยน</th>
+                        <tr className="text-subtle font-semibold text-[11px]">
+                            <th className="text-left p-[4px_8px_8px_0]"></th>
+                            <th className="text-right p-[4px_8px_8px]">{prv.cycle_name}</th>
+                            <th className="text-right p-[4px_8px_8px]">{cur.cycle_name}</th>
+                            <th className="text-right p-[4px_0_8px_8px]">เปลี่ยน</th>
                         </tr>
                     </thead>
                     <tbody>
                         {rows.map((r) => (
-                            <tr key={r.label} style={{ borderTop: "1px solid var(--surface-hover)" }}>
-                                <td style={{ padding: "7px 8px 7px 0", color: "var(--text-body)" }}>{r.label}</td>
-                                <td style={{ textAlign: "right", padding: "7px 8px", fontFamily: "monospace", color: "var(--text-subtle)" }}>{r.prefix}{fmt(r.prv)}</td>
-                                <td style={{ textAlign: "right", padding: "7px 8px", fontFamily: "monospace", fontWeight: 600, color: "var(--text-main)" }}>{r.prefix}{fmt(r.cur)}</td>
-                                <td style={{ textAlign: "right", padding: "7px 0 7px 8px", fontFamily: "monospace" }}>{diff(r.cur, r.prv)}</td>
+                            <tr key={r.label} className="border-t border-t-hover">
+                                <td className="p-[7px_8px_7px_0] text-body">{r.label}</td>
+                                <td className="text-right p-[7px_8px] font-mono text-subtle">{r.prefix}{fmt(r.prv)}</td>
+                                <td className="text-right p-[7px_8px] font-mono font-semibold text-main">{r.prefix}{fmt(r.cur)}</td>
+                                <td className="text-right p-[7px_0_7px_8px] font-mono">{diff(r.cur, r.prv)}</td>
                             </tr>
                         ))}
                     </tbody>

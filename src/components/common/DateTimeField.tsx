@@ -36,7 +36,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
     }, [open]);
 
     return (
-        <div ref={containerRef} style={{ position: "relative" }}>
+        <div ref={containerRef} className="relative">
             <div
                 onClick={() => setOpen((p) => !p)}
                 style={{
@@ -85,7 +85,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                                 }}>
                                 <span>{opt.label}</span>
                                 {isSel && (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--control-accent)" }} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="stroke-control" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="20 6 9 17 4 12" />
                                     </svg>
                                 )}
@@ -177,7 +177,7 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
             {label && (
                 <label htmlFor={id} style={styles.label}>
                     {label}
-                    {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
+                    {required && <span className="text-danger"> *</span>}
                 </label>
             )}
 
@@ -235,7 +235,7 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                         options={Array.from({ length: 24 }, (_, h) => ({ value: h, label: String(h).padStart(2, "0") }))}
                         onChange={handleHourChange}
                     />
-                    <span style={{ color: "var(--text-subtle)", fontWeight: "600" }}>:</span>
+                    <span className="text-subtle font-semibold">:</span>
                     <CalendarSelect
                         value={timeMinute}
                         options={Array.from({ length: 12 }, (_, i) => ({ value: i * 5, label: String(i * 5).padStart(2, "0") }))}

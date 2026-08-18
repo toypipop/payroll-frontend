@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import type { CSSProperties, InputHTMLAttributes } from "react";
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -9,7 +9,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     required?: boolean;
 }
 
-// Wrap with forwardRef for React Hook Form
+// The focus ring used to be set by hand in onFocus/onBlur; it is a `focus:` variant now, so the handlers only forward.
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     (
         {
@@ -20,73 +20,33 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             style, // Allow external style overrides
             containerStyle, // Allow overriding container-level styles
             required,
+            className = "",
             ...props // This includes name, onChange, onBlur from register()
         },
         ref,
-    ) => {
-        const styles: Record<string, CSSProperties> = {
-            container: {
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                marginBottom: "20px",
-                width: "100%",
-            },
-            label: {
-                fontSize: "13px",
-                fontWeight: "500",
-                color: "var(--text-muted)",
-            },
-            input: {
-                height: "40px",
-                padding: "0 14px",
-                borderRadius: "8px",
-                border: `1px solid ${error ? "var(--status-danger)" : "var(--border-muted)"}`,
-                fontSize: "14px",
-                outline: "none",
-                transition: "border-color 0.2s",
-                fontFamily: "inherit",
-                backgroundColor: "var(--surface-subtle)",
-                color: "var(--text-strong)",
-                boxSizing: "border-box",
-                ...style, // Merge external styles
-            },
-            errorText: {
-                fontSize: "12px",
-                color: "var(--status-danger)",
-                marginTop: "2px",
-            },
-        };
-
-        return (
-            <div style={{ ...styles.container, ...containerStyle }}>
-                {label && (
-                    <label style={styles.label}>
-                        {label}
-                        {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
-                    </label>
-                )}
-                <input
-                    ref={ref} // Attach the ref here
-                    type={type}
-                    placeholder={placeholder || `Enter ${label || ""}`}
-                    style={styles.input}
-                    // Extract handlers or use defaults
-                    {...props}
-                    onFocus={(e) => {
-                        if (!error)
-                            e.target.style.borderColor = "var(--control-accent)";
-                        if (props.onFocus) props.onFocus(e);
-                    }}
-                    onBlur={(e) => {
-                        if (!error) e.target.style.borderColor = "var(--border-muted)";
-                        if (props.onBlur) props.onBlur(e);
-                    }}
-                />
-                {error && <span style={styles.errorText}>{String(error)}</span>}
-            </div>
-        );
-    },
+    ) => (
+        <div className="mb-5 flex w-full flex-col gap-1.5" style={containerStyle}>
+            {label && (
+                <label className="text-[13px] font-medium text-muted">
+                    {label}
+                    {required && <span className="text-danger"> *</span>}
+                </label>
+            )}
+            <input
+                ref={ref}
+                type={type}
+                placeholder={placeholder || `Enter ${label || ""}`}
+                className={
+                    "h-10 w-full rounded-lg border bg-surface px-3.5 font-[inherit] text-sm text-strong outline-none transition-colors " +
+                    (error ? "border-danger" : "border-line-muted focus:border-control") +
+                    ` ${className}`
+                }
+                style={style}
+                {...props}
+            />
+            {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
+        </div>
+    ),
 );
 
 // Setting displayName for easier debugging

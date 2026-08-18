@@ -19,35 +19,23 @@ const MasterDataWarning: React.FC<MasterDataWarningProps> = ({
     const canManage = useModulePermission(moduleKey);
 
     return (
-        <div style={warningBox}>
+        <div className="mb-4 rounded-lg border border-[#fcd34d] bg-[#fef3c7] px-3 py-2.5 text-[13px] leading-normal text-[#92400e]">
             {message}
             {canManage && (
                 <>
                     {" "}
-                    <Link to={routePath} target="_blank" rel="noopener noreferrer" style={warningLink}>
+                    <Link
+                        to={routePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-[#92400e] underline"
+                    >
                         {linkLabel}
                     </Link>
                 </>
             )}
         </div>
     );
-};
-
-const warningBox = {
-    margin: "0 0 16px",
-    padding: "10px 12px",
-    borderRadius: "8px",
-    background: "#fef3c7",
-    border: "1px solid #fcd34d",
-    color: "#92400e",
-    fontSize: "13px",
-    lineHeight: 1.5,
-};
-
-const warningLink = {
-    color: "#92400e",
-    fontWeight: 600,
-    textDecoration: "underline",
 };
 
 export default MasterDataWarning;

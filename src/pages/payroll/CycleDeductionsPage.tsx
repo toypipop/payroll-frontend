@@ -75,11 +75,11 @@ const CycleDeductionsPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => openEdit(row)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px" }}>
+                <div className="flex gap-[8px]">
+                    <Button variant="ghost" onClick={() => openEdit(row)} disabled={selectedCycleClosed} className="text-xs px-2 py-1">
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px", color: "var(--status-danger)" }}>
+                    <Button variant="danger" onClick={() => remove(row.id)} disabled={selectedCycleClosed} className="text-xs px-2 py-1 text-danger">
                         Delete
                     </Button>
                 </div>
@@ -92,15 +92,15 @@ const CycleDeductionsPage = () => {
             <PageHeader
                 title="Cycle Variable Deductions"
                 actionButton={
-                    <Button onClick={openAdd} disabled={!selectedCycleId || selectedCycleClosed} style={{ width: "auto" }}>
+                    <Button onClick={openAdd} disabled={!selectedCycleId || selectedCycleClosed}>
                         + Add Variable Deduction
                     </Button>
                 }
             />
 
             {/* Cycle selector */}
-            <Card style={{ marginBottom: "16px", padding: "16px 24px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <Card className="mb-4 px-6 py-4">
+                <div className="flex items-center gap-[16px]">
                     <SelectField
                         label="Company"
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
@@ -121,27 +121,27 @@ const CycleDeductionsPage = () => {
                     />
                 </div>
                 {selectedCycleLabel && (
-                    <div style={{ marginTop: "12px", fontSize: "13px", color: "var(--text-muted)" }}>
+                    <div className="mt-[12px] text-[13px] text-muted">
                         Period: {formatDate(selectedCycleLabel.start_date)} - {formatDate(selectedCycleLabel.end_date)}
                     </div>
                 )}
                 {selectedCycleClosed && (
-                    <div style={{ marginTop: "8px", fontSize: "13px", color: "var(--status-danger)" }}>
+                    <div className="mt-[8px] text-[13px] text-danger">
                         This cycle is closed. Variable deductions can no longer be added, edited, or deleted.
                     </div>
                 )}
-                <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "var(--text-subtle)" }}>
+                <p className="m-[8px_0_0_0] text-[12px] text-subtle">
                     Variable deductions are one-time per cycle and will be subtracted from net pay during payroll calculation.
                 </p>
             </Card>
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {!selectedCycleId ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         Select a payroll cycle to view or add variable deductions.
                     </div>
                 ) : loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={items} defaultSort={{ key: "amount", order: "desc" }} />
                 )}

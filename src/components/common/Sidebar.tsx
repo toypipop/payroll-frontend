@@ -155,7 +155,7 @@ const Sidebar = () => {
         if (item.is_category && !isSub) {
             if (!item.children || item.children.length === 0) return null;
             return (
-                <div key={item.id} style={{ marginBottom: "16px" }}>
+                <div key={item.id} className="mb-[16px]">
                     <div style={styles.categoryLabel}>{item.module_name}</div>
                     {item.children.map(child => renderMenuItem(child, true))}
                 </div>
@@ -175,7 +175,7 @@ const Sidebar = () => {
             >
                 {({ isActive }) => (
                     <>
-                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
+                        <div className="mr-[12px] flex items-center">
                             {IconComponent(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                         </div>
                         <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
@@ -191,7 +191,7 @@ const Sidebar = () => {
         <div style={styles.sidebarContainer}>
             <div style={styles.logoSection}>
                 <div style={{ width: "38px", height: "38px", background: "linear-gradient(160deg, #14b8a6, var(--primary-color))", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--bg-card)", fontWeight: "800", fontSize: "18px", letterSpacing: "0.02em", boxShadow: "0 10px 20px rgba(15, 118, 110, 0.34)" }}>P</div>
-                <span style={{ fontSize: "18px", fontWeight: "700", color: "var(--surface-hover)", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>PayrollPro</span>
+                <span className="text-[18px] font-bold text-hover tracking-[-0.01em] font-[var(--font-display)]">PayrollPro</span>
             </div>
 
             <nav style={{ flexGrow: 1, overflowY: "auto" }}>
@@ -210,7 +210,7 @@ const Sidebar = () => {
                             >
                                 {({ isActive }) => (
                                     <>
-                                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
+                                        <div className="mr-[12px] flex items-center">
                                             {Icons.ReceiptLong(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                                         </div>
                                         <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
@@ -230,7 +230,7 @@ const Sidebar = () => {
                             >
                                 {({ isActive }) => (
                                     <>
-                                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
+                                        <div className="mr-[12px] flex items-center">
                                             {Icons.Dashboard(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                                         </div>
                                         <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
