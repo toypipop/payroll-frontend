@@ -71,6 +71,11 @@
 /* The tokens above stay the single source of truth; this block only exposes them to Tailwind,
    so `bg-card`, `text-muted`, `border-muted` and friends resolve to the same variables. */
 @theme {
+  /* Drop Tailwind's own palette: a colour in this app comes from the tokens above, never from bg-slate-100. */
+  --color-*: initial;
+  --color-white: #fff;
+  --color-black: #000;
+
   --color-primary:        var(--primary-color);
   --color-primary-hover:  var(--primary-hover);
   --color-primary-subtle: var(--primary-subtle);

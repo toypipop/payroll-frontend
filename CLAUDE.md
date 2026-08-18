@@ -69,6 +69,9 @@ Three rules the hard way:
   override anything: Tailwind resolves conflicts by CSS order, not by attribute order, so `<Card className="p-0">`
   would still be padded by the `px-6` in the component.
 
+- **Tailwind's own palette is switched off** (`--color-*: initial` in `@theme`, keeping only white and black), so
+  `bg-slate-100` does not exist. A colour comes from a token or it does not come at all.
+
 Inline `style` is still right for a value computed at runtime (a colour that depends on a row, a transform that
 depends on a measurement). Everything static is a class.
 
