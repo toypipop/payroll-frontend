@@ -38,10 +38,10 @@ const DepartmentSettings = () => {
             label: "Actions",
             render: (row) => (
                 <div className="flex gap-[8px]">
-                    <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>
+                    <Button variant="ghost" onClick={() => openEdit(row)} className={smallBtn}>
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} style={smallBtn}>
+                    <Button variant="danger" onClick={() => remove(row.id)} className={smallBtn}>
                         Delete
                     </Button>
                 </div>
@@ -83,6 +83,6 @@ const DepartmentSettings = () => {
     );
 };
 
-const smallBtn = { padding: "6px 12px", fontSize: "12px" };
+const smallBtn = "px-3 py-1.5 text-xs";
 
 export default DepartmentSettings;

@@ -23,7 +23,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.total_late_minutes) || 0,
             searchValue: (row) => String(Number(row.total_late_minutes) || 0),
             render: (row) => (
-                <span style={{ color: row.total_late_minutes > 0 ? "var(--accent-color)" : undefined }}>
+                <span className={row.total_late_minutes > 0 ? "text-accent" : undefined}>
                     {row.total_late_minutes.toFixed(1)}
                 </span>
             ),
@@ -34,7 +34,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.late_amount) || 0,
             searchValue: (row) => (Number(row.late_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span style={{ color: row.late_amount > 0 ? "var(--status-danger)" : undefined }}>
+                <span className={row.late_amount > 0 ? "text-danger" : undefined}>
                     {row.late_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -45,7 +45,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.total_absent_days) || 0,
             searchValue: (row) => String(Number(row.total_absent_days) || 0),
             render: (row) => (
-                <span style={{ color: row.total_absent_days > 0 ? "var(--accent-color)" : undefined }}>
+                <span className={row.total_absent_days > 0 ? "text-accent" : undefined}>
                     {row.total_absent_days}
                 </span>
             ),
@@ -56,7 +56,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.absent_amount) || 0,
             searchValue: (row) => (Number(row.absent_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span style={{ color: row.absent_amount > 0 ? "var(--status-danger)" : undefined }}>
+                <span className={row.absent_amount > 0 ? "text-danger" : undefined}>
                     {row.absent_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -67,7 +67,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.total_amount) || 0,
             searchValue: (row) => (Number(row.total_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <strong style={{ color: row.total_amount > 0 ? "var(--status-danger-text)" : undefined }}>
+                <strong className={row.total_amount > 0 ? "text-danger-text" : undefined}>
                     {row.total_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </strong>
             ),

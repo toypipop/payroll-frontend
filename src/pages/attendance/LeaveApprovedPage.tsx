@@ -91,14 +91,14 @@ const LeaveApprovedPage = () => {
                 <div className="flex gap-[4px] whitespace-nowrap">
                     <Button
                         onClick={() => decide(row, "Approved")}
-                        style={{ ...actionBtn, backgroundColor: "var(--status-success)", color: "#fff" }}
+                        className={`${actionBtn} bg-success text-white`}
                     >
                         Approve
                     </Button>
                     <Button
                         variant="danger"
                         onClick={() => decide(row, "Rejected")}
-                        style={actionBtn}
+                        className={actionBtn}
                     >
                         Reject
                     </Button>
@@ -125,11 +125,6 @@ const LeaveApprovedPage = () => {
     );
 };
 
-const actionBtn = {
-    padding: "6px 12px",
-    fontSize: "12px",
-    width: "auto",
-    minWidth: "80px"
-};
+const actionBtn = "px-3 py-1.5 text-xs w-auto min-w-[80px]";
 
 export default LeaveApprovedPage;

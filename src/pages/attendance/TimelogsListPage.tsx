@@ -80,14 +80,14 @@ const TimelogsListPage = () => {
                     <Button
                         variant="ghost"
                         onClick={() => openEdit(row)}
-                        style={smallBtn}
+                        className={smallBtn}
                     >
                         Edit
                     </Button>
                     <Button
                         variant="danger"
                         onClick={() => remove(row.id)}
-                        style={smallBtn}
+                        className={smallBtn}
                     >
                         Delete
                     </Button>
@@ -158,6 +158,6 @@ const TimelogsListPage = () => {
     );
 };
 
-const smallBtn = { padding: "6px 12px", fontSize: "12px" };
+const smallBtn = "px-3 py-1.5 text-xs";
 
 export default TimelogsListPage;

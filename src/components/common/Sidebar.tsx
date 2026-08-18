@@ -178,7 +178,7 @@ const Sidebar = () => {
                         <div className="mr-[12px] flex items-center">
                             {IconComponent(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                         </div>
-                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
                             {item.module_name}
                         </span>
                     </>
@@ -213,7 +213,7 @@ const Sidebar = () => {
                                         <div className="mr-[12px] flex items-center">
                                             {Icons.ReceiptLong(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                                         </div>
-                                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
                                             My Payslips
                                         </span>
                                     </>
@@ -233,7 +233,7 @@ const Sidebar = () => {
                                         <div className="mr-[12px] flex items-center">
                                             {Icons.Dashboard(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
                                         </div>
-                                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
                                             Dashboard
                                         </span>
                                     </>

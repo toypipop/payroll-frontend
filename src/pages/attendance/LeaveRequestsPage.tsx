@@ -100,18 +100,14 @@ const LeaveRequestsPage = () => {
                     <Button
                         variant="ghost"
                         onClick={() => openEdit(row)}
-                        style={{
-                            ...smallBtn,
-                            opacity: row.status === "Pending" ? 1 : 0.45,
-                            cursor: row.status === "Pending" ? "pointer" : "not-allowed",
-                        }}
+                        className={`${smallBtn} ${row.status === "Pending" ? "opacity-100 cursor-pointer" : "opacity-45 cursor-not-allowed"}`}
                     >
                         Edit
                     </Button>
                     <Button
                         variant="danger"
                         onClick={() => remove(row.id || row.ID)}
-                        style={smallBtn}
+                        className={smallBtn}
                     >
                         Delete
                     </Button>
@@ -153,6 +149,6 @@ const LeaveRequestsPage = () => {
     );
 };
 
-const smallBtn = { padding: "6px 12px", fontSize: "12px" };
+const smallBtn = "px-3 py-1.5 text-xs";
 
 export default LeaveRequestsPage;

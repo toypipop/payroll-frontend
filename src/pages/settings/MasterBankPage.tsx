@@ -22,7 +22,7 @@ const MasterBankPage = () => {
         setIsModalOpen(true);
     };
 
-    const smallBtn = { padding: "4px 12px", fontSize: "12px", width: "auto" };
+    const smallBtn = "px-3 py-1 text-xs w-auto";
 
     const columns = [
         { label: "Code", key: "bank_code" },
@@ -32,8 +32,8 @@ const MasterBankPage = () => {
             label: "Actions",
             render: (row) => (
                 <div className="flex gap-[8px]">
-                    <Button variant="ghost" onClick={() => openEdit(row)} style={smallBtn}>Edit</Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} style={smallBtn}>Delete</Button>
+                    <Button variant="ghost" onClick={() => openEdit(row)} className={smallBtn}>Edit</Button>
+                    <Button variant="danger" onClick={() => remove(row.id)} className={smallBtn}>Delete</Button>
                 </div>
             ),
         },

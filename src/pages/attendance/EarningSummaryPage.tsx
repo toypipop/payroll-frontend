@@ -23,7 +23,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.total_overtime_minutes) || 0,
             searchValue: (row) => String(Number(row.total_overtime_minutes) || 0),
             render: (row) => (
-                <span style={{ color: row.total_overtime_minutes > 0 ? "#0ea5e9" : undefined }}>
+                <span className={row.total_overtime_minutes > 0 ? "text-[#0ea5e9]" : undefined}>
                     {row.total_overtime_minutes.toFixed(1)}
                 </span>
             ),
@@ -34,7 +34,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.total_extra_days) || 0,
             searchValue: (row) => String(Number(row.total_extra_days) || 0),
             render: (row) => (
-                <span style={{ color: row.total_extra_days > 0 ? "var(--status-success-text)" : undefined }}>
+                <span className={row.total_extra_days > 0 ? "text-success-text" : undefined}>
                     {row.total_extra_days}
                 </span>
             ),
@@ -45,7 +45,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.overtime_amount) || 0,
             searchValue: (row) => (Number(row.overtime_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span style={{ color: row.overtime_amount > 0 ? "#0284c7" : undefined }}>
+                <span className={row.overtime_amount > 0 ? "text-[#0284c7]" : undefined}>
                     {row.overtime_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -56,7 +56,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.extra_amount) || 0,
             searchValue: (row) => (Number(row.extra_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span style={{ color: row.extra_amount > 0 ? "#15803d" : undefined }}>
+                <span className={row.extra_amount > 0 ? "text-[#15803d]" : undefined}>
                     {row.extra_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -67,7 +67,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.total_amount) || 0,
             searchValue: (row) => (Number(row.total_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <strong style={{ color: row.total_amount > 0 ? "var(--primary-color)" : undefined }}>
+                <strong className={row.total_amount > 0 ? "text-primary" : undefined}>
                     {row.total_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </strong>
             ),

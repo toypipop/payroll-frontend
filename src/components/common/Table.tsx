@@ -491,11 +491,7 @@ const Table = <T extends TableRow = TableRow>({
                                     <React.Fragment key={key}>
                                         {before}
                                         <tr
-                                            style={{
-                                                backgroundColor: isEven ? "var(--bg-card)" : "var(--surface-subtle)",
-                                                cursor: onRowClick ? "pointer" : "default",
-                                                transition: "background-color 0.1s",
-                                            }}
+                                            className={`transition-colors duration-100 ${isEven ? "bg-card" : "bg-surface"} ${onRowClick ? "cursor-pointer" : "cursor-default"}`}
                                             onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = "var(--control-accent-soft)")}
                                             onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = isEven ? "var(--bg-card)" : "var(--surface-subtle)")}
                                             onClick={() => onRowClick && onRowClick(row)}

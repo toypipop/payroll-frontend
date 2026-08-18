@@ -39,7 +39,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                     display: "flex", alignItems: "center", gap: "4px", fontFamily: "monospace", fontSize: "12px",
                 }}
             >
-                <span style={{ fontWeight: "700", color }}>฿{formatCurrency(total)}</span>
+                <span className="font-bold" style={{ color }}>฿{formatCurrency(total)}</span>
                 {hasDetails && <span className="text-[10px] text-subtle">{open ? "▲" : "▼"}</span>}
             </button>
             {open && hasDetails && ReactDOM.createPortal(
@@ -54,13 +54,12 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                     {filtered.map((d, i) => {
                         const itemColor = itemColorFn ? itemColorFn(d) : color;
                         return (
-                            <div key={i} style={{
-                                display: "flex", justifyContent: "space-between", alignItems: "center",
-                                padding: "5px 14px", fontSize: "12px", gap: "16px",
-                                borderBottom: i < filtered.length - 1 ? "1px solid var(--surface-hover)" : "none",
-                            }}>
+                            <div
+                                key={i}
+                                className={`flex items-center justify-between gap-4 px-3.5 py-[5px] text-xs ${i < filtered.length - 1 ? "border-b border-hover" : ""}`}
+                            >
                                 <span className="text-body whitespace-nowrap">{d.item_name}</span>
-                                <span style={{ color: itemColor, fontWeight: "600", whiteSpace: "nowrap" }}>
+                                <span className="font-semibold whitespace-nowrap" style={{ color: itemColor }}>
                                     {d.type === "deduction" ? "-" : ""}฿{formatCurrency(d.amount)}
                                 </span>
                             </div>
