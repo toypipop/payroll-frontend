@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import type { CSSProperties } from "react";
 import DatePicker from "react-datepicker";
 import { twMerge } from "tailwind-merge";
 import "react-datepicker/dist/react-datepicker.css";
@@ -112,26 +111,6 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
         return () => document.removeEventListener("mousedown", handler, true);
     }, [isOpen]);
 
-    const styles: Record<string, CSSProperties> = {
-        container: {
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            marginBottom: "20px",
-        },
-        label: {
-            fontWeight: "500",
-            fontSize: "13px",
-            color: "var(--text-muted)",
-        },
-        error: {
-            color: "var(--status-danger)",
-            fontSize: "12px",
-            marginTop: "2px",
-            fontWeight: "500",
-        }
-    };
-
     const { timeHour, timeMinute } = useMemo(() => {
         if (!value) return { timeHour: 0, timeMinute: 0 };
         const d = new Date(value);
@@ -159,9 +138,9 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
     };
 
     return (
-        <div ref={containerRef} style={styles.container}>
+        <div ref={containerRef} className="mb-5 flex flex-col gap-1.5">
             {label && (
-                <label htmlFor={id} style={styles.label}>
+                <label htmlFor={id} className="text-[13px] font-medium text-muted">
                     {label}
                     {required && <span className="text-danger"> *</span>}
                 </label>
@@ -238,7 +217,7 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                 </button>
             </DatePicker>
 
-            {error && <span style={styles.error}>{error}</span>}
+            {error && <span className="mt-0.5 text-xs font-medium text-danger">{error}</span>}
 
             <style>{`
                 .custom-date-input {

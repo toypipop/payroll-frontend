@@ -64,12 +64,9 @@ const exportExcel = (data) => {
 
 /* ── Summary Cards ──────────────────────────────────────────────────────── */
 const SummaryCard = ({ label, value, color }) => (
-    <div style={{
-        border: "1px solid var(--border-muted)", borderRadius: "10px", padding: "16px 20px",
-        background: "#fff", flex: "1 1 160px",
-    }}>
+    <div className="flex-[1_1_160px] rounded-[10px] border border-line-muted bg-white px-5 py-4">
         <div className="text-[11px] font-bold text-subtle uppercase tracking-[0.06em]">{label}</div>
-        <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "20px", color: color || "var(--text-main)", marginTop: "6px" }}>฿{fc(value)}</div>
+        <div className="mt-1.5 font-mono text-xl font-extrabold text-main" style={color ? { color } : undefined}>฿{fc(value)}</div>
     </div>
 );
 
@@ -166,7 +163,7 @@ const PayrollAnalysisPage = () => {
                 <Button
                     variant="ghost"
                     onClick={() => setExpandedTx(expandedTx === tx.id ? null : tx.id)}
-                    style={{ fontSize: "12px", padding: "5px 12px", width: "auto" }}
+                    className="w-auto px-3 py-[5px] text-xs"
                 >
                     {expandedTx === tx.id ? "▲ Hide" : "▼ Details"}
                 </Button>
@@ -203,7 +200,7 @@ const PayrollAnalysisPage = () => {
                         <tr className="bg-surface">
                             <td
                                 colSpan={registerColumns.length}
-                                style={{ padding: 0, borderBottom: isLastRow ? "none" : "1px solid var(--border-muted)" }}
+                                className={`p-0 ${isLastRow ? "border-b-0" : "border-b border-line-muted"}`}
                             >
                                 <DetailPanel tx={row} />
                             </td>
@@ -230,7 +227,7 @@ const PayrollAnalysisPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => selectCycle(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {cycle && (
                             <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">
@@ -264,24 +261,17 @@ const PayrollAnalysisPage = () => {
                             key={tab.key}
                             type="button"
                             onClick={() => setActiveTab(tab.key)}
-                            style={{
-                                padding: "10px 16px",
-                                background: "transparent",
-                                border: "none",
-                                borderBottom: activeTab === tab.key ? "2px solid var(--control-accent)" : "2px solid transparent",
-                                marginBottom: "-1px",
-                                fontSize: "13px",
-                                fontWeight: activeTab === tab.key ? 700 : 500,
-                                color: activeTab === tab.key ? "var(--control-accent)" : "var(--text-muted)",
-                                cursor: "pointer",
-                                transition: "color 0.15s, border-color 0.15s",
-                            }}
+                            className={`-mb-px cursor-pointer border-none border-b-2 bg-transparent px-4 py-2.5 text-[13px] transition-colors ${
+                                activeTab === tab.key
+                                    ? "border-b-control font-bold text-control"
+                                    : "border-b-transparent font-medium text-muted"
+                            }`}
                         >
                             {tab.label}
                         </button>
                     ))}
                     <div className="flex-1" />
-                    <Button variant="secondary" onClick={() => exportExcel(data)} style={{ width: "auto", padding: "9px 18px", marginBottom: "8px" }}>
+                    <Button variant="secondary" onClick={() => exportExcel(data)} className="mb-2 w-auto px-[18px] py-[9px]">
                         Export to Excel/CSV
                     </Button>
                 </div>

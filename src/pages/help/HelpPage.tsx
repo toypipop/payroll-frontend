@@ -33,7 +33,7 @@ export default function HelpPage() {
           <div className="text-[20px] font-bold text-[color:var(--ink-deep)]">
             {lang === 'en' ? 'Help Center' : 'คู่มือการใช้งาน'}
           </div>
-          <div className="text-[12px] text-[#888] mt-[4px]">
+          <div className="text-[12px] text-subtle mt-[4px]">
             {lang === 'th' ? 'เลือกหมวดหมู่ที่ต้องการ' : 'Select a category'}
           </div>
         </div>
@@ -67,13 +67,13 @@ export default function HelpPage() {
       {search.trim().length > 0 ? (
         /* Search results */
         <div>
-          <div className="text-[12px] text-[#888] mb-[12px]">
+          <div className="text-[12px] text-subtle mb-[12px]">
             {lang === 'th'
               ? `พบ ${searchResults.length} ผลลัพธ์`
               : `${searchResults.length} result${searchResults.length !== 1 ? 's' : ''}`}
           </div>
           {searchResults.length === 0 ? (
-            <div className="text-center text-[#aaa] p-[40px_0] text-[14px]">
+            <div className="text-center text-subtle p-[40px_0] text-[14px]">
               {lang === 'th' ? 'ไม่พบผลลัพธ์' : 'No results found'}
             </div>
           ) : (
@@ -89,7 +89,7 @@ export default function HelpPage() {
                     <div className="font-semibold text-[13px] text-[color:var(--ink-deep)] mb-[4px]">
                       {lang === 'th' ? article.titleTH : article.titleEN}
                     </div>
-                    <div className="text-[11px] text-[#888]">
+                    <div className="text-[11px] text-subtle">
                       {cat ? (lang === 'th' ? cat.titleTH : cat.titleEN) : ''}
                     </div>
                   </div>
@@ -118,7 +118,7 @@ export default function HelpPage() {
                 <div className="font-semibold text-[14px] text-[color:var(--ink-deep)] mb-[4px]">
                   {lang === 'th' ? cat.titleTH : cat.titleEN}
                 </div>
-                <div className="text-[11px] text-[#888]">
+                <div className="text-[11px] text-subtle">
                   {cat.titleEN} · {count} {lang === 'th' ? 'บทความ' : 'articles'}
                 </div>
               </div>

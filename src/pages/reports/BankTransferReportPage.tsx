@@ -69,7 +69,7 @@ const A4BankSummary = ({ data }) => {
     return (
         <div
             id="bank-summary-a4"
-            className="w-[210mm] min-h-[297mm] bg-[#fff] p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
+            className="w-[210mm] min-h-[297mm] bg-white p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
         >
             {/* Header */}
             <div className="flex justify-between items-start pb-[14px] mb-[14px] border-b-[3px] border-b-main">
@@ -86,7 +86,7 @@ const A4BankSummary = ({ data }) => {
             </div>
             {/* Table */}
             <Table columns={summaryColumns} data={rows} enableSearch={false} sortable={false} fitWidth />
-            <div className="grid grid-cols-[1fr_auto] bg-main text-[#fff] p-[10px]">
+            <div className="grid grid-cols-[1fr_auto] bg-main text-white p-[10px]">
                 <div className="font-extrabold text-[13px]">Total Net Pay</div>
                 <div className="text-right font-mono font-black text-[15px]">
                     ฿{fc(total_net_pay)}
@@ -140,9 +140,9 @@ const BankTransferReportPage = () => {
     const printPreview = isPrintOpen ? (
         <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-main z-[10000] overflow-y-auto">
             <div id="print-toolbar" className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                <span className="text-[#fff] font-bold text-[15px]">Bank Transfer Summary Preview</span>
+                <span className="text-white font-bold text-[15px]">Bank Transfer Summary Preview</span>
                 <div className="flex gap-[10px]">
-                    <button onClick={handlePrint} className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
+                    <button onClick={handlePrint} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
                     <button onClick={() => setIsPrintOpen(false)} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                 </div>
             </div>
@@ -171,7 +171,7 @@ const BankTransferReportPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {cycle && (
                             <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">

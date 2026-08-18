@@ -109,7 +109,7 @@ const CycleDeductionsPage = () => {
                             setSelectedCompanyId(e.target.value);
                             setSelectedCycleId("");
                         }}
-                        containerStyle={{ minWidth: "240px", marginBottom: 0 }}
+                        containerClassName="mb-0 min-w-[240px]"
                     />
                     <SelectField
                         label="Payroll Cycle"
@@ -117,7 +117,7 @@ const CycleDeductionsPage = () => {
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
                         disabled={!selectedCompanyId}
-                        containerStyle={{ minWidth: "280px", marginBottom: 0 }}
+                        containerClassName="mb-0 min-w-[280px]"
                     />
                 </div>
                 {selectedCycleLabel && (

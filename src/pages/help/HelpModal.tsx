@@ -59,7 +59,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
 
         {/* Body */}
         <div className="p-[20px] overflow-y-auto">
-          <p className="text-[#444] leading-[1.7] mb-[16px] text-[14px]">
+          <p className="text-body leading-[1.7] mb-[16px] text-[14px]">
             {desc}
           </p>
           {steps.length > 0 && (
@@ -69,7 +69,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
               </div>
               <div className="bg-brand-tint border-l-[3px] border-l-[color:var(--ink-deep)] p-[12px_16px] rounded-[4px]">
                 {steps.map((step, i) => (
-                  <div key={i} className="text-[13px] leading-[2] text-[#333]">
+                  <div key={i} className="text-[13px] leading-[2] text-strong">
                     {article.articleType === 'checklist'
                       ? <><span className="text-[color:var(--ink-deep)] font-bold mr-[6px]">✓</span>{step}</>
                       : `${i + 1}. ${step}`

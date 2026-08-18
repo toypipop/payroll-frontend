@@ -21,13 +21,13 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
                 <div className="mt-[10px] flex gap-[8px]">
                     <button
                         onClick={onProceed}
-                        className="p-[6px_14px] rounded-[6px] border border-warning-line bg-accent text-[#fff] text-[13px] font-semibold cursor-pointer"
+                        className="p-[6px_14px] rounded-[6px] border border-warning-line bg-accent text-white text-[13px] font-semibold cursor-pointer"
                     >
                         Proceed Anyway
                     </button>
                     <button
                         onClick={onDismiss}
-                        className="p-[6px_14px] rounded-[6px] border border-line-muted bg-[#fff] text-body text-[13px] cursor-pointer"
+                        className="p-[6px_14px] rounded-[6px] border border-line-muted bg-white text-body text-[13px] cursor-pointer"
                     >
                         Cancel
                     </button>

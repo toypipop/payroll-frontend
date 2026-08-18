@@ -49,7 +49,7 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                             <Button
                                                 variant="ghost"
                                                 onClick={() => onDelete(rec.id)}
-                                                style={{ padding: "4px 10px", fontSize: "12px", width: "auto", color: "var(--status-danger-text)" }}
+                                                className="w-auto px-2.5 py-1 text-xs text-danger-text"
                                             >
                                                 Delete
                                             </Button>

@@ -56,7 +56,7 @@ const A4SSO = ({ data }) => {
     return (
         <div
             id="sso-a4"
-            className="w-[210mm] min-h-[297mm] bg-[#fff] p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
+            className="w-[210mm] min-h-[297mm] bg-white p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
         >
             {/* Header */}
             <div className="text-center mb-[18px] pb-[14px] border-b-[3px] border-b-main">
@@ -78,7 +78,7 @@ const A4SSO = ({ data }) => {
                 renderAfterRow={(row, rowIndex, allRows) => {
                     if (rowIndex !== allRows.length - 1) return null;
                     return (
-                        <tr className="bg-main text-[#fff] font-extrabold">
+                        <tr className="bg-main text-white font-extrabold">
                             <td colSpan={5} className="p-[10px_10px]">Total</td>
                             <td className="p-[10px_10px] text-right font-mono">{fc(total_employee_sso)}</td>
                             <td className="p-[10px_10px] text-right font-mono">{fc(total_employer_sso)}</td>
@@ -182,9 +182,9 @@ const SSOReportPage = () => {
     const printPreview = isPrintOpen ? (
         <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-main z-[10000] overflow-y-auto">
             <div className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                <span className="text-[#fff] font-bold text-[15px]">SSO Form 1-10 Preview</span>
+                <span className="text-white font-bold text-[15px]">SSO Form 1-10 Preview</span>
                 <div className="flex gap-[10px]">
-                    <button onClick={handlePrint} className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
+                    <button onClick={handlePrint} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
                     <button onClick={() => setIsPrintOpen(false)} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                 </div>
             </div>
@@ -213,7 +213,7 @@ const SSOReportPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {cycle && (
                             <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">

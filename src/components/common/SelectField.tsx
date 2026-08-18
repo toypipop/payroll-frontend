@@ -14,6 +14,7 @@ interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
     error?: unknown;
     placeholder?: string;
     style?: CSSProperties;
+    containerClassName?: string;
     containerStyle?: CSSProperties;
     value?: unknown;
     onChange?: (
@@ -24,7 +25,7 @@ interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
 }
 
 const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
-    ({ label, options = [], error, placeholder, style, containerStyle, value, onChange, onBlur, name, disabled, searchable = true, required, ...props }, ref) => {
+    ({ label, options = [], error, placeholder, style, containerStyle, containerClassName = "", value, onChange, onBlur, name, disabled, searchable = true, required, ...props }, ref) => {
         const [open, setOpen] = useState(false);
         const [hovered, setHovered] = useState<unknown>(null);
         const [searchTerm, setSearchTerm] = useState("");
@@ -223,7 +224,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
         );
 
         return (
-            <div className="mb-5 w-full" style={containerStyle}>
+            <div className={twMerge("mb-5 w-full", containerClassName)} style={containerStyle}>
                 {label && (
                     <label className="block text-[13px] font-medium text-muted mb-[6px]">
                         {label}

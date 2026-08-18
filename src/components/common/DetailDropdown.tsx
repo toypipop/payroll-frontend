@@ -34,10 +34,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                 ref={btnRef}
                 type="button"
                 onClick={(e) => { e.stopPropagation(); handleToggle(); }}
-                style={{
-                    background: "none", border: "none", padding: 0, cursor: hasDetails ? "pointer" : "default",
-                    display: "flex", alignItems: "center", gap: "4px", fontFamily: "monospace", fontSize: "12px",
-                }}
+                className={`flex items-center gap-1 border-none bg-none p-0 font-mono text-xs ${hasDetails ? "cursor-pointer" : "cursor-default"}`}
             >
                 <span className="font-bold" style={{ color }}>฿{formatCurrency(total)}</span>
                 {hasDetails && <span className="text-[10px] text-subtle">{open ? "▲" : "▼"}</span>}
@@ -45,11 +42,9 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
             {open && hasDetails && ReactDOM.createPortal(
                 <div
                     onClick={(e) => e.stopPropagation()}
-                    style={{
-                        position: "absolute", zIndex: 9999, top: pos.top, left: pos.left,
-                        background: "#fff", border: "1px solid var(--border-muted)", borderRadius: "8px",
-                        boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "8px 0", minWidth: "210px",
-                    }}
+                    className="absolute z-[9999] min-w-[210px] rounded-lg border border-line-muted bg-white py-2 shadow-[0_4px_16px_rgba(0,0,0,0.12)]"
+                    // measured from the trigger when the panel opens
+                    style={{ top: pos.top, left: pos.left }}
                 >
                     {filtered.map((d, i) => {
                         const itemColor = itemColorFn ? itemColorFn(d) : color;

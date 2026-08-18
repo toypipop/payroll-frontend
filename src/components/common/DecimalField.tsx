@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import React, { forwardRef, useState, useCallback } from "react";
 import type { ChangeEvent, CSSProperties, FocusEvent, InputHTMLAttributes } from "react";
 
@@ -5,6 +6,7 @@ interface DecimalFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
     label?: string;
     error?: unknown;
     style?: CSSProperties;
+    containerClassName?: string;
     containerStyle?: CSSProperties;
     value?: unknown;
     decimals?: number;
@@ -20,10 +22,12 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
             error,
             style,
             containerStyle,
+            containerClassName = "",
             value,
             onChange,
             decimals = 2,
             required,
+            className = "",
             ...props
         },
         ref,
@@ -59,7 +63,6 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
         const handleFocus = (e: FocusEvent<HTMLInputElement>) => {
             setIsFocused(true);
             setRawValue(value !== undefined && value !== "" ? String(parseFloat(String(value))) : "");
-            if (!error) e.target.style.borderColor = "var(--control-accent)";
             if (props.onFocus) props.onFocus(e);
         };
 
@@ -68,48 +71,13 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
             if (rawValue !== "" && !isNaN(parseFloat(rawValue))) {
                 setRawValue(parseFloat(rawValue).toFixed(decimals));
             }
-            if (!error) e.target.style.borderColor = "var(--border-muted)";
             if (props.onBlur) props.onBlur(e);
         };
 
-        const styles: Record<string, CSSProperties> = {
-            container: {
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                marginBottom: "20px",
-                width: "100%",
-            },
-            label: {
-                fontSize: "13px",
-                fontWeight: "500",
-                color: "var(--text-muted)",
-            },
-            input: {
-                height: "40px",
-                padding: "0 14px",
-                borderRadius: "8px",
-                border: `1px solid ${error ? "var(--status-danger)" : "var(--border-muted)"}`,
-                fontSize: "14px",
-                outline: "none",
-                transition: "border-color 0.2s",
-                fontFamily: "inherit",
-                backgroundColor: "var(--surface-subtle)",
-                color: "var(--text-strong)",
-                boxSizing: "border-box",
-                ...style,
-            },
-            errorText: {
-                fontSize: "12px",
-                color: "var(--status-danger)",
-                marginTop: "2px",
-            },
-        };
-
         return (
-            <div style={{ ...styles.container, ...containerStyle }}>
+            <div className={twMerge("mb-5 flex w-full flex-col gap-1.5", containerClassName)} style={containerStyle}>
                 {label && (
-                    <label style={styles.label}>
+                    <label className="text-[13px] font-medium text-muted">
                         {label}
                         {required && <span className="text-danger"> *</span>}
                     </label>
@@ -121,12 +89,17 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
                     placeholder={placeholder || `Enter ${label || ""}`}
                     value={displayValue}
                     onChange={handleChange}
-                    style={styles.input}
+                    className={twMerge(
+                        "box-border h-10 w-full rounded-lg border bg-surface px-3.5 font-[inherit] text-sm text-strong outline-none transition-colors",
+                        error ? "border-danger" : "border-line-muted focus:border-control",
+                        className,
+                    )}
+                    style={style}
                     {...props}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                 />
-                {error && <span style={styles.errorText}>{String(error)}</span>}
+                {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
             </div>
         );
     },

@@ -98,9 +98,9 @@ pages/<area>/<feature>/
 
 - **Missing master data**: use `src/components/common/MasterDataWarning.tsx` (message + conditional "Set it up" link, shown only if the user can access that settings module) instead of a bespoke warning box, whenever a form depends on a master-data type that might not be configured yet for the selected company (work locations, day-offs, leave types, attendance config, etc).
 - Links to settings pages from these warnings use `target="_blank" rel="noopener noreferrer"` so the user doesn't lose in-progress form state — apply this to any new "Set it up" style link too.
-- **Colours come from the tokens in `src/index.css`**, read as `var(--token)` from the inline style objects: `--text-main/-secondary/-muted/-subtle/-strong/-body`, `--border-color/-light/-muted/-input`, `--bg-card/-body/-raised`, `--surface-subtle/-hover`, `--primary-*`, `--accent-color`, `--control-accent*` and `--status-*`. Do not paste a hex that a token already covers. The handful of one-off shades left (banner tints, badge variants) are literal on purpose — tokenising a colour used once buys nothing.
-- Note the two accents are different on purpose: `--primary-color` is the brand teal, `--control-accent` (#6259ca) is the violet the buttons and pickers actually use. SVG `stroke=`/`fill=` attributes keep literal hex, since those are presentation attributes rather than styles.
-- `tailwindcss` is in `package.json` but is not wired up — no directives in `src/index.css`, no Vite plugin. The token system above is what the app actually uses.
+- **Colours come from the tokens in `src/index.css`**, spelled as Tailwind utilities (`text-main`, `border-line-muted`, `bg-surface`, `bg-control`, `text-danger`, ...) and only as `var(--token)` where the value is computed at runtime. Do not paste a hex a token already covers.
+- Both accents are the project teal now: `--control-accent` (buttons, pickers, active states) was a violet and was mapped onto the brand teal. SVG `stroke=`/`fill=` attributes still take literal `var(--token)` values, since those are presentation attributes rather than styles.
+- Field components (`InputField`, `NumberField`, `DecimalField`, `SelectField`) take `className` for the control and `containerClassName` for the wrapper — both merged with `twMerge`. Use `containerClassName="mb-0"` rather than `containerStyle={{ marginBottom: 0 }}`.
 
 ## Commands
 

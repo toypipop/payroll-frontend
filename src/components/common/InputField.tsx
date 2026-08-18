@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import { forwardRef } from "react";
 import type { CSSProperties, InputHTMLAttributes } from "react";
 
@@ -5,6 +6,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: unknown;
     style?: CSSProperties;
+    containerClassName?: string;
     containerStyle?: CSSProperties;
     required?: boolean;
 }
@@ -18,14 +20,15 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             placeholder,
             error,
             style, // Allow external style overrides
-            containerStyle, // Allow overriding container-level styles
+            containerStyle,
+            containerClassName = "", // Allow overriding container-level styles
             required,
             className = "",
             ...props // This includes name, onChange, onBlur from register()
         },
         ref,
     ) => (
-        <div className="mb-5 flex w-full flex-col gap-1.5" style={containerStyle}>
+        <div className={twMerge("mb-5 flex w-full flex-col gap-1.5", containerClassName)} style={containerStyle}>
             {label && (
                 <label className="text-[13px] font-medium text-muted">
                     {label}
@@ -36,11 +39,11 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 ref={ref}
                 type={type}
                 placeholder={placeholder || `Enter ${label || ""}`}
-                className={
-                    "h-10 w-full rounded-lg border bg-surface px-3.5 font-[inherit] text-sm text-strong outline-none transition-colors " +
-                    (error ? "border-danger" : "border-line-muted focus:border-control") +
-                    ` ${className}`
-                }
+                className={twMerge(
+                    "h-10 w-full rounded-lg border bg-surface px-3.5 font-[inherit] text-sm text-strong outline-none transition-colors",
+                    error ? "border-danger" : "border-line-muted focus:border-control",
+                    className,
+                )}
                 style={style}
                 {...props}
             />

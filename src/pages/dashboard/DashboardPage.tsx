@@ -10,7 +10,7 @@ const StatCard = ({ label, value, sub, color = 'var(--text-main)', loading }) =>
         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">
             {label}
         </div>
-        <div style={{ fontSize: '28px', fontWeight: '800', color, marginTop: '6px', lineHeight: '1', fontVariantNumeric: 'tabular-nums' }}>
+        <div className="mt-1.5 text-[28px] font-extrabold leading-none tabular-nums" style={{ color }}>
             {loading ? <span className="text-[13px] text-line-input">&mdash;</span> : value}
         </div>
         {sub && <div className="text-[11px] text-subtle mt-[5px]">{sub}</div>}
@@ -64,7 +64,7 @@ const DashboardPage = () => {
                     <div
                         key={path}
                         onClick={() => navigate(path)}
-                        className="bg-[#fff] border border-line-light rounded-[10px] p-[18px_20px] cursor-pointer transition-[border-color_0.15s,_box-shadow_0.15s]"
+                        className="bg-white border border-line-light rounded-[10px] p-[18px_20px] cursor-pointer transition-[border-color_0.15s,_box-shadow_0.15s]"
                         onMouseEnter={(e) => {
                             e.currentTarget.style.borderColor = color;
                             e.currentTarget.style.boxShadow = `0 4px 14px ${color}22`;
@@ -74,13 +74,11 @@ const DashboardPage = () => {
                             e.currentTarget.style.boxShadow = 'none';
                         }}
                     >
-                        <div style={{
-                            width: '34px', height: '34px', borderRadius: '8px',
-                            backgroundColor: `${color}1a`,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            marginBottom: '12px',
-                        }}>
-                            <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: color }} />
+                        <div
+                            className="mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-lg"
+                            style={{ backgroundColor: `${color}1a` }}
+                        >
+                            <div className="h-3 w-3 rounded-[3px]" style={{ backgroundColor: color }} />
                         </div>
                         <div className="font-bold text-[14px] text-main">{label}</div>
                         <div className="text-[12px] text-subtle mt-[3px] leading-[1.4]">{desc}</div>

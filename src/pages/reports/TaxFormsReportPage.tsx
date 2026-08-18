@@ -51,7 +51,7 @@ const A4PND1 = ({ data }) => {
     return (
         <div
             id="pnd1-a4"
-            className="w-[210mm] min-h-[297mm] bg-[#fff] p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
+            className="w-[210mm] min-h-[297mm] bg-white p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
         >
             {/* Header */}
             <div className="text-center mb-[18px] pb-[14px] border-b-[3px] border-b-main">
@@ -73,7 +73,7 @@ const A4PND1 = ({ data }) => {
                 renderAfterRow={(row, rowIndex, allRows) => {
                     if (rowIndex !== allRows.length - 1) return null;
                     return (
-                        <tr className="bg-main text-[#fff] font-extrabold">
+                        <tr className="bg-main text-white font-extrabold">
                             <td colSpan={4} className="p-[10px_10px]">Total</td>
                             <td className="p-[10px_10px] text-right font-mono">฿{fc(total_gross)}</td>
                             <td className="p-[10px_10px] text-right font-mono">{fc(total_sso)}</td>
@@ -105,12 +105,7 @@ const A4Tawi50 = ({ data }) => {
     return (
         <div
             id="tawi50-a4"
-            style={{
-                width: "210mm", minHeight: "148mm", backgroundColor: "#fff",
-                padding: "14mm 14mm", fontFamily: "'Segoe UI', Arial, sans-serif",
-                fontSize: "13px", color: "var(--text-strong)", boxSizing: "border-box",
-                border: "2px dashed var(--border-input)",
-            }}
+            className="box-border w-[210mm] min-h-[148mm] border-2 border-dashed border-line-input bg-white p-[14mm] font-['Segoe_UI',Arial,sans-serif] text-[13px] text-strong"
         >
             <div className="text-center mb-[14px]">
                 <div className="text-[11px] text-muted uppercase tracking-[2px] font-bold">Withholding Tax Certificate (Form 50 Tawi)</div>
@@ -127,7 +122,10 @@ const A4Tawi50 = ({ data }) => {
                     ["Pay Period", `${fd(cycle?.start_date)} — ${fd(cycle?.end_date)}`],
                     ["Payroll Cycle", cycle?.cycle_name || "—"],
                 ].map(([label, value], i) => (
-                    <div key={i} style={{ padding: "10px 14px", borderRight: i % 2 === 0 ? "1px solid var(--border-muted)" : "none", borderBottom: i < 4 ? "1px solid var(--border-muted)" : "none", backgroundColor: "var(--surface-subtle)" }}>
+                    <div
+                        key={i}
+                        className={`bg-surface px-3.5 py-2.5 ${i % 2 === 0 ? "border-r border-r-line-muted" : ""} ${i < 4 ? "border-b border-b-line-muted" : ""}`}
+                    >
                         <div className="text-[10px] font-bold text-subtle uppercase">{label}</div>
                         <div className="font-semibold text-[13px] mt-[3px]">{value}</div>
                     </div>
@@ -140,9 +138,9 @@ const A4Tawi50 = ({ data }) => {
                     { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, color: "var(--status-danger-text)" },
                     { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, color: "var(--text-main)" },
                 ].map(({ label, value, color }) => (
-                    <div key={label} className="border border-line-muted rounded-[6px] p-[10px_12px] bg-[#fff]">
+                    <div key={label} className="border border-line-muted rounded-[6px] p-[10px_12px] bg-white">
                         <div className="text-[10px] font-bold text-subtle uppercase">{label}</div>
-                        <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "15px", color, marginTop: "4px" }}>{value}</div>
+                        <div className="mt-1 font-mono text-[15px] font-extrabold" style={{ color }}>{value}</div>
                     </div>
                 ))}
             </div>
@@ -264,9 +262,9 @@ const TaxFormsReportPage = () => {
     const pnd1Preview = viewMode === "pnd1-print" && pnd1Data ? (
         <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-main z-[10000] overflow-y-auto">
             <div className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                <span className="text-[#fff] font-bold text-[15px]">PND.1 Preview — {cycle?.cycle_name}</span>
+                <span className="text-white font-bold text-[15px]">PND.1 Preview — {cycle?.cycle_name}</span>
                 <div className="flex gap-[10px]">
-                    <button onClick={() => handlePrint("pnd1-a4")} className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
+                    <button onClick={() => handlePrint("pnd1-a4")} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
                     <button onClick={() => setViewMode("pnd1")} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                 </div>
             </div>
@@ -281,12 +279,12 @@ const TaxFormsReportPage = () => {
     const tawiPreview = viewMode === "tawi" ? (
         <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-main z-[10000] overflow-y-auto">
             <div className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                <span className="text-[#fff] font-bold text-[15px]">
+                <span className="text-white font-bold text-[15px]">
                     50 Tawi
                     {tawiData && <span className="text-subtle text-[13px] ml-[12px]">{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
                 </span>
                 <div className="flex gap-[10px]">
-                    {tawiData && <button onClick={() => handlePrint("tawi50-a4")} className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>}
+                    {tawiData && <button onClick={() => handlePrint("tawi50-a4")} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>}
                     <button onClick={() => setViewMode("pnd1")} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                 </div>
             </div>
@@ -320,7 +318,7 @@ const TaxFormsReportPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {cycle && (
                             <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">
@@ -375,9 +373,9 @@ const TaxFormsReportPage = () => {
             {renderInlinePreview && viewMode === "pnd1-print" && pnd1Data && (
                 <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-[color:rgba(0,0,0,0.75)] z-[3000] overflow-y-auto">
                     <div className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                        <span className="text-[#fff] font-bold text-[15px]">PND.1 Preview — {cycle?.cycle_name}</span>
+                        <span className="text-white font-bold text-[15px]">PND.1 Preview — {cycle?.cycle_name}</span>
                         <div className="flex gap-[10px]">
-                            <button onClick={() => handlePrint("pnd1-a4")} className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
+                            <button onClick={() => handlePrint("pnd1-a4")} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
                             <button onClick={() => setViewMode("pnd1")} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                         </div>
                     </div>
@@ -392,12 +390,12 @@ const TaxFormsReportPage = () => {
             {renderInlinePreview && viewMode === "tawi" && (
                 <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-[color:rgba(0,0,0,0.75)] z-[3000] overflow-y-auto">
                     <div className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                        <span className="text-[#fff] font-bold text-[15px]">
+                        <span className="text-white font-bold text-[15px]">
                             50 Tawi
                             {tawiData && <span className="text-subtle text-[13px] ml-[12px]">{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
                         </span>
                         <div className="flex gap-[10px]">
-                            {tawiData && <button onClick={() => handlePrint("tawi50-a4")} className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>}
+                            {tawiData && <button onClick={() => handlePrint("tawi50-a4")} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>}
                             <button onClick={() => setViewMode("pnd1")} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                         </div>
                     </div>

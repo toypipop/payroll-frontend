@@ -56,7 +56,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
     ];
 
     return (
-        <div id="payslip-a4" className="w-[210mm] min-h-[297mm] bg-[#fff] p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border">
+        <div id="payslip-a4" className="w-[210mm] min-h-[297mm] bg-white p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border">
             {/* Company Header */}
             <div className="flex justify-between items-start pb-[14px] mb-[14px] border-b-[3px] border-b-main">
                 <div>
@@ -99,11 +99,10 @@ const A4Payslip = ({ slip, cycle, company }) => {
                     ["Base Salary", `—${formatCurrency(slip.salaries_at_time)}`],
                     ["Pay Period", `${formatDate(cycle?.start_date)} — ${formatDate(cycle?.end_date)}`],
                 ].map(([label, value], i) => (
-                    <div key={i} style={{
-                        padding: "10px 14px",
-                        borderRight: i % 3 !== 2 ? "1px solid var(--border-muted)" : "none",
-                        borderBottom: i < 3 ? "1px solid var(--border-muted)" : "none",
-                    }}>
+                    <div
+                        key={i}
+                        className={`px-3.5 py-2.5 ${i % 3 !== 2 ? "border-r border-r-line-muted" : ""} ${i < 3 ? "border-b border-b-line-muted" : ""}`}
+                    >
                         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.06em]">
                             {label}
                         </div>
@@ -118,7 +117,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
             <div className="grid grid-cols-[1fr_1fr] gap-[16px] mb-[18px]">
                 {/* Earnings */}
                 <div className="border border-line-muted rounded-[6px] overflow-hidden">
-                    <div className="bg-success-text text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
+                    <div className="bg-success-text text-white p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
                         Earnings
                     </div>
                     <Table columns={earningsColumns} data={earnings} enableSearch={false} sortable={false} fitWidth />
@@ -132,7 +131,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
 
                 {/* Deductions */}
                 <div className="border border-line-muted rounded-[6px] overflow-hidden">
-                    <div className="bg-danger-text text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
+                    <div className="bg-danger-text text-white p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
                         Deductions
                     </div>
                     <Table columns={deductionsColumns} data={deductions} enableSearch={false} sortable={false} fitWidth />
@@ -145,7 +144,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
                 </div>
             </div>
 
-            <div className="bg-main text-[#fff] rounded-[8px] p-[18px_22px] flex justify-between items-center">
+            <div className="bg-main text-white rounded-[8px] p-[18px_22px] flex justify-between items-center">
                 <div>
                     <div className="text-[11px] text-subtle uppercase tracking-[1px] font-semibold">
                         Net Pay
@@ -304,7 +303,7 @@ const PayslipsReportPage = () => {
                 <Button
                     variant="ghost"
                     onClick={() => handleViewSlip(row.id)}
-                    style={{ fontSize: "12px", padding: "6px 14px", width: "auto" }}
+                    className="w-auto px-3.5 py-1.5 text-xs"
                 >
                     View / Print Slip
                 </Button>
@@ -317,7 +316,7 @@ const PayslipsReportPage = () => {
             {/* Toolbar — hidden on print */}
             <div id="payslip-toolbar" className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
                 <div>
-                    <span className="text-[#fff] font-bold text-[15px]">
+                    <span className="text-white font-bold text-[15px]">
                         Payslip Preview
                     </span>
                     {slipData && (
@@ -330,7 +329,7 @@ const PayslipsReportPage = () => {
                     {slipData && (
                         <button
                             onClick={handlePrint}
-                            className="bg-success text-[#fff] border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px] flex items-center gap-[6px]"
+                            className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px] flex items-center gap-[6px]"
                         >
                             Print / Save PDF
                         </button>
@@ -377,7 +376,7 @@ const PayslipsReportPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {selectedCycle && (
                             <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">

@@ -29,7 +29,7 @@ const formatDate = (value) => {
 const StatCard = ({ label, value, color = 'var(--text-main)' }) => (
     <Card className="min-w-[155px] flex-1">
         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">{label}</div>
-        <div style={{ marginTop: '6px', fontSize: '22px', fontWeight: '800', color, fontVariantNumeric: 'tabular-nums', lineHeight: '1' }}>{value}</div>
+        <div className="mt-1.5 text-[22px] font-extrabold leading-none tabular-nums" style={{ color }}>{value}</div>
     </Card>
 );
 
@@ -159,14 +159,14 @@ const TransactionsPage = () => {
                             setSelectedCompanyId(e.target.value);
                             setSelectedCycleId("");
                         }}
-                        containerStyle={{ flex: 1, minWidth: "220px", marginBottom: 0 }}
+                        containerClassName="mb-0 flex-1 min-w-[220px]"
                     />
                     <SelectField
                         label="Closed Payroll Cycle"
                         options={filteredCycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        containerStyle={{ flex: 1, minWidth: "220px", marginBottom: 0 }}
+                        containerClassName="mb-0 flex-1 min-w-[220px]"
                     />
 
                     <div className="ml-auto">

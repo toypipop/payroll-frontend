@@ -125,17 +125,17 @@ const RunPayrollPage = () => {
             {/* Cycle selector + Run button */}
             <Card className="mb-5">
                 <div className="flex items-center gap-[16px] flex-wrap">
-                    <div style={{ flex: 2, minWidth: "220px" }}>
+                    <div className="flex-[2] min-w-[220px]">
                         <SelectField
                             label="Company"
                             options={companies.map((c) => ({ id: c.id, name: c.name }))}
                             value={selectedCompanyId}
                             onChange={(e) => changeCompany(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                     </div>
 
-                    <div style={{ flex: 3, minWidth: "220px" }}>
+                    <div className="flex-[3] min-w-[220px]">
                         {loadingCycles ? (
                             <div className="text-subtle text-[14px]">Loading cycles...</div>
                         ) : filteredCycles.length === 0 ? (
@@ -150,7 +150,7 @@ const RunPayrollPage = () => {
                                 })}
                                 value={selectedCycleId}
                                 onChange={(e) => selectCycle(e.target.value)}
-                                containerStyle={{ marginBottom: 0 }}
+                                containerClassName="mb-0"
                             />
                         )}
                     </div>
@@ -158,11 +158,7 @@ const RunPayrollPage = () => {
                     <Button
                         onClick={calculate}
                         disabled={!selectedCycleId || calculating}
-                        style={{
-                            width: "auto", marginTop: "20px",
-                            opacity: (!selectedCycleId || calculating) ? 0.6 : 1,
-                            cursor: (!selectedCycleId || calculating) ? "not-allowed" : "pointer",
-                        }}
+                        className="mt-5 w-auto disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {calculating ? "⏳ Calculating..." : "▶ Run Calculation"}
                     </Button>
@@ -253,7 +249,7 @@ const RunPayrollPage = () => {
                             <div className="text-[12px] text-subtle font-semibold uppercase tracking-[0.05em]">
                                 {stat.label}
                             </div>
-                            <div style={{ fontSize: "22px", fontWeight: "700", color: stat.color, marginTop: "6px" }}>
+                            <div className="mt-1.5 text-[22px] font-bold" style={{ color: stat.color }}>
                                 {stat.value}
                             </div>
                         </Card>

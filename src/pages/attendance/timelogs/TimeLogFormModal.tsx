@@ -275,13 +275,13 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
                     />
 
                     {showNoConfigWarning && (
-                        <div style={warningBox}>
+                        <div className={warningBox}>
                             This company has no Attendance Config yet, so check-in/out
                             cannot be auto-filled and time logs cannot be saved.
                             {canManageAttendanceSettings && (
                                 <>
                                     {" "}
-                                    <Link to="/attendance-settings" target="_blank" rel="noopener noreferrer" style={warningLink}>
+                                    <Link to="/attendance-settings" target="_blank" rel="noopener noreferrer" className={warningLink}>
                                         Set it up
                                     </Link>
                                 </>

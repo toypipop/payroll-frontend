@@ -9,7 +9,7 @@ import TimeField from "../../../components/common/TimeField";
 import SelectField from "../../../components/common/SelectField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
 import { WEEKDAY_OPTIONS, formatHHMM, parseTimeFromConfig } from "./scheduleHelpers";
-import { warningBox, warningLink } from "./warningStyles";
+import { warningBox, warningLink, successBox, dangerBox } from "./warningStyles";
 
 // BulkCreateModal owns every piece of bulk-add state, which is why the page itself only tracks whether the modal is open.
 const BulkCreateModal = ({
@@ -160,7 +160,7 @@ const BulkCreateModal = ({
                 >
                     {bulkResult ? (
                         <div>
-                            <div style={{ ...warningBox, background: "var(--status-success-soft)", border: "1px solid var(--status-success-line)", color: "var(--status-success-text)" }}>
+                            <div className={successBox}>
                                 Created <strong>{bulkResult.created_count}</strong> time log(s).
                                 {bulkResult.skipped_count > 0 && (
                                     <span> Skipped {bulkResult.skipped_count} date(s) that already had a log.</span>
@@ -183,12 +183,12 @@ const BulkCreateModal = ({
                             />
 
                             {bulkShowNoConfigWarning && (
-                                <div style={warningBox}>
+                                <div className={warningBox}>
                                     This company has no Attendance Config yet, so time logs cannot be saved.
                                     {canManageAttendanceSettings && (
                                         <>
                                             {" "}
-                                            <Link to="/attendance-settings" target="_blank" rel="noopener noreferrer" style={warningLink}>
+                                            <Link to="/attendance-settings" target="_blank" rel="noopener noreferrer" className={warningLink}>
                                                 Set it up
                                             </Link>
                                         </>
@@ -258,16 +258,11 @@ const BulkCreateModal = ({
                                                 key={wd.value}
                                                 type="button"
                                                 onClick={() => toggleBulkWeekday(wd.value)}
-                                                style={{
-                                                    padding: "6px 12px",
-                                                    borderRadius: "8px",
-                                                    border: `1px solid ${active ? "var(--control-accent)" : "var(--border-muted)"}`,
-                                                    background: active ? "var(--control-accent)" : "var(--surface-subtle)",
-                                                    color: active ? "#fff" : "var(--text-secondary)",
-                                                    fontSize: "13px",
-                                                    fontWeight: 600,
-                                                    cursor: "pointer",
-                                                }}
+                                                className={`cursor-pointer rounded-lg border px-3 py-1.5 text-[13px] font-semibold ${
+                                                    active
+                                                        ? "border-control bg-control text-white"
+                                                        : "border-line-muted bg-surface text-secondary"
+                                                }`}
                                             >
                                                 {wd.label}
                                             </button>
@@ -304,7 +299,7 @@ const BulkCreateModal = ({
                             )}
 
                             {bulkError && (
-                                <div style={{ ...warningBox, background: "var(--status-danger-soft)", border: "1px solid var(--status-danger-line)", color: "var(--status-danger-text)" }}>
+                                <div className={dangerBox}>
                                     {bulkError}
                                 </div>
                             )}

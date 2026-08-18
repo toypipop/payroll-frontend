@@ -1,17 +1,8 @@
-// Warning banner styles shared by the time-log page and its bulk-add modal.
-export const warningBox = {
-    margin: "0 0 16px",
-    padding: "10px 12px",
-    borderRadius: "8px",
-    background: "var(--status-warning-soft)",
-    border: "1px solid var(--status-warning-line)",
-    color: "var(--status-warning-text)",
-    fontSize: "13px",
-    lineHeight: 1.5,
-};
+// Warning banner classes shared by the time-log page and its bulk-add modal, one per status tone.
+const BANNER = "mb-4 rounded-lg border px-3 py-2.5 text-[13px] leading-normal";
 
-export const warningLink = {
-    color: "var(--status-warning-text)",
-    fontWeight: 600,
-    textDecoration: "underline",
-};
+export const warningBox = `${BANNER} border-warning-line bg-warning-soft text-warning-text`;
+export const successBox = `${BANNER} border-success-line bg-success-soft text-success-text`;
+export const dangerBox = `${BANNER} border-danger-line bg-danger-soft text-danger-text`;
+
+export const warningLink = "font-semibold text-warning-text underline";

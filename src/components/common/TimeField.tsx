@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 import React, { useState, useRef, useEffect } from "react";
-import type { CSSProperties, HTMLAttributes, MouseEvent } from "react";
+import type { HTMLAttributes, MouseEvent } from "react";
 
 interface TimeFieldProps extends Omit<HTMLAttributes<HTMLButtonElement>, "onChange"> {
     label?: string;
@@ -96,135 +96,24 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
         selectedMinuteRef.current?.scrollIntoView({ block: "center" });
     }, [isOpen]);
 
-    const styles: Record<string, CSSProperties> = {
-        container: {
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            marginBottom: "20px",
-            position: "relative",
-            fontFamily: "inherit",
-        },
-        label: {
-            fontSize: "13px",
-            fontWeight: 500,
-            color: "var(--text-muted)",
-        },
-        trigger: {
-            height: "40px",
-            padding: "0 14px",
-            borderRadius: "8px",
-            border: `1px solid ${error ? "var(--status-danger)" : isOpen ? "var(--control-accent)" : "var(--border-muted)"}`,
-            fontSize: "14px",
-            outline: "none",
-            fontFamily: "inherit",
-            backgroundColor: "var(--surface-subtle)",
-            color: value ? "var(--text-strong)" : "var(--text-subtle)",
-            boxSizing: "border-box",
-            width: "100%",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            transition: "border-color 0.2s, box-shadow 0.2s",
-        },
-        errorText: {
-            fontSize: "12px",
-            color: "var(--status-danger)",
-            marginTop: "2px",
-        },
-        dropdown: {
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            marginTop: "4px",
-            backgroundColor: "var(--bg-card)",
-            border: "1px solid var(--border-muted)",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-            padding: "12px",
-            zIndex: 50,
-            display: "flex",
-            gap: "12px",
-            justifyContent: "center",
-            width: "fit-content",
-            minWidth: "auto",
-        },
-        column: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "6px",
-        },
-        columnLabel: {
-            fontSize: "11px",
-            fontWeight: 600,
-            color: "var(--text-muted)",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
-        },
-        scrollArea: {
-            height: "160px",
-            overflowY: "auto",
-            width: "56px",
-            scrollbarWidth: "thin",
-            scrollbarColor: "var(--border-input) transparent",
-        },
-        timeOption: {
-            height: "32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "14px",
-            color: "var(--text-secondary)",
-            cursor: "pointer",
-            borderRadius: "6px",
-            transition: "background-color 0.15s",
-        },
-        timeOptionSelected: {
-            backgroundColor: "var(--control-accent)",
-            color: "var(--bg-card)",
-        },
-        periodContainer: {
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-        },
-        periodBtn: {
-            padding: "8px 14px",
-            fontSize: "12px",
-            fontWeight: 600,
-            borderRadius: "6px",
-            cursor: "pointer",
-            borderWidth: "1px",
-            borderStyle: "solid",
-            borderColor: "var(--border-muted)",
-            backgroundColor: "var(--bg-card)",
-            color: "var(--text-muted)",
-            transition: "all 0.15s",
-        },
-        periodBtnActive: {
-            backgroundColor: "var(--control-accent)",
-            color: "var(--bg-card)",
-            borderColor: "var(--control-accent)",
-        },
-    };
-
     const hoursList = Array.from({ length: 12 }, (_, i) => i === 0 ? 12 : i);
     const minutesList = Array.from({ length: 12 }, (_, i) => i * 5);
 
     return (
-        <div style={styles.container} ref={containerRef}>
+        <div className="relative mb-5 flex flex-col gap-1.5 font-[inherit]" ref={containerRef}>
             {label && (
-                <label style={styles.label}>
+                <label className="text-[13px] font-medium text-muted">
                     {label}
                     {required && <span className="text-danger"> *</span>}
                 </label>
             )}
             <button
                 type="button"
-                style={styles.trigger}
+                className={twMerge(
+                    "flex h-10 w-full cursor-pointer items-center justify-between rounded-lg border bg-surface px-3.5 font-[inherit] text-sm outline-none transition-colors",
+                    error ? "border-danger" : isOpen ? "border-control" : "border-line-muted",
+                    value ? "text-strong" : "text-subtle",
+                )}
                 onClick={() => setIsOpen(!isOpen)}
                 {...props}
             >
@@ -236,10 +125,10 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             </button>
 
             {isOpen && (
-                <div style={styles.dropdown}>
-                    <div style={styles.column}>
-                        <span style={styles.columnLabel}>Hour</span>
-                        <div style={styles.scrollArea}>
+                <div className="absolute inset-x-0 top-full z-50 mt-1 flex w-fit justify-center gap-3 rounded-xl border border-line-muted bg-card p-3 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                    <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-muted">Hour</span>
+                        <div className="h-40 w-14 overflow-y-auto [scrollbar-color:var(--border-input)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-sm [&::-webkit-scrollbar-thumb]:bg-line-input [&::-webkit-scrollbar-track]:bg-transparent">
                             {hoursList.map((h) => (
                                 <div
                                     key={h}
@@ -255,9 +144,9 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                             ))}
                         </div>
                     </div>
-                    <div style={styles.column}>
-                        <span style={styles.columnLabel}>Min</span>
-                        <div style={styles.scrollArea}>
+                    <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-muted">Min</span>
+                        <div className="h-40 w-14 overflow-y-auto [scrollbar-color:var(--border-input)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-sm [&::-webkit-scrollbar-thumb]:bg-line-input [&::-webkit-scrollbar-track]:bg-transparent">
                             {minutesList.map((m) => (
                                 <div
                                     key={m}
@@ -273,9 +162,9 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                             ))}
                         </div>
                     </div>
-                    <div style={styles.column}>
-                        <span style={styles.columnLabel}>Period</span>
-                        <div style={styles.periodContainer}>
+                    <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.5px] text-muted">Period</span>
+                        <div className="flex flex-col gap-1.5">
                             {["AM", "PM"].map((p) => (
                                 <button
                                     key={p}
@@ -294,20 +183,8 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                 </div>
             )}
 
-            {error && <span style={styles.errorText}>{error}</span>}
+            {error && <span className="mt-0.5 text-xs text-danger">{error}</span>}
 
-            <style>{`
-                div[style*="scrollArea"]::-webkit-scrollbar {
-                    width: 4px;
-                }
-                div[style*="scrollArea"]::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                div[style*="scrollArea"]::-webkit-scrollbar-thumb {
-                    background: var(--border-input);
-                    border-radius: 2px;
-                }
-            `}</style>
         </div>
     );
 };

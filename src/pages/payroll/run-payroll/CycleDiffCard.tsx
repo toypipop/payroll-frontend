@@ -6,7 +6,7 @@ const diff = (a: number, b: number) => {
     const d = a - b;
     const sign = d > 0 ? "+" : "";
     const color = d > 0 ? "var(--status-success)" : d < 0 ? "var(--status-danger)" : "var(--text-subtle)";
-    return <span style={{ color, fontSize: "11px", fontWeight: 600 }}>{sign}{fmt(d)}</span>;
+    return <span className="text-[11px] font-semibold" style={{ color }}>{sign}{fmt(d)}</span>;
 };
 
 // CycleDiffCard compares this run against the previous cycle. It renders nothing when there is no previous cycle to compare with.

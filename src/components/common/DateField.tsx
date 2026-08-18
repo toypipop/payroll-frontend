@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import type { CSSProperties } from "react";
 import DatePicker from "react-datepicker";
 import { twMerge } from "tailwind-merge";
 import "react-datepicker/dist/react-datepicker.css";
@@ -121,30 +120,10 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
         }
     };
 
-        const styles: Record<string, CSSProperties> = {
-        container: {
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            marginBottom: "20px",
-        },
-        label: {
-            fontWeight: "500",
-            fontSize: "13px",
-            color: "var(--text-muted)",
-        },
-        error: {
-            color: "var(--status-danger)",
-            fontSize: "12px",
-            marginTop: "2px",
-            fontWeight: "500",
-        }
-    };
-
     return (
-        <div style={styles.container}>
+        <div className="mb-5 flex flex-col gap-1.5">
             {label && (
-                <label htmlFor={id} style={styles.label}>
+                <label htmlFor={id} className="text-[13px] font-medium text-muted">
                     {label}
                     {required && <span className="text-danger"> *</span>}
                 </label>
@@ -185,7 +164,7 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
                 )}
             />
 
-            {error && <span style={styles.error}>{error}</span>}
+            {error && <span className="mt-0.5 text-xs font-medium text-danger">{error}</span>}
 
             <style>{`
                 .custom-date-input {

@@ -167,7 +167,7 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
                 )}
             />
 
-            <p className="text-[12px] text-[#666] mt-[8px]">
+            <p className="text-[12px] text-muted mt-[8px]">
                 * Adjustments will be applied to payroll calculations from this date onwards.
             </p>
             <Controller

@@ -143,6 +143,14 @@
   --color-danger:       var(--status-danger);
   --color-danger-text:  var(--status-danger-text);
 
+  /* The sign-in backdrop is a stack of gradients, so it lives in the background-image namespace as `bg-auth`. */
+  --background-image-auth:
+    radial-gradient(circle at 15% 25%, rgba(15, 118, 110, 0.55) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(245, 158, 11, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 75% 10%, rgba(15, 118, 110, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 25% 85%, rgba(245, 158, 11, 0.2) 0%, transparent 40%),
+    linear-gradient(135deg, var(--auth-bg-from) 0%, var(--auth-bg-to) 100%);
+
   --font-body:    "Manrope", "Noto Sans Thai", sans-serif;
   --font-display: "Sora", "Noto Sans Thai", sans-serif;
 }

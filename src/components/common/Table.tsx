@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
-import type { ChangeEvent, CSSProperties, Key, MouseEvent, ReactElement, ReactNode } from "react";
+import type { ChangeEvent, Key, MouseEvent, ReactElement, ReactNode } from "react";
 import type { SortState, TableColumn, TableRow } from "../../types/api";
 
 interface TableProps<T extends TableRow = TableRow> {

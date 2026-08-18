@@ -151,7 +151,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
                         options={dataScopeOptions.filter((o) => item.allowed_scopes.includes(o.id))}
                         value={permissions[item._flatIdx]?.data_scope || item.allowed_scopes[0]}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "data_scope", e.target.value)}
-                        style={{ marginBottom: 0 }}
+                        containerClassName="mb-0"
                     />
                 );
             },
