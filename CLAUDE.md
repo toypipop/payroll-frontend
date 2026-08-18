@@ -52,6 +52,23 @@ This agent manages **both** repos every session:
 - **Company field is immutable after creation** everywhere: the "Companies" `SelectField` must be `disabled={!!editingId}` on any edit form (Employees, Departments, Positions, Roles, EarningTypes, DeductionTypes, DayOff, ...) to match the backend rejecting `companies_id` changes on update.
 - All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`, which is wrong whenever the viewer's machine isn't set to Bangkok. See `AttendanceSettingsPage.tsx`'s `toBangkokHM()` helper for the pattern.
 
+## Page Layout
+
+Every page follows the same split, so a page file is table columns plus layout and nothing else:
+
+```
+pages/<area>/<Page>.tsx          columns + layout, reads the hook, renders the modal
+pages/<area>/<feature>/
+    use<Feature>.ts              server data: the lists, the loading flag, delete
+    <Feature>FormModal.tsx       the schema, the form, the save call, its own state
+    helpers.ts                   pure functions, no React
+```
+
+- A modal owns its own state. The page only tracks whether it is open and which row is being edited, and passes that row as `editing`; the modal re-seeds itself from it in an effect. That is why no page reaches into a shared `reset()` any more.
+- Pure functions live outside the component so they can be tested without rendering: `timelogs/scheduleHelpers.ts`, `salaries/salaryShape.ts`, `attendance-config/bangkokTime.ts`, `summaries/dateRange.ts`.
+- Logic two pages share becomes one hook: `summaries/useAttendanceSummary.ts` (both summary pages), `reports/shared/useClosedCycleReport.ts` and `reports/shared/useA4Preview.ts` (every report).
+- A control that is not domain-specific belongs in `components/common/` — `DetailDropdown` moved there from RunPayrollPage.
+
 ## Shared UI Patterns
 
 - **Missing master data**: use `src/components/common/MasterDataWarning.tsx` (message + conditional "Set it up" link, shown only if the user can access that settings module) instead of a bespoke warning box, whenever a form depends on a master-data type that might not be configured yet for the selected company (work locations, day-offs, leave types, attendance config, etc).
