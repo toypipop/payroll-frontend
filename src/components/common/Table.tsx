@@ -14,6 +14,8 @@ interface TableProps<T extends TableRow = TableRow> {
     sortable?: boolean;
     rowsPerPage?: number;
     enableSearch?: boolean;
+    // A printed sheet cannot be scrolled sideways, so a document table shares the width it has instead of overflowing.
+    fitWidth?: boolean;
     defaultSort?: SortState | null;
     emptyMessage?: ReactNode;
 }
@@ -129,6 +131,7 @@ const Table = <T extends TableRow = TableRow>({
     sortable = true,
     rowsPerPage = 10,
     enableSearch = true,
+    fitWidth = false,
     defaultSort = null,
     emptyMessage = "No data available",
 }: TableProps<T>) => {
@@ -247,10 +250,11 @@ const Table = <T extends TableRow = TableRow>({
         },
         tableScroll: {
             width: "100%",
-            overflowX: "auto",
+            overflowX: fitWidth ? "visible" : "auto",
         },
         table: {
             width: "100%",
+            maxWidth: "100%",
             borderCollapse: "separate",
             borderSpacing: 0,
             textAlign: "left",

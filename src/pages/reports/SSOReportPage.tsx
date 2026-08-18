@@ -72,6 +72,9 @@ const A4SSO = ({ data }) => {
                 columns={printColumns}
                 data={rows}
                 density="compact"
+                enableSearch={false}
+                sortable={false}
+                fitWidth
                 renderAfterRow={(row, rowIndex, allRows) => {
                     if (rowIndex !== allRows.length - 1) return null;
                     return (

@@ -121,7 +121,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
                     <div className="bg-[#064e3b] text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
                         Earnings
                     </div>
-                    <Table columns={earningsColumns} data={earnings} />
+                    <Table columns={earningsColumns} data={earnings} enableSearch={false} sortable={false} fitWidth />
                     <div className="grid grid-cols-[1fr_auto] p-[9px_14px] bg-[#ecfdf5] font-extrabold text-[13px]">
                         <div>Total Earnings</div>
                         <div className="font-mono text-[14px] text-[#059669]">
@@ -135,7 +135,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
                     <div className="bg-[#7f1d1d] text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
                         Deductions
                     </div>
-                    <Table columns={deductionsColumns} data={deductions} />
+                    <Table columns={deductionsColumns} data={deductions} enableSearch={false} sortable={false} fitWidth />
                     <div className="grid grid-cols-[1fr_auto] p-[9px_14px] bg-[#fef2f2] font-extrabold text-[13px]">
                         <div>Total Deductions</div>
                         <div className="font-mono text-[14px] text-danger-text">

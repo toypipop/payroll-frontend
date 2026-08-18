@@ -85,7 +85,7 @@ const A4BankSummary = ({ data }) => {
                 </div>
             </div>
             {/* Table */}
-            <Table columns={summaryColumns} data={rows} />
+            <Table columns={summaryColumns} data={rows} enableSearch={false} sortable={false} fitWidth />
             <div className="grid grid-cols-[1fr_auto] bg-main text-[#fff] p-[10px]">
                 <div className="font-extrabold text-[13px]">Total Net Pay</div>
                 <div className="text-right font-mono font-black text-[15px]">
