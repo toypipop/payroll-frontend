@@ -182,6 +182,7 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
                 error={errors.companies_id?.message}
                 onChange={handleCompanyChange}
                 required
+                disabled={!!editing}
             />
 
             <SelectField

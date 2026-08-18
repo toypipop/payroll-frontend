@@ -130,6 +130,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
                     setValue("company_id", "", { shouldValidate: true, shouldDirty: true });
                     setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
                 }}
+                disabled={!!editing}
                 required
             />
             {showNoEmployeesWarning && (
@@ -150,7 +151,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
                     setValue("company_id", e.target.value, { shouldValidate: true, shouldDirty: true });
                     setValue("role_id", "", { shouldValidate: true, shouldDirty: true });
                 }}
-                disabled={!selectedEmployeeId}
+                disabled={!!editing || !selectedEmployeeId}
                 required
             />
 

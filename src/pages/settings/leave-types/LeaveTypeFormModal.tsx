@@ -70,6 +70,7 @@ const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, 
                 {...register("companies_id")}
                 error={errors.companies_id?.message}
                 required
+                disabled={!!editing}
             />
             <InputField label="Leave Type Name" {...register("name")} error={errors.name?.message} required />
             <InputField label="Max Days Per Year (0 = Unlimited)" type="number" {...register("max_days_per_year")} error={errors.max_days_per_year?.message} />

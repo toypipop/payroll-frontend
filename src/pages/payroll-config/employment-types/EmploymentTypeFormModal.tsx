@@ -63,6 +63,7 @@ const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
                     error={errors.companies_id?.message}
                     options={companies.map(c => ({ id: c.id, name: c.name }))}
                     required
+                    disabled={!!editing}
                 />
                 <InputField label="Name (e.g. Full-time, Contract)" {...register("name")} error={errors.name?.message} required />
                 <InputField label="Description" {...register("description")} error={errors.description?.message} />

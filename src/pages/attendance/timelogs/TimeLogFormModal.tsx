@@ -271,6 +271,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
                             handleCompanyChange(e);
                         }}
                         required
+                        disabled={!!editing}
                     />
 
                     {showNoConfigWarning && (

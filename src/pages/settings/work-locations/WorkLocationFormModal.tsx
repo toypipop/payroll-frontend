@@ -62,6 +62,7 @@ const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
                 {...register("companies_id")}
                 error={errors.companies_id?.message}
                 required
+                disabled={!!editing}
             />
             <InputField label="Location Name (e.g. Office, WFH)" {...register("name")} error={errors.name?.message} required />
         </Modal>

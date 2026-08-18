@@ -119,6 +119,7 @@ const EmployeeDeductionFormModal = ({ isOpen, onClose, onSaved, editing, homeCom
                     }}
                     options={companies.map((c) => ({ id: c.id, name: c.name }))}
                     required
+                    disabled={!!editing}
                 />
                 <SelectField
                     label="Employee"

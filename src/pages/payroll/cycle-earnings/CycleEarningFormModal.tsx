@@ -121,7 +121,7 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
                         setValue("earning_type_id", "", { shouldValidate: true, shouldDirty: true });
                     }}
                     options={companies.map((c) => ({ id: c.id, name: c.name }))}
-                    disabled={!editing}
+                    disabled
                     required
                 />
                 <SelectField
@@ -137,7 +137,7 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
                         id: c.id,
                         name: `${c.cycle_name ?? `Cycle #${c.id}`}${c.companies?.name ? ` (${c.companies.name})` : ""} ${c.is_closed ? "· Closed" : "· Open"}`,
                     }))}
-                    disabled={!watchedCompanyId || !editing}
+                    disabled={!!editing || !watchedCompanyId}
                     required
                 />
                 <SelectField

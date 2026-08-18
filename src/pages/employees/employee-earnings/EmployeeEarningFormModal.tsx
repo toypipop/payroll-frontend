@@ -119,6 +119,7 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
                     }}
                     options={companies.map((c) => ({ id: c.id, name: c.name }))}
                     required
+                    disabled={!!editing}
                 />
                 <SelectField
                     label="Employee"

@@ -71,6 +71,7 @@ const HolidayFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, co
                 {...register("companies_id")}
                 error={errors.companies_id?.message}
                 required
+                disabled={!!editing}
             />
             <Controller
                 name="date"
