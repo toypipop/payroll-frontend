@@ -1,0 +1,72 @@
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import api from "../../../api/axiosInstance";
+import Button from "../../../components/common/Button";
+import Modal from "../../../components/common/Modal";
+import InputField from "../../../components/common/InputField";
+
+const bankSchema = z.object({
+    bank_code: z.string().min(1, "Bank code is required").max(10, "Max 10 characters"),
+    bank_name: z.string().min(1, "Bank name is required"),
+    swift_code: z.string().optional(),
+});
+
+const EMPTY = { bank_code: "", bank_name: "", swift_code: "" };
+
+// BankFormModal owns the form and the save call; the page only says which row is being edited.
+const BankFormModal = ({ isOpen, onClose, onSaved, editing }) => {
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(bankSchema),
+        defaultValues: EMPTY,
+    });
+
+    // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
+    useEffect(() => {
+        if (!isOpen) return;
+        reset(editing
+            ? { bank_code: editing.bank_code, bank_name: editing.bank_name, swift_code: editing.swift_code || "" }
+            : EMPTY);
+    }, [isOpen, editing, reset]);
+
+    const onSubmit = async (data) => {
+        try {
+            if (editing) {
+                await api.put(`/master/banks/${editing.id}`, data);
+            } else {
+                await api.post("/master/banks", data);
+            }
+            onSaved();
+            onClose();
+        } catch (err) {
+            alert(err.response?.data?.error || "Save Failed");
+        }
+    };
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={editing ? "Edit Bank" : "Add New Bank"}
+            footer={
+                <>
+                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>{editing ? "Update" : "Save"}</Button>
+                </>
+            }
+        >
+            <InputField label="Bank Code (e.g. BBL, KBANK)" {...register("bank_code")} error={errors.bank_code?.message} required />
+            <InputField label="Bank Name" {...register("bank_name")} error={errors.bank_name?.message} required />
+            <InputField label="SWIFT Code" {...register("swift_code")} error={errors.swift_code?.message} />
+        </Modal>
+    );
+};
+
+export default BankFormModal;

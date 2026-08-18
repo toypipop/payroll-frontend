@@ -1,0 +1,81 @@
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import api from "../../../api/axiosInstance";
+import Button from "../../../components/common/Button";
+import Modal from "../../../components/common/Modal";
+import InputField from "../../../components/common/InputField";
+import CheckboxField from "../../../components/common/CheckboxField";
+import SelectField from "../../../components/common/SelectField";
+
+const schema = z.object({
+    companies_id: z.string().min(1, "Company is required"),
+    name: z.string().min(1, "Leave type name is required"),
+    is_paid: z.boolean().default(true),
+    max_days_per_year: z.coerce.number().min(0, "Must be 0 or more").default(0),
+});
+
+// LeaveTypeFormModal owns the form and the save call; the page only says which row is being edited.
+const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }) => {
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: { companies_id: homeCompanyId, name: "", is_paid: true, max_days_per_year: 0 },
+    });
+
+    // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
+    useEffect(() => {
+        if (!isOpen) return;
+        reset(editing
+            ? {
+                companies_id: editing.companies_id ? String(editing.companies_id) : "",
+                name: editing.name,
+                is_paid: editing.is_paid,
+                max_days_per_year: editing.max_days_per_year || 0,
+            }
+            : { companies_id: homeCompanyId, name: "", is_paid: true, max_days_per_year: 0 });
+    }, [isOpen, editing, homeCompanyId, reset]);
+
+    const onSubmit = async (data) => {
+        try {
+            const payload = { ...data, companies_id: Number(data.companies_id) };
+            if (editing) {
+                await api.put(`/master/leave-types/${editing.id}`, payload);
+            } else {
+                await api.post("/master/leave-types", payload);
+            }
+            onSaved();
+            onClose();
+        } catch (err) {
+            alert(err.response?.data?.error || "Save Failed");
+        }
+    };
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={editing ? "Edit Leave Type" : "Add Leave Type"}
+            footer={
+                <>
+                    <Button variant="ghost" onClick={onClose} style={{ width: "auto" }}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>{editing ? "Update" : "Save"}</Button>
+                </>
+            }
+        >
+            <SelectField
+                label="Company"
+                options={companyOptions}
+                {...register("companies_id")}
+                error={errors.companies_id?.message}
+                required
+            />
+            <InputField label="Leave Type Name" {...register("name")} error={errors.name?.message} required />
+            <InputField label="Max Days Per Year (0 = Unlimited)" type="number" {...register("max_days_per_year")} error={errors.max_days_per_year?.message} />
+            <CheckboxField label="Paid Leave" {...register("is_paid")} />
+        </Modal>
+    );
+};
+
+export default LeaveTypeFormModal;
