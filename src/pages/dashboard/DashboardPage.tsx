@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api/axiosInstance';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Badge from '../../components/common/Badge';
 import { useAuth } from "../../hooks/useAuth";
+import useDashboardStats from "./stats/useDashboardStats";
 
 const StatCard = ({ label, value, sub, color = '#0f172a', loading }) => (
     <Card style={{ flex: 1, minWidth: '150px' }}>
@@ -27,31 +26,8 @@ const quickLinks = [
 
 const DashboardPage = () => {
     const navigate = useNavigate();
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { stats, loading } = useDashboardStats();
     const { user: storedUser } = useAuth();
-
-    useEffect(() => {
-        const load = async () => {
-            // allSettled, not all: the dashboard reads from two modules the viewer may not both have.
-            const [empRes, cycleRes] = await Promise.allSettled([
-                api.get('/employees'),
-                api.get('/payroll/cycles'),
-            ]);
-
-            const employees = empRes.status === 'fulfilled' ? (empRes.value.data || []) : [];
-            const cycles = cycleRes.status === 'fulfilled' ? (cycleRes.value.data || []) : [];
-
-            setStats({
-                employees:    employees.length,
-                totalCycles:  cycles.length,
-                activeCycles: cycles.filter(c => !c.is_closed).length,
-                closedCycles: cycles.filter(c =>  c.is_closed).length,
-            });
-            setLoading(false);
-        };
-        load();
-    }, []);
 
     return (
         <>

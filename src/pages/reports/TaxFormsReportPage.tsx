@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
+import useClosedCycleReport from "./shared/useClosedCycleReport";
+import useA4Preview, { printElement } from "./shared/useA4Preview";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
@@ -159,58 +161,23 @@ const A4Tawi50 = ({ data }) => {
 
 // Page component
 const TaxFormsReportPage = () => {
-    const [cycles, setCycles] = useState([]);
-    const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [pnd1Data, setPnd1Data] = useState(null);
+    const {
+        cycles, selectedCycleId, setSelectedCycleId,
+        data: pnd1Data, loadingCycles, loadingData: loadingPND1,
+    } = useClosedCycleReport((cycleId) => `/reports/tax-forms/pnd1/${cycleId}`);
     const [tawiData, setTawiData] = useState(null);
-    const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingPND1, setLoadingPND1] = useState(false);
     const [loadingTawi, setLoadingTawi] = useState(false);
     const [viewMode, setViewMode] = useState("pnd1"); // "pnd1" | "pnd1-print" | "tawi"
 
+    // A 50 Tawi certificate belongs to one transaction of one cycle, so switching cycles drops it and returns to the PND1 list.
     useEffect(() => {
-        (async () => {
-            try {
-                setLoadingCycles(true);
-                const res = await api.get("/payroll/cycles");
-                const closed = (res.data || []).filter((c) => c.is_closed);
-                setCycles(closed);
-                if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
-            } catch { /* silent */ } finally { setLoadingCycles(false); }
-        })();
-    }, []);
-
-    useEffect(() => {
-        if (!selectedCycleId) return;
-        (async () => {
-            try {
-                setLoadingPND1(true);
-                setPnd1Data(null);
-                setTawiData(null);
-                setViewMode("pnd1");
-                const res = await api.get(`/reports/tax-forms/pnd1/${selectedCycleId}`);
-                setPnd1Data(res.data);
-            } catch { setPnd1Data(null); } finally { setLoadingPND1(false); }
-        })();
+        setTawiData(null);
+        setViewMode("pnd1");
     }, [selectedCycleId]);
 
-    useEffect(() => {
-        if (viewMode !== "pnd1-print" && viewMode !== "tawi") return;
+    useA4Preview(viewMode === "pnd1-print" || viewMode === "tawi", () => setViewMode("pnd1"));
 
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [viewMode]);
-
-    useEffect(() => {
-        if (viewMode !== "pnd1-print" && viewMode !== "tawi") return;
-        const handleEsc = (e) => { if (e.key === "Escape") setViewMode("pnd1"); };
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [viewMode]);
+    const handlePrint = (id) => printElement(id);
 
     const handleView50Tawi = async (txId) => {
         try {
@@ -223,14 +190,6 @@ const TaxFormsReportPage = () => {
             alert(err?.response?.data?.error || "Failed to load 50 Tawi certificate");
             setViewMode("pnd1");
         } finally { setLoadingTawi(false); }
-    };
-
-    const handlePrint = (id) => {
-        const style = document.createElement("style");
-        style.innerHTML = `@media print { body * { visibility: hidden !important; } #${id}, #${id} * { visibility: visible !important; } #${id} { position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; box-shadow: none !important; margin: 0 !important; } @page { margin: 0; size: A4; } }`;
-        document.head.appendChild(style);
-        window.print();
-        document.head.removeChild(style);
     };
 
     const cycle = pnd1Data?.cycle;

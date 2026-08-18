@@ -1,0 +1,34 @@
+import { useEffect, useState } from "react";
+import api from "../../../api/axiosInstance";
+
+// useDashboardStats reads from two modules the viewer may not both have, which is why a refused source counts as zero rather than blanking the page.
+export const useDashboardStats = () => {
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const load = async () => {
+            // allSettled, not all: the dashboard reads from two modules the viewer may not both have.
+            const [empRes, cycleRes] = await Promise.allSettled([
+                api.get('/employees'),
+                api.get('/payroll/cycles'),
+            ]);
+
+            const employees = empRes.status === 'fulfilled' ? (empRes.value.data || []) : [];
+            const cycles = cycleRes.status === 'fulfilled' ? (cycleRes.value.data || []) : [];
+
+            setStats({
+                employees:    employees.length,
+                totalCycles:  cycles.length,
+                activeCycles: cycles.filter(c => !c.is_closed).length,
+                closedCycles: cycles.filter(c =>  c.is_closed).length,
+            });
+            setLoading(false);
+        };
+        load();
+    }, []);
+
+    return { stats, loading };
+};
+
+export default useDashboardStats;

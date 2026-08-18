@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
+import useA4Preview, { printElement } from "./shared/useA4Preview";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
@@ -271,28 +272,10 @@ const PayslipsReportPage = () => {
     useEffect(() => { fetchCycles(); }, []);
     useEffect(() => { fetchTransactions(selectedCycleId); }, [selectedCycleId]);
 
-    useEffect(() => {
-        if (!isSlipOpen) return;
-
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [isSlipOpen]);
-
-    useEffect(() => {
-        if (!isSlipOpen) return;
-        const handleEsc = (e) => {
-            if (e.key === "Escape") {
-                setIsSlipOpen(false);
-                setSlip(null);
-            }
-        };
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [isSlipOpen]);
+    useA4Preview(isSlipOpen, () => {
+        setIsSlipOpen(false);
+        setSlip(null);
+    });
 
     const handleViewSlip = async (transactionId) => {
         try {
@@ -314,26 +297,7 @@ const PayslipsReportPage = () => {
         setSlip(null);
     };
 
-    const handlePrint = () => {
-        const style = document.createElement("style");
-        style.innerHTML = `
-            @media print {
-                body * { visibility: hidden !important; }
-                #payslip-a4, #payslip-a4 * { visibility: visible !important; }
-                #payslip-a4 {
-                    position: fixed !important;
-                    top: 0 !important; left: 0 !important;
-                    width: 210mm !important;
-                    box-shadow: none !important;
-                    margin: 0 !important;
-                }
-                @page { margin: 0; size: A4; }
-            }
-        `;
-        document.head.appendChild(style);
-        window.print();
-        document.head.removeChild(style);
-    };
+    const handlePrint = () => printElement("payslip-a4");
 
     const slipData = slip?.slip;
     const cycleData = slip?.cycle;

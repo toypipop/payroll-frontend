@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import api from "../../api/axiosInstance";
+import { useMemo, useState } from "react";
+import useClosedCycleReport from "./shared/useClosedCycleReport";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
@@ -108,38 +108,16 @@ const DetailPanel = ({ tx }) => {
 
 // Page component
 const PayrollAnalysisPage = () => {
-    const [cycles, setCycles] = useState([]);
-    const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [data, setData] = useState(null);
-    const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingData, setLoadingData] = useState(false);
+    const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
+        useClosedCycleReport((cycleId) => `/reports/payroll-analysis/${cycleId}`);
     const [expandedTx, setExpandedTx] = useState(null);
     const [activeTab, setActiveTab] = useState("register"); // "register" | "journal"
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setLoadingCycles(true);
-                const res = await api.get("/payroll/cycles");
-                const closed = (res.data || []).filter((c) => c.is_closed);
-                setCycles(closed);
-                if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
-            } catch { /* silent */ } finally { setLoadingCycles(false); }
-        })();
-    }, []);
-
-    useEffect(() => {
-        if (!selectedCycleId) return;
-        (async () => {
-            try {
-                setLoadingData(true);
-                setData(null);
-                setExpandedTx(null);
-                const res = await api.get(`/reports/payroll-analysis/${selectedCycleId}`);
-                setData(res.data);
-            } catch { setData(null); } finally { setLoadingData(false); }
-        })();
-    }, [selectedCycleId]);
+    // A new cycle's rows replace the old ones, so an expanded row from the previous cycle must not stay open.
+    const selectCycle = (cycleId) => {
+        setExpandedTx(null);
+        setSelectedCycleId(cycleId);
+    };
 
     const cycle = data?.cycle;
     const summary = data?.summary;
@@ -212,9 +190,8 @@ const PayrollAnalysisPage = () => {
         },
     ];
 
-    // Custom register table wrapper component
-    const RegisterTable = () => {
-        return (
+    // The register table renders an expanded detail row under whichever row is open, so it is built inline rather than as a component.
+    const renderRegisterTable = () => (
             <Table
                 columns={registerColumns}
                 data={transactions}
@@ -234,8 +211,7 @@ const PayrollAnalysisPage = () => {
                     );
                 }}
             />
-        );
-    };
+    );
 
     return (
         <>
@@ -253,7 +229,7 @@ const PayrollAnalysisPage = () => {
                             label="Select Closed Payroll Cycle"
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
-                            onChange={(e) => setSelectedCycleId(e.target.value)}
+                            onChange={(e) => selectCycle(e.target.value)}
                             containerStyle={{ marginBottom: 0 }}
                         />
                         {cycle && (
@@ -325,7 +301,7 @@ const PayrollAnalysisPage = () => {
                         </div>
                     ) : (
                         <>
-                            <RegisterTable />
+                            {renderRegisterTable()}
                             <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "24px", fontSize: "13px", background: "#f8fafc", flexWrap: "wrap" }}>
                                 <span style={{ color: "#64748b" }}>Employees: <strong>{transactions.length}</strong></span>
                                 <span style={{ color: "#064e3b" }}>Gross: <strong style={{ fontFamily: "monospace" }}>฿{fc(summary?.total_gross)}</strong></span>

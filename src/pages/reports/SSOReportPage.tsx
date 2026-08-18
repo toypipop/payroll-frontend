@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
-import api from "../../api/axiosInstance";
+import useClosedCycleReport from "./shared/useClosedCycleReport";
+import useA4Preview, { printElement } from "./shared/useA4Preview";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
@@ -142,62 +143,13 @@ const exportEFiling = (data) => {
 
 // Page component
 const SSOReportPage = () => {
-    const [cycles, setCycles] = useState([]);
-    const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [data, setData] = useState(null);
-    const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingData, setLoadingData] = useState(false);
+    const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
+        useClosedCycleReport((cycleId) => `/reports/sso/${cycleId}`);
     const [isPrintOpen, setIsPrintOpen] = useState(false);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setLoadingCycles(true);
-                const res = await api.get("/payroll/cycles");
-                const closed = (res.data || []).filter((c) => c.is_closed);
-                setCycles(closed);
-                if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
-            } catch { /* silent */ } finally { setLoadingCycles(false); }
-        })();
-    }, []);
+    useA4Preview(isPrintOpen, () => setIsPrintOpen(false));
 
-    useEffect(() => {
-        if (!selectedCycleId) return;
-        (async () => {
-            try {
-                setLoadingData(true);
-                setData(null);
-                const res = await api.get(`/reports/sso/${selectedCycleId}`);
-                setData(res.data);
-            } catch { setData(null); } finally { setLoadingData(false); }
-        })();
-    }, [selectedCycleId]);
-
-    useEffect(() => {
-        if (!isPrintOpen) return;
-
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [isPrintOpen]);
-
-    useEffect(() => {
-        if (!isPrintOpen) return;
-        const handleEsc = (e) => { if (e.key === "Escape") setIsPrintOpen(false); };
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [isPrintOpen]);
-
-    const handlePrint = () => {
-        const style = document.createElement("style");
-        style.innerHTML = `@media print { body * { visibility: hidden !important; } #sso-a4, #sso-a4 * { visibility: visible !important; } #sso-a4 { position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; box-shadow: none !important; margin: 0 !important; } @page { margin: 0; size: A4; } }`;
-        document.head.appendChild(style);
-        window.print();
-        document.head.removeChild(style);
-    };
+    const handlePrint = () => printElement("sso-a4");
 
     const cycle = data?.cycle;
     const rows = data?.rows || [];
