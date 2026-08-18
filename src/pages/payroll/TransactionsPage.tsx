@@ -6,6 +6,7 @@ import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Badge from "../../components/common/Badge";
+import { TONE_TEXT } from "../../components/common/tone";
 import SelectField from "../../components/common/SelectField";
 import { useAuth } from "../../hooks/useAuth";
 import useTransactionSlip from "./transactions/useTransactionSlip";
@@ -26,10 +27,10 @@ const formatDate = (value) => {
     });
 };
 
-const StatCard = ({ label, value, color = 'var(--text-main)' }) => (
+const StatCard = ({ label, value, tone = 'neutral' }) => (
     <Card className="min-w-[155px] flex-1">
         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">{label}</div>
-        <div className="mt-1.5 text-[22px] font-extrabold leading-none tabular-nums" style={{ color }}>{value}</div>
+        <div className={`mt-1.5 text-[22px] font-extrabold leading-none tabular-nums ${TONE_TEXT[tone]}`}>{value}</div>
     </Card>
 );
 
@@ -186,9 +187,9 @@ const TransactionsPage = () => {
             {selectedCycleId && (
                 <div className="flex gap-[14px] mb-[16px] flex-wrap">
                     <StatCard label="Transactions"   value={filteredTransactions.length} />
-                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   color="var(--status-success)" />
-                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} color="var(--status-danger)" />
-                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        color="var(--text-main)" />
+                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   tone="success" />
+                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} tone="danger" />
+                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        tone="neutral" />
                 </div>
             )}
 

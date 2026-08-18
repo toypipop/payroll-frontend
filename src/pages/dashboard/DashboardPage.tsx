@@ -4,13 +4,14 @@ import Card from '../../components/common/Card';
 import Badge from '../../components/common/Badge';
 import { useAuth } from "../../hooks/useAuth";
 import useDashboardStats from "./stats/useDashboardStats";
+import { TONE_TEXT, TONE_SOFT_BG, TONE_BG, TONE_BORDER_HOVER } from "../../components/common/tone";
 
-const StatCard = ({ label, value, sub, color = 'var(--text-main)', loading }) => (
+const StatCard = ({ label, value, sub, tone = 'neutral', loading }) => (
     <Card className="flex-1 min-w-[150px]">
         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">
             {label}
         </div>
-        <div className="mt-1.5 text-[28px] font-extrabold leading-none tabular-nums" style={{ color }}>
+        <div className={`mt-1.5 text-[28px] font-extrabold leading-none tabular-nums ${TONE_TEXT[tone]}`}>
             {loading ? <span className="text-[13px] text-line-input">&mdash;</span> : value}
         </div>
         {sub && <div className="text-[11px] text-subtle mt-[5px]">{sub}</div>}
@@ -18,10 +19,10 @@ const StatCard = ({ label, value, sub, color = 'var(--text-main)', loading }) =>
 );
 
 const quickLinks = [
-    { label: 'Run Payroll',   desc: 'Calculate & process a new cycle',   path: '/run-payroll',   color: 'var(--primary-color)' },
-    { label: 'Employees',    desc: 'Manage employee records',            path: '/employees',     color: 'var(--primary-color)' },
-    { label: 'Payslips',     desc: 'Browse closed-cycle payslips',       path: '/payslips',      color: 'var(--status-success)' },
-    { label: 'Transactions', desc: 'Audit immutable payroll records',    path: '/transactions',  color: 'var(--accent-color)' },
+    { label: 'Run Payroll',   desc: 'Calculate & process a new cycle',   path: '/run-payroll',   tone: 'brand' },
+    { label: 'Employees',    desc: 'Manage employee records',            path: '/employees',     tone: 'brand' },
+    { label: 'Payslips',     desc: 'Browse closed-cycle payslips',       path: '/payslips',      tone: 'success' },
+    { label: 'Transactions', desc: 'Audit immutable payroll records',    path: '/transactions',  tone: 'accent' },
 ];
 
 const DashboardPage = () => {
@@ -49,10 +50,10 @@ const DashboardPage = () => {
 
             {/* Stats row */}
             <div className="flex gap-[14px] mb-[24px] flex-wrap">
-                <StatCard label="Total Employees" value={stats?.employees  ?? 0} sub="Across all departments" color="var(--text-main)" loading={loading} />
-                <StatCard label="Payroll Cycles"  value={stats?.totalCycles ?? 0} sub="All time"              color="var(--text-main)" loading={loading} />
-                <StatCard label="Active Cycles"   value={stats?.activeCycles ?? 0} sub="Open for processing" color="var(--primary-color)" loading={loading} />
-                <StatCard label="Closed Cycles"   value={stats?.closedCycles ?? 0} sub="Locked & immutable"  color="var(--status-success)" loading={loading} />
+                <StatCard label="Total Employees" value={stats?.employees  ?? 0} sub="Across all departments" tone="neutral" loading={loading} />
+                <StatCard label="Payroll Cycles"  value={stats?.totalCycles ?? 0} sub="All time"              tone="neutral" loading={loading} />
+                <StatCard label="Active Cycles"   value={stats?.activeCycles ?? 0} sub="Open for processing" tone="brand" loading={loading} />
+                <StatCard label="Closed Cycles"   value={stats?.closedCycles ?? 0} sub="Locked & immutable"  tone="success" loading={loading} />
             </div>
 
             {/* Quick access */}
@@ -60,25 +61,14 @@ const DashboardPage = () => {
                 Quick Access
             </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3">
-                {quickLinks.map(({ label, desc, path, color }) => (
+                {quickLinks.map(({ label, desc, path, tone }) => (
                     <div
                         key={path}
                         onClick={() => navigate(path)}
-                        className="bg-white border border-line-light rounded-[10px] p-[18px_20px] cursor-pointer transition-[border-color_0.15s,_box-shadow_0.15s]"
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = color;
-                            e.currentTarget.style.boxShadow = `0 4px 14px ${color}22`;
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'var(--border-light)';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
+                        className={`cursor-pointer rounded-[10px] border border-line-light bg-white p-[18px_20px] transition-[border-color,box-shadow] duration-150 hover:shadow-[0_4px_14px_rgba(15,23,42,0.10)] ${TONE_BORDER_HOVER[tone]}`}
                     >
-                        <div
-                            className="mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-lg"
-                            style={{ backgroundColor: `${color}1a` }}
-                        >
-                            <div className="h-3 w-3 rounded-[3px]" style={{ backgroundColor: color }} />
+                        <div className={`mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-lg ${TONE_SOFT_BG[tone]}`}>
+                            <div className={`h-3 w-3 rounded-[3px] ${TONE_BG[tone]}`} />
                         </div>
                         <div className="font-bold text-[14px] text-main">{label}</div>
                         <div className="text-[12px] text-subtle mt-[3px] leading-[1.4]">{desc}</div>

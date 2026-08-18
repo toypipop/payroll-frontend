@@ -74,8 +74,15 @@ Three rules the hard way:
 - **Tailwind's own palette is switched off** (`--color-*: initial` in `@theme`, keeping only white and black), so
   `bg-slate-100` does not exist. A colour comes from a token or it does not come at all.
 
-Inline `style` is still right for a value computed at runtime (a colour that depends on a row, a transform that
-depends on a measurement). Everything static is a class.
+- **A colour that depends on the data is a tone, not a colour.** `components/common/tone.ts` maps
+  `neutral | brand | success | danger | accent | muted` onto classes, so a card or a figure takes
+  `tone="success"`, never `color="var(--status-success)"`. Add a tone there before reaching for a style
+  attribute.
+
+Only two inline `style` attributes remain in the whole app — the portal positions in `SelectField` and
+`DetailDropdown`, which are `top`/`left`/`width` in px measured from the trigger with
+`getBoundingClientRect()` when the panel opens. A class cannot hold a number that does not exist until
+render, and moving the same assignment into a ref would only hide it from grep. Everything else is a class.
 
 ## Page Layout
 

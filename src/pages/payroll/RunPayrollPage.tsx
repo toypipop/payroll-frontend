@@ -6,6 +6,7 @@ import SelectField from "../../components/common/SelectField";
 import HelpIcon from "../../components/common/HelpIcon";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
 import DetailDropdown from "../../components/common/DetailDropdown";
+import { TONE_TEXT } from "../../components/common/tone";
 import { useAuth } from "../../hooks/useAuth";
 import useRunPayroll from "./run-payroll/useRunPayroll";
 import CycleDiffCard from "./run-payroll/CycleDiffCard";
@@ -73,13 +74,13 @@ const RunPayrollPage = () => {
                 <DetailDropdown
                     total={row.taxable_income}
                     details={row.details || []}
-                    color="var(--text-body)"
+                    tone="muted"
                     filterFn={(d) =>
                         (d.type === "earning" || d.type === "deduction") &&
                         d.item_name !== "Base Salary" &&
                         d.item_name !== "Income Tax"
                     }
-                    itemColorFn={(d) => (d.is_tax_relevant ? (d.type === "earning" ? "var(--status-success)" : "var(--status-danger)") : "var(--text-subtle)")}
+                    itemToneFn={(d) => (d.is_tax_relevant ? (d.type === "earning" ? "success" : "danger") : "muted")}
                 />
             ),
         },
@@ -241,15 +242,15 @@ const RunPayrollPage = () => {
             {transactions.length > 0 && (
                 <div className="flex gap-[16px] mb-[20px] flex-wrap">
                     {[
-                        { label: "Employees", value: transactions.length, color: "var(--primary-color)" },
-                        { label: "Total Earning", value: `฿${formatCurrency(totalEarning)}`, color: "var(--status-success)" },
-                        { label: "Total Net Pay", value: `฿${formatCurrency(totalNetPay)}`, color: "var(--text-main)" },
+                        { label: "Employees", value: transactions.length, tone: "brand" as const },
+                        { label: "Total Earning", value: `฿${formatCurrency(totalEarning)}`, tone: "success" as const },
+                        { label: "Total Net Pay", value: `฿${formatCurrency(totalNetPay)}`, tone: "neutral" as const },
                     ].map((stat) => (
                         <Card key={stat.label} className="flex-1 min-w-[160px] px-5 py-4">
                             <div className="text-[12px] text-subtle font-semibold uppercase tracking-[0.05em]">
                                 {stat.label}
                             </div>
-                            <div className="mt-1.5 text-[22px] font-bold" style={{ color: stat.color }}>
+                            <div className={`mt-1.5 text-[22px] font-bold ${TONE_TEXT[stat.tone]}`}>
                                 {stat.value}
                             </div>
                         </Card>

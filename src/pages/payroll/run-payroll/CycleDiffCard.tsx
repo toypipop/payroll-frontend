@@ -1,12 +1,13 @@
 import Card from "../../../components/common/Card";
+import { TONE_TEXT } from "../../../components/common/tone";
 
 const fmt = (v: number) => Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 const diff = (a: number, b: number) => {
     const d = a - b;
     const sign = d > 0 ? "+" : "";
-    const color = d > 0 ? "var(--status-success)" : d < 0 ? "var(--status-danger)" : "var(--text-subtle)";
-    return <span className="text-[11px] font-semibold" style={{ color }}>{sign}{fmt(d)}</span>;
+    const tone = d > 0 ? "success" : d < 0 ? "danger" : "muted";
+    return <span className={`text-[11px] font-semibold ${TONE_TEXT[tone]}`}>{sign}{fmt(d)}</span>;
 };
 
 // CycleDiffCard compares this run against the previous cycle. It renders nothing when there is no previous cycle to compare with.

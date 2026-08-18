@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
+import { TONE_TEXT } from "./tone";
 
 const formatCurrency = (val) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // DetailDropdown shows a total that expands into the lines behind it. The panel renders through a portal so a table cell cannot clip it.
-const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
+const DetailDropdown = ({ total, details, tone = "neutral", filterFn, itemToneFn }) => {
     const [open, setOpen] = useState(false);
     const [pos, setPos] = useState({ top: 0, left: 0 });
     const btnRef = useRef(null);
@@ -36,7 +37,7 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                 onClick={(e) => { e.stopPropagation(); handleToggle(); }}
                 className={`flex items-center gap-1 border-none bg-none p-0 font-mono text-xs ${hasDetails ? "cursor-pointer" : "cursor-default"}`}
             >
-                <span className="font-bold" style={{ color }}>฿{formatCurrency(total)}</span>
+                <span className={`font-bold ${TONE_TEXT[tone]}`}>฿{formatCurrency(total)}</span>
                 {hasDetails && <span className="text-[10px] text-subtle">{open ? "▲" : "▼"}</span>}
             </button>
             {open && hasDetails && ReactDOM.createPortal(
@@ -47,14 +48,14 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                     style={{ top: pos.top, left: pos.left }}
                 >
                     {filtered.map((d, i) => {
-                        const itemColor = itemColorFn ? itemColorFn(d) : color;
+                        const itemTone = itemToneFn ? itemToneFn(d) : tone;
                         return (
                             <div
                                 key={i}
                                 className={`flex items-center justify-between gap-4 px-3.5 py-[5px] text-xs ${i < filtered.length - 1 ? "border-b border-hover" : ""}`}
                             >
                                 <span className="text-body whitespace-nowrap">{d.item_name}</span>
-                                <span className="font-semibold whitespace-nowrap" style={{ color: itemColor }}>
+                                <span className={`font-semibold whitespace-nowrap ${TONE_TEXT[itemTone]}`}>
                                     {d.type === "deduction" ? "-" : ""}฿{formatCurrency(d.amount)}
                                 </span>
                             </div>

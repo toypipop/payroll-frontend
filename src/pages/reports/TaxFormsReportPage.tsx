@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
+import { TONE_TEXT_STRONG } from "../../components/common/tone";
 import useClosedCycleReport from "./shared/useClosedCycleReport";
 import useA4Preview, { printElement } from "./shared/useA4Preview";
 import PageHeader from "../../components/common/PageHeader";
@@ -133,14 +134,14 @@ const A4Tawi50 = ({ data }) => {
             </div>
             <div className="grid grid-cols-[1fr_1fr_1fr_1fr] gap-[10px] mb-[14px]">
                 {[
-                    { label: "Gross Income", value: `฿${fc(tx?.total_earning)}`, color: "var(--status-success-text)" },
-                    { label: "SSO (Employee)", value: `฿${fc(tx?.sso_amount)}`, color: "var(--accent-color)" },
-                    { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, color: "var(--status-danger-text)" },
-                    { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, color: "var(--text-main)" },
-                ].map(({ label, value, color }) => (
+                    { label: "Gross Income", value: `฿${fc(tx?.total_earning)}`, tone: "success" as const },
+                    { label: "SSO (Employee)", value: `฿${fc(tx?.sso_amount)}`, tone: "accent" as const },
+                    { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, tone: "danger" as const },
+                    { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, tone: "neutral" as const },
+                ].map(({ label, value, tone }) => (
                     <div key={label} className="border border-line-muted rounded-[6px] p-[10px_12px] bg-white">
                         <div className="text-[10px] font-bold text-subtle uppercase">{label}</div>
-                        <div className="mt-1 font-mono text-[15px] font-extrabold" style={{ color }}>{value}</div>
+                        <div className={`mt-1 font-mono text-[15px] font-extrabold ${TONE_TEXT_STRONG[tone]}`}>{value}</div>
                     </div>
                 ))}
             </div>
