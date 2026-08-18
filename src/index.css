@@ -30,16 +30,18 @@
   --border-color:      #dbe5e3;
   --border-light:      #e8efee;
 
-  /* Control accent — buttons, pickers, selected states. Deliberately not the brand teal above. */
-  --control-accent:      #6259ca;
-  --control-accent-soft: #f0effe;
-  --control-accent-line: #a78bfa;
+  /* Control accent — buttons, pickers, selected states. Now mapped onto the brand teal; set these back to
+     #6259ca / #f0effe / #a78bfa to return to the violet the app shipped with. */
+  --control-accent:      var(--primary-color);
+  --control-accent-soft: var(--primary-subtle);
+  --control-accent-line: #7cc6bf;
 
   /* Neutral scale the pages read from */
   --text-subtle:       #94a3b8;   /* captions, empty states, disabled */
   --text-strong:       #1e293b;   /* emphasised headings inside cards */
   --text-body:         #475569;
   --surface-subtle:    #f8fafc;
+  --text-inverse:      #f8fafc;   /* text on a dark surface */
   --surface-hover:     #f1f5f9;
   --border-muted:      #e2e8f0;
   --border-input:      #cbd5e1;

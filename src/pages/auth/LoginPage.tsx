@@ -98,7 +98,7 @@ const LoginPage = () => {
                     P
                 </div>
 
-                <h2 style={{ color: "var(--surface-subtle)", marginBottom: "8px" }}>Payroll Pro</h2>
+                <h2 style={{ color: "var(--text-inverse)", marginBottom: "8px" }}>Payroll Pro</h2>
                 <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: "32px" }}>
                     Please sign in to your account
                 </p>
@@ -128,7 +128,7 @@ const LoginPage = () => {
                         required
                         style={{
                             backgroundColor: "rgba(255,255,255,0.08)",
-                            color: "var(--surface-subtle)",
+                            color: "var(--text-inverse)",
                             border: "1px solid rgba(255,255,255,0.18)",
                         }}
                     />
@@ -140,7 +140,7 @@ const LoginPage = () => {
                         required
                         style={{
                             backgroundColor: "rgba(255,255,255,0.08)",
-                            color: "var(--surface-subtle)",
+                            color: "var(--text-inverse)",
                             border: "1px solid rgba(255,255,255,0.18)",
                         }}
                     />
