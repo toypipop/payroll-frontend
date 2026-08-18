@@ -7,7 +7,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 const Card = ({ children, style, ...props }: CardProps) => {
     const defaultStyle: CSSProperties = {
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--bg-card)',
         padding: '20px 24px',
         borderRadius: '10px',
         boxShadow: '0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',

@@ -179,10 +179,10 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
                     margin: "0 0 18px",
                     padding: "10px 12px",
                     borderRadius: "8px",
-                    background: "#f8fafc",
-                    color: "#64748b",
+                    background: "var(--surface-subtle)",
+                    color: "var(--text-muted)",
                     fontSize: "13px",
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-muted)",
                 }}>
                     {selectedEmployeeName}
                 </div>

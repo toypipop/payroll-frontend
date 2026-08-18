@@ -48,7 +48,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
         {
             label: "Amount",
             render: (item) => (
-                <span style={{ fontFamily: "monospace", color: "#dc2626", fontWeight: "600" }}>
+                <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)", fontWeight: "600" }}>
                     ({formatCurrency(item.amount)})
                 </span>
             ),
@@ -63,46 +63,46 @@ const A4Payslip = ({ slip, cycle, company }) => {
             padding: "16mm 14mm",
             fontFamily: "'Segoe UI', Arial, sans-serif",
             fontSize: "13px",
-            color: "#1e293b",
+            color: "var(--text-strong)",
             boxSizing: "border-box",
         }}>
             {/* Company Header */}
             <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "flex-start",
                 paddingBottom: "14px", marginBottom: "14px",
-                borderBottom: "3px solid #0f172a",
+                borderBottom: "3px solid var(--text-main)",
             }}>
                 <div>
-                    <div style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a", lineHeight: 1.2 }}>
+                    <div style={{ fontSize: "22px", fontWeight: "800", color: "var(--text-main)", lineHeight: 1.2 }}>
                         {company?.name || "—"}
                     </div>
                     {company?.address && (
-                        <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>{company.address}</div>
+                        <div style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "4px" }}>{company.address}</div>
                     )}
                     {company?.phone && (
-                        <div style={{ color: "#64748b", fontSize: "12px" }}>Tel: {company.phone}</div>
+                        <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>Tel: {company.phone}</div>
                     )}
                     {company?.tax_id && (
-                        <div style={{ color: "#64748b", fontSize: "12px" }}>Tax ID: {company.tax_id}</div>
+                        <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>Tax ID: {company.tax_id}</div>
                     )}
                 </div>
                 <div style={{ textAlign: "right" }}>
                     <div style={{
                         fontSize: "24px", fontWeight: "900", letterSpacing: "3px",
-                        color: "#0f172a", textTransform: "uppercase",
+                        color: "var(--text-main)", textTransform: "uppercase",
                     }}>
                         PAYSLIP
                     </div>
-                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>
+                    <div style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "6px" }}>
                         {cycle?.cycle_name}
                     </div>
-                    <div style={{ color: "#64748b", fontSize: "12px" }}>
+                    <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>
                         {formatDate(cycle?.start_date)} — {formatDate(cycle?.end_date)}
                     </div>
                     <div style={{
                         marginTop: "6px", display: "inline-block",
-                        backgroundColor: "#f1f5f9", borderRadius: "4px",
-                        padding: "2px 10px", fontSize: "11px", color: "#64748b", fontWeight: 600,
+                        backgroundColor: "var(--surface-hover)", borderRadius: "4px",
+                        padding: "2px 10px", fontSize: "11px", color: "var(--text-muted)", fontWeight: 600,
                     }}>
                         CLOSED / LOCKED
                     </div>
@@ -112,8 +112,8 @@ const A4Payslip = ({ slip, cycle, company }) => {
             {/* Employee Info */}
             <div style={{
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-                gap: "0", backgroundColor: "#f8fafc",
-                border: "1px solid #e2e8f0", borderRadius: "6px",
+                gap: "0", backgroundColor: "var(--surface-subtle)",
+                border: "1px solid var(--border-muted)", borderRadius: "6px",
                 marginBottom: "18px", overflow: "hidden",
             }}>
                 {[
@@ -126,13 +126,13 @@ const A4Payslip = ({ slip, cycle, company }) => {
                 ].map(([label, value], i) => (
                     <div key={i} style={{
                         padding: "10px 14px",
-                        borderRight: i % 3 !== 2 ? "1px solid #e2e8f0" : "none",
-                        borderBottom: i < 3 ? "1px solid #e2e8f0" : "none",
+                        borderRight: i % 3 !== 2 ? "1px solid var(--border-muted)" : "none",
+                        borderBottom: i < 3 ? "1px solid var(--border-muted)" : "none",
                     }}>
-                        <div style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        <div style={{ fontSize: "10px", fontWeight: "700", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                             {label}
                         </div>
-                        <div style={{ fontWeight: "600", fontSize: "13px", marginTop: "3px", color: "#0f172a" }}>
+                        <div style={{ fontWeight: "600", fontSize: "13px", marginTop: "3px", color: "var(--text-main)" }}>
                             {value}
                         </div>
                     </div>
@@ -142,7 +142,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
             {/* Earnings & Deductions Side-by-Side */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "18px" }}>
                 {/* Earnings */}
-                <div style={{ border: "1px solid #e2e8f0", borderRadius: "6px", overflow: "hidden" }}>
+                <div style={{ border: "1px solid var(--border-muted)", borderRadius: "6px", overflow: "hidden" }}>
                     <div style={{
                         backgroundColor: "#064e3b", color: "#fff",
                         padding: "9px 14px", fontWeight: "700", fontSize: "11px",
@@ -166,7 +166,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
                 </div>
 
                 {/* Deductions */}
-                <div style={{ border: "1px solid #e2e8f0", borderRadius: "6px", overflow: "hidden" }}>
+                <div style={{ border: "1px solid var(--border-muted)", borderRadius: "6px", overflow: "hidden" }}>
                     <div style={{
                         backgroundColor: "#7f1d1d", color: "#fff",
                         padding: "9px 14px", fontWeight: "700", fontSize: "11px",
@@ -182,7 +182,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
                         <div>Total Deductions</div>
                         <div style={{
                             fontFamily: "monospace",
-                            fontSize: "14px", color: "#dc2626",
+                            fontSize: "14px", color: "var(--status-danger-text)",
                         }}>
                             ({formatCurrency(totalDeductions)})
                         </div>
@@ -191,19 +191,19 @@ const A4Payslip = ({ slip, cycle, company }) => {
             </div>
 
             <div style={{
-                backgroundColor: "#0f172a", color: "#fff",
+                backgroundColor: "var(--text-main)", color: "#fff",
                 borderRadius: "8px", padding: "18px 22px",
                 display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
                 <div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
                         Net Pay
                     </div>
                     <div style={{ fontSize: "28px", fontWeight: "900", fontFamily: "monospace", marginTop: "4px" }}>
                         —{formatCurrency(slip.net_pay)}
                     </div>
                 </div>
-                <div style={{ textAlign: "right", fontSize: "12px", color: "#94a3b8", lineHeight: "1.8" }}>
+                <div style={{ textAlign: "right", fontSize: "12px", color: "var(--text-subtle)", lineHeight: "1.8" }}>
                     <div>Gross Earnings &nbsp;&nbsp; —{formatCurrency(slip.total_earning)}</div>
                     <div>Total Deductions &nbsp; (—{formatCurrency(totalDeductions)})</div>
                 </div>
@@ -212,17 +212,17 @@ const A4Payslip = ({ slip, cycle, company }) => {
             {/* Signature Block */}
             <div style={{
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px",
-                marginTop: "36px", paddingTop: "16px", borderTop: "1px solid #e2e8f0",
+                marginTop: "36px", paddingTop: "16px", borderTop: "1px solid var(--border-muted)",
             }}>
                 {["Employee", "HR / Payroll Officer", "Authorised By"].map((label) => (
                     <div key={label} style={{ textAlign: "center" }}>
-                        <div style={{ height: "40px", borderBottom: "1px solid #334155" }} />
-                        <div style={{ fontSize: "11px", color: "#64748b", marginTop: "6px" }}>{label}</div>
+                        <div style={{ height: "40px", borderBottom: "1px solid var(--text-secondary)" }} />
+                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "6px" }}>{label}</div>
                     </div>
                 ))}
             </div>
             {/* Footer note */}
-            <div style={{ marginTop: "16px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
+            <div style={{ marginTop: "16px", textAlign: "center", fontSize: "10px", color: "var(--text-subtle)" }}>
                 This payslip is computer-generated. Payroll cycle: {cycle?.cycle_name} — Records are immutable once the cycle is closed.
             </div>
         </div>
@@ -308,10 +308,10 @@ const PayslipsReportPage = () => {
             label: "Employee",
             render: (row) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#1e293b" }}>
+                    <div style={{ fontWeight: "600", color: "var(--text-strong)" }}>
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginTop: "2px" }}>
                         {row.employees?.employees_code}
                     </div>
                 </div>
@@ -341,7 +341,7 @@ const PayslipsReportPage = () => {
         {
             label: "Net Pay",
             render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: "700", color: "#0f172a", fontSize: "14px" }}>
+                <span style={{ fontFamily: "monospace", fontWeight: "700", color: "var(--text-main)", fontSize: "14px" }}>
                     —{formatCurrency(row.net_pay)}
                 </span>
             ),
@@ -367,13 +367,13 @@ const PayslipsReportPage = () => {
     const payslipPreview = isSlipOpen ? (
         <div style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: "#0f172a", zIndex: 10000,
+            backgroundColor: "var(--text-main)", zIndex: 10000,
             overflowY: "auto",
         }}>
             {/* Toolbar — hidden on print */}
             <div id="payslip-toolbar" style={{
                 position: "sticky", top: 0, zIndex: 1,
-                backgroundColor: "#1e293b",
+                backgroundColor: "var(--text-strong)",
                 padding: "12px 28px",
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
@@ -383,7 +383,7 @@ const PayslipsReportPage = () => {
                         Payslip Preview
                     </span>
                     {slipData && (
-                        <span style={{ color: "#94a3b8", fontSize: "13px", marginLeft: "12px" }}>
+                        <span style={{ color: "var(--text-subtle)", fontSize: "13px", marginLeft: "12px" }}>
                             {slipData.employees?.first_name} {slipData.employees?.last_name} &nbsp;&middot;&nbsp; {cycleData?.cycle_name}
                         </span>
                     )}
@@ -393,7 +393,7 @@ const PayslipsReportPage = () => {
                         <button
                             onClick={handlePrint}
                             style={{
-                                backgroundColor: "#10b981", color: "#fff",
+                                backgroundColor: "var(--status-success)", color: "#fff",
                                 border: "none", borderRadius: "8px", cursor: "pointer",
                                 padding: "9px 18px", fontWeight: "700", fontSize: "13px",
                                 display: "flex", alignItems: "center", gap: "6px",
@@ -405,8 +405,8 @@ const PayslipsReportPage = () => {
                     <button
                         onClick={handleCloseSlip}
                         style={{
-                            backgroundColor: "transparent", color: "#94a3b8",
-                            border: "1px solid #334155", borderRadius: "8px", cursor: "pointer",
+                            backgroundColor: "transparent", color: "var(--text-subtle)",
+                            border: "1px solid var(--text-secondary)", borderRadius: "8px", cursor: "pointer",
                             padding: "9px 18px", fontWeight: "600", fontSize: "13px",
                         }}
                     >
@@ -418,7 +418,7 @@ const PayslipsReportPage = () => {
             {/* A4 slip content */}
             <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
                 {loadingSlip ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px", paddingTop: "60px" }}>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px", paddingTop: "60px" }}>
                         Loading payslip...
                     </div>
                 ) : slipData ? (
@@ -436,9 +436,9 @@ const PayslipsReportPage = () => {
             {/* Cycle selector */}
             <Card style={{ marginBottom: "20px" }}>
                 {loadingCycles ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>
                         No closed cycles available. Close a payroll cycle to access payslips.
                     </div>
                 ) : (
@@ -451,7 +451,7 @@ const PayslipsReportPage = () => {
                             containerStyle={{ marginBottom: 0 }}
                         />
                         {selectedCycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "10px" }}>
                                 Period: <strong>{formatDate(selectedCycle.start_date)}</strong> —&nbsp;
                                 <strong>{formatDate(selectedCycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
@@ -464,9 +464,9 @@ const PayslipsReportPage = () => {
             {/* Transactions table */}
             <Card style={{ padding: "0px" }}>
                 {loadingTx ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
                 ) : transactions.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         {selectedCycleId
                             ? "No payroll records found for this cycle. Run payroll before closing the cycle."
                             : "Select a closed cycle above to view payslips."}

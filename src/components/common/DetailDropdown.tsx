@@ -40,14 +40,14 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                 }}
             >
                 <span style={{ fontWeight: "700", color }}>฿{formatCurrency(total)}</span>
-                {hasDetails && <span style={{ fontSize: "10px", color: "#94a3b8" }}>{open ? "▲" : "▼"}</span>}
+                {hasDetails && <span style={{ fontSize: "10px", color: "var(--text-subtle)" }}>{open ? "▲" : "▼"}</span>}
             </button>
             {open && hasDetails && ReactDOM.createPortal(
                 <div
                     onClick={(e) => e.stopPropagation()}
                     style={{
                         position: "absolute", zIndex: 9999, top: pos.top, left: pos.left,
-                        background: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px",
+                        background: "#fff", border: "1px solid var(--border-muted)", borderRadius: "8px",
                         boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "8px 0", minWidth: "210px",
                     }}
                 >
@@ -57,9 +57,9 @@ const DetailDropdown = ({ total, details, color, filterFn, itemColorFn }) => {
                             <div key={i} style={{
                                 display: "flex", justifyContent: "space-between", alignItems: "center",
                                 padding: "5px 14px", fontSize: "12px", gap: "16px",
-                                borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
+                                borderBottom: i < filtered.length - 1 ? "1px solid var(--surface-hover)" : "none",
                             }}>
-                                <span style={{ color: "#475569", whiteSpace: "nowrap" }}>{d.item_name}</span>
+                                <span style={{ color: "var(--text-body)", whiteSpace: "nowrap" }}>{d.item_name}</span>
                                 <span style={{ color: itemColor, fontWeight: "600", whiteSpace: "nowrap" }}>
                                     {d.type === "deduction" ? "-" : ""}฿{formatCurrency(d.amount)}
                                 </span>

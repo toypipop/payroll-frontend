@@ -107,18 +107,18 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
         label: {
             fontSize: "13px",
             fontWeight: 500,
-            color: "#64748b",
+            color: "var(--text-muted)",
         },
         trigger: {
             height: "40px",
             padding: "0 14px",
             borderRadius: "8px",
-            border: `1px solid ${error ? "#ef4444" : isOpen ? "#6259ca" : "#e2e8f0"}`,
+            border: `1px solid ${error ? "var(--status-danger)" : isOpen ? "var(--control-accent)" : "var(--border-muted)"}`,
             fontSize: "14px",
             outline: "none",
             fontFamily: "inherit",
-            backgroundColor: "#f8fafc",
-            color: value ? "#1e293b" : "#94a3b8",
+            backgroundColor: "var(--surface-subtle)",
+            color: value ? "var(--text-strong)" : "var(--text-subtle)",
             boxSizing: "border-box",
             width: "100%",
             cursor: "pointer",
@@ -129,7 +129,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
         },
         errorText: {
             fontSize: "12px",
-            color: "#ef4444",
+            color: "var(--status-danger)",
             marginTop: "2px",
         },
         dropdown: {
@@ -138,8 +138,8 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             left: 0,
             right: 0,
             marginTop: "4px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #e2e8f0",
+            backgroundColor: "var(--bg-card)",
+            border: "1px solid var(--border-muted)",
             borderRadius: "12px",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
             padding: "12px",
@@ -159,7 +159,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
         columnLabel: {
             fontSize: "11px",
             fontWeight: 600,
-            color: "#64748b",
+            color: "var(--text-muted)",
             textTransform: "uppercase",
             letterSpacing: "0.5px",
         },
@@ -168,7 +168,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             overflowY: "auto",
             width: "56px",
             scrollbarWidth: "thin",
-            scrollbarColor: "#cbd5e1 transparent",
+            scrollbarColor: "var(--border-input) transparent",
         },
         timeOption: {
             height: "32px",
@@ -176,14 +176,14 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             alignItems: "center",
             justifyContent: "center",
             fontSize: "14px",
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             borderRadius: "6px",
             transition: "background-color 0.15s",
         },
         timeOptionSelected: {
-            backgroundColor: "#6259ca",
-            color: "#ffffff",
+            backgroundColor: "var(--control-accent)",
+            color: "var(--bg-card)",
         },
         periodContainer: {
             display: "flex",
@@ -198,15 +198,15 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             cursor: "pointer",
             borderWidth: "1px",
             borderStyle: "solid",
-            borderColor: "#e2e8f0",
-            backgroundColor: "#ffffff",
-            color: "#64748b",
+            borderColor: "var(--border-muted)",
+            backgroundColor: "var(--bg-card)",
+            color: "var(--text-muted)",
             transition: "all 0.15s",
         },
         periodBtnActive: {
-            backgroundColor: "#6259ca",
-            color: "#ffffff",
-            borderColor: "#6259ca",
+            backgroundColor: "var(--control-accent)",
+            color: "var(--bg-card)",
+            borderColor: "var(--control-accent)",
         },
     };
 
@@ -218,7 +218,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
             {label && (
                 <label style={styles.label}>
                     {label}
-                    {required && <span style={{ color: "#ef4444" }}> *</span>}
+                    {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
                 </label>
             )}
             <button
@@ -249,7 +249,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                                     }}
                                     onClick={() => handleHoursChange(h)}
                                     onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
-                                        if (displayHours !== h) e.currentTarget.style.backgroundColor = "#f1f5f9";
+                                        if (displayHours !== h) e.currentTarget.style.backgroundColor = "var(--surface-hover)";
                                     }}
                                     onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
                                         if (displayHours !== h) e.currentTarget.style.backgroundColor = "transparent";
@@ -273,7 +273,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                                     }}
                                     onClick={() => handleMinutesChange(m)}
                                     onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
-                                        if (minutes !== m) e.currentTarget.style.backgroundColor = "#f1f5f9";
+                                        if (minutes !== m) e.currentTarget.style.backgroundColor = "var(--surface-hover)";
                                     }}
                                     onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
                                         if (minutes !== m) e.currentTarget.style.backgroundColor = "transparent";
@@ -315,7 +315,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                     background: transparent;
                 }
                 div[style*="scrollArea"]::-webkit-scrollbar-thumb {
-                    background: #cbd5e1;
+                    background: var(--border-input);
                     border-radius: 2px;
                 }
             `}</style>

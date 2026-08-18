@@ -54,7 +54,7 @@ const EarningTypesPage = () => {
             render: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <Button variant="ghost" onClick={() => openEdit(row)} style={{ fontSize: "12px", padding: "4px 8px" }}>Edit</Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "#ef4444" }}>Delete</Button>
+                    <Button variant="danger" onClick={() => remove(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "var(--status-danger)" }}>Delete</Button>
                 </div>
             ),
         },

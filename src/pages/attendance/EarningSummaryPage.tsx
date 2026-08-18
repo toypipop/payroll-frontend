@@ -34,7 +34,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.total_extra_days) || 0,
             searchValue: (row) => String(Number(row.total_extra_days) || 0),
             render: (row) => (
-                <span style={{ color: row.total_extra_days > 0 ? "#16a34a" : undefined }}>
+                <span style={{ color: row.total_extra_days > 0 ? "var(--status-success-text)" : undefined }}>
                     {row.total_extra_days}
                 </span>
             ),
@@ -67,7 +67,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.total_amount) || 0,
             searchValue: (row) => (Number(row.total_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <strong style={{ color: row.total_amount > 0 ? "#0f766e" : undefined }}>
+                <strong style={{ color: row.total_amount > 0 ? "var(--primary-color)" : undefined }}>
                     {row.total_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </strong>
             ),
@@ -101,7 +101,7 @@ const EarningSummaryPage = () => {
                     </div>
                 </div>
                 {meta.from && (
-                    <div style={{ marginTop: "8px", fontSize: "13px", color: "#64748b" }}>
+                    <div style={{ marginTop: "8px", fontSize: "13px", color: "var(--text-muted)" }}>
                         Showing: {meta.from} {"->"} {meta.to}
                     </div>
                 )}
@@ -120,7 +120,7 @@ const EarningSummaryPage = () => {
                                     justifyContent: "flex-end",
                                     gap: "32px",
                                     padding: "12px 24px",
-                                    borderTop: "1px solid #e2e8f0",
+                                    borderTop: "1px solid var(--border-muted)",
                                     fontSize: "13px",
                                     fontWeight: 600,
                                     color: "#374151",
@@ -128,7 +128,7 @@ const EarningSummaryPage = () => {
                             >
                                 <span>Total OT: {totalOtMins.toFixed(1)} min</span>
                                 <span>Total Extra: {totalExtraDays} days</span>
-                                <span style={{ color: "#0f766e" }}>
+                                <span style={{ color: "var(--primary-color)" }}>
                                     Total Earning: ฿{totalAmount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                                 </span>
                             </div>

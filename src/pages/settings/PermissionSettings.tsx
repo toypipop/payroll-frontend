@@ -48,7 +48,7 @@ const PermissionSettings = () => {
                                         transition: "all 0.2s",
                                     }}
                                 >
-                                    <div style={{ fontWeight: "600", color: "#1f2937" }}>
+                                    <div style={{ fontWeight: "600", color: "var(--sidebar-border)" }}>
                                         {role.roles_name}
                                     </div>
                                     <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>

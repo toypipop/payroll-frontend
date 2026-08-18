@@ -30,6 +30,27 @@
   --border-color:      #dbe5e3;
   --border-light:      #e8efee;
 
+  /* Control accent — buttons, pickers, selected states. Deliberately not the brand teal above. */
+  --control-accent:      #6259ca;
+  --control-accent-soft: #f0effe;
+  --control-accent-line: #a78bfa;
+
+  /* Neutral scale the pages read from */
+  --text-subtle:       #94a3b8;   /* captions, empty states, disabled */
+  --text-strong:       #1e293b;   /* emphasised headings inside cards */
+  --text-body:         #475569;
+  --surface-subtle:    #f8fafc;
+  --surface-hover:     #f1f5f9;
+  --border-muted:      #e2e8f0;
+  --border-input:      #cbd5e1;
+  --ink-deep:          #1a3c34;   /* help chrome */
+
+  /* Status */
+  --status-success:      #10b981;
+  --status-success-text: #16a34a;
+  --status-danger:       #ef4444;
+  --status-danger-text:  #dc2626;
+
   /* Elevation */
   --shadow-card:       0 10px 30px rgba(15, 23, 42, 0.06), 0 2px 10px rgba(15, 23, 42, 0.04);
 

@@ -14,7 +14,7 @@ const PageHeader = ({ title, actionButton }: PageHeaderProps) => {
       alignItems: 'center',
       marginBottom: '22px',
       paddingBottom: '16px',
-      borderBottom: '1px solid #f1f5f9',
+      borderBottom: '1px solid var(--surface-hover)',
     },
     title: {
       fontSize: '21px',

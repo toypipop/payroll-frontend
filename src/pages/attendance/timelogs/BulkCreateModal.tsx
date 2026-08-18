@@ -168,7 +168,7 @@ const BulkCreateModal = ({
                                 )}
                             </div>
                             {bulkResult.skipped_dates?.length > 0 && (
-                                <ul style={{ margin: "8px 0 0 16px", padding: 0, fontSize: "12px", color: "#64748b" }}>
+                                <ul style={{ margin: "8px 0 0 16px", padding: 0, fontSize: "12px", color: "var(--text-muted)" }}>
                                     {bulkResult.skipped_dates.map((d) => <li key={d}>{d}</li>)}
                                 </ul>
                             )}
@@ -248,8 +248,8 @@ const BulkCreateModal = ({
                             </div>
 
                             <div style={{ marginBottom: "20px" }}>
-                                <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#64748b", marginBottom: "6px" }}>
-                                    Apply to weekdays<span style={{ color: "#ef4444" }}> *</span>
+                                <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "var(--text-muted)", marginBottom: "6px" }}>
+                                    Apply to weekdays<span style={{ color: "var(--status-danger)" }}> *</span>
                                 </label>
                                 <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                                     {WEEKDAY_OPTIONS.map((wd) => {
@@ -262,9 +262,9 @@ const BulkCreateModal = ({
                                                 style={{
                                                     padding: "6px 12px",
                                                     borderRadius: "8px",
-                                                    border: `1px solid ${active ? "#6259ca" : "#e2e8f0"}`,
-                                                    background: active ? "#6259ca" : "#f8fafc",
-                                                    color: active ? "#fff" : "#334155",
+                                                    border: `1px solid ${active ? "var(--control-accent)" : "var(--border-muted)"}`,
+                                                    background: active ? "var(--control-accent)" : "var(--surface-subtle)",
+                                                    color: active ? "#fff" : "var(--text-secondary)",
                                                     fontSize: "13px",
                                                     fontWeight: 600,
                                                     cursor: "pointer",

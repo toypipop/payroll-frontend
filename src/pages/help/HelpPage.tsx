@@ -30,7 +30,7 @@ export default function HelpPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
         <div>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1a3c34' }}>
+          <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--ink-deep)' }}>
             {lang === 'en' ? 'Help Center' : 'คู่มือการใช้งาน'}
           </div>
           <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
@@ -49,7 +49,7 @@ export default function HelpPage() {
             <span
               key={l}
               style={{
-                background: lang === l ? '#1a3c34' : 'transparent',
+                background: lang === l ? 'var(--ink-deep)' : 'transparent',
                 color: lang === l ? 'white' : '#666',
                 borderRadius: '14px', padding: '2px 10px',
                 fontSize: '12px', fontWeight: lang === l ? 600 : 400,
@@ -101,7 +101,7 @@ export default function HelpPage() {
                       padding: '16px', cursor: 'pointer',
                     }}
                   >
-                    <div style={{ fontWeight: 600, fontSize: '13px', color: '#1a3c34', marginBottom: '4px' }}>
+                    <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--ink-deep)', marginBottom: '4px' }}>
                       {lang === 'th' ? article.titleTH : article.titleEN}
                     </div>
                     <div style={{ fontSize: '11px', color: '#888' }}>
@@ -133,7 +133,7 @@ export default function HelpPage() {
                   padding: '16px', cursor: 'pointer',
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: '14px', color: '#1a3c34', marginBottom: '4px' }}>
+                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--ink-deep)', marginBottom: '4px' }}>
                   {lang === 'th' ? cat.titleTH : cat.titleEN}
                 </div>
                 <div style={{ fontSize: '11px', color: '#888' }}>
@@ -160,7 +160,7 @@ export default function HelpPage() {
           <button
             onClick={() => setSelectedCategory(null)}
             style={{
-              background: 'none', border: 'none', color: '#1a3c34', cursor: 'pointer',
+              background: 'none', border: 'none', color: 'var(--ink-deep)', cursor: 'pointer',
               fontSize: '14px', fontWeight: 600, padding: '0 0 16px 0', display: 'block',
             }}
           >
@@ -176,7 +176,7 @@ export default function HelpPage() {
                   padding: '16px', cursor: 'pointer',
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: '13px', color: '#1a3c34' }}>
+                <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--ink-deep)' }}>
                   {lang === 'th' ? article.titleTH : article.titleEN}
                 </div>
               </div>

@@ -256,16 +256,16 @@ const Table = <T extends TableRow = TableRow>({
             textAlign: "left",
         },
         thead: {
-            backgroundColor: "#f0effe",
+            backgroundColor: "var(--control-accent-soft)",
         },
         th: {
             padding: isCompact ? "8px 10px" : "11px 20px",
             fontSize: "11px",
             fontWeight: "700",
-            color: "#6259ca",
+            color: "var(--control-accent)",
             textTransform: "uppercase",
             letterSpacing: "0.07em",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-muted)",
             whiteSpace: "nowrap",
         },
         thSortable: {
@@ -281,7 +281,7 @@ const Table = <T extends TableRow = TableRow>({
             padding: isCompact ? "7px 10px" : "13px 20px",
             fontSize: isCompact ? "12px" : "14px",
             color: "var(--text-main)",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-muted)",
             lineHeight: isCompact ? "1.4" : "1.55",
         },
         paginationWrap: {
@@ -292,10 +292,10 @@ const Table = <T extends TableRow = TableRow>({
             flexWrap: "wrap",
             marginTop: 0,
             padding: "8px 4px",
-            backgroundColor: "#f0effe",
+            backgroundColor: "var(--control-accent-soft)",
             borderRadius: "10px",
             fontSize: "13px",
-            color: "#6259ca",
+            color: "var(--control-accent)",
         },
         paginationInfo: {
             display: "flex",
@@ -308,9 +308,9 @@ const Table = <T extends TableRow = TableRow>({
             alignItems: "center",
             padding: "4px 10px",
             borderRadius: "999px",
-            backgroundColor: "#f0effe",
+            backgroundColor: "var(--control-accent-soft)",
             border: "1px solid #d7d2ff",
-            color: "#6259ca",
+            color: "var(--control-accent)",
             fontSize: "11px",
             fontWeight: "700",
             letterSpacing: "0.03em",
@@ -328,8 +328,8 @@ const Table = <T extends TableRow = TableRow>({
             padding: "7px 11px",
             borderRadius: "10px",
             border: "1px solid #d7d2ff",
-            backgroundColor: "#f0effe",
-            color: "#6259ca",
+            backgroundColor: "var(--control-accent-soft)",
+            color: "var(--control-accent)",
             cursor: "pointer",
             fontSize: "12px",
             fontWeight: "600",
@@ -337,9 +337,9 @@ const Table = <T extends TableRow = TableRow>({
             boxShadow: "none",
         },
         pageButtonActive: {
-            border: "1px solid #6259ca",
-            backgroundColor: "#6259ca",
-            color: "#ffffff",
+            border: "1px solid var(--control-accent)",
+            backgroundColor: "var(--control-accent)",
+            color: "var(--bg-card)",
             boxShadow: "none",
         },
         pageButtonDisabled: {
@@ -366,7 +366,7 @@ const Table = <T extends TableRow = TableRow>({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#cbd5e1",
+            color: "var(--border-input)",
             pointerEvents: "none",
         },
         searchInput: {
@@ -374,9 +374,9 @@ const Table = <T extends TableRow = TableRow>({
             padding: "10px 12px 10px 38px",
             fontSize: "14px",
             fontWeight: "500",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-muted)",
             borderRadius: "8px",
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--bg-card)",
             color: "var(--text-main)",
             outline: "none",
             transition: "all 0.2s ease",
@@ -427,12 +427,12 @@ const Table = <T extends TableRow = TableRow>({
                             onChange={handleSearchChange}
                             style={styles.searchInput}
                             onFocus={(e) => {
-                                e.target.style.borderColor = "#6259ca";
+                                e.target.style.borderColor = "var(--control-accent)";
                                 e.target.style.boxShadow = "0 0 0 3px rgba(98, 89, 202, 0.1)";
-                                e.target.style.backgroundColor = "#ffffff";
+                                e.target.style.backgroundColor = "var(--bg-card)";
                             }}
                             onBlur={(e) => {
-                                e.target.style.borderColor = "#e2e8f0";
+                                e.target.style.borderColor = "var(--border-muted)";
                                 e.target.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.03)";
                             }}
                         />
@@ -488,12 +488,12 @@ const Table = <T extends TableRow = TableRow>({
                                         {before}
                                         <tr
                                             style={{
-                                                backgroundColor: isEven ? "#ffffff" : "#f8fafc",
+                                                backgroundColor: isEven ? "var(--bg-card)" : "var(--surface-subtle)",
                                                 cursor: onRowClick ? "pointer" : "default",
                                                 transition: "background-color 0.1s",
                                             }}
-                                            onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = "#f0effe")}
-                                            onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = isEven ? "#ffffff" : "#f8fafc")}
+                                            onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = "var(--control-accent-soft)")}
+                                            onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = isEven ? "var(--bg-card)" : "var(--surface-subtle)")}
                                             onClick={() => onRowClick && onRowClick(row)}
                                         >
                                             {columns.map((col, colIndex) => {
@@ -526,7 +526,7 @@ const Table = <T extends TableRow = TableRow>({
                                         ...styles.td,
                                         textAlign: "center",
                                         padding: "44px",
-                                        color: "#94a3b8",
+                                        color: "var(--text-subtle)",
                                         borderBottom: "none",
                                     }}
                                 >
@@ -562,7 +562,7 @@ const Table = <T extends TableRow = TableRow>({
 
                             return (
                                 <React.Fragment key={pageNum}>
-                                    {showGap && <span style={{ padding: "0 2px", color: "#94a3b8" }}>...</span>}
+                                    {showGap && <span style={{ padding: "0 2px", color: "var(--text-subtle)" }}>...</span>}
                                     <button
                                         type="button"
                                         style={{

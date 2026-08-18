@@ -59,7 +59,7 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
         const handleFocus = (e: FocusEvent<HTMLInputElement>) => {
             setIsFocused(true);
             setRawValue(value !== undefined && value !== "" ? String(parseFloat(String(value))) : "");
-            if (!error) e.target.style.borderColor = "#6259ca";
+            if (!error) e.target.style.borderColor = "var(--control-accent)";
             if (props.onFocus) props.onFocus(e);
         };
 
@@ -68,7 +68,7 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
             if (rawValue !== "" && !isNaN(parseFloat(rawValue))) {
                 setRawValue(parseFloat(rawValue).toFixed(decimals));
             }
-            if (!error) e.target.style.borderColor = "#e2e8f0";
+            if (!error) e.target.style.borderColor = "var(--border-muted)";
             if (props.onBlur) props.onBlur(e);
         };
 
@@ -83,25 +83,25 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
             label: {
                 fontSize: "13px",
                 fontWeight: "500",
-                color: "#64748b",
+                color: "var(--text-muted)",
             },
             input: {
                 height: "40px",
                 padding: "0 14px",
                 borderRadius: "8px",
-                border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
+                border: `1px solid ${error ? "var(--status-danger)" : "var(--border-muted)"}`,
                 fontSize: "14px",
                 outline: "none",
                 transition: "border-color 0.2s",
                 fontFamily: "inherit",
-                backgroundColor: "#f8fafc",
-                color: "#1e293b",
+                backgroundColor: "var(--surface-subtle)",
+                color: "var(--text-strong)",
                 boxSizing: "border-box",
                 ...style,
             },
             errorText: {
                 fontSize: "12px",
-                color: "#ef4444",
+                color: "var(--status-danger)",
                 marginTop: "2px",
             },
         };
@@ -111,7 +111,7 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
                 {label && (
                     <label style={styles.label}>
                         {label}
-                        {required && <span style={{ color: "#ef4444" }}> *</span>}
+                        {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
                     </label>
                 )}
                 <input

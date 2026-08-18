@@ -65,11 +65,11 @@ const exportExcel = (data) => {
 /* ── Summary Cards ──────────────────────────────────────────────────────── */
 const SummaryCard = ({ label, value, color }) => (
     <div style={{
-        border: "1px solid #e2e8f0", borderRadius: "10px", padding: "16px 20px",
+        border: "1px solid var(--border-muted)", borderRadius: "10px", padding: "16px 20px",
         background: "#fff", flex: "1 1 160px",
     }}>
-        <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
-        <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "20px", color: color || "#0f172a", marginTop: "6px" }}>฿{fc(value)}</div>
+        <div style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
+        <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "20px", color: color || "var(--text-main)", marginTop: "6px" }}>฿{fc(value)}</div>
     </div>
 );
 
@@ -79,27 +79,27 @@ const DetailPanel = ({ tx }) => {
     const earnings = tx.details?.filter((d) => d.type === "earning") || [];
     const deductions = tx.details?.filter((d) => d.type === "deduction") || [];
     return (
-        <div style={{ padding: "16px 24px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+        <div style={{ padding: "16px 24px", background: "var(--surface-subtle)", borderBottom: "1px solid var(--border-muted)" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
                     <div style={{ fontSize: "11px", fontWeight: "700", color: "#059669", textTransform: "uppercase", marginBottom: "8px" }}>Earnings</div>
                     {earnings.map((d, i) => (
                         <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
-                            <span style={{ color: "#475569" }}>{d.item_name}</span>
+                            <span style={{ color: "var(--text-body)" }}>{d.item_name}</span>
                             <span style={{ fontFamily: "monospace", color: "#059669" }}>+{fc(d.amount)}</span>
                         </div>
                     ))}
-                    {earnings.length === 0 && <div style={{ color: "#94a3b8", fontSize: "12px" }}>—</div>}
+                    {earnings.length === 0 && <div style={{ color: "var(--text-subtle)", fontSize: "12px" }}>—</div>}
                 </div>
                 <div>
-                    <div style={{ fontSize: "11px", fontWeight: "700", color: "#dc2626", textTransform: "uppercase", marginBottom: "8px" }}>Deductions</div>
+                    <div style={{ fontSize: "11px", fontWeight: "700", color: "var(--status-danger-text)", textTransform: "uppercase", marginBottom: "8px" }}>Deductions</div>
                     {deductions.map((d, i) => (
                         <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
-                            <span style={{ color: "#475569" }}>{d.item_name}</span>
-                            <span style={{ fontFamily: "monospace", color: "#dc2626" }}>({fc(d.amount)})</span>
+                            <span style={{ color: "var(--text-body)" }}>{d.item_name}</span>
+                            <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)" }}>({fc(d.amount)})</span>
                         </div>
                     ))}
-                    {deductions.length === 0 && <div style={{ color: "#94a3b8", fontSize: "12px" }}>—</div>}
+                    {deductions.length === 0 && <div style={{ color: "var(--text-subtle)", fontSize: "12px" }}>—</div>}
                 </div>
             </div>
         </div>
@@ -129,10 +129,10 @@ const PayrollAnalysisPage = () => {
             label: "Employee",
             render: (tx) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>
+                    <div style={{ fontWeight: "600", color: "var(--text-main)" }}>
                         {tx.employees?.first_name} {tx.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginTop: "2px" }}>
                         {tx.employees?.employees_code} &middot; {tx.employees?.department?.dept_name || "—"}
                     </div>
                 </div>
@@ -145,7 +145,7 @@ const PayrollAnalysisPage = () => {
         },
         {
             label: "Deductions",
-            render: (tx) => <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>({fc(tx.total_deduction)})</span>,
+            render: (tx) => <span style={{ fontFamily: "monospace", color: "var(--accent-color)" }}>({fc(tx.total_deduction)})</span>,
         },
         {
             label: "SSO",
@@ -153,11 +153,11 @@ const PayrollAnalysisPage = () => {
         },
         {
             label: "Tax",
-            render: (tx) => <span style={{ fontFamily: "monospace", color: "#dc2626" }}>({fc(tx.tax_amount)})</span>,
+            render: (tx) => <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)" }}>({fc(tx.tax_amount)})</span>,
         },
         {
             label: "Net Pay",
-            render: (tx) => <span style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "14px", color: "#0f172a" }}>฿{fc(tx.net_pay)}</span>,
+            render: (tx) => <span style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "14px", color: "var(--text-main)" }}>฿{fc(tx.net_pay)}</span>,
         },
         { label: "Companies", render: (tx) => tx.employees?.companies?.name || "—" },
         {
@@ -180,13 +180,13 @@ const PayrollAnalysisPage = () => {
             label: "Debit (฿)",
             render: (r) => r.debit > 0
                 ? <span style={{ fontFamily: "monospace", color: "#059669", fontWeight: "600" }}>{fc(r.debit)}</span>
-                : <span style={{ color: "#94a3b8" }}>—</span>,
+                : <span style={{ color: "var(--text-subtle)" }}>—</span>,
         },
         {
             label: "Credit (฿)",
             render: (r) => r.credit > 0
-                ? <span style={{ fontFamily: "monospace", color: "#dc2626", fontWeight: "600" }}>{fc(r.credit)}</span>
-                : <span style={{ color: "#94a3b8" }}>—</span>,
+                ? <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)", fontWeight: "600" }}>{fc(r.credit)}</span>
+                : <span style={{ color: "var(--text-subtle)" }}>—</span>,
         },
     ];
 
@@ -200,10 +200,10 @@ const PayrollAnalysisPage = () => {
                     if (expandedTx !== row.id) return null;
                     const isLastRow = rowIndex === allRows.length - 1;
                     return (
-                        <tr style={{ backgroundColor: "#f8fafc" }}>
+                        <tr style={{ backgroundColor: "var(--surface-subtle)" }}>
                             <td
                                 colSpan={registerColumns.length}
-                                style={{ padding: 0, borderBottom: isLastRow ? "none" : "1px solid #e2e8f0" }}
+                                style={{ padding: 0, borderBottom: isLastRow ? "none" : "1px solid var(--border-muted)" }}
                             >
                                 <DetailPanel tx={row} />
                             </td>
@@ -220,9 +220,9 @@ const PayrollAnalysisPage = () => {
             {/* Cycle selector */}
             <Card style={{ marginBottom: "20px" }}>
                 {loadingCycles ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>No closed payroll cycles available.</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>No closed payroll cycles available.</div>
                 ) : (
                     <>
                         <SelectField
@@ -233,7 +233,7 @@ const PayrollAnalysisPage = () => {
                             containerStyle={{ marginBottom: 0 }}
                         />
                         {cycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "10px" }}>
                                 Period: <strong>{fd(cycle.start_date)}</strong> —&nbsp;<strong>{fd(cycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                             </div>
@@ -246,10 +246,10 @@ const PayrollAnalysisPage = () => {
             {summary && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "20px" }}>
                     <SummaryCard label="Total Gross Earnings" value={summary.total_gross} color="#059669" />
-                    <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="#f59e0b" />
+                    <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="var(--accent-color)" />
                     <SummaryCard label="SSO (Employee + Employer)" value={summary.total_sso_employee + summary.total_sso_employer} color="#0369a1" />
-                    <SummaryCard label="Tax Withheld" value={summary.total_tax} color="#dc2626" />
-                    <SummaryCard label="Total Net Pay" value={summary.total_net} color="#0f172a" />
+                    <SummaryCard label="Tax Withheld" value={summary.total_tax} color="var(--status-danger-text)" />
+                    <SummaryCard label="Total Net Pay" value={summary.total_net} color="var(--text-main)" />
                 </div>
             )}
 
@@ -257,7 +257,7 @@ const PayrollAnalysisPage = () => {
             {data && transactions.length > 0 && (
                 <div style={{
                     display: "flex", alignItems: "center", flexWrap: "wrap",
-                    marginBottom: "16px", borderBottom: "1px solid #e2e8f0", gap: "4px",
+                    marginBottom: "16px", borderBottom: "1px solid var(--border-muted)", gap: "4px",
                 }}>
                     {[
                         { key: "register", label: "Payroll Register" },
@@ -271,11 +271,11 @@ const PayrollAnalysisPage = () => {
                                 padding: "10px 16px",
                                 background: "transparent",
                                 border: "none",
-                                borderBottom: activeTab === tab.key ? "2px solid #6259ca" : "2px solid transparent",
+                                borderBottom: activeTab === tab.key ? "2px solid var(--control-accent)" : "2px solid transparent",
                                 marginBottom: "-1px",
                                 fontSize: "13px",
                                 fontWeight: activeTab === tab.key ? 700 : 500,
-                                color: activeTab === tab.key ? "#6259ca" : "#64748b",
+                                color: activeTab === tab.key ? "var(--control-accent)" : "var(--text-muted)",
                                 cursor: "pointer",
                                 transition: "color 0.15s, border-color 0.15s",
                             }}
@@ -294,19 +294,19 @@ const PayrollAnalysisPage = () => {
             {activeTab === "register" && (
                 <Card style={{ padding: 0 }}>
                     {loadingData ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
                     ) : transactions.length === 0 ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                             {selectedCycleId ? "No records found for this cycle." : "Select a closed cycle above."}
                         </div>
                     ) : (
                         <>
                             {renderRegisterTable()}
-                            <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "24px", fontSize: "13px", background: "#f8fafc", flexWrap: "wrap" }}>
-                                <span style={{ color: "#64748b" }}>Employees: <strong>{transactions.length}</strong></span>
+                            <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-muted)", display: "flex", justifyContent: "flex-end", gap: "24px", fontSize: "13px", background: "var(--surface-subtle)", flexWrap: "wrap" }}>
+                                <span style={{ color: "var(--text-muted)" }}>Employees: <strong>{transactions.length}</strong></span>
                                 <span style={{ color: "#064e3b" }}>Gross: <strong style={{ fontFamily: "monospace" }}>฿{fc(summary?.total_gross)}</strong></span>
-                                <span style={{ color: "#dc2626" }}>Tax: <strong style={{ fontFamily: "monospace" }}>{fc(summary?.total_tax)}</strong></span>
-                                <span style={{ color: "#0f172a", fontWeight: "800", fontFamily: "monospace", fontSize: "15px" }}>Net: ฿{fc(summary?.total_net)}</span>
+                                <span style={{ color: "var(--status-danger-text)" }}>Tax: <strong style={{ fontFamily: "monospace" }}>{fc(summary?.total_tax)}</strong></span>
+                                <span style={{ color: "var(--text-main)", fontWeight: "800", fontFamily: "monospace", fontSize: "15px" }}>Net: ฿{fc(summary?.total_net)}</span>
                             </div>
                         </>
                     )}
@@ -317,25 +317,25 @@ const PayrollAnalysisPage = () => {
             {activeTab === "journal" && (
                 <Card style={{ padding: 0 }}>
                     {!journal.length ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>No journal data.</div>
+                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>No journal data.</div>
                     ) : (
                         <>
-                            <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" }}>
-                                <div style={{ fontSize: "13px", fontWeight: "700", color: "#0f172a" }}>
+                            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-muted)", background: "var(--surface-subtle)" }}>
+                                <div style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-main)" }}>
                                     Journal Entry — {cycle?.cycle_name}
                                 </div>
-                                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+                                <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
                                     {data?.company?.name} &nbsp;|&nbsp; {fd(cycle?.start_date)} — {fd(cycle?.end_date)}
                                 </div>
                             </div>
                             <Table columns={journalColumns} data={journal} />
-                            <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "#f8fafc" }}>
+                            <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-muted)", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "var(--surface-subtle)" }}>
                                 <span style={{ color: "#064e3b" }}>
                                     Total Debit: <strong style={{ fontFamily: "monospace" }}>
                                         ฿{fc(journal.reduce((s, r) => s + r.debit, 0))}
                                     </strong>
                                 </span>
-                                <span style={{ color: "#dc2626" }}>
+                                <span style={{ color: "var(--status-danger-text)" }}>
                                     Total Credit: <strong style={{ fontFamily: "monospace" }}>
                                         ฿{fc(journal.reduce((s, r) => s + r.credit, 0))}
                                     </strong>

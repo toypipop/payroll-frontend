@@ -155,7 +155,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
             setOpen(false);
         };
 
-        const borderColor = error ? "#ef4444" : open ? "#6259ca" : "#e2e8f0";
+        const borderColor = error ? "var(--status-danger)" : open ? "var(--control-accent)" : "var(--border-muted)";
 
         const dropdownList = open && createPortal(
             <div
@@ -165,8 +165,8 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     top: dropdownPos.top,
                     left: dropdownPos.left,
                     width: dropdownPos.width,
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e2e8f0",
+                    backgroundColor: "var(--bg-card)",
+                    border: "1px solid var(--border-muted)",
                     borderRadius: "10px",
                     boxShadow: "0 8px 24px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.07)",
                     zIndex: 99999,
@@ -195,9 +195,9 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                 padding: "0 12px",
                                 fontSize: "13.5px",
                                 borderRadius: "8px",
-                                border: "1px solid #e2e8f0",
-                                backgroundColor: "#f8fafc",
-                                color: "#1e293b",
+                                border: "1px solid var(--border-muted)",
+                                backgroundColor: "var(--surface-subtle)",
+                                color: "var(--text-strong)",
                             }}
                         />
                     </div>
@@ -205,7 +205,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
 
                 <div style={{ maxHeight: searchable ? "168px" : "212px", overflowY: "auto" }}>
                     {filteredOptions.length === 0 ? (
-                        <div style={{ padding: "10px 12px", fontSize: "13px", color: "#94a3b8", textAlign: "center" }}>
+                        <div style={{ padding: "10px 12px", fontSize: "13px", color: "var(--text-subtle)", textAlign: "center" }}>
                             {options.length === 0 ? "No options" : "No matches found"}
                         </div>
                     ) : (
@@ -227,8 +227,8 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        backgroundColor: isSelected ? "#f0effe" : isHov ? "#f8f7ff" : "transparent",
-                                        color: isSelected ? "#6259ca" : "#1e293b",
+                                        backgroundColor: isSelected ? "var(--control-accent-soft)" : isHov ? "#f8f7ff" : "transparent",
+                                        color: isSelected ? "var(--control-accent)" : "var(--text-strong)",
                                         fontWeight: isSelected ? "600" : "400",
                                         transition: "background-color 0.1s",
                                     }}
@@ -251,9 +251,9 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
         return (
             <div style={{ marginBottom: "20px", width: "100%", ...containerStyle }}>
                 {label && (
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#64748b", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "var(--text-muted)", marginBottom: "6px" }}>
                         {label}
-                        {required && <span style={{ color: "#ef4444" }}> *</span>}
+                        {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
                     </label>
                 )}
 
@@ -306,8 +306,8 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                             fontSize: "14px",
                             borderRadius: "8px",
                             border: `1px solid ${borderColor}`,
-                            backgroundColor: disabled ? "#f1f5f9" : "#f8fafc",
-                            color: isEmpty ? "#94a3b8" : "#1e293b",
+                            backgroundColor: disabled ? "var(--surface-hover)" : "var(--surface-subtle)",
+                            color: isEmpty ? "var(--text-subtle)" : "var(--text-strong)",
                             cursor: disabled ? "not-allowed" : "pointer",
                             userSelect: "none",
                             transition: "border-color 0.15s, box-shadow 0.15s",
@@ -318,7 +318,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayText}</span>
                         <svg
                             width="14" height="14" viewBox="0 0 24 24" fill="none"
-                            stroke={error ? "#ef4444" : open ? "#6259ca" : "#94a3b8"}
+                            stroke={error ? "var(--status-danger)" : open ? "var(--control-accent)" : "var(--text-subtle)"}
                             strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                             style={{ flexShrink: 0, marginLeft: "8px", transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
                         >
@@ -330,7 +330,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     {dropdownList}
                 </div>
 
-                {error && <div style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px" }}>{String(error)}</div>}
+                {error && <div style={{ fontSize: "12px", color: "var(--status-danger)", marginTop: "4px" }}>{String(error)}</div>}
             </div>
         );
     },

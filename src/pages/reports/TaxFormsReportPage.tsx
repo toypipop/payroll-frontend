@@ -43,7 +43,7 @@ const A4PND1 = ({ data }) => {
         {
             label: "Tax Withheld",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "#dc2626" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "var(--status-danger-text)" },
             render: (r) => fc(r.tax_withheld),
         },
     ];
@@ -54,15 +54,15 @@ const A4PND1 = ({ data }) => {
             style={{
                 width: "210mm", minHeight: "297mm", backgroundColor: "#fff",
                 padding: "16mm 14mm", fontFamily: "'Segoe UI', Arial, sans-serif",
-                fontSize: "13px", color: "#1e293b", boxSizing: "border-box",
+                fontSize: "13px", color: "var(--text-strong)", boxSizing: "border-box",
             }}
         >
             {/* Header */}
-            <div style={{ textAlign: "center", marginBottom: "18px", paddingBottom: "14px", borderBottom: "3px solid #0f172a" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px" }}>PND.1 — Monthly Withholding Tax Form (Section 50 Bis)</div>
-                <div style={{ fontSize: "22px", fontWeight: "900", color: "#0f172a", marginTop: "6px" }}>{company?.name || "—"}</div>
-                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Tax ID: {company?.tax_id || "—"} &nbsp;|&nbsp; {company?.address || ""}</div>
-                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+            <div style={{ textAlign: "center", marginBottom: "18px", paddingBottom: "14px", borderBottom: "3px solid var(--text-main)" }}>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "2px" }}>PND.1 — Monthly Withholding Tax Form (Section 50 Bis)</div>
+                <div style={{ fontSize: "22px", fontWeight: "900", color: "var(--text-main)", marginTop: "6px" }}>{company?.name || "—"}</div>
+                <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Tax ID: {company?.tax_id || "—"} &nbsp;|&nbsp; {company?.address || ""}</div>
+                <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
                     Pay Period: {fd(cycle?.start_date)} — {fd(cycle?.end_date)} &nbsp;|&nbsp; Cycle: {cycle?.cycle_name}
                 </div>
             </div>
@@ -74,7 +74,7 @@ const A4PND1 = ({ data }) => {
                 renderAfterRow={(row, rowIndex, allRows) => {
                     if (rowIndex !== allRows.length - 1) return null;
                     return (
-                        <tr style={{ backgroundColor: "#0f172a", color: "#fff", fontWeight: "800" }}>
+                        <tr style={{ backgroundColor: "var(--text-main)", color: "#fff", fontWeight: "800" }}>
                             <td colSpan={4} style={{ padding: "10px 10px" }}>Total</td>
                             <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>฿{fc(total_gross)}</td>
                             <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_sso)}</td>
@@ -84,15 +84,15 @@ const A4PND1 = ({ data }) => {
                 }}
             />
             {/* Signature */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #e2e8f0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginTop: "40px", paddingTop: "16px", borderTop: "1px solid var(--border-muted)" }}>
                 {["HR / Payroll Officer", "Authorised Signatory"].map((l) => (
                     <div key={l} style={{ textAlign: "center" }}>
-                        <div style={{ height: "40px", borderBottom: "1px solid #334155" }} />
-                        <div style={{ fontSize: "11px", color: "#64748b", marginTop: "6px" }}>{l}</div>
+                        <div style={{ height: "40px", borderBottom: "1px solid var(--text-secondary)" }} />
+                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "6px" }}>{l}</div>
                     </div>
                 ))}
             </div>
-            <div style={{ marginTop: "16px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
+            <div style={{ marginTop: "16px", textAlign: "center", fontSize: "10px", color: "var(--text-subtle)" }}>
                 PND.1 — {company?.name} — {cycle?.cycle_name} — Computer generated, immutable record.
             </div>
         </div>
@@ -109,17 +109,17 @@ const A4Tawi50 = ({ data }) => {
             style={{
                 width: "210mm", minHeight: "148mm", backgroundColor: "#fff",
                 padding: "14mm 14mm", fontFamily: "'Segoe UI', Arial, sans-serif",
-                fontSize: "13px", color: "#1e293b", boxSizing: "border-box",
-                border: "2px dashed #cbd5e1",
+                fontSize: "13px", color: "var(--text-strong)", boxSizing: "border-box",
+                border: "2px dashed var(--border-input)",
             }}
         >
             <div style={{ textAlign: "center", marginBottom: "14px" }}>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px", fontWeight: "700" }}>Withholding Tax Certificate (Form 50 Tawi)</div>
-                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", letterSpacing: "1px" }}>Withholding Tax Certificate — Form 50 Tawi</div>
-                <div style={{ fontSize: "20px", fontWeight: "900", color: "#0f172a", marginTop: "6px" }}>{company?.name || "—"}</div>
-                <div style={{ fontSize: "12px", color: "#64748b" }}>Tax ID: {company?.tax_id || "—"}</div>
+                <div style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "2px", fontWeight: "700" }}>Withholding Tax Certificate (Form 50 Tawi)</div>
+                <div style={{ fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px" }}>Withholding Tax Certificate — Form 50 Tawi</div>
+                <div style={{ fontSize: "20px", fontWeight: "900", color: "var(--text-main)", marginTop: "6px" }}>{company?.name || "—"}</div>
+                <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Tax ID: {company?.tax_id || "—"}</div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0", border: "1px solid #e2e8f0", borderRadius: "6px", overflow: "hidden", marginBottom: "14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0", border: "1px solid var(--border-muted)", borderRadius: "6px", overflow: "hidden", marginBottom: "14px" }}>
                 {[
                     ["Employee Name", `${tx?.employees?.first_name || ""} ${tx?.employees?.last_name || ""}`],
                     ["Employee Code", tx?.employees?.employees_code || "—"],
@@ -128,8 +128,8 @@ const A4Tawi50 = ({ data }) => {
                     ["Pay Period", `${fd(cycle?.start_date)} — ${fd(cycle?.end_date)}`],
                     ["Payroll Cycle", cycle?.cycle_name || "—"],
                 ].map(([label, value], i) => (
-                    <div key={i} style={{ padding: "10px 14px", borderRight: i % 2 === 0 ? "1px solid #e2e8f0" : "none", borderBottom: i < 4 ? "1px solid #e2e8f0" : "none", backgroundColor: "#f8fafc" }}>
-                        <div style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase" }}>{label}</div>
+                    <div key={i} style={{ padding: "10px 14px", borderRight: i % 2 === 0 ? "1px solid var(--border-muted)" : "none", borderBottom: i < 4 ? "1px solid var(--border-muted)" : "none", backgroundColor: "var(--surface-subtle)" }}>
+                        <div style={{ fontSize: "10px", fontWeight: "700", color: "var(--text-subtle)", textTransform: "uppercase" }}>{label}</div>
                         <div style={{ fontWeight: "600", fontSize: "13px", marginTop: "3px" }}>{value}</div>
                     </div>
                 ))}
@@ -137,21 +137,21 @@ const A4Tawi50 = ({ data }) => {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
                 {[
                     { label: "Gross Income", value: `฿${fc(tx?.total_earning)}`, color: "#059669" },
-                    { label: "SSO (Employee)", value: `฿${fc(tx?.sso_amount)}`, color: "#f59e0b" },
-                    { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, color: "#dc2626" },
-                    { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, color: "#0f172a" },
+                    { label: "SSO (Employee)", value: `฿${fc(tx?.sso_amount)}`, color: "var(--accent-color)" },
+                    { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, color: "var(--status-danger-text)" },
+                    { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, color: "var(--text-main)" },
                 ].map(({ label, value, color }) => (
-                    <div key={label} style={{ border: "1px solid #e2e8f0", borderRadius: "6px", padding: "10px 12px", backgroundColor: "#fff" }}>
-                        <div style={{ fontSize: "10px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase" }}>{label}</div>
+                    <div key={label} style={{ border: "1px solid var(--border-muted)", borderRadius: "6px", padding: "10px 12px", backgroundColor: "#fff" }}>
+                        <div style={{ fontSize: "10px", fontWeight: "700", color: "var(--text-subtle)", textTransform: "uppercase" }}>{label}</div>
                         <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "15px", color, marginTop: "4px" }}>{value}</div>
                     </div>
                 ))}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", paddingTop: "12px", borderTop: "1px solid #e2e8f0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", paddingTop: "12px", borderTop: "1px solid var(--border-muted)" }}>
                 {["Employee Signature", "Payer / Authorised Signatory"].map((l) => (
                     <div key={l} style={{ textAlign: "center" }}>
-                        <div style={{ height: "36px", borderBottom: "1px solid #334155" }} />
-                        <div style={{ fontSize: "11px", color: "#64748b", marginTop: "5px" }}>{l}</div>
+                        <div style={{ height: "36px", borderBottom: "1px solid var(--text-secondary)" }} />
+                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "5px" }}>{l}</div>
                     </div>
                 ))}
             </div>
@@ -199,8 +199,8 @@ const TaxFormsReportPage = () => {
             label: "Employee",
             render: (r) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>{r.first_name} {r.last_name}</div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>{r.employees_code}</div>
+                    <div style={{ fontWeight: "600", color: "var(--text-main)" }}>{r.first_name} {r.last_name}</div>
+                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginTop: "2px" }}>{r.employees_code}</div>
                 </div>
             ),
         },
@@ -210,11 +210,11 @@ const TaxFormsReportPage = () => {
         },
         {
             label: "SSO (Employee)",
-            render: (r) => <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>{fc(r.sso_amount)}</span>,
+            render: (r) => <span style={{ fontFamily: "monospace", color: "var(--accent-color)" }}>{fc(r.sso_amount)}</span>,
         },
         {
             label: "Tax Withheld",
-            render: (r) => <span style={{ fontFamily: "monospace", color: "#dc2626", fontWeight: "600" }}>{fc(r.tax_withheld)}</span>,
+            render: (r) => <span style={{ fontFamily: "monospace", color: "var(--status-danger-text)", fontWeight: "600" }}>{fc(r.tax_withheld)}</span>,
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
         {
@@ -263,12 +263,12 @@ const TaxFormsReportPage = () => {
     ];
 
     const pnd1Preview = viewMode === "pnd1-print" && pnd1Data ? (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
-            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "var(--text-main)", zIndex: 10000, overflowY: "auto" }}>
+            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--text-strong)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                 <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>PND.1 Preview — {cycle?.cycle_name}</span>
                 <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={() => handlePrint("pnd1-a4")} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
-                    <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                    <button onClick={() => handlePrint("pnd1-a4")} style={{ backgroundColor: "var(--status-success)", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
+                    <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "var(--text-subtle)", border: "1px solid var(--text-secondary)", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
                 </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
@@ -280,20 +280,20 @@ const TaxFormsReportPage = () => {
     ) : null;
 
     const tawiPreview = viewMode === "tawi" ? (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
-            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "var(--text-main)", zIndex: 10000, overflowY: "auto" }}>
+            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--text-strong)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                 <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>
                     50 Tawi
-                    {tawiData && <span style={{ color: "#94a3b8", fontSize: "13px", marginLeft: "12px" }}>{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
+                    {tawiData && <span style={{ color: "var(--text-subtle)", fontSize: "13px", marginLeft: "12px" }}>{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
                 </span>
                 <div style={{ display: "flex", gap: "10px" }}>
-                    {tawiData && <button onClick={() => handlePrint("tawi50-a4")} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>}
-                    <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                    {tawiData && <button onClick={() => handlePrint("tawi50-a4")} style={{ backgroundColor: "var(--status-success)", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>}
+                    <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "var(--text-subtle)", border: "1px solid var(--text-secondary)", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
                 </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
                 {loadingTawi ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px", paddingTop: "60px" }}>Loading certificate...</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px", paddingTop: "60px" }}>Loading certificate...</div>
                 ) : tawiData ? (
                     <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
                         <A4Tawi50 data={tawiData} />
@@ -311,9 +311,9 @@ const TaxFormsReportPage = () => {
             {/* Cycle selector */}
             <Card style={{ marginBottom: "20px" }}>
                 {loadingCycles ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>No closed payroll cycles available.</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>No closed payroll cycles available.</div>
                 ) : (
                     <>
                         <SelectField
@@ -324,7 +324,7 @@ const TaxFormsReportPage = () => {
                             containerStyle={{ marginBottom: 0 }}
                         />
                         {cycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "10px" }}>
                                 Period: <strong>{fd(cycle.start_date)}</strong> —&nbsp;<strong>{fd(cycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                             </div>
@@ -355,18 +355,18 @@ const TaxFormsReportPage = () => {
             {viewMode === "pnd1" && (
                 <Card style={{ padding: 0 }}>
                     {loadingPND1 ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
                     ) : !pnd1Data || pnd1Data.rows?.length === 0 ? (
-                        <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                             {selectedCycleId ? "No records found for this cycle." : "Select a closed cycle above."}
                         </div>
                     ) : (
                         <>
                             <Table columns={enrichedColumns} data={pnd1Data.rows || []} />
-                            <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "#f8fafc" }}>
-                                <span style={{ color: "#64748b" }}>Total Gross: <strong style={{ color: "#059669", fontFamily: "monospace" }}>฿{fc(pnd1Data.total_gross)}</strong></span>
-                                <span style={{ color: "#64748b" }}>Total SSO: <strong style={{ color: "#f59e0b", fontFamily: "monospace" }}>{fc(pnd1Data.total_sso)}</strong></span>
-                                <span style={{ color: "#64748b" }}>Total Tax: <strong style={{ color: "#dc2626", fontFamily: "monospace" }}>{fc(pnd1Data.total_tax)}</strong></span>
+                            <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-muted)", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "var(--surface-subtle)" }}>
+                                <span style={{ color: "var(--text-muted)" }}>Total Gross: <strong style={{ color: "#059669", fontFamily: "monospace" }}>฿{fc(pnd1Data.total_gross)}</strong></span>
+                                <span style={{ color: "var(--text-muted)" }}>Total SSO: <strong style={{ color: "var(--accent-color)", fontFamily: "monospace" }}>{fc(pnd1Data.total_sso)}</strong></span>
+                                <span style={{ color: "var(--text-muted)" }}>Total Tax: <strong style={{ color: "var(--status-danger-text)", fontFamily: "monospace" }}>{fc(pnd1Data.total_tax)}</strong></span>
                             </div>
                         </>
                     )}
@@ -375,11 +375,11 @@ const TaxFormsReportPage = () => {
 
             {renderInlinePreview && viewMode === "pnd1-print" && pnd1Data && (
                 <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000, overflowY: "auto" }}>
-                    <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                    <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--text-strong)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                         <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>PND.1 Preview — {cycle?.cycle_name}</span>
                         <div style={{ display: "flex", gap: "10px" }}>
-                            <button onClick={() => handlePrint("pnd1-a4")} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
-                            <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                            <button onClick={() => handlePrint("pnd1-a4")} style={{ backgroundColor: "var(--status-success)", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
+                            <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "var(--text-subtle)", border: "1px solid var(--text-secondary)", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
                         </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
@@ -392,19 +392,19 @@ const TaxFormsReportPage = () => {
 
             {renderInlinePreview && viewMode === "tawi" && (
                 <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.75)", zIndex: 3000, overflowY: "auto" }}>
-                    <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                    <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--text-strong)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                         <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>
                             50 Tawi
-                            {tawiData && <span style={{ color: "#94a3b8", fontSize: "13px", marginLeft: "12px" }}>{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
+                            {tawiData && <span style={{ color: "var(--text-subtle)", fontSize: "13px", marginLeft: "12px" }}>{tawiData.transaction?.employees?.first_name} {tawiData.transaction?.employees?.last_name}</span>}
                         </span>
                         <div style={{ display: "flex", gap: "10px" }}>
-                            {tawiData && <button onClick={() => handlePrint("tawi50-a4")} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>}
-                            <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                            {tawiData && <button onClick={() => handlePrint("tawi50-a4")} style={{ backgroundColor: "var(--status-success)", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>}
+                            <button onClick={() => setViewMode("pnd1")} style={{ backgroundColor: "transparent", color: "var(--text-subtle)", border: "1px solid var(--text-secondary)", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
                         </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
                         {loadingTawi ? (
-                            <div style={{ color: "#94a3b8", fontSize: "14px", paddingTop: "60px" }}>Loading certificate...</div>
+                            <div style={{ color: "var(--text-subtle)", fontSize: "14px", paddingTop: "60px" }}>Loading certificate...</div>
                         ) : tawiData ? (
                             <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
                                 <A4Tawi50 data={tawiData} />

@@ -87,7 +87,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
       width: '30px',
       height: '30px',
       borderRadius: '50%',
-      background: 'linear-gradient(145deg, #0f766e, #14b8a6)',
+      background: 'linear-gradient(145deg, var(--primary-color), #14b8a6)',
       color: '#fff',
       display: 'flex',
       alignItems: 'center',

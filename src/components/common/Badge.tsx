@@ -8,15 +8,15 @@ interface BadgeProps {
 
 const Badge = ({ children, status = "default" }: BadgeProps) => {
     const statusColors: Record<string, { bg: string; text: string }> = {
-        active: { bg: "#ecfdf5", text: "#10b981" },
-        true: { bg: "#ecfdf5", text: "#10b981" },
-        approved: { bg: "#ecfdf5", text: "#10b981" }, 
-        inactive: { bg: "#fef2f2", text: "#ef4444" },
-        false: { bg: "#fef2f2", text: "#ef4444" },
-        rejected: { bg: "#fef2f2", text: "#ef4444" },
-        cancelled: { bg: "#f1f5f9", text: "#94a3b8" },
-        pending: { bg: "#fffbeb", text: "#f59e0b" },
-        default: { bg: "#f1f5f9", text: "#64748b" },
+        active: { bg: "#ecfdf5", text: "var(--status-success)" },
+        true: { bg: "#ecfdf5", text: "var(--status-success)" },
+        approved: { bg: "#ecfdf5", text: "var(--status-success)" }, 
+        inactive: { bg: "#fef2f2", text: "var(--status-danger)" },
+        false: { bg: "#fef2f2", text: "var(--status-danger)" },
+        rejected: { bg: "#fef2f2", text: "var(--status-danger)" },
+        cancelled: { bg: "var(--surface-hover)", text: "var(--text-subtle)" },
+        pending: { bg: "#fffbeb", text: "var(--accent-color)" },
+        default: { bg: "var(--surface-hover)", text: "var(--text-muted)" },
     };
 
     const statusKey = String(status).toLowerCase();

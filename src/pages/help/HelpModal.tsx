@@ -48,7 +48,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
         {/* Header */}
         <div
           style={{
-            background: '#1a3c34', color: 'white', padding: '16px 20px',
+            background: 'var(--ink-deep)', color: 'white', padding: '16px 20px',
             borderRadius: '12px 12px 0 0', display: 'flex',
             justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0,
           }}
@@ -80,14 +80,14 @@ export default function HelpModal({ article, lang, onClose }: Props) {
           </p>
           {steps.length > 0 && (
             <>
-              <div style={{ fontWeight: 600, color: '#1a3c34', marginBottom: '10px', fontSize: '13px' }}>
+              <div style={{ fontWeight: 600, color: 'var(--ink-deep)', marginBottom: '10px', fontSize: '13px' }}>
                 {getStepsLabel(article.articleType, lang)}
               </div>
-              <div style={{ background: '#f8fffe', borderLeft: '3px solid #1a3c34', padding: '12px 16px', borderRadius: '4px' }}>
+              <div style={{ background: '#f8fffe', borderLeft: '3px solid var(--ink-deep)', padding: '12px 16px', borderRadius: '4px' }}>
                 {steps.map((step, i) => (
                   <div key={i} style={{ fontSize: '13px', lineHeight: 2, color: '#333' }}>
                     {article.articleType === 'checklist'
-                      ? <><span style={{ color: '#1a3c34', fontWeight: 700, marginRight: '6px' }}>✓</span>{step}</>
+                      ? <><span style={{ color: 'var(--ink-deep)', fontWeight: 700, marginRight: '6px' }}>✓</span>{step}</>
                       : `${i + 1}. ${step}`
                     }
                   </div>

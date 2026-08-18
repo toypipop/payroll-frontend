@@ -20,7 +20,7 @@ const LeaveApprovedPage = () => {
                     <span style={{ fontWeight: "600" }}>
                         {row.employees?.first_name} {row.employees?.last_name}
                     </span>
-                    <span style={{ fontSize: "11px", color: "#64748b", marginLeft: "8px" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-muted)", marginLeft: "8px" }}>
                         ({row.employees?.employees_code})
                     </span>
                 </div>
@@ -60,7 +60,7 @@ const LeaveApprovedPage = () => {
                     {row.total_days}
                     {row.quota_exceeded && (
                         <div
-                            style={{ fontSize: "11px", color: "#dc2626", fontWeight: "600" }}
+                            style={{ fontSize: "11px", color: "var(--status-danger-text)", fontWeight: "600" }}
                             title={`Used ${row.quota_used_days} of ${row.quota_max_days} days this year`}
                         >
                             ⚠ Over quota ({row.quota_used_days}/{row.quota_max_days})
@@ -96,7 +96,7 @@ const LeaveApprovedPage = () => {
                 <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>
                     <Button
                         onClick={() => decide(row, "Approved")}
-                        style={{ ...actionBtn, backgroundColor: "#10b981", color: "#fff" }}
+                        style={{ ...actionBtn, backgroundColor: "var(--status-success)", color: "#fff" }}
                     >
                         Approve
                     </Button>

@@ -23,7 +23,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.total_late_minutes) || 0,
             searchValue: (row) => String(Number(row.total_late_minutes) || 0),
             render: (row) => (
-                <span style={{ color: row.total_late_minutes > 0 ? "#f59e0b" : undefined }}>
+                <span style={{ color: row.total_late_minutes > 0 ? "var(--accent-color)" : undefined }}>
                     {row.total_late_minutes.toFixed(1)}
                 </span>
             ),
@@ -34,7 +34,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.late_amount) || 0,
             searchValue: (row) => (Number(row.late_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span style={{ color: row.late_amount > 0 ? "#ef4444" : undefined }}>
+                <span style={{ color: row.late_amount > 0 ? "var(--status-danger)" : undefined }}>
                     {row.late_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -45,7 +45,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.total_absent_days) || 0,
             searchValue: (row) => String(Number(row.total_absent_days) || 0),
             render: (row) => (
-                <span style={{ color: row.total_absent_days > 0 ? "#f59e0b" : undefined }}>
+                <span style={{ color: row.total_absent_days > 0 ? "var(--accent-color)" : undefined }}>
                     {row.total_absent_days}
                 </span>
             ),
@@ -56,7 +56,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.absent_amount) || 0,
             searchValue: (row) => (Number(row.absent_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span style={{ color: row.absent_amount > 0 ? "#ef4444" : undefined }}>
+                <span style={{ color: row.absent_amount > 0 ? "var(--status-danger)" : undefined }}>
                     {row.absent_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -67,7 +67,7 @@ const DeductionSummaryPage = () => {
             sortValue: (row) => Number(row.total_amount) || 0,
             searchValue: (row) => (Number(row.total_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <strong style={{ color: row.total_amount > 0 ? "#dc2626" : undefined }}>
+                <strong style={{ color: row.total_amount > 0 ? "var(--status-danger-text)" : undefined }}>
                     {row.total_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </strong>
             ),
@@ -101,7 +101,7 @@ const DeductionSummaryPage = () => {
                     </div>
                 </div>
                 {meta.from && (
-                    <div style={{ marginTop: "8px", fontSize: "13px", color: "#64748b" }}>
+                    <div style={{ marginTop: "8px", fontSize: "13px", color: "var(--text-muted)" }}>
                         Showing: {meta.from} {"->"} {meta.to}
                     </div>
                 )}
@@ -119,14 +119,14 @@ const DeductionSummaryPage = () => {
                                 justifyContent: "flex-end",
                                 gap: "32px",
                                 padding: "12px 24px",
-                                borderTop: "1px solid #e2e8f0",
+                                borderTop: "1px solid var(--border-muted)",
                                 fontSize: "13px",
                                 fontWeight: 600,
                                 color: "#374151",
                             }}>
                                 <span>Total Late: {totalLateMin.toFixed(1)} min</span>
                                 <span>Total Absent: {totalAbsent} days</span>
-                                <span style={{ color: "#dc2626" }}>
+                                <span style={{ color: "var(--status-danger-text)" }}>
                                     Total Deduction: ${totalAmount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                                 </span>
                             </div>

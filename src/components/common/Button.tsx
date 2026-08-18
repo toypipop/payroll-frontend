@@ -23,29 +23,29 @@ const Button = ({
 
     const variants: Record<ButtonVariant, CSSProperties> = {
         primary: {
-            backgroundColor: "#6259ca",
-            color: "#ffffff",
+            backgroundColor: "var(--control-accent)",
+            color: "var(--bg-card)",
             borderWidth: "0",
             borderStyle: "solid",
             borderColor: "transparent",
         },
         danger: {
             backgroundColor: "#fee2e2",
-            color: "#dc2626",
+            color: "var(--status-danger-text)",
             borderWidth: "0",
             borderStyle: "solid",
             borderColor: "transparent",
         },
         secondary: {
-            backgroundColor: "#f8fafc",
-            color: "#475569",
+            backgroundColor: "var(--surface-subtle)",
+            color: "var(--text-body)",
             borderWidth: "1px",
             borderStyle: "solid",
             borderColor: "var(--border-color)",
         },
         ghost: {
             backgroundColor: "transparent",
-            color: "#6259ca",
+            color: "var(--control-accent)",
             borderWidth: "1px",
             borderStyle: "solid",
             borderColor: "var(--border-color)",
@@ -75,8 +75,8 @@ const Button = ({
             : variant === "danger"
             ? { backgroundColor: "#fecaca" }
             : variant === "secondary"
-            ? { backgroundColor: "#f1f5f9", borderColor: "#cbd5e1" }
-            : { backgroundColor: "#f0effe", borderColor: "#a78bfa", color: "#6259ca" };
+            ? { backgroundColor: "var(--surface-hover)", borderColor: "var(--border-input)" }
+            : { backgroundColor: "var(--control-accent-soft)", borderColor: "var(--control-accent-line)", color: "var(--control-accent)" };
 
     return (
         <button

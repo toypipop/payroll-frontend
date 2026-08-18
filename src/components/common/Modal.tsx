@@ -37,7 +37,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
             zIndex: 2000,
         },
         modalBox: {
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--bg-card)",
             borderRadius: "16px",
             width: "90%",
             maxWidth: "500px",
@@ -49,7 +49,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
         },
         header: {
             padding: "20px 24px",
-            borderBottom: "1px solid #f1f5f9",
+            borderBottom: "1px solid var(--surface-hover)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -64,7 +64,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
             border: "none",
             fontSize: "20px",
             cursor: "pointer",
-            color: "#94a3b8",
+            color: "var(--text-subtle)",
         },
         body: {
             padding: "24px",
@@ -72,7 +72,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
         },
         footer: {
             padding: "16px 24px",
-            borderTop: "1px solid #f1f5f9",
+            borderTop: "1px solid var(--surface-hover)",
             display: "flex",
             justifyContent: "flex-end",
             gap: "12px",

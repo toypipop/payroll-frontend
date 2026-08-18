@@ -79,7 +79,7 @@ const CycleEarningsPage = () => {
                     <Button variant="ghost" onClick={() => openEdit(row)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px" }}>
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px", color: "#ef4444" }}>
+                    <Button variant="danger" onClick={() => remove(row.id)} disabled={selectedCycleClosed} style={{ fontSize: "12px", padding: "4px 8px", color: "var(--status-danger)" }}>
                         Delete
                     </Button>
                 </div>
@@ -121,23 +121,23 @@ const CycleEarningsPage = () => {
                     />
                 </div>
                 {selectedCycleLabel && (
-                    <div style={{ marginTop: "12px", fontSize: "13px", color: "#64748b" }}>
+                    <div style={{ marginTop: "12px", fontSize: "13px", color: "var(--text-muted)" }}>
                         Period: {formatDate(selectedCycleLabel.start_date)} - {formatDate(selectedCycleLabel.end_date)}
                     </div>
                 )}
                 {selectedCycleClosed && (
-                    <div style={{ marginTop: "8px", fontSize: "13px", color: "#ef4444" }}>
+                    <div style={{ marginTop: "8px", fontSize: "13px", color: "var(--status-danger)" }}>
                         This cycle is closed. Variable earnings can no longer be added, edited, or deleted.
                     </div>
                 )}
-                <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "#94a3b8" }}>
+                <p style={{ margin: "8px 0 0 0", fontSize: "12px", color: "var(--text-subtle)" }}>
                     One-time earnings per cycle (Bonus, OT, Commission, etc.). Recurring monthly earnings are managed under Employee Earnings.
                 </p>
             </Card>
 
             <Card style={{ padding: "0px" }}>
                 {!selectedCycleId ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         Select a payroll cycle to view or add variable earnings.
                     </div>
                 ) : loading ? (

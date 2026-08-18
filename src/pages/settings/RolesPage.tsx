@@ -41,7 +41,7 @@ const RolesPage = () => {
                     >
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => remove(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "#ef4444" }}>
+                    <Button variant="danger" onClick={() => remove(row.id)} style={{ fontSize: "12px", padding: "4px 8px", color: "var(--status-danger)" }}>
                         Delete
                     </Button>
                 </div>

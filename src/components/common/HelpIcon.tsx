@@ -20,8 +20,8 @@ export default function HelpIcon({ articleId, lang = 'th' }: Props) {
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: '20px', height: '20px', borderRadius: '50%',
-          border: '1.5px solid #1a3c34', background: 'transparent',
-          color: '#1a3c34', fontSize: '11px', fontWeight: 700,
+          border: '1.5px solid var(--ink-deep)', background: 'transparent',
+          color: 'var(--ink-deep)', fontSize: '11px', fontWeight: 700,
           cursor: 'pointer', lineHeight: 1, flexShrink: 0,
         }}
       >

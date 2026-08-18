@@ -11,7 +11,7 @@ interface ToggleFieldProps {
 const ToggleField = ({ label, checked, onChange, disabled = false }: ToggleFieldProps) => {
     return (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", marginBottom: "4px" }}>
-            <span style={{ fontSize: "13px", fontWeight: "500", color: "#475569" }}>{label}</span>
+            <span style={{ fontSize: "13px", fontWeight: "500", color: "var(--text-body)" }}>{label}</span>
             <button
                 type="button"
                 role="switch"
@@ -27,7 +27,7 @@ const ToggleField = ({ label, checked, onChange, disabled = false }: ToggleField
                     borderRadius: "999px",
                     border: "none",
                     cursor: disabled ? "not-allowed" : "pointer",
-                    backgroundColor: checked ? "#6259ca" : "#cbd5e1",
+                    backgroundColor: checked ? "var(--control-accent)" : "var(--border-input)",
                     transition: "background-color 0.2s",
                     flexShrink: 0,
                     padding: 0,
@@ -41,7 +41,7 @@ const ToggleField = ({ label, checked, onChange, disabled = false }: ToggleField
                     width: "16px",
                     height: "16px",
                     borderRadius: "50%",
-                    backgroundColor: "#ffffff",
+                    backgroundColor: "var(--bg-card)",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                     transition: "transform 0.2s",
                     transform: checked ? "translateX(21px)" : "translateX(3px)",

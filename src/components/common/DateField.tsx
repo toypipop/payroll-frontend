@@ -42,16 +42,16 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                 style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
                     gap: "6px", padding: "4px 10px", borderRadius: "8px",
-                    border: `1px solid ${open ? "#6259ca" : "#e2e8f0"}`,
-                    backgroundColor: "#f8fafc", fontSize: "13px", fontWeight: "500",
-                    color: "#334155", cursor: "pointer", userSelect: "none", whiteSpace: "nowrap",
+                    border: `1px solid ${open ? "var(--control-accent)" : "var(--border-muted)"}`,
+                    backgroundColor: "var(--surface-subtle)", fontSize: "13px", fontWeight: "500",
+                    color: "var(--text-secondary)", cursor: "pointer", userSelect: "none", whiteSpace: "nowrap",
                     boxShadow: open ? "0 0 0 3px rgba(98,89,202,0.12)" : "none",
                     transition: "border-color 0.15s, box-shadow 0.15s", minWidth: "60px",
                 }}
             >
                 <span>{options.find((o) => String(o.value) === String(value))?.label ?? value}</span>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                    stroke={open ? "#6259ca" : "#94a3b8"} strokeWidth="2.5"
+                    stroke={open ? "var(--control-accent)" : "var(--text-subtle)"} strokeWidth="2.5"
                     strokeLinecap="round" strokeLinejoin="round"
                     style={{ flexShrink: 0, transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)" }}>
                     <polyline points="6 9 12 15 18 9" />
@@ -61,7 +61,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                 <div style={{
                     position: "absolute", top: "calc(100% + 4px)", left: 0,
                     minWidth: "100%", backgroundColor: "#fff",
-                    border: "1px solid #e2e8f0", borderRadius: "10px",
+                    border: "1px solid var(--border-muted)", borderRadius: "10px",
                     boxShadow: "0 8px 24px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.07)",
                     zIndex: 9999, maxHeight: "180px", overflowY: "auto", padding: "4px",
                 }}>
@@ -78,8 +78,8 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                                     padding: "7px 10px", fontSize: "13px", borderRadius: "7px",
                                     cursor: "pointer", display: "flex", alignItems: "center",
                                     justifyContent: "space-between",
-                                    backgroundColor: isSel ? "#f0effe" : isHov ? "#f8f7ff" : "transparent",
-                                    color: isSel ? "#6259ca" : "#1e293b",
+                                    backgroundColor: isSel ? "var(--control-accent-soft)" : isHov ? "#f8f7ff" : "transparent",
+                                    color: isSel ? "var(--control-accent)" : "var(--text-strong)",
                                     fontWeight: isSel ? "600" : "400",
                                     transition: "background-color 0.1s",
                                 }}>
@@ -145,10 +145,10 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
         label: {
             fontWeight: "500",
             fontSize: "13px",
-            color: "#64748b",
+            color: "var(--text-muted)",
         },
         error: {
-            color: "#ef4444",
+            color: "var(--status-danger)",
             fontSize: "12px",
             marginTop: "2px",
             fontWeight: "500",
@@ -160,7 +160,7 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
             {label && (
                 <label htmlFor={id} style={styles.label}>
                     {label}
-                    {required && <span style={{ color: "#ef4444" }}> *</span>}
+                    {required && <span style={{ color: "var(--status-danger)" }}> *</span>}
                 </label>
             )}
 
@@ -176,7 +176,7 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
                 renderCustomHeader={({ date, changeYear, changeMonth, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px 10px" }}>
                         <button type="button" onClick={decreaseMonth} disabled={prevMonthButtonDisabled}
-                            style={{ background: "none", border: "none", cursor: prevMonthButtonDisabled ? "not-allowed" : "pointer", color: prevMonthButtonDisabled ? "#cbd5e1" : "#6259ca", fontSize: "16px", fontWeight: "bold", padding: "0 4px", lineHeight: 1 }}>
+                            style={{ background: "none", border: "none", cursor: prevMonthButtonDisabled ? "not-allowed" : "pointer", color: prevMonthButtonDisabled ? "var(--border-input)" : "var(--control-accent)", fontSize: "16px", fontWeight: "bold", padding: "0 4px", lineHeight: 1 }}>
                             {"\u2039"}
                         </button>
                         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
@@ -192,7 +192,7 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
                             />
                         </div>
                         <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled}
-                            style={{ background: "none", border: "none", cursor: nextMonthButtonDisabled ? "not-allowed" : "pointer", color: nextMonthButtonDisabled ? "#cbd5e1" : "#6259ca", fontSize: "16px", fontWeight: "bold", padding: "0 4px", lineHeight: 1 }}>
+                            style={{ background: "none", border: "none", cursor: nextMonthButtonDisabled ? "not-allowed" : "pointer", color: nextMonthButtonDisabled ? "var(--border-input)" : "var(--control-accent)", fontSize: "16px", fontWeight: "bold", padding: "0 4px", lineHeight: 1 }}>
                             {"\u203a"}
                         </button>
                     </div>
@@ -206,58 +206,58 @@ const DateField = React.forwardRef<DatePicker, DateFieldProps>(({ label, error, 
                     height: 40px;
                     padding: 10px 14px;
                     border-radius: 8px;
-                    border: 1px solid #e2e8f0;
+                    border: 1px solid var(--border-muted);
                     font-size: 14px;
                     outline: none;
                     width: 100%;
-                    color: #1e293b;
-                    background-color: #f8fafc;
+                    color: var(--text-strong);
+                    background-color: var(--surface-subtle);
                     transition: all 0.2s;
                     box-sizing: border-box;
                 }
                 .custom-date-input:focus {
-                    border-color: #6259ca;
+                    border-color: var(--control-accent);
                     box-shadow: 0 0 0 3px rgba(98,89,202,0.12);
                 }
                 .custom-date-input.error {
-                    border-color: #ef4444;
+                    border-color: var(--status-danger);
                 }
 
                 .react-datepicker {
                     font-family: inherit;
                     border-radius: 12px;
-                    border: 1px solid #e2e8f0;
+                    border: 1px solid var(--border-muted);
                     box-shadow: 0 8px 24px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.07);
                     padding: 4px;
                 }
                 .react-datepicker__header {
-                    background-color: #ffffff;
-                    border-bottom: 1px solid #f1f5f9;
+                    background-color: var(--bg-card);
+                    border-bottom: 1px solid var(--surface-hover);
                     border-top-left-radius: 12px;
                     border-top-right-radius: 12px;
                     padding-bottom: 10px;
                 }
                 .react-datepicker__day--selected {
-                    background-color: #6259ca !important;
+                    background-color: var(--control-accent) !important;
                     border-radius: 6px;
                 }
                 .react-datepicker__day:hover {
-                    background-color: #f0effe !important;
+                    background-color: var(--control-accent-soft) !important;
                     border-radius: 6px;
-                    color: #6259ca;
+                    color: var(--control-accent);
                 }
                 .react-datepicker__day--keyboard-selected {
                     background-color: #ede9fd !important;
                     border-radius: 6px;
-                    color: #6259ca;
+                    color: var(--control-accent);
                 }
                 .react-datepicker__current-month {
                     font-size: 13px;
                     font-weight: 600;
-                    color: #334155;
+                    color: var(--text-secondary);
                 }
                 .react-datepicker__navigation-icon::before {
-                    border-color: #6259ca;
+                    border-color: var(--control-accent);
                 }
             `}</style>
         </div>

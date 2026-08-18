@@ -313,8 +313,8 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             />
 
             {/* Bank Account Section */}
-            <div style={{ borderTop: "1px solid var(--border-color, #e2e8f0)", marginTop: "16px", paddingTop: "16px" }}>
-                <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted, #64748b)", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <div style={{ borderTop: "1px solid var(--border-color, var(--border-muted))", marginTop: "16px", paddingTop: "16px" }}>
+                <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted, var(--text-muted))", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     Bank Account
                 </div>
                 <SelectField

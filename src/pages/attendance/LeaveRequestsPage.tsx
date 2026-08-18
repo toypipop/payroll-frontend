@@ -41,7 +41,7 @@ const LeaveRequestsPage = () => {
                     <div style={{ fontWeight: "600" }}>
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#64748b" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                         {row.employees?.employees_code}
                     </div>
                 </div>
@@ -76,13 +76,13 @@ const LeaveRequestsPage = () => {
             sortValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim().toLowerCase(),
             searchValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim(),
             render: (row) => (
-                <div style={{ fontSize: "13px", color: "#475569" }}>
+                <div style={{ fontSize: "13px", color: "var(--text-body)" }}>
                     {row.approver ? (
                         <div style={{ whiteSpace: "nowrap" }}>
                             {row.approver.first_name} {row.approver.last_name}
                         </div>
                     ) : (
-                        <span style={{ color: "#94a3b8", fontStyle: "italic" }}>-</span>
+                        <span style={{ color: "var(--text-subtle)", fontStyle: "italic" }}>-</span>
                     )}
                 </div>
             ),

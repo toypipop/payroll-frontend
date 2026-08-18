@@ -39,26 +39,26 @@ const PayslipDetailsModal = ({ slip, onClose }) => (
         {slip && (
             <>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
-                    <span style={{ color: "#64748b" }}>Period</span>
+                    <span style={{ color: "var(--text-muted)" }}>Period</span>
                     <span style={{ fontWeight: 600 }}>{formatDate(slip.start_date)} – {formatDate(slip.end_date)}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ color: "#64748b" }}>Position (at payout)</span>
+                    <span style={{ color: "var(--text-muted)" }}>Position (at payout)</span>
                     <span style={{ fontWeight: 600 }}>{slip.position_name || "-"}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ color: "#64748b" }}>Department (at payout)</span>
+                    <span style={{ color: "var(--text-muted)" }}>Department (at payout)</span>
                     <span style={{ fontWeight: 600 }}>{slip.department_name || "-"}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
-                    <span style={{ color: "#64748b" }}>Paid to Bank Account</span>
+                    <span style={{ color: "var(--text-muted)" }}>Paid to Bank Account</span>
                     <span style={{ fontWeight: 600 }}>
                         {slip.bank_name || "-"} {slip.bank_account_no ? `(${slip.bank_account_no})` : ""}
                     </span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                    <span style={{ color: "#64748b" }}>Net Pay</span>
-                    <span style={{ fontWeight: 700, color: "#0f172a" }}>฿{formatCurrency(slip.net_pay)}</span>
+                    <span style={{ color: "var(--text-muted)" }}>Net Pay</span>
+                    <span style={{ fontWeight: 700, color: "var(--text-main)" }}>฿{formatCurrency(slip.net_pay)}</span>
                 </div>
                 <div style={{ margin: "12px 0" }}>
                     <Badge status="cancelled">Read-only audit trail</Badge>

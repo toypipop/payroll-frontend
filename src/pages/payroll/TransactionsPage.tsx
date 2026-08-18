@@ -26,9 +26,9 @@ const formatDate = (value) => {
     });
 };
 
-const StatCard = ({ label, value, color = '#0f172a' }) => (
+const StatCard = ({ label, value, color = 'var(--text-main)' }) => (
     <Card style={{ minWidth: '155px', flex: 1 }}>
-        <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+        <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
         <div style={{ marginTop: '6px', fontSize: '22px', fontWeight: '800', color, fontVariantNumeric: 'tabular-nums', lineHeight: '1' }}>{value}</div>
     </Card>
 );
@@ -92,10 +92,10 @@ const TransactionsPage = () => {
             searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>
+                    <div style={{ fontWeight: "600", color: "var(--text-main)" }}>
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "12px", color: "var(--text-subtle)", marginTop: "2px" }}>
                         {row.employees?.employees_code || "-"}
                     </div>
                 </div>
@@ -113,7 +113,7 @@ const TransactionsPage = () => {
             sortKey: "total_earning",
             sortValue: (row) => row.total_earning || 0,
             render: (row) => (
-                <span style={{ color: "#10b981", fontFamily: "monospace" }}>
+                <span style={{ color: "var(--status-success)", fontFamily: "monospace" }}>
                     ฿{formatCurrency(row.total_earning)}
                 </span>
             ),
@@ -123,7 +123,7 @@ const TransactionsPage = () => {
             sortKey: "total_deduction",
             sortValue: (row) => row.total_deduction || 0,
             render: (row) => (
-                <span style={{ color: "#ef4444", fontFamily: "monospace" }}>
+                <span style={{ color: "var(--status-danger)", fontFamily: "monospace" }}>
                     ฿{formatCurrency(row.total_deduction)}
                 </span>
             ),
@@ -133,7 +133,7 @@ const TransactionsPage = () => {
             sortKey: "net_pay",
             sortValue: (row) => row.net_pay || 0,
             render: (row) => (
-                <span style={{ color: "#0f172a", fontWeight: 700, fontFamily: "monospace" }}>
+                <span style={{ color: "var(--text-main)", fontWeight: 700, fontFamily: "monospace" }}>
                     ฿{formatCurrency(row.net_pay)}
                 </span>
             ),
@@ -177,7 +177,7 @@ const TransactionsPage = () => {
                 </div>
 
                 {cycleInfo && (
-                    <div style={{ marginTop: "12px", fontSize: "13px", color: "#64748b" }}>
+                    <div style={{ marginTop: "12px", fontSize: "13px", color: "var(--text-muted)" }}>
                         Period: {formatDate(cycleInfo.start_date)} - {formatDate(cycleInfo.end_date)}
                     </div>
                 )}
@@ -186,21 +186,21 @@ const TransactionsPage = () => {
             {selectedCycleId && (
                 <div style={{ display: "flex", gap: "14px", marginBottom: "16px", flexWrap: "wrap" }}>
                     <StatCard label="Transactions"   value={filteredTransactions.length} />
-                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   color="#10b981" />
-                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} color="#ef4444" />
-                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        color="#0f172a" />
+                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   color="var(--status-success)" />
+                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} color="var(--status-danger)" />
+                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        color="var(--text-main)" />
                 </div>
             )}
 
             <Card style={{ padding: "0px" }}>
                 {loadingCycles || loadingTransactions ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading transactions...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading transactions...</div>
                 ) : !selectedCycleId ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         Select a closed payroll cycle to view immutable transactions.
                     </div>
                 ) : filteredTransactions.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         No transaction records found for this cycle.
                     </div>
                 ) : (

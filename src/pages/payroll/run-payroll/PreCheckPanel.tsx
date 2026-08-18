@@ -27,7 +27,7 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
                         onClick={onProceed}
                         style={{
                             padding: "6px 14px", borderRadius: "6px", border: "1px solid #d97706",
-                            background: "#f59e0b", color: "#fff", fontSize: "13px",
+                            background: "var(--accent-color)", color: "#fff", fontSize: "13px",
                             fontWeight: "600", cursor: "pointer",
                         }}
                     >
@@ -36,8 +36,8 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
                     <button
                         onClick={onDismiss}
                         style={{
-                            padding: "6px 14px", borderRadius: "6px", border: "1px solid #e2e8f0",
-                            background: "#fff", color: "#475569", fontSize: "13px", cursor: "pointer",
+                            padding: "6px 14px", borderRadius: "6px", border: "1px solid var(--border-muted)",
+                            background: "#fff", color: "var(--text-body)", fontSize: "13px", cursor: "pointer",
                         }}
                     >
                         Cancel

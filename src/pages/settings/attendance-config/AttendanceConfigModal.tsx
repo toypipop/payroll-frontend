@@ -116,8 +116,8 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
                     )}
                 />
 
-                <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "16px", marginTop: "8px" }}>
-                    <h4 style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: "600", color: "#334155" }}>Deduction Settings</h4>
+                <div style={{ borderTop: "1px solid var(--border-muted)", paddingTop: "16px", marginTop: "8px" }}>
+                    <h4 style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: "600", color: "var(--text-secondary)" }}>Deduction Settings</h4>
 
                     <Controller
                         name="is_late_deduction_enabled"
@@ -160,8 +160,8 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
                     />
                 </div>
 
-                <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "16px", marginTop: "8px" }}>
-                    <h4 style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: "600", color: "#334155" }}>Overtime & Extra Earnings</h4>
+                <div style={{ borderTop: "1px solid var(--border-muted)", paddingTop: "16px", marginTop: "8px" }}>
+                    <h4 style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: "600", color: "var(--text-secondary)" }}>Overtime & Extra Earnings</h4>
 
                     <Controller
                         name="is_overtime_earnings_enabled"

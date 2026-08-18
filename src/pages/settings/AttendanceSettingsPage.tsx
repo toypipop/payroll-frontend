@@ -10,10 +10,10 @@ import { formatDisplayTime } from "./attendance-config/bangkokTime";
 
 // flag renders one of the config's on/off switches, or "Not Set" when the company has no config yet.
 const flag = (enabled) => {
-    if (enabled === undefined) return <span style={{ color: "#94a3b8" }}>Not Set</span>;
+    if (enabled === undefined) return <span style={{ color: "var(--text-subtle)" }}>Not Set</span>;
     return enabled
-        ? <span style={{ color: "#16a34a", fontWeight: 600 }}>ON</span>
-        : <span style={{ color: "#ef4444", fontWeight: 600 }}>OFF</span>;
+        ? <span style={{ color: "var(--status-success-text)", fontWeight: 600 }}>ON</span>
+        : <span style={{ color: "var(--status-danger)", fontWeight: 600 }}>OFF</span>;
 };
 
 const AttendanceSettingsPage = () => {
@@ -32,13 +32,13 @@ const AttendanceSettingsPage = () => {
             label: "Work Start",
             render: (row) => row.attendance_config
                 ? formatDisplayTime(row.attendance_config.work_start_time)
-                : <span style={{ color: "#94a3b8" }}>-</span>,
+                : <span style={{ color: "var(--text-subtle)" }}>-</span>,
         },
         {
             label: "Work End",
             render: (row) => row.attendance_config
                 ? formatDisplayTime(row.attendance_config.work_end_time)
-                : <span style={{ color: "#94a3b8" }}>-</span>,
+                : <span style={{ color: "var(--text-subtle)" }}>-</span>,
         },
         { label: "Late Amount", render: (row) => flag(row.attendance_config?.is_late_deduction_enabled) },
         { label: "Absent Amount", render: (row) => flag(row.attendance_config?.is_absent_deduction_enabled) },

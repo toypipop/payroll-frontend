@@ -26,7 +26,7 @@ const PayrollCyclesPage = () => {
             sortKey: "cycle_name",
             searchableKeys: ["cycle_name"],
             render: (row) => (
-                <span style={{ fontWeight: "600", color: "#1e293b" }}>{row.cycle_name}</span>
+                <span style={{ fontWeight: "600", color: "var(--text-strong)" }}>{row.cycle_name}</span>
             ),
         },
         {
@@ -35,7 +35,7 @@ const PayrollCyclesPage = () => {
             sortValue: (row) => new Date(row.start_date).getTime(),
             searchableKeys: ["start_date", "end_date"],
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "#475569" }}>
+                <span style={{ fontSize: "13px", color: "var(--text-body)" }}>
                     {formatDate(row.start_date)} — {formatDate(row.end_date)}
                 </span>
             ),
@@ -56,7 +56,7 @@ const PayrollCyclesPage = () => {
             sortKey: "created_at",
             sortValue: (row) => new Date(row.created_at).getTime(),
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "#94a3b8" }}>{formatDate(row.created_at)}</span>
+                <span style={{ fontSize: "13px", color: "var(--text-subtle)" }}>{formatDate(row.created_at)}</span>
             ),
         },
         {
@@ -105,9 +105,9 @@ const PayrollCyclesPage = () => {
 
             <Card style={{ padding: "0px" }}>
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading cycles...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         No payroll cycles yet. Create your first cycle to get started.
                     </div>
                 ) : (

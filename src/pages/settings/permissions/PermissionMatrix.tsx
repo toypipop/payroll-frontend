@@ -34,12 +34,12 @@ const categoryRowStyle = {
     padding: "8px 20px",
     fontSize: "11px",
     fontWeight: "700",
-    color: "#6259ca",
-    backgroundColor: "#f0effe",
+    color: "var(--control-accent)",
+    backgroundColor: "var(--control-accent-soft)",
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    borderBottom: "1px solid #e2e8f0",
-    borderTop: "1px solid #e2e8f0",
+    borderBottom: "1px solid var(--border-muted)",
+    borderTop: "1px solid var(--border-muted)",
 };
 
 // Permission matrix with table structure

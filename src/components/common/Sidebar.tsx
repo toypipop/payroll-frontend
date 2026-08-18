@@ -142,7 +142,7 @@ const Sidebar = () => {
     }, []);
 
     const styles: Record<string, CSSProperties> = {
-        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", background: "linear-gradient(180deg, #0f172a 0%, var(--sidebar-bg) 100%)", borderRight: "1px solid var(--sidebar-border)", display: "flex", flexDirection: "column", padding: "24px 12px", zIndex: 1000, boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 8px 0 30px rgba(2,6,23,0.22)" },
+        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", background: "linear-gradient(180deg, var(--text-main) 0%, var(--sidebar-bg) 100%)", borderRight: "1px solid var(--sidebar-border)", display: "flex", flexDirection: "column", padding: "24px 12px", zIndex: 1000, boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 8px 0 30px rgba(2,6,23,0.22)" },
         logoSection: { display: "flex", alignItems: "center", padding: "0 12px", marginBottom: "32px", gap: "10px" },
         categoryLabel: { fontSize: "10px", fontWeight: "700", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.11em", padding: "14px 12px 6px 12px" },
         navLink: { display: "flex", alignItems: "center", padding: "9px 12px", borderRadius: "10px", textDecoration: "none", fontSize: "13px", fontWeight: "500", marginBottom: "2px", transition: "all 0.15s ease" },
@@ -190,8 +190,8 @@ const Sidebar = () => {
     return (
         <div style={styles.sidebarContainer}>
             <div style={styles.logoSection}>
-                <div style={{ width: "38px", height: "38px", background: "linear-gradient(160deg, #14b8a6, #0f766e)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontWeight: "800", fontSize: "18px", letterSpacing: "0.02em", boxShadow: "0 10px 20px rgba(15, 118, 110, 0.34)" }}>P</div>
-                <span style={{ fontSize: "18px", fontWeight: "700", color: "#f1f5f9", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>PayrollPro</span>
+                <div style={{ width: "38px", height: "38px", background: "linear-gradient(160deg, #14b8a6, var(--primary-color))", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--bg-card)", fontWeight: "800", fontSize: "18px", letterSpacing: "0.02em", boxShadow: "0 10px 20px rgba(15, 118, 110, 0.34)" }}>P</div>
+                <span style={{ fontSize: "18px", fontWeight: "700", color: "var(--surface-hover)", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>PayrollPro</span>
             </div>
 
             <nav style={{ flexGrow: 1, overflowY: "auto" }}>

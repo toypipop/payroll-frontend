@@ -24,14 +24,14 @@ const MyPayslipsPage = () => {
             label: "Payroll Cycle",
             sortKey: "cycle_name",
             sortValue: (row) => row.cycle_name?.toLowerCase() || "",
-            render: (row) => <span style={{ fontWeight: 600, color: "#0f172a" }}>{row.cycle_name || "-"}</span>,
+            render: (row) => <span style={{ fontWeight: 600, color: "var(--text-main)" }}>{row.cycle_name || "-"}</span>,
         },
         {
             label: "Period",
             sortKey: "start_date",
             sortValue: (row) => row.start_date || "",
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "#64748b" }}>
+                <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
                     {formatDate(row.start_date)} – {formatDate(row.end_date)}
                 </span>
             ),
@@ -41,7 +41,7 @@ const MyPayslipsPage = () => {
             sortKey: "total_earning",
             sortValue: (row) => row.total_earning || 0,
             render: (row) => (
-                <span style={{ color: "#10b981", fontFamily: "monospace" }}>฿{formatCurrency(row.total_earning)}</span>
+                <span style={{ color: "var(--status-success)", fontFamily: "monospace" }}>฿{formatCurrency(row.total_earning)}</span>
             ),
         },
         {
@@ -49,7 +49,7 @@ const MyPayslipsPage = () => {
             sortKey: "total_deduction",
             sortValue: (row) => row.total_deduction || 0,
             render: (row) => (
-                <span style={{ color: "#ef4444", fontFamily: "monospace" }}>฿{formatCurrency(row.total_deduction)}</span>
+                <span style={{ color: "var(--status-danger)", fontFamily: "monospace" }}>฿{formatCurrency(row.total_deduction)}</span>
             ),
         },
         {
@@ -57,7 +57,7 @@ const MyPayslipsPage = () => {
             sortKey: "net_pay",
             sortValue: (row) => row.net_pay || 0,
             render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: 700, color: "#0f172a" }}>
+                <span style={{ fontFamily: "monospace", fontWeight: 700, color: "var(--text-main)" }}>
                     ฿{formatCurrency(row.net_pay)}
                 </span>
             ),
@@ -75,9 +75,9 @@ const MyPayslipsPage = () => {
 
             <Card style={{ padding: "0px" }}>
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
                 ) : slips.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         No payslips available yet.
                     </div>
                 ) : (

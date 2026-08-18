@@ -15,14 +15,14 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
         }
     >
         {loading ? (
-            <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+            <div style={{ padding: "20px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
         ) : rows.length === 0 ? (
-            <div style={{ padding: "20px", textAlign: "center", color: "#94a3b8" }}>No salary history yet.</div>
+            <div style={{ padding: "20px", textAlign: "center", color: "var(--text-subtle)" }}>No salary history yet.</div>
         ) : (
             <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", tableLayout: "fixed", borderCollapse: "collapse", fontSize: "13px" }}>
                     <thead>
-                        <tr style={{ color: "#94a3b8", fontWeight: 600, fontSize: "11px" }}>
+                        <tr style={{ color: "var(--text-subtle)", fontWeight: 600, fontSize: "11px" }}>
                             <th style={{ width: "25%", textAlign: "left", padding: "4px 8px 8px 0" }}>Effective Date</th>
                             <th style={{ width: "25%", textAlign: "right", padding: "4px 8px" }}>Base Salary</th>
                             <th style={{ width: "25%", textAlign: "left", padding: "4px 8px" }}>Status</th>
@@ -36,7 +36,7 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                 ? new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
                                 : "-";
                             return (
-                                <tr key={rec.id} style={{ borderTop: "1px solid #f1f5f9" }}>
+                                <tr key={rec.id} style={{ borderTop: "1px solid var(--surface-hover)" }}>
                                     <td style={{ width: "25%", padding: "7px 8px 7px 0" }}>{dateLabel}</td>
                                     <td style={{ width: "25%", textAlign: "right", padding: "7px 8px", fontFamily: "monospace" }}>
                                         {Number(rec.base_salaries || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -49,12 +49,12 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                             <Button
                                                 variant="ghost"
                                                 onClick={() => onDelete(rec.id)}
-                                                style={{ padding: "4px 10px", fontSize: "12px", width: "auto", color: "#dc2626" }}
+                                                style={{ padding: "4px 10px", fontSize: "12px", width: "auto", color: "var(--status-danger-text)" }}
                                             >
                                                 Delete
                                             </Button>
                                         ) : (
-                                            <span style={{ fontSize: "11px", color: "#cbd5e1" }} title="Already used in a payroll calculation">
+                                            <span style={{ fontSize: "11px", color: "var(--border-input)" }} title="Already used in a payroll calculation">
                                                 Locked
                                             </span>
                                         )}

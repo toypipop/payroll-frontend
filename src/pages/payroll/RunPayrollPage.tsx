@@ -32,10 +32,10 @@ const RunPayrollPage = () => {
             searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#1e293b" }}>
+                    <div style={{ fontWeight: "600", color: "var(--text-strong)" }}>
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginTop: "2px" }}>
                         {row.employees?.employees_code} · {row.employees?.department?.dept_name || "—"}
                     </div>
                 </div>
@@ -52,7 +52,7 @@ const RunPayrollPage = () => {
             sortKey: "employees.position.pos_name",
             searchableKeys: ["employees.position.pos_name"],
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "#475569" }}>
+                <span style={{ fontSize: "13px", color: "var(--text-body)" }}>
                     {row.employees?.position?.pos_name || "—"}
                 </span>
             ),
@@ -73,13 +73,13 @@ const RunPayrollPage = () => {
                 <DetailDropdown
                     total={row.taxable_income}
                     details={row.details || []}
-                    color="#475569"
+                    color="var(--text-body)"
                     filterFn={(d) =>
                         (d.type === "earning" || d.type === "deduction") &&
                         d.item_name !== "Base Salary" &&
                         d.item_name !== "Income Tax"
                     }
-                    itemColorFn={(d) => (d.is_tax_relevant ? (d.type === "earning" ? "#10b981" : "#ef4444") : "#94a3b8")}
+                    itemColorFn={(d) => (d.is_tax_relevant ? (d.type === "earning" ? "var(--status-success)" : "var(--status-danger)") : "var(--text-subtle)")}
                 />
             ),
         },
@@ -88,7 +88,7 @@ const RunPayrollPage = () => {
             sortKey: "sso_amount",
             sortValue: (row) => row.sso_amount || 0,
             render: (row) => (
-                <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>
+                <span style={{ fontFamily: "monospace", color: "var(--accent-color)" }}>
                     ฿{formatCurrency(row.sso_amount)}
                 </span>
             ),
@@ -98,7 +98,7 @@ const RunPayrollPage = () => {
             sortKey: "tax_amount",
             sortValue: (row) => row.tax_amount || 0,
             render: (row) => (
-                <span style={{ fontFamily: "monospace", color: "#f59e0b" }}>
+                <span style={{ fontFamily: "monospace", color: "var(--accent-color)" }}>
                     ฿{formatCurrency(row.tax_amount)}
                 </span>
             ),
@@ -108,7 +108,7 @@ const RunPayrollPage = () => {
             sortKey: "net_pay",
             sortValue: (row) => row.net_pay || 0,
             render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: "700", fontSize: "15px", color: "#0f172a" }}>
+                <span style={{ fontFamily: "monospace", fontWeight: "700", fontSize: "15px", color: "var(--text-main)" }}>
                     ฿{formatCurrency(row.net_pay)}
                 </span>
             ),
@@ -137,9 +137,9 @@ const RunPayrollPage = () => {
 
                     <div style={{ flex: 3, minWidth: "220px" }}>
                         {loadingCycles ? (
-                            <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                            <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>Loading cycles...</div>
                         ) : filteredCycles.length === 0 ? (
-                            <div style={{ color: "#94a3b8", fontSize: "14px" }}>No open cycles available.</div>
+                            <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>No open cycles available.</div>
                         ) : (
                             <SelectField
                                 label="Select Open Cycle"
@@ -170,7 +170,7 @@ const RunPayrollPage = () => {
 
                 {/* SSO / Payroll Parameters */}
                 {loadingConfig ? (
-                    <div style={{ marginTop: "16px", fontSize: "13px", color: "#94a3b8" }}>
+                    <div style={{ marginTop: "16px", fontSize: "13px", color: "var(--text-subtle)" }}>
                         Loading parameters...
                     </div>
                 ) : !payrollConfig ? (
@@ -188,10 +188,10 @@ const RunPayrollPage = () => {
                         marginTop: "16px",
                         padding: "14px 16px",
                         borderRadius: "10px",
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
+                        backgroundColor: "var(--surface-subtle)",
+                        border: "1px solid var(--border-muted)",
                     }}>
-                        <div style={{ fontSize: "11px", fontWeight: "600", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }}>
+                        <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "12px" }}>
                             {selectedCycle?.companies?.name || "Company"} · Payroll Parameters
                         </div>
                         <div style={{ display: "flex", gap: "32px", flexWrap: "wrap" }}>
@@ -202,8 +202,8 @@ const RunPayrollPage = () => {
                                 { label: "Tax Method", value: { Progressive: "Thai Progressive Rate", None: "No Tax" }[payrollConfig.tax_calculation] || payrollConfig.tax_calculation || "Thai Progressive Rate" },
                             ].map((item) => (
                                 <div key={item.label}>
-                                    <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "3px" }}>{item.label}</div>
-                                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#1e293b" }}>{item.value}</div>
+                                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginBottom: "3px" }}>{item.label}</div>
+                                    <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-strong)" }}>{item.value}</div>
                                 </div>
                             ))}
                         </div>
@@ -260,11 +260,11 @@ const RunPayrollPage = () => {
                 <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
                     {[
                         { label: "Employees", value: transactions.length, color: "#3b82f6" },
-                        { label: "Total Earning", value: `฿${formatCurrency(totalEarning)}`, color: "#10b981" },
-                        { label: "Total Net Pay", value: `฿${formatCurrency(totalNetPay)}`, color: "#0f172a" },
+                        { label: "Total Earning", value: `฿${formatCurrency(totalEarning)}`, color: "var(--status-success)" },
+                        { label: "Total Net Pay", value: `฿${formatCurrency(totalNetPay)}`, color: "var(--text-main)" },
                     ].map((stat) => (
                         <Card key={stat.label} style={{ flex: 1, minWidth: "160px", padding: "16px 20px" }}>
-                            <div style={{ fontSize: "12px", color: "#94a3b8", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            <div style={{ fontSize: "12px", color: "var(--text-subtle)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                                 {stat.label}
                             </div>
                             <div style={{ fontSize: "22px", fontWeight: "700", color: stat.color, marginTop: "6px" }}>
@@ -278,9 +278,9 @@ const RunPayrollPage = () => {
             {/* Transactions table */}
             <Card style={{ padding: "0px" }}>
                 {loadingTx ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading results...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading results...</div>
                 ) : transactions.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         No payroll results yet. Select a cycle and click <strong>Run Calculation</strong>.
                     </div>
                 ) : (

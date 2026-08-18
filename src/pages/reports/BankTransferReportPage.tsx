@@ -59,7 +59,7 @@ const A4BankSummary = ({ data }) => {
         {
             label: "Net Pay",
             render: (r) => (
-                <span style={{ fontFamily: "monospace", fontWeight: "600", color: "#0f172a" }}>
+                <span style={{ fontFamily: "monospace", fontWeight: "600", color: "var(--text-main)" }}>
                     ฿{fc(r.net_pay)}
                 </span>
             ),
@@ -72,27 +72,27 @@ const A4BankSummary = ({ data }) => {
             style={{
                 width: "210mm", minHeight: "297mm", backgroundColor: "#fff",
                 padding: "16mm 14mm", fontFamily: "'Segoe UI', Arial, sans-serif",
-                fontSize: "13px", color: "#1e293b", boxSizing: "border-box",
+                fontSize: "13px", color: "var(--text-strong)", boxSizing: "border-box",
             }}
         >
             {/* Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "14px", marginBottom: "14px", borderBottom: "3px solid #0f172a" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "14px", marginBottom: "14px", borderBottom: "3px solid var(--text-main)" }}>
                 <div>
-                    <div style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a" }}>{company?.name || "—"}</div>
-                    {company?.address && <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>{company.address}</div>}
-                    {company?.tax_id && <div style={{ color: "#64748b", fontSize: "12px" }}>Tax ID: {company.tax_id}</div>}
+                    <div style={{ fontSize: "22px", fontWeight: "800", color: "var(--text-main)" }}>{company?.name || "—"}</div>
+                    {company?.address && <div style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "4px" }}>{company.address}</div>}
+                    {company?.tax_id && <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>Tax ID: {company.tax_id}</div>}
                 </div>
                 <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "22px", fontWeight: "900", letterSpacing: "2px", color: "#0f172a", textTransform: "uppercase" }}>BANK TRANSFER</div>
-                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>{cycle?.cycle_name}</div>
-                    <div style={{ color: "#64748b", fontSize: "12px" }}>{fd(cycle?.start_date)} — {fd(cycle?.end_date)}</div>
+                    <div style={{ fontSize: "22px", fontWeight: "900", letterSpacing: "2px", color: "var(--text-main)", textTransform: "uppercase" }}>BANK TRANSFER</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "6px" }}>{cycle?.cycle_name}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "12px" }}>{fd(cycle?.start_date)} — {fd(cycle?.end_date)}</div>
                 </div>
             </div>
             {/* Table */}
             <Table columns={summaryColumns} data={rows} />
             <div style={{
                 display: "grid", gridTemplateColumns: "1fr auto",
-                backgroundColor: "#0f172a", color: "#fff",
+                backgroundColor: "var(--text-main)", color: "#fff",
                 padding: "10px",
             }}>
                 <div style={{ fontWeight: "800", fontSize: "13px" }}>Total Net Pay</div>
@@ -100,7 +100,7 @@ const A4BankSummary = ({ data }) => {
                     ฿{fc(total_net_pay)}
                 </div>
             </div>
-            <div style={{ marginTop: "40px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
+            <div style={{ marginTop: "40px", textAlign: "center", fontSize: "10px", color: "var(--text-subtle)" }}>
                 Bank Transfer Summary — {company?.name} — {cycle?.cycle_name} — Records are immutable once the cycle is closed.
             </div>
         </div>
@@ -122,18 +122,18 @@ const BankTransferReportPage = () => {
             label: "Employee",
             render: (r) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>{r.first_name} {r.last_name}</div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>{r.employees_code}</div>
+                    <div style={{ fontWeight: "600", color: "var(--text-main)" }}>{r.first_name} {r.last_name}</div>
+                    <div style={{ fontSize: "11px", color: "var(--text-subtle)", marginTop: "2px" }}>{r.employees_code}</div>
                 </div>
             ),
         },
-        { label: "Bank", render: (r) => r.bank_name || <span style={{ color: "#f59e0b" }}>Not Set</span> },
+        { label: "Bank", render: (r) => r.bank_name || <span style={{ color: "var(--accent-color)" }}>Not Set</span> },
         { label: "Account No", render: (r) => <span style={{ fontFamily: "monospace" }}>{r.account_no || "—"}</span> },
         { label: "Account Name", render: (r) => r.account_name || "—" },
         {
             label: "Net Pay",
             render: (r) => (
-                <span style={{ fontFamily: "monospace", fontWeight: "700", color: "#0f172a" }}>฿{fc(r.net_pay)}</span>
+                <span style={{ fontFamily: "monospace", fontWeight: "700", color: "var(--text-main)" }}>฿{fc(r.net_pay)}</span>
             ),
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
@@ -146,12 +146,12 @@ const BankTransferReportPage = () => {
     const cycle = data?.cycle;
     const rows = data?.rows || [];
     const printPreview = isPrintOpen ? (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
-            <div id="print-toolbar" style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "var(--text-main)", zIndex: 10000, overflowY: "auto" }}>
+            <div id="print-toolbar" style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--text-strong)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                 <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>Bank Transfer Summary Preview</span>
                 <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={handlePrint} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
-                    <button onClick={() => setIsPrintOpen(false)} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+                    <button onClick={handlePrint} style={{ backgroundColor: "var(--status-success)", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
+                    <button onClick={() => setIsPrintOpen(false)} style={{ backgroundColor: "transparent", color: "var(--text-subtle)", border: "1px solid var(--text-secondary)", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
                 </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
@@ -169,9 +169,9 @@ const BankTransferReportPage = () => {
             {/* Cycle selector */}
             <Card style={{ marginBottom: "20px" }}>
                 {loadingCycles ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>No closed payroll cycles available.</div>
+                    <div style={{ color: "var(--text-subtle)", fontSize: "14px" }}>No closed payroll cycles available.</div>
                 ) : (
                     <>
                         <SelectField
@@ -182,7 +182,7 @@ const BankTransferReportPage = () => {
                             containerStyle={{ marginBottom: 0 }}
                         />
                         {cycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "10px" }}>
                                 Period: <strong>{fd(cycle.start_date)}</strong> —&nbsp;<strong>{fd(cycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                             </div>
@@ -206,17 +206,17 @@ const BankTransferReportPage = () => {
             {/* Table */}
             <Card style={{ padding: 0 }}>
                 {loadingData ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>Loading...</div>
                 ) : rows.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div style={{ padding: "40px", textAlign: "center", color: "var(--text-subtle)" }}>
                         {selectedCycleId ? "No payroll records found for this cycle." : "Select a closed cycle above."}
                     </div>
                 ) : (
                     <>
                         <Table columns={columns} data={rows} />
-                        <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "#f8fafc" }}>
-                            <span style={{ color: "#64748b" }}>Total Employees: <strong>{rows.length}</strong></span>
-                            <span style={{ color: "#0f172a", fontWeight: "800", fontSize: "15px", fontFamily: "monospace" }}>
+                        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border-muted)", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "var(--surface-subtle)" }}>
+                            <span style={{ color: "var(--text-muted)" }}>Total Employees: <strong>{rows.length}</strong></span>
+                            <span style={{ color: "var(--text-main)", fontWeight: "800", fontSize: "15px", fontFamily: "monospace" }}>
                                 Total Net Pay: ฿{fc(data?.total_net_pay)}
                             </span>
                         </div>

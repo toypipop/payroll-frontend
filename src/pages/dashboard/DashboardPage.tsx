@@ -5,23 +5,23 @@ import Badge from '../../components/common/Badge';
 import { useAuth } from "../../hooks/useAuth";
 import useDashboardStats from "./stats/useDashboardStats";
 
-const StatCard = ({ label, value, sub, color = '#0f172a', loading }) => (
+const StatCard = ({ label, value, sub, color = 'var(--text-main)', loading }) => (
     <Card style={{ flex: 1, minWidth: '150px' }}>
-        <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             {label}
         </div>
         <div style={{ fontSize: '28px', fontWeight: '800', color, marginTop: '6px', lineHeight: '1', fontVariantNumeric: 'tabular-nums' }}>
-            {loading ? <span style={{ fontSize: '13px', color: '#cbd5e1' }}>&mdash;</span> : value}
+            {loading ? <span style={{ fontSize: '13px', color: 'var(--border-input)' }}>&mdash;</span> : value}
         </div>
-        {sub && <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '5px' }}>{sub}</div>}
+        {sub && <div style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '5px' }}>{sub}</div>}
     </Card>
 );
 
 const quickLinks = [
     { label: 'Run Payroll',   desc: 'Calculate & process a new cycle',   path: '/run-payroll',   color: '#3b82f6' },
     { label: 'Employees',    desc: 'Manage employee records',            path: '/employees',     color: '#8b5cf6' },
-    { label: 'Payslips',     desc: 'Browse closed-cycle payslips',       path: '/payslips',      color: '#10b981' },
-    { label: 'Transactions', desc: 'Audit immutable payroll records',    path: '/transactions',  color: '#f59e0b' },
+    { label: 'Payslips',     desc: 'Browse closed-cycle payslips',       path: '/payslips',      color: 'var(--status-success)' },
+    { label: 'Transactions', desc: 'Audit immutable payroll records',    path: '/transactions',  color: 'var(--accent-color)' },
 ];
 
 const DashboardPage = () => {
@@ -35,22 +35,22 @@ const DashboardPage = () => {
 
             {/* Welcome banner */}
             <div style={{
-                background: '#ffffff',
+                background: 'var(--bg-card)',
                 borderRadius: '10px',
                 padding: '22px 28px',
                 marginBottom: '18px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--border-muted)',
                 boxShadow: '0 1px 3px rgba(15,23,42,0.06)',
             }}>
                 <div>
-                    <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '4px' }}>Welcome back,</div>
-                    <div style={{ color: '#0f172a', fontSize: '20px', fontWeight: '800' }}>
+                    <div style={{ color: 'var(--text-subtle)', fontSize: '12px', marginBottom: '4px' }}>Welcome back,</div>
+                    <div style={{ color: 'var(--text-main)', fontSize: '20px', fontWeight: '800' }}>
                         {storedUser.fullName || 'Administrator'}
                     </div>
-                    <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '5px' }}>
+                    <div style={{ color: 'var(--text-subtle)', fontSize: '12px', marginTop: '5px' }}>
                         {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>
                 </div>
@@ -59,14 +59,14 @@ const DashboardPage = () => {
 
             {/* Stats row */}
             <div style={{ display: 'flex', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                <StatCard label="Total Employees" value={stats?.employees  ?? 0} sub="Across all departments" color="#0f172a" loading={loading} />
-                <StatCard label="Payroll Cycles"  value={stats?.totalCycles ?? 0} sub="All time"              color="#0f172a" loading={loading} />
+                <StatCard label="Total Employees" value={stats?.employees  ?? 0} sub="Across all departments" color="var(--text-main)" loading={loading} />
+                <StatCard label="Payroll Cycles"  value={stats?.totalCycles ?? 0} sub="All time"              color="var(--text-main)" loading={loading} />
                 <StatCard label="Active Cycles"   value={stats?.activeCycles ?? 0} sub="Open for processing" color="#3b82f6" loading={loading} />
-                <StatCard label="Closed Cycles"   value={stats?.closedCycles ?? 0} sub="Locked & immutable"  color="#10b981" loading={loading} />
+                <StatCard label="Closed Cycles"   value={stats?.closedCycles ?? 0} sub="Locked & immutable"  color="var(--status-success)" loading={loading} />
             </div>
 
             {/* Quick access */}
-            <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
+            <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>
                 Quick Access
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '12px' }}>
@@ -99,8 +99,8 @@ const DashboardPage = () => {
                         }}>
                             <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: color }} />
                         </div>
-                        <div style={{ fontWeight: '700', fontSize: '14px', color: '#0f172a' }}>{label}</div>
-                        <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '3px', lineHeight: '1.4' }}>{desc}</div>
+                        <div style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-main)' }}>{label}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '3px', lineHeight: '1.4' }}>{desc}</div>
                     </div>
                 ))}
             </div>

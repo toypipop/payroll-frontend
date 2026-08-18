@@ -21,14 +21,14 @@ const PayrollGlobalSettingsPage = () => {
         { label: "Companies", key: "name" },
         {
             label: "SSO Rate",
-            render: (row) => row.payroll_config ? `${row.payroll_config.sso_rate}%` : <span style={{ color: '#94a3b8' }}>Not Set</span>
+            render: (row) => row.payroll_config ? `${row.payroll_config.sso_rate}%` : <span style={{ color: 'var(--text-subtle)' }}>Not Set</span>
         },
         {
             label: "Tax Method",
             render: (row) => {
                 const labels = { Progressive: "Thai Progressive Rate", None: "No Tax" };
                 const val = row.payroll_config?.tax_calculation;
-                return val ? (labels[val] || val) : <span style={{ color: '#94a3b8' }}>Not Set</span>;
+                return val ? (labels[val] || val) : <span style={{ color: 'var(--text-subtle)' }}>Not Set</span>;
             }
         },
         {
