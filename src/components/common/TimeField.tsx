@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import React, { useState, useRef, useEffect } from "react";
 import type { CSSProperties, HTMLAttributes, MouseEvent } from "react";
 
@@ -243,17 +244,11 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                                 <div
                                     key={h}
                                     ref={displayHours === h ? selectedHourRef : undefined}
-                                    style={{
-                                        ...styles.timeOption,
-                                        ...(displayHours === h ? styles.timeOptionSelected : {}),
-                                    }}
+                                    className={twMerge(
+                                        "flex h-8 cursor-pointer items-center justify-center rounded-md text-sm text-secondary transition-colors duration-150 hover:bg-hover",
+                                        displayHours === h && "bg-control text-card hover:bg-control",
+                                    )}
                                     onClick={() => handleHoursChange(h)}
-                                    onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
-                                        if (displayHours !== h) e.currentTarget.style.backgroundColor = "var(--surface-hover)";
-                                    }}
-                                    onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
-                                        if (displayHours !== h) e.currentTarget.style.backgroundColor = "transparent";
-                                    }}
                                 >
                                     {String(h).padStart(2, "0")}
                                 </div>
@@ -267,17 +262,11 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                                 <div
                                     key={m}
                                     ref={minutes === m ? selectedMinuteRef : undefined}
-                                    style={{
-                                        ...styles.timeOption,
-                                        ...(minutes === m ? styles.timeOptionSelected : {}),
-                                    }}
+                                    className={twMerge(
+                                        "flex h-8 cursor-pointer items-center justify-center rounded-md text-sm text-secondary transition-colors duration-150 hover:bg-hover",
+                                        minutes === m && "bg-control text-card hover:bg-control",
+                                    )}
                                     onClick={() => handleMinutesChange(m)}
-                                    onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
-                                        if (minutes !== m) e.currentTarget.style.backgroundColor = "var(--surface-hover)";
-                                    }}
-                                    onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
-                                        if (minutes !== m) e.currentTarget.style.backgroundColor = "transparent";
-                                    }}
                                 >
                                     {String(m).padStart(2, "0")}
                                 </div>
@@ -291,10 +280,10 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                                 <button
                                     key={p}
                                     type="button"
-                                    style={{
-                                        ...styles.periodBtn,
-                                        ...(period === p ? styles.periodBtnActive : {}),
-                                    }}
+                                    className={twMerge(
+                                        "cursor-pointer rounded-md border border-line-muted bg-card px-3.5 py-2 text-xs font-semibold text-muted transition-all duration-150",
+                                        period === p && "border-control bg-control text-card",
+                                    )}
                                     onClick={() => handlePeriodChange(p)}
                                 >
                                     {p}

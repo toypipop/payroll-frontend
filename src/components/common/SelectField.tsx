@@ -1,6 +1,7 @@
 import React, { forwardRef, useState, useRef, useEffect, useCallback } from "react";
 import type { CSSProperties, Ref, SelectHTMLAttributes } from "react";
 import { createPortal } from "react-dom";
+import { twMerge } from "tailwind-merge";
 
 export interface SelectOption {
     id: unknown;
@@ -155,24 +156,14 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
             setOpen(false);
         };
 
-        const borderColor = error ? "var(--status-danger)" : open ? "var(--control-accent)" : "var(--border-muted)";
+        const borderClass = error ? "border-danger" : open ? "border-control" : "border-line-muted";
 
         const dropdownList = open && createPortal(
             <div
                 id="select-portal-dropdown"
-                style={{
-                    position: "absolute",
-                    top: dropdownPos.top,
-                    left: dropdownPos.left,
-                    width: dropdownPos.width,
-                    backgroundColor: "var(--bg-card)",
-                    border: "1px solid var(--border-muted)",
-                    borderRadius: "10px",
-                    boxShadow: "0 8px 24px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.07)",
-                    zIndex: 99999,
-                    maxHeight: "220px",
-                    padding: "4px",
-                }}
+                className="absolute z-[99999] max-h-[220px] rounded-[10px] border border-line-muted bg-card p-1 shadow-[0_8px_24px_rgba(15,23,42,0.14),0_2px_8px_rgba(15,23,42,0.07)]"
+                // measured from the trigger when the dropdown opens, so it cannot be a class
+                style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
             >
                 {searchable && (
                     <div className="p-[4px_4px_8px]">
@@ -194,7 +185,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     </div>
                 )}
 
-                <div style={{ maxHeight: searchable ? "168px" : "212px", overflowY: "auto" }}>
+                <div className={`overflow-y-auto ${searchable ? "max-h-[168px]" : "max-h-[212px]"}`}>
                     {filteredOptions.length === 0 ? (
                         <div className="p-[10px_12px] text-[13px] text-subtle text-center">
                             {options.length === 0 ? "No options" : "No matches found"}
@@ -210,19 +201,11 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                     onMouseEnter={() => setHovered(opt.id)}
                                     onMouseLeave={() => setHovered(null)}
                                     onMouseDown={(e) => { e.preventDefault(); handleSelect(opt.id); }}
-                                    style={{
-                                        padding: "9px 12px",
-                                        fontSize: "13.5px",
-                                        borderRadius: "7px",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        backgroundColor: isSelected ? "var(--control-accent-soft)" : isHov ? "var(--primary-subtle)" : "transparent",
-                                        color: isSelected ? "var(--control-accent)" : "var(--text-strong)",
-                                        fontWeight: isSelected ? "600" : "400",
-                                        transition: "background-color 0.1s",
-                                    }}
+                                    className={twMerge(
+                                        "flex cursor-pointer items-center justify-between rounded-[7px] px-3 py-[9px] text-[13.5px] font-normal text-strong transition-colors duration-100",
+                                        isHov && "bg-primary-subtle",
+                                        isSelected && "bg-control-soft font-semibold text-control",
+                                    )}
                                 >
                                     <span>{opt.name}</span>
                                     {isSelected && (
@@ -240,7 +223,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
         );
 
         return (
-            <div style={{ marginBottom: "20px", width: "100%", ...containerStyle }}>
+            <div className="mb-5 w-full" style={containerStyle}>
                 {label && (
                     <label className="block text-[13px] font-medium text-muted mb-[6px]">
                         {label}
@@ -248,7 +231,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     </label>
                 )}
 
-                <div style={{ position: "relative", ...style }}>
+                <div className="relative" style={style}>
                     {/* Hidden native select for RHF ref-based control */}
                     <select
                         ref={setRefs}
@@ -288,30 +271,20 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         tabIndex={disabled ? -1 : 0}
                         aria-expanded={open}
                         aria-haspopup="listbox"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            height: "40px",
-                            padding: "0 14px",
-                            fontSize: "14px",
-                            borderRadius: "8px",
-                            border: `1px solid ${borderColor}`,
-                            backgroundColor: disabled ? "var(--surface-hover)" : "var(--surface-subtle)",
-                            color: isEmpty ? "var(--text-subtle)" : "var(--text-strong)",
-                            cursor: disabled ? "not-allowed" : "pointer",
-                            userSelect: "none",
-                            transition: "border-color 0.15s, box-shadow 0.15s",
-                            boxSizing: "border-box",
-                            boxShadow: open ? "0 0 0 3px rgba(98,89,202,0.12)" : "none",
-                        }}
+                        className={twMerge(
+                            "box-border flex h-10 select-none items-center justify-between rounded-lg border px-3.5 text-sm transition-[border-color,box-shadow] duration-150",
+                            borderClass,
+                            disabled ? "cursor-not-allowed bg-hover" : "cursor-pointer bg-surface",
+                            isEmpty ? "text-subtle" : "text-strong",
+                            open && "shadow-[0_0_0_3px_rgba(15,118,110,0.12)]",
+                        )}
                     >
                         <span className="overflow-hidden truncate whitespace-nowrap">{displayText}</span>
                         <svg
                             width="14" height="14" viewBox="0 0 24 24" fill="none"
                             stroke={error ? "var(--status-danger)" : open ? "var(--control-accent)" : "var(--text-subtle)"}
                             strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                            style={{ flexShrink: 0, marginLeft: "8px", transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+                            className={`ml-2 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : "rotate-0"}`}
                         >
                             <polyline points="6 9 12 15 18 9" />
                         </svg>
