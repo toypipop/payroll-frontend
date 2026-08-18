@@ -31,27 +31,14 @@ export default function HelpModal({ article, lang, onClose }: Props) {
 
   return createPortal(
     <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '16px',
-      }}
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[4px]"
     >
       <div
-        style={{
-          background: 'white', borderRadius: '12px', width: '100%', maxWidth: '520px',
-          maxHeight: '90vh', display: 'flex', flexDirection: 'column',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-        }}
+        className="flex max-h-[90vh] w-full max-w-[520px] flex-col rounded-xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.18)]"
       >
         {/* Header */}
         <div
-          style={{
-            background: 'var(--ink-deep)', color: 'white', padding: '16px 20px',
-            borderRadius: '12px 12px 0 0', display: 'flex',
-            justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0,
-          }}
+          className="flex shrink-0 items-start justify-between rounded-t-xl bg-[color:var(--ink-deep)] px-5 py-4 text-white"
         >
           <div>
             <div className="text-[15px] font-bold">
@@ -63,10 +50,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'none', border: 'none', color: 'white', fontSize: '18px',
-              cursor: 'pointer', opacity: 0.7, lineHeight: 1, padding: '0 0 0 12px',
-            }}
+            className="cursor-pointer border-none bg-none pl-3 text-lg leading-none text-white opacity-70"
             aria-label="Close"
           >
             ✕

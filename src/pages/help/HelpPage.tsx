@@ -45,12 +45,7 @@ export default function HelpPage() {
           {(['en', 'th'] as const).map((l) => (
             <span
               key={l}
-              style={{
-                background: lang === l ? 'var(--ink-deep)' : 'transparent',
-                color: lang === l ? 'white' : '#666',
-                borderRadius: '14px', padding: '2px 10px',
-                fontSize: '12px', fontWeight: lang === l ? 600 : 400,
-              }}
+              className={`rounded-[14px] px-2.5 py-0.5 text-xs ${lang === l ? 'bg-[color:var(--ink-deep)] font-semibold text-white' : 'bg-transparent font-normal text-muted'}`}
             >
               {l.toUpperCase()}
             </span>
@@ -65,11 +60,7 @@ export default function HelpPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={lang === 'th' ? 'ค้นหาคู่มือ...' : 'Search help articles...'}
-          style={{
-            width: '100%', padding: '10px 16px', fontSize: '14px',
-            border: '1px solid var(--border-muted)', borderRadius: '10px',
-            outline: 'none', background: 'white', boxSizing: 'border-box',
-          }}
+          className="box-border w-full rounded-[10px] border border-line-muted bg-white px-4 py-2.5 text-sm outline-none"
         />
       </div>
 
@@ -93,10 +84,7 @@ export default function HelpPage() {
                   <div
                     key={article.id}
                     onClick={() => setSelectedArticle(article)}
-                    style={{
-                      background: 'white', border: '1px solid var(--border-muted)', borderRadius: '12px',
-                      padding: '16px', cursor: 'pointer',
-                    }}
+                    className="cursor-pointer rounded-xl border border-line-muted bg-white p-4"
                   >
                     <div className="font-semibold text-[13px] text-[color:var(--ink-deep)] mb-[4px]">
                       {lang === 'th' ? article.titleTH : article.titleEN}
@@ -125,10 +113,7 @@ export default function HelpPage() {
               <div
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                style={{
-                  background: 'white', border: '1px solid var(--border-muted)', borderRadius: '12px',
-                  padding: '16px', cursor: 'pointer',
-                }}
+                className="cursor-pointer rounded-xl border border-line-muted bg-white p-4"
               >
                 <div className="font-semibold text-[14px] text-[color:var(--ink-deep)] mb-[4px]">
                   {lang === 'th' ? cat.titleTH : cat.titleEN}
@@ -165,10 +150,7 @@ export default function HelpPage() {
               <div
                 key={article.id}
                 onClick={() => setSelectedArticle(article)}
-                style={{
-                  background: 'white', border: '1px solid var(--border-muted)', borderRadius: '12px',
-                  padding: '16px', cursor: 'pointer',
-                }}
+                className="cursor-pointer rounded-xl border border-line-muted bg-white p-4"
               >
                 <div className="font-semibold text-[13px] text-[color:var(--ink-deep)]">
                   {lang === 'th' ? article.titleTH : article.titleEN}
