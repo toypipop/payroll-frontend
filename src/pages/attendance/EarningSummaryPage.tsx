@@ -1,59 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
-
-import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import DateField from "../../components/common/DateField";
-
-const toDateStr = (date) => {
-    if (!date) return "";
-
-    if (typeof date === "string") {
-        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-        const parsed = new Date(date);
-        if (Number.isNaN(parsed.getTime())) return "";
-        const y = parsed.getFullYear();
-        const m = String(parsed.getMonth() + 1).padStart(2, "0");
-        const d = String(parsed.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-    }
-
-    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
-
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-};
+import useAttendanceSummary from "./summaries/useAttendanceSummary";
 
 const EarningSummaryPage = () => {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const [summary, setSummary] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [fromDate, setFromDate] = useState(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`);
-    const [toDate, setToDate] = useState(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`);
-    const [meta, setMeta] = useState({ from: "", to: "" });
-
-    const fetchSummary = useCallback(async () => {
-        try {
-            setLoading(true);
-            const res = await api.get("/earning/summary", {
-                params: { from: toDateStr(fromDate), to: toDateStr(toDate) },
-            });
-            setSummary(res.data.summary || []);
-            setMeta({ from: res.data.from, to: res.data.to });
-        } catch (err) {
-            console.error("Fetch Error:", err);
-            alert(err.response?.data?.error || "Failed to load earning summary");
-        } finally {
-            setLoading(false);
-        }
-    }, [fromDate, toDate]);
-
-    useEffect(() => { fetchSummary(); }, [fetchSummary]);
+    const { summary, loading, fromDate, setFromDate, toDate, setToDate, meta, fetchSummary } =
+        useAttendanceSummary("/earning/summary", "Failed to load earning summary");
 
     const totalOtMins = summary.reduce((s, r) => s + r.total_overtime_minutes, 0);
     const totalExtraDays = summary.reduce((s, r) => s + r.total_extra_days, 0);

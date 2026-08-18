@@ -1,52 +1,13 @@
-import React, { useState, useEffect } from "react";
-import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
+import useLeaveApprovals from "./leave-approvals/useLeaveApprovals";
 
 const LeaveApprovedPage = () => {
     const { user } = useAuth();
-    const [pendingRequests, setPendingRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchPending = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get("/leaves/approved");
-            setPendingRequests(response.data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchPending();
-    }, []);
-
-    const handleAction = async (row, newStatus) => {
-        let confirmMsg = `Are you sure you want to ${newStatus.toLowerCase()} this request?`;
-        if (newStatus === "Approved" && row.quota_exceeded) {
-            confirmMsg = `⚠ This employee will exceed the yearly quota for ${row.leave_type} `
-                + `(used ${row.quota_used_days} of ${row.quota_max_days} days, requesting ${row.total_days} more).\n\n`
-                + `Approve anyway?`;
-        }
-        if (!window.confirm(confirmMsg)) return;
-        const id = row.id;
-
-        try {
-            await api.put(`/leaves/approve/${id}`, {
-                status: newStatus,
-                approved_by: user?.id
-            });
-            fetchPending();
-        } catch (err) {
-            alert(err.response?.data?.error || "Action failed");
-        }
-    };
+    const { pendingRequests, loading, decide } = useLeaveApprovals(user?.id);
 
     const columns = [
         {
@@ -134,14 +95,14 @@ const LeaveApprovedPage = () => {
             render: (row) => (
                 <div style={{ display: "flex", gap: "4px", whiteSpace: "nowrap" }}>
                     <Button
-                        onClick={() => handleAction(row, "Approved")}
+                        onClick={() => decide(row, "Approved")}
                         style={{ ...actionBtn, backgroundColor: "#10b981", color: "#fff" }}
                     >
                         Approve
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleAction(row, "Rejected")}
+                        onClick={() => decide(row, "Rejected")}
                         style={actionBtn}
                     >
                         Reject
