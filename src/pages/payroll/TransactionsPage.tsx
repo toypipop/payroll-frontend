@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import api from "../../api/axiosInstance";
 import useTransactionsData from "../../hooks/useTransactionsData";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
-import Modal from "../../components/common/Modal";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
 import { useAuth } from "../../hooks/useAuth";
+import useTransactionSlip from "./transactions/useTransactionSlip";
+import TransactionDetailsModal from "./transactions/TransactionDetailsModal";
 
 const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("en-US", {
@@ -26,6 +26,13 @@ const formatDate = (value) => {
     });
 };
 
+const StatCard = ({ label, value, color = '#0f172a' }) => (
+    <Card style={{ minWidth: '155px', flex: 1 }}>
+        <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+        <div style={{ marginTop: '6px', fontSize: '22px', fontWeight: '800', color, fontVariantNumeric: 'tabular-nums', lineHeight: '1' }}>{value}</div>
+    </Card>
+);
+
 const TransactionsPage = () => {
     const { homeCompanyId } = useAuth();
     const [searchParams] = useSearchParams();
@@ -41,25 +48,10 @@ const TransactionsPage = () => {
         loadingTransactions,
     } = useTransactionsData(cycleFromQuery);
 
-    const [selectedTransaction, setSelectedTransaction] = useState(null);
-    const [slipData, setSlipData] = useState(null);
-    const [slipError, setSlipError] = useState<string | null>(null);
-    const [loadingDetails, setLoadingDetails] = useState(false);
-
-    const [companies, setCompanies] = useState([]);
-    const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
-
-    useEffect(() => {
-        const fetchCompanies = async () => {
-            try {
-                const res = await api.get("/companies/options");
-                setCompanies(res.data || []);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchCompanies();
-    }, []);
+    const {
+        companies, selectedCompanyId, setSelectedCompanyId,
+        selectedTransaction, slipData, slipError, loadingDetails, openDetails, closeDetails,
+    } = useTransactionSlip(homeCompanyId);
 
     const filteredCycles = selectedCompanyId
         ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId))
@@ -79,28 +71,6 @@ const TransactionsPage = () => {
         setSelectedCycleId(filteredCycles.length > 0 ? String(filteredCycles[0].id) : "");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cycles, selectedCompanyId]);
-
-    const openDetails = async (tx) => {
-        setSelectedTransaction(tx);
-        setSlipData(null);
-        setSlipError(null);
-        setLoadingDetails(true);
-        try {
-            const res = await api.get(`/payroll/slip/${tx.id}`);
-            setSlipData(res.data || null);
-        } catch (err) {
-            const msg = err.response?.data?.error || "Unable to load transaction details.";
-            setSlipError(msg);
-        } finally {
-            setLoadingDetails(false);
-        }
-    };
-
-    const closeDetails = () => {
-        setSelectedTransaction(null);
-        setSlipData(null);
-        setSlipError(null);
-    };
 
     const totals = useMemo(() => {
         return filteredTransactions.reduce<{ net: number; earning: number; deduction: number }>(
@@ -175,34 +145,6 @@ const TransactionsPage = () => {
         },
     ];
 
-    const detailColumns = [
-        { label: "Item", key: "item_name" },
-        {
-            label: "Type",
-            sortKey: "type",
-            sortValue: (row) => (row.type || "").toLowerCase(),
-            render: (row) => <Badge status={row.type === "earning" ? "active" : "rejected"}>{row.type}</Badge>,
-        },
-        {
-            label: "Amount",
-            sortKey: "amount",
-            sortValue: (row) => Number(row.amount) || 0,
-            searchValue: (row) => (Number(row.amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
-            render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
-                    ฿{formatCurrency(row.amount)}
-                </span>
-            ),
-        },
-    ];
-
-    const StatCard = ({ label, value, color = '#0f172a' }) => (
-        <Card style={{ minWidth: '155px', flex: 1 }}>
-            <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
-            <div style={{ marginTop: '6px', fontSize: '22px', fontWeight: '800', color, fontVariantNumeric: 'tabular-nums', lineHeight: '1' }}>{value}</div>
-        </Card>
-    );
-
     return (
         <>
             <PageHeader title="Transactions" />
@@ -266,50 +208,13 @@ const TransactionsPage = () => {
                 )}
             </Card>
 
-            <Modal
-                isOpen={!!selectedTransaction}
+            <TransactionDetailsModal
+                transaction={selectedTransaction}
+                slipData={slipData}
+                slipError={slipError}
+                loading={loadingDetails}
                 onClose={closeDetails}
-                title={`Transaction Details${selectedTransaction?.employees ? ` - ${selectedTransaction.employees.first_name} ${selectedTransaction.employees.last_name}` : ""}`}
-            >
-                {loadingDetails ? (
-                    <div style={{ padding: "12px 0", color: "#94a3b8" }}>Loading details...</div>
-                ) : slipError ? (
-                    <div style={{ padding: "12px 0", color: "#ef4444" }}>{slipError}</div>
-                ) : !slipData?.slip ? (
-                    <div style={{ padding: "12px 0", color: "#94a3b8" }}>No data available.</div>
-                ) : (
-                    <>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Cycle</span>
-                            <span style={{ fontWeight: 600 }}>{slipData.cycle?.cycle_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Position (at payout)</span>
-                            <span style={{ fontWeight: 600 }}>{slipData.slip.position_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Department (at payout)</span>
-                            <span style={{ fontWeight: 600 }}>{slipData.slip.department_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Paid to Bank Account</span>
-                            <span style={{ fontWeight: 600 }}>
-                                {slipData.slip.bank_name || "-"} {slipData.slip.bank_account_no ? `(${slipData.slip.bank_account_no})` : ""}
-                            </span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Net Pay</span>
-                            <span style={{ fontWeight: 700 }}>฿{formatCurrency(slipData.slip.net_pay)}</span>
-                        </div>
-                        <div style={{ margin: "12px 0" }}>
-                            <Badge status="cancelled">Read-only audit trail</Badge>
-                        </div>
-                        <Card style={{ padding: "0px" }}>
-                            <Table columns={detailColumns} data={slipData.slip.details || []} />
-                        </Card>
-                    </>
-                )}
-            </Modal>
+            />
         </>
     );
 };

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import api from "../../api/axiosInstance";
+import { useState } from "react";
+
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
-import Modal from "../../components/common/Modal";
 import Badge from "../../components/common/Badge";
+import useMyPayslips from "./my-payslips/useMyPayslips";
+import PayslipDetailsModal from "./my-payslips/PayslipDetailsModal";
 
 const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -15,16 +16,8 @@ const formatDate = (value) => {
 };
 
 const MyPayslipsPage = () => {
-    const [slips, setSlips] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { slips, loading } = useMyPayslips();
     const [selected, setSelected] = useState(null);
-
-    useEffect(() => {
-        api.get("/payroll/my-slips")
-            .then((res) => setSlips(res.data || []))
-            .catch(() => setSlips([]))
-            .finally(() => setLoading(false));
-    }, []);
 
     const columns = [
         {
@@ -76,24 +69,6 @@ const MyPayslipsPage = () => {
         },
     ];
 
-    const detailColumns = [
-        { label: "Item", key: "item_name" },
-        {
-            label: "Type",
-            sortKey: "type",
-            sortValue: (row) => (row.type || "").toLowerCase(),
-            render: (row) => <Badge status={row.type === "earning" ? "active" : "rejected"}>{row.type}</Badge>,
-        },
-        {
-            label: "Amount",
-            sortKey: "amount",
-            sortValue: (row) => Number(row.amount) || 0,
-            render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: 600 }}>฿{formatCurrency(row.amount)}</span>
-            ),
-        },
-    ];
-
     return (
         <>
             <PageHeader title="My Payslips" />
@@ -115,44 +90,7 @@ const MyPayslipsPage = () => {
                 )}
             </Card>
 
-            <Modal
-                isOpen={!!selected}
-                onClose={() => setSelected(null)}
-                title={`Payslip — ${selected?.cycle_name || ""}`}
-            >
-                {selected && (
-                    <>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Period</span>
-                            <span style={{ fontWeight: 600 }}>{formatDate(selected.start_date)} – {formatDate(selected.end_date)}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Position (at payout)</span>
-                            <span style={{ fontWeight: 600 }}>{selected.position_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Department (at payout)</span>
-                            <span style={{ fontWeight: 600 }}>{selected.department_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Paid to Bank Account</span>
-                            <span style={{ fontWeight: 600 }}>
-                                {selected.bank_name || "-"} {selected.bank_account_no ? `(${selected.bank_account_no})` : ""}
-                            </span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Net Pay</span>
-                            <span style={{ fontWeight: 700, color: "#0f172a" }}>฿{formatCurrency(selected.net_pay)}</span>
-                        </div>
-                        <div style={{ margin: "12px 0" }}>
-                            <Badge status="cancelled">Read-only audit trail</Badge>
-                        </div>
-                        <Card style={{ padding: "0px" }}>
-                            <Table columns={detailColumns} data={selected.details || []} />
-                        </Card>
-                    </>
-                )}
-            </Modal>
+            <PayslipDetailsModal slip={selected} onClose={() => setSelected(null)} />
         </>
     );
 };
