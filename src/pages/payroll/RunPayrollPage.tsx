@@ -213,13 +213,13 @@ const RunPayrollPage = () => {
 
                 {/* Calculation result banner */}
                 {calcResult && (
-                    <div className="mt-[12px] p-[10px_14px] rounded-[8px] bg-[#f0fdf4] border border-[#bbf7d0] text-[#15803d] text-[13px]">
+                    <div className="mt-[12px] p-[10px_14px] rounded-[8px] bg-success-soft border border-success-line text-success-text text-[13px]">
                         <strong>{calcResult.processed_count}</strong> employees processed
                         {calcResult.skipped_count > 0 && (
-                            <span className="text-[#92400e]"> · {calcResult.skipped_count} skipped (no salary record)</span>
+                            <span className="text-warning-text"> · {calcResult.skipped_count} skipped (no salary record)</span>
                         )}
                         {calcResult.skipped_employees?.length > 0 && (
-                            <ul className="m-[6px_0_0_16px] p-[0px] text-[12px] text-[#92400e]">
+                            <ul className="m-[6px_0_0_16px] p-[0px] text-[12px] text-warning-text">
                                 {calcResult.skipped_employees.map((name: string) => <li key={name}>{name}</li>)}
                             </ul>
                         )}
@@ -228,7 +228,7 @@ const RunPayrollPage = () => {
 
                 {/* Informational, not a warning: new hires pro-rated because they started mid-cycle. */}
                 {calcResult?.prorated_employees?.length > 0 && (
-                    <div className="mt-[10px] p-[10px_14px] rounded-[8px] bg-[#eff6ff] border border-[#bfdbfe] text-[#1d4ed8] text-[13px]">
+                    <div className="mt-[10px] p-[10px_14px] rounded-[8px] bg-primary-subtle border border-primary text-primary text-[13px]">
                         <strong>{calcResult.prorated_employees.length}</strong> new hire{calcResult.prorated_employees.length > 1 ? "s" : ""} paid pro-rated this cycle (started mid-cycle)
                         <ul className="m-[6px_0_0_16px] p-[0px] text-[12px]">
                             {calcResult.prorated_employees.map((p: { name: string; days: number; total_days: number }) => (
@@ -245,7 +245,7 @@ const RunPayrollPage = () => {
             {transactions.length > 0 && (
                 <div className="flex gap-[16px] mb-[20px] flex-wrap">
                     {[
-                        { label: "Employees", value: transactions.length, color: "#3b82f6" },
+                        { label: "Employees", value: transactions.length, color: "var(--primary-color)" },
                         { label: "Total Earning", value: `฿${formatCurrency(totalEarning)}`, color: "var(--status-success)" },
                         { label: "Total Net Pay", value: `฿${formatCurrency(totalNetPay)}`, color: "var(--text-main)" },
                     ].map((stat) => (

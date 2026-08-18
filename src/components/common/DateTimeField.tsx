@@ -78,7 +78,7 @@ const CalendarSelect = ({ value, options, onChange }: CalendarSelectProps) => {
                                     padding: "7px 10px", fontSize: "13px", borderRadius: "7px",
                                     cursor: "pointer", display: "flex", alignItems: "center",
                                     justifyContent: "space-between",
-                                    backgroundColor: isSel ? "var(--control-accent-soft)" : isHov ? "#f8f7ff" : "transparent",
+                                    backgroundColor: isSel ? "var(--control-accent-soft)" : isHov ? "var(--primary-subtle)" : "transparent",
                                     color: isSel ? "var(--control-accent)" : "var(--text-strong)",
                                     fontWeight: isSel ? "600" : "400",
                                     transition: "background-color 0.1s",
@@ -324,7 +324,7 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                     cursor: pointer;
                 }
                 .confirm-btn:hover {
-                    background-color: #564fc0;
+                    background-color: var(--primary-hover);
                 }
                 .time-label {
                     font-size: 12px;
@@ -373,7 +373,7 @@ const DateTimeField = React.forwardRef<DatePicker, DateTimeFieldProps>(({ label,
                     color: var(--control-accent);
                 }
                 .react-datepicker__day--keyboard-selected {
-                    background-color: #ede9fd !important;
+                    background-color: var(--primary-subtle) !important;
                     border-radius: 6px;
                     color: var(--control-accent);
                 }

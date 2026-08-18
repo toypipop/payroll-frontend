@@ -12,7 +12,7 @@ const emptyStateStyle: CSSProperties = {
     justifyContent: "center",
     minHeight: "300px",
     padding: "40px",
-    color: "#9ca3af",
+    color: "var(--text-subtle)",
     textAlign: "center"
 };
 
@@ -43,15 +43,15 @@ const PermissionSettings = () => {
                                         padding: "16px",
                                         cursor: "pointer",
                                         borderRadius: "8px",
-                                        border: selectedRoles?.id === role.id ? "1px solid #4f46e5" : "1px solid #e5e7eb",
-                                        backgroundColor: selectedRoles?.id === role.id ? "#f5f3ff" : "white",
+                                        border: selectedRoles?.id === role.id ? "1px solid var(--primary-color)" : "1px solid var(--border-muted)",
+                                        backgroundColor: selectedRoles?.id === role.id ? "var(--primary-subtle)" : "white",
                                         transition: "all 0.2s",
                                     }}
                                 >
                                     <div className="font-semibold text-sidebar-line">
                                         {role.roles_name}
                                     </div>
-                                    <div className="text-[12px] text-[#6b7280] mt-[4px]">
+                                    <div className="text-[12px] text-muted mt-[4px]">
                                         🏢 {role.companies?.name || "Global / System"}
                                     </div>
                                 </div>

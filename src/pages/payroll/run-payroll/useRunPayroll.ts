@@ -36,7 +36,7 @@ export const useRunPayroll = (homeCompanyId) => {
         if (!cycleId) return;
         try {
             setLoadingTx(true);
-            const res = await api.get(`/payroll/transactions/${cycleId}`);
+            const res = await api.get(`/payroll/run/transactions/${cycleId}`);
             // Trigger React re-render via immutability
             setTransactions([...(res.data.transactions || [])]);
         } catch (err) {

@@ -114,7 +114,7 @@ const DeductionSummaryPage = () => {
                     <>
                         <Table columns={columns} data={summary} />
                         {summary.length > 0 && (
-                            <div className="flex justify-end gap-[32px] p-[12px_24px] border-t border-t-line-muted text-[13px] font-semibold text-[#374151]">
+                            <div className="flex justify-end gap-[32px] p-[12px_24px] border-t border-t-line-muted text-[13px] font-semibold text-secondary">
                                 <span>Total Late: {totalLateMin.toFixed(1)} min</span>
                                 <span>Total Absent: {totalAbsent} days</span>
                                 <span className="text-danger-text">

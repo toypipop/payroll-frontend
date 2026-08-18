@@ -87,7 +87,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
       width: '30px',
       height: '30px',
       borderRadius: '50%',
-      background: 'linear-gradient(145deg, var(--primary-color), #14b8a6)',
+      background: 'linear-gradient(145deg, var(--primary-color), var(--brand-teal))',
       color: '#fff',
       display: 'flex',
       alignItems: 'center',
@@ -114,7 +114,7 @@ const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
     <nav style={styles.navbar}>
       <div style={styles.breadcrumb}>
         <span>{categoryName}</span>
-        <span className="text-[#9fb3b7]">/</span>
+        <span className="text-subtle">/</span>
         <span style={styles.pageTitle}>{pageTitle}</span>
       </div>
 

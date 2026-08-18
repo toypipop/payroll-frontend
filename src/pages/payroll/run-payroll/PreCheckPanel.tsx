@@ -3,15 +3,15 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
     if (issues.length === 0) return null;
 
     return (
-        <div className="mt-[12px] p-[14px_16px] rounded-[8px] bg-[#fffbeb] border border-[#fcd34d]">
-            <div className="font-semibold text-[#92400e] mb-[8px] text-[13px]">
+        <div className="mt-[12px] p-[14px_16px] rounded-[8px] bg-warning-soft border border-warning-line">
+            <div className="font-semibold text-warning-text mb-[8px] text-[13px]">
                 ⚠ Issues found before Run Payroll
             </div>
             {issues.map((issue, i) => (
                 <div key={i} className="mb-[8px]">
-                    <div className="text-[13px] text-[#78350f]">{issue.message}</div>
+                    <div className="text-[13px] text-warning-text">{issue.message}</div>
                     {issue.employees?.length > 0 && (
-                        <ul className="m-[4px_0_0_16px] p-[0px] text-[12px] text-[#92400e]">
+                        <ul className="m-[4px_0_0_16px] p-[0px] text-[12px] text-warning-text">
                             {issue.employees.map((name: string) => <li key={name}>{name}</li>)}
                         </ul>
                     )}
@@ -21,7 +21,7 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
                 <div className="mt-[10px] flex gap-[8px]">
                     <button
                         onClick={onProceed}
-                        className="p-[6px_14px] rounded-[6px] border border-[#d97706] bg-accent text-[#fff] text-[13px] font-semibold cursor-pointer"
+                        className="p-[6px_14px] rounded-[6px] border border-warning-line bg-accent text-[#fff] text-[13px] font-semibold cursor-pointer"
                     >
                         Proceed Anyway
                     </button>

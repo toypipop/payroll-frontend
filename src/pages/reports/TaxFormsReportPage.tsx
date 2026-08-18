@@ -135,7 +135,7 @@ const A4Tawi50 = ({ data }) => {
             </div>
             <div className="grid grid-cols-[1fr_1fr_1fr_1fr] gap-[10px] mb-[14px]">
                 {[
-                    { label: "Gross Income", value: `฿${fc(tx?.total_earning)}`, color: "#059669" },
+                    { label: "Gross Income", value: `฿${fc(tx?.total_earning)}`, color: "var(--status-success-text)" },
                     { label: "SSO (Employee)", value: `฿${fc(tx?.sso_amount)}`, color: "var(--accent-color)" },
                     { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, color: "var(--status-danger-text)" },
                     { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, color: "var(--text-main)" },
@@ -205,7 +205,7 @@ const TaxFormsReportPage = () => {
         },
         {
             label: "Gross Income",
-            render: (r) => <span className="font-mono text-[#059669] font-semibold">฿{fc(r.gross_income)}</span>,
+            render: (r) => <span className="font-mono text-success-text font-semibold">฿{fc(r.gross_income)}</span>,
         },
         {
             label: "SSO (Employee)",
@@ -233,7 +233,7 @@ const TaxFormsReportPage = () => {
         if (!selectedCycleId) return;
         (async () => {
             try {
-                const res = await api.get(`/payroll/transactions/${selectedCycleId}`);
+                const res = await api.get(`/reports/tax-forms/transactions/${selectedCycleId}`);
                 const map = {};
                 (res.data?.transactions || []).forEach((tx) => {
                     if (tx.employees?.employees_code) {
@@ -363,7 +363,7 @@ const TaxFormsReportPage = () => {
                         <>
                             <Table columns={enrichedColumns} data={pnd1Data.rows || []} />
                             <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
-                                <span className="text-muted">Total Gross: <strong className="text-[#059669] font-mono">฿{fc(pnd1Data.total_gross)}</strong></span>
+                                <span className="text-muted">Total Gross: <strong className="text-success-text font-mono">฿{fc(pnd1Data.total_gross)}</strong></span>
                                 <span className="text-muted">Total SSO: <strong className="text-accent font-mono">{fc(pnd1Data.total_sso)}</strong></span>
                                 <span className="text-muted">Total Tax: <strong className="text-danger-text font-mono">{fc(pnd1Data.total_tax)}</strong></span>
                             </div>

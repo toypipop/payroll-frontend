@@ -40,7 +40,7 @@ export default function HelpPage() {
         {/* Language toggle */}
         <button
           onClick={() => setLang(l => l === 'en' ? 'th' : 'en')}
-          className="bg-[#f0f0f0] border-none rounded-[20px] p-[4px_8px] flex gap-[4px] cursor-pointer"
+          className="bg-line-light border-none rounded-[20px] p-[4px_8px] flex gap-[4px] cursor-pointer"
         >
           {(['en', 'th'] as const).map((l) => (
             <span
@@ -67,7 +67,7 @@ export default function HelpPage() {
           placeholder={lang === 'th' ? 'ค้นหาคู่มือ...' : 'Search help articles...'}
           style={{
             width: '100%', padding: '10px 16px', fontSize: '14px',
-            border: '1px solid #e0e0e0', borderRadius: '10px',
+            border: '1px solid var(--border-muted)', borderRadius: '10px',
             outline: 'none', background: 'white', boxSizing: 'border-box',
           }}
         />
@@ -94,7 +94,7 @@ export default function HelpPage() {
                     key={article.id}
                     onClick={() => setSelectedArticle(article)}
                     style={{
-                      background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
+                      background: 'white', border: '1px solid var(--border-muted)', borderRadius: '12px',
                       padding: '16px', cursor: 'pointer',
                     }}
                   >
@@ -126,7 +126,7 @@ export default function HelpPage() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 style={{
-                  background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
+                  background: 'white', border: '1px solid var(--border-muted)', borderRadius: '12px',
                   padding: '16px', cursor: 'pointer',
                 }}
               >
@@ -144,7 +144,7 @@ export default function HelpPage() {
               <div className="grid grid-cols-3 gap-3">
                 {scenarioCategories.map(renderCategoryCard)}
               </div>
-              <hr className="border-none border-t border-t-[#e0e0e0] m-[20px_0]" />
+              <hr className="border-none border-t border-t-line-muted m-[20px_0]" />
               <div className="grid grid-cols-3 gap-3">
                 {moduleCategories.map(renderCategoryCard)}
               </div>
@@ -166,7 +166,7 @@ export default function HelpPage() {
                 key={article.id}
                 onClick={() => setSelectedArticle(article)}
                 style={{
-                  background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
+                  background: 'white', border: '1px solid var(--border-muted)', borderRadius: '12px',
                   padding: '16px', cursor: 'pointer',
                 }}
               >

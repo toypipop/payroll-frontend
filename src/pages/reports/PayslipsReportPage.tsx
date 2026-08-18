@@ -33,7 +33,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
         {
             label: "Amount",
             render: (item) => (
-                <span className="font-mono text-[#059669] font-semibold">
+                <span className="font-mono text-success-text font-semibold">
                     {formatCurrency(item.amount)}
                 </span>
             ),
@@ -118,13 +118,13 @@ const A4Payslip = ({ slip, cycle, company }) => {
             <div className="grid grid-cols-[1fr_1fr] gap-[16px] mb-[18px]">
                 {/* Earnings */}
                 <div className="border border-line-muted rounded-[6px] overflow-hidden">
-                    <div className="bg-[#064e3b] text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
+                    <div className="bg-success-text text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
                         Earnings
                     </div>
                     <Table columns={earningsColumns} data={earnings} enableSearch={false} sortable={false} fitWidth />
-                    <div className="grid grid-cols-[1fr_auto] p-[9px_14px] bg-[#ecfdf5] font-extrabold text-[13px]">
+                    <div className="grid grid-cols-[1fr_auto] p-[9px_14px] bg-success-soft font-extrabold text-[13px]">
                         <div>Total Earnings</div>
-                        <div className="font-mono text-[14px] text-[#059669]">
+                        <div className="font-mono text-[14px] text-success-text">
                             {formatCurrency(slip.total_earning)}
                         </div>
                     </div>
@@ -132,11 +132,11 @@ const A4Payslip = ({ slip, cycle, company }) => {
 
                 {/* Deductions */}
                 <div className="border border-line-muted rounded-[6px] overflow-hidden">
-                    <div className="bg-[#7f1d1d] text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
+                    <div className="bg-danger-text text-[#fff] p-[9px_14px] font-bold text-[11px] uppercase tracking-[1px]">
                         Deductions
                     </div>
                     <Table columns={deductionsColumns} data={deductions} enableSearch={false} sortable={false} fitWidth />
-                    <div className="grid grid-cols-[1fr_auto] p-[9px_14px] bg-[#fef2f2] font-extrabold text-[13px]">
+                    <div className="grid grid-cols-[1fr_auto] p-[9px_14px] bg-danger-soft font-extrabold text-[13px]">
                         <div>Total Deductions</div>
                         <div className="font-mono text-[14px] text-danger-text">
                             ({formatCurrency(totalDeductions)})
@@ -206,7 +206,7 @@ const PayslipsReportPage = () => {
         if (!cycleId) return;
         try {
             setLoadingTx(true);
-            const res = await api.get(`/payroll/transactions/${cycleId}`);
+            const res = await api.get(`/reports/payslips/transactions/${cycleId}`);
             setSelectedCycle(res.data.cycle);
             setTransactions(res.data.transactions || []);
             } catch (err) {
@@ -281,7 +281,7 @@ const PayslipsReportPage = () => {
         {
             label: "Gross Earnings",
             render: (row) => (
-                <span className="font-mono text-[#059669] font-semibold">
+                <span className="font-mono text-success-text font-semibold">
                     —{formatCurrency(row.total_earning)}
                 </span>
             ),

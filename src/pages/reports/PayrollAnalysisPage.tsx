@@ -82,11 +82,11 @@ const DetailPanel = ({ tx }) => {
         <div className="p-[16px_24px] bg-surface border-b border-b-line-muted">
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <div className="text-[11px] font-bold text-[#059669] uppercase mb-[8px]">Earnings</div>
+                    <div className="text-[11px] font-bold text-success-text uppercase mb-[8px]">Earnings</div>
                     {earnings.map((d, i) => (
                         <div key={i} className="flex justify-between text-[13px] mb-[4px]">
                             <span className="text-body">{d.item_name}</span>
-                            <span className="font-mono text-[#059669]">+{fc(d.amount)}</span>
+                            <span className="font-mono text-success-text">+{fc(d.amount)}</span>
                         </div>
                     ))}
                     {earnings.length === 0 && <div className="text-subtle text-[12px]">—</div>}
@@ -141,7 +141,7 @@ const PayrollAnalysisPage = () => {
         { label: "Base Salary", render: (tx) => <span className="font-mono">฿{fc(tx.salaries_at_time)}</span> },
         {
             label: "Gross Earnings",
-            render: (tx) => <span className="font-mono text-[#059669] font-semibold">฿{fc(tx.total_earning)}</span>,
+            render: (tx) => <span className="font-mono text-success-text font-semibold">฿{fc(tx.total_earning)}</span>,
         },
         {
             label: "Deductions",
@@ -149,7 +149,7 @@ const PayrollAnalysisPage = () => {
         },
         {
             label: "SSO",
-            render: (tx) => <span className="font-mono text-[#0369a1]">({fc(tx.sso_amount)})</span>,
+            render: (tx) => <span className="font-mono text-primary">({fc(tx.sso_amount)})</span>,
         },
         {
             label: "Tax",
@@ -179,7 +179,7 @@ const PayrollAnalysisPage = () => {
         {
             label: "Debit (฿)",
             render: (r) => r.debit > 0
-                ? <span className="font-mono text-[#059669] font-semibold">{fc(r.debit)}</span>
+                ? <span className="font-mono text-success-text font-semibold">{fc(r.debit)}</span>
                 : <span className="text-subtle">—</span>,
         },
         {
@@ -245,9 +245,9 @@ const PayrollAnalysisPage = () => {
             {/* Summary Cards */}
             {summary && (
                 <div className="flex flex-wrap gap-[12px] mb-[20px]">
-                    <SummaryCard label="Total Gross Earnings" value={summary.total_gross} color="#059669" />
+                    <SummaryCard label="Total Gross Earnings" value={summary.total_gross} color="var(--status-success-text)" />
                     <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="var(--accent-color)" />
-                    <SummaryCard label="SSO (Employee + Employer)" value={summary.total_sso_employee + summary.total_sso_employer} color="#0369a1" />
+                    <SummaryCard label="SSO (Employee + Employer)" value={summary.total_sso_employee + summary.total_sso_employer} color="var(--primary-color)" />
                     <SummaryCard label="Tax Withheld" value={summary.total_tax} color="var(--status-danger-text)" />
                     <SummaryCard label="Total Net Pay" value={summary.total_net} color="var(--text-main)" />
                 </div>
@@ -301,7 +301,7 @@ const PayrollAnalysisPage = () => {
                             {renderRegisterTable()}
                             <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[24px] text-[13px] bg-surface flex-wrap">
                                 <span className="text-muted">Employees: <strong>{transactions.length}</strong></span>
-                                <span className="text-[#064e3b]">Gross: <strong className="font-mono">฿{fc(summary?.total_gross)}</strong></span>
+                                <span className="text-success-text">Gross: <strong className="font-mono">฿{fc(summary?.total_gross)}</strong></span>
                                 <span className="text-danger-text">Tax: <strong className="font-mono">{fc(summary?.total_tax)}</strong></span>
                                 <span className="text-main font-extrabold font-mono text-[15px]">Net: ฿{fc(summary?.total_net)}</span>
                             </div>
@@ -327,7 +327,7 @@ const PayrollAnalysisPage = () => {
                             </div>
                             <Table columns={journalColumns} data={journal} />
                             <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
-                                <span className="text-[#064e3b]">
+                                <span className="text-success-text">
                                     Total Debit: <strong className="font-mono">
                                         ฿{fc(journal.reduce((s, r) => s + r.debit, 0))}
                                     </strong>

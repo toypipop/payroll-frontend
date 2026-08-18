@@ -23,7 +23,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.total_overtime_minutes) || 0,
             searchValue: (row) => String(Number(row.total_overtime_minutes) || 0),
             render: (row) => (
-                <span className={row.total_overtime_minutes > 0 ? "text-[#0ea5e9]" : undefined}>
+                <span className={row.total_overtime_minutes > 0 ? "text-primary" : undefined}>
                     {row.total_overtime_minutes.toFixed(1)}
                 </span>
             ),
@@ -45,7 +45,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.overtime_amount) || 0,
             searchValue: (row) => (Number(row.overtime_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span className={row.overtime_amount > 0 ? "text-[#0284c7]" : undefined}>
+                <span className={row.overtime_amount > 0 ? "text-primary" : undefined}>
                     {row.overtime_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -56,7 +56,7 @@ const EarningSummaryPage = () => {
             sortValue: (row) => Number(row.extra_amount) || 0,
             searchValue: (row) => (Number(row.extra_amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
             render: (row) => (
-                <span className={row.extra_amount > 0 ? "text-[#15803d]" : undefined}>
+                <span className={row.extra_amount > 0 ? "text-success-text" : undefined}>
                     {row.extra_amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </span>
             ),
@@ -115,7 +115,7 @@ const EarningSummaryPage = () => {
                         <Table columns={columns} data={summary} />
                         {summary.length > 0 && (
                             <div
-                                className="flex justify-end gap-[32px] p-[12px_24px] border-t border-t-line-muted text-[13px] font-semibold text-[#374151]"
+                                className="flex justify-end gap-[32px] p-[12px_24px] border-t border-t-line-muted text-[13px] font-semibold text-secondary"
                             >
                                 <span>Total OT: {totalOtMins.toFixed(1)} min</span>
                                 <span>Total Extra: {totalExtraDays} days</span>

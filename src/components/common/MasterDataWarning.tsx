@@ -19,7 +19,7 @@ const MasterDataWarning: React.FC<MasterDataWarningProps> = ({
     const canManage = useModulePermission(moduleKey);
 
     return (
-        <div className="mb-4 rounded-lg border border-[#fcd34d] bg-[#fef3c7] px-3 py-2.5 text-[13px] leading-normal text-[#92400e]">
+        <div className="mb-4 rounded-lg border border-warning-line bg-warning-soft px-3 py-2.5 text-[13px] leading-normal text-warning-text">
             {message}
             {canManage && (
                 <>
@@ -28,7 +28,7 @@ const MasterDataWarning: React.FC<MasterDataWarningProps> = ({
                         to={routePath}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-semibold text-[#92400e] underline"
+                        className="font-semibold text-warning-text underline"
                     >
                         {linkLabel}
                     </Link>

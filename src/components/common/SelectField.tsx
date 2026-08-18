@@ -218,7 +218,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        backgroundColor: isSelected ? "var(--control-accent-soft)" : isHov ? "#f8f7ff" : "transparent",
+                                        backgroundColor: isSelected ? "var(--control-accent-soft)" : isHov ? "var(--primary-subtle)" : "transparent",
                                         color: isSelected ? "var(--control-accent)" : "var(--text-strong)",
                                         fontWeight: isSelected ? "600" : "400",
                                         transition: "background-color 0.1s",

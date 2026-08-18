@@ -7,14 +7,14 @@ interface BadgeProps {
 
 // Each status maps to a Tailwind pair rather than a style object, so the pill picks up hover/dark variants for free later.
 const STATUS_CLASSES: Record<string, string> = {
-    active:    "bg-[#ecfdf5] text-success",
-    true:      "bg-[#ecfdf5] text-success",
-    approved:  "bg-[#ecfdf5] text-success",
-    inactive:  "bg-[#fef2f2] text-danger",
-    false:     "bg-[#fef2f2] text-danger",
-    rejected:  "bg-[#fef2f2] text-danger",
+    active:    "bg-success-soft text-success",
+    true:      "bg-success-soft text-success",
+    approved:  "bg-success-soft text-success",
+    inactive:  "bg-danger-soft text-danger",
+    false:     "bg-danger-soft text-danger",
+    rejected:  "bg-danger-soft text-danger",
     cancelled: "bg-hover text-subtle",
-    pending:   "bg-[#fffbeb] text-accent",
+    pending:   "bg-warning-soft text-accent",
     default:   "bg-hover text-muted",
 };
 

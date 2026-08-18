@@ -18,8 +18,8 @@ const StatCard = ({ label, value, sub, color = 'var(--text-main)', loading }) =>
 );
 
 const quickLinks = [
-    { label: 'Run Payroll',   desc: 'Calculate & process a new cycle',   path: '/run-payroll',   color: '#3b82f6' },
-    { label: 'Employees',    desc: 'Manage employee records',            path: '/employees',     color: '#8b5cf6' },
+    { label: 'Run Payroll',   desc: 'Calculate & process a new cycle',   path: '/run-payroll',   color: 'var(--primary-color)' },
+    { label: 'Employees',    desc: 'Manage employee records',            path: '/employees',     color: 'var(--primary-color)' },
     { label: 'Payslips',     desc: 'Browse closed-cycle payslips',       path: '/payslips',      color: 'var(--status-success)' },
     { label: 'Transactions', desc: 'Audit immutable payroll records',    path: '/transactions',  color: 'var(--accent-color)' },
 ];
@@ -51,7 +51,7 @@ const DashboardPage = () => {
             <div className="flex gap-[14px] mb-[24px] flex-wrap">
                 <StatCard label="Total Employees" value={stats?.employees  ?? 0} sub="Across all departments" color="var(--text-main)" loading={loading} />
                 <StatCard label="Payroll Cycles"  value={stats?.totalCycles ?? 0} sub="All time"              color="var(--text-main)" loading={loading} />
-                <StatCard label="Active Cycles"   value={stats?.activeCycles ?? 0} sub="Open for processing" color="#3b82f6" loading={loading} />
+                <StatCard label="Active Cycles"   value={stats?.activeCycles ?? 0} sub="Open for processing" color="var(--primary-color)" loading={loading} />
                 <StatCard label="Closed Cycles"   value={stats?.closedCycles ?? 0} sub="Locked & immutable"  color="var(--status-success)" loading={loading} />
             </div>
 
@@ -64,13 +64,13 @@ const DashboardPage = () => {
                     <div
                         key={path}
                         onClick={() => navigate(path)}
-                        className="bg-[#fff] border border-[#e8edf2] rounded-[10px] p-[18px_20px] cursor-pointer transition-[border-color_0.15s,_box-shadow_0.15s]"
+                        className="bg-[#fff] border border-line-light rounded-[10px] p-[18px_20px] cursor-pointer transition-[border-color_0.15s,_box-shadow_0.15s]"
                         onMouseEnter={(e) => {
                             e.currentTarget.style.borderColor = color;
                             e.currentTarget.style.boxShadow = `0 4px 14px ${color}22`;
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e8edf2';
+                            e.currentTarget.style.borderColor = 'var(--border-light)';
                             e.currentTarget.style.boxShadow = 'none';
                         }}
                     >

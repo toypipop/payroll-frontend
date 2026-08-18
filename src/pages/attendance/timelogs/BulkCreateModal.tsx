@@ -160,7 +160,7 @@ const BulkCreateModal = ({
                 >
                     {bulkResult ? (
                         <div>
-                            <div style={{ ...warningBox, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d" }}>
+                            <div style={{ ...warningBox, background: "var(--status-success-soft)", border: "1px solid var(--status-success-line)", color: "var(--status-success-text)" }}>
                                 Created <strong>{bulkResult.created_count}</strong> time log(s).
                                 {bulkResult.skipped_count > 0 && (
                                     <span> Skipped {bulkResult.skipped_count} date(s) that already had a log.</span>
@@ -304,7 +304,7 @@ const BulkCreateModal = ({
                             )}
 
                             {bulkError && (
-                                <div style={{ ...warningBox, background: "#fff1f2", border: "1px solid #fecdd3", color: "#be123c" }}>
+                                <div style={{ ...warningBox, background: "var(--status-danger-soft)", border: "1px solid var(--status-danger-line)", color: "var(--status-danger-text)" }}>
                                     {bulkError}
                                 </div>
                             )}

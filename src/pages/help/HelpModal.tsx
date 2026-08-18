@@ -83,7 +83,7 @@ export default function HelpModal({ article, lang, onClose }: Props) {
               <div className="font-semibold text-[color:var(--ink-deep)] mb-[10px] text-[13px]">
                 {getStepsLabel(article.articleType, lang)}
               </div>
-              <div className="bg-[#f8fffe] border-l-[3px] border-l-[color:var(--ink-deep)] p-[12px_16px] rounded-[4px]">
+              <div className="bg-brand-tint border-l-[3px] border-l-[color:var(--ink-deep)] p-[12px_16px] rounded-[4px]">
                 {steps.map((step, i) => (
                   <div key={i} className="text-[13px] leading-[2] text-[#333]">
                     {article.articleType === 'checklist'

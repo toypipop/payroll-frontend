@@ -22,12 +22,12 @@ const fixedScopeStyle: CSSProperties = {
     flexDirection: "column",
     gap: "2px",
     fontSize: "13px",
-    color: "#6b7280",
+    color: "var(--text-muted)",
 };
 
 const fixedScopeHintStyle: CSSProperties = {
     fontSize: "11px",
-    color: "#9ca3af",
+    color: "var(--text-subtle)",
 };
 
 const categoryRowStyle = {

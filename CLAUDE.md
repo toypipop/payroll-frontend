@@ -69,6 +69,8 @@ Three rules the hard way:
   override anything: Tailwind resolves conflicts by CSS order, not by attribute order, so `<Card className="p-0">`
   would still be padded by the `px-6` in the component.
 
+- **No hex literal lives in a component.** `src/index.css` holds every colour the app uses, including the status
+  surfaces (`--status-*-soft/-line/-text`) and the brand shades behind the logo gradient and the sign-in backdrop.
 - **Tailwind's own palette is switched off** (`--color-*: initial` in `@theme`, keeping only white and black), so
   `bg-slate-100` does not exist. A colour comes from a token or it does not come at all.
 

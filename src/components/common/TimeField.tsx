@@ -228,7 +228,7 @@ const TimeField = ({ label, value, onChange, error, required, ...props }: TimeFi
                 {...props}
             >
                 <span>{displayValue || "Select time"}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 6v6l4 2" />
                 </svg>

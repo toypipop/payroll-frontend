@@ -65,7 +65,7 @@ const LoginPage = () => {
                     radial-gradient(circle at 85% 75%, rgba(245, 158, 11, 0.35) 0%, transparent 50%),
                     radial-gradient(circle at 75% 10%, rgba(15, 118, 110, 0.25) 0%, transparent 40%),
                     radial-gradient(circle at 25% 85%, rgba(245, 158, 11, 0.2) 0%, transparent 40%),
-                    linear-gradient(135deg, #0b1a19 0%, #0f2421 100%)
+                    linear-gradient(135deg, var(--auth-bg-from) 0%, var(--auth-bg-to) 100%)
                 `,
             }}
         >
@@ -105,7 +105,7 @@ const LoginPage = () => {
 
                 {error && (
                     <div
-                        className="text-[#fca5a5] bg-[color:rgba(239,_68,_68,_0.15)] p-[12px] rounded-[10px] mb-[20px] border border-[color:rgba(239,_68,_68,_0.3)] text-[14px]"
+                        className="text-danger-line bg-[color:rgba(239,_68,_68,_0.15)] p-[12px] rounded-[10px] mb-[20px] border border-[color:rgba(239,_68,_68,_0.3)] text-[14px]"
                     >
                         {error}
                     </div>

@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // Hover and press used to be React state; they are now `hover:` and `active:` variants, so the button re-renders for nothing no more.
 const VARIANTS: Record<ButtonVariant, string> = {
     primary:   "border-0 bg-control text-card hover:bg-primary-hover",
-    danger:    "border-0 bg-[#fee2e2] text-danger-text hover:bg-[#fecaca]",
+    danger:    "border-0 bg-danger-soft text-danger-text hover:bg-danger-line",
     secondary: "border border-line bg-surface text-body hover:border-line-input hover:bg-hover",
     ghost:     "border border-line bg-transparent text-control hover:border-control-line hover:bg-control-soft",
 };
