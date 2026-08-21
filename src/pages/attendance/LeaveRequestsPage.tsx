@@ -59,7 +59,7 @@ const LeaveRequestsPage = () => {
             sortKey: "start_date",
             sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             render: (row) => {
-                const formatD = (d) => new Date(d).toLocaleDateString('en-GB', {
+                const formatD = (d) => new Date(d).toLocaleDateString('en-GB', { timeZone: "Asia/Bangkok",
                     day: '2-digit', month: '2-digit', year: '2-digit'
                 });
                 return <div className="whitespace-nowrap">{formatD(row.start_date)} - {formatD(row.end_date)}</div>;

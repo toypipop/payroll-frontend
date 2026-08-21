@@ -42,7 +42,7 @@ const DashboardPage = () => {
                         {storedUser.fullName || 'Administrator'}
                     </div>
                     <div className="text-subtle text-[12px] mt-[5px]">
-                        {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                        {new Date().toLocaleDateString('en-GB', { timeZone: "Asia/Bangkok", weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>
                 </div>
                 <Badge status="active">System Active</Badge>

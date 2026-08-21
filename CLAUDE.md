@@ -50,7 +50,9 @@ This agent manages **both** repos every session:
 - Time Logs: end <= start means overnight (e.g. `16:00` → `00:00` checks out next day).
 - Leave Requests: only `Pending` status can be edited.
 - **Company field is immutable after creation** everywhere: the "Companies" `SelectField` must be `disabled={!!editingId}` on any edit form (Employees, Departments, Positions, Roles, EarningTypes, DeductionTypes, DayOff, ...) to match the backend rejecting `companies_id` changes on update.
-- All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`, which is wrong whenever the viewer's machine isn't set to Bangkok. See `AttendanceSettingsPage.tsx`'s `toBangkokHM()` helper for the pattern.
+- All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`/`toLocaleTimeString()`, which is wrong whenever the viewer's machine isn't set to Bangkok. `src/utils/bangkokTime.ts` is the only place that knows the offset: `toBangkokHM`, `formatTime`, `formatDisplayTime`, `bangkokDateKey`, `bangkokMinutes`, and the datetime-local pair `bangkokLocalToISO` / `isoToBangkokLocal`.
+- **A date is rendered in the business timezone too.** Every `toLocaleDateString` in the app passes `timeZone: "Asia/Bangkok"`; without it a cycle running 01–30 Apr Bangkok reads as 31 Mar–29 Apr to a viewer in New York, because the stored instant is 17:00 the previous day there.
+- A datetime-local input holds naive `YYYY-MM-DDTHH:MM` text. Convert it with `bangkokLocalToISO` on the way out and `isoToBangkokLocal` on the way in — `new Date(value).toISOString()` reads that text in the viewer's timezone and silently shifts what the user typed.
 
 ## Styling
 

@@ -9,7 +9,7 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import ToggleField from "../../../components/common/ToggleField";
 import TimeField from "../../../components/common/TimeField";
-import { formatTime } from "./bangkokTime";
+import { formatTime } from "../../../utils/bangkokTime";
 
 const attendanceConfigSchema = z.object({
     companies_id: z.number(),

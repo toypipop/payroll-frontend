@@ -12,7 +12,7 @@ const formatCurrency = (value) =>
 
 const formatDate = (value) => {
     if (!value) return "-";
-    return new Date(value).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 const MyPayslipsPage = () => {

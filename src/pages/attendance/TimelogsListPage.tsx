@@ -8,6 +8,7 @@ import { useAuth } from "../../hooks/useAuth";
 import useTimelogs from "./timelogs/useTimelogs";
 import TimeLogFormModal from "./timelogs/TimeLogFormModal";
 import BulkCreateModal from "./timelogs/BulkCreateModal";
+import { bangkokDateKey, bangkokMinutes, formatDisplayTime } from "../../utils/bangkokTime";
 
 const TimelogsListPage = () => {
     const { homeCompanyId } = useAuth();
@@ -42,30 +43,22 @@ const TimelogsListPage = () => {
             label: "Date",
             sortKey: "check_in_date",
             sortValue: (row) => (row.check_in ? new Date(row.check_in).getTime() : 0),
-            searchValue: (row) => row.check_in ? new Date(row.check_in).toISOString().split("T")[0] : "",
-            render: (row) => row.check_in ? new Date(row.check_in).toISOString().split("T")[0] : "-",
+            searchValue: (row) => bangkokDateKey(row.check_in),
+            render: (row) => bangkokDateKey(row.check_in) || "-",
         },
         {
             label: "Time In",
             sortKey: "check_in_time",
-            sortValue: (row) => {
-                if (!row.check_in) return -1;
-                const date = new Date(row.check_in);
-                return date.getHours() * 60 + date.getMinutes();
-            },
-            searchValue: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-            render: (row) => row.check_in ? new Date(row.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-",
+            sortValue: (row) => bangkokMinutes(row.check_in),
+            searchValue: (row) => formatDisplayTime(row.check_in),
+            render: (row) => formatDisplayTime(row.check_in),
         },
         {
             label: "Time Out",
             sortKey: "check_out_time",
-            sortValue: (row) => {
-                if (!row.check_out) return -1;
-                const date = new Date(row.check_out);
-                return date.getHours() * 60 + date.getMinutes();
-            },
-            searchValue: (row) => row.check_out ? new Date(row.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-            render: (row) => row.check_out ? new Date(row.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-",
+            sortValue: (row) => bangkokMinutes(row.check_out),
+            searchValue: (row) => formatDisplayTime(row.check_out),
+            render: (row) => formatDisplayTime(row.check_out),
         },
         {
             label: "Companies",

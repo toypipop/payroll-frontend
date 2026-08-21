@@ -12,7 +12,7 @@ import usePayrollCycles from "./cycles/usePayrollCycles";
 import CycleFormModal from "./cycles/CycleFormModal";
 
 const formatDate = (d) =>
-    new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 
 const PayrollCyclesPage = () => {
     const { homeCompanyId } = useAuth();

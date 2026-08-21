@@ -33,7 +33,7 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                         {rows.map((rec) => {
                             const date = rec.effective_date;
                             const dateLabel = date && !date.startsWith("0001")
-                                ? new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                                ? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" })
                                 : "-";
                             return (
                                 <tr key={rec.id} className="border-t border-t-hover">

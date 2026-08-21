@@ -6,7 +6,7 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import useAttendanceConfigs from "./attendance-config/useAttendanceConfigs";
 import AttendanceConfigModal from "./attendance-config/AttendanceConfigModal";
-import { formatDisplayTime } from "./attendance-config/bangkokTime";
+import { formatDisplayTime } from "../../utils/bangkokTime";
 
 // flag renders one of the config's on/off switches, or "Not Set" when the company has no config yet.
 const flag = (enabled) => {

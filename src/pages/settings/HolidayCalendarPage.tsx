@@ -29,7 +29,7 @@ const HolidayCalendarPage = () => {
     const columns = [
         {
             label: "Date",
-            render: (row) => row.date ? new Date(row.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—",
+            render: (row) => row.date ? new Date(row.date).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "—",
         },
         { label: "Holiday Name", key: "name" },
         { label: "Company", render: (row) => row.companies?.name || "—" },

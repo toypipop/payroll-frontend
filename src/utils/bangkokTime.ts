@@ -44,3 +44,37 @@ export const formatDisplayTime = (timeValue) => {
     }
     return "-";
 };
+
+// bangkokDateKey renders the calendar date the value falls on in the business timezone, as "YYYY-MM-DD".
+export const bangkokDateKey = (timeValue) => {
+    if (!timeValue) return "";
+    const date = new Date(timeValue);
+    if (Number.isNaN(date.getTime())) return "";
+    const shifted = new Date(date.getTime() + BANGKOK_OFFSET_MINUTES * 60 * 1000);
+    return shifted.toISOString().split("T")[0];
+};
+
+// bangkokMinutes turns a value into minutes since midnight in the business timezone, for sorting a time column.
+export const bangkokMinutes = (timeValue) => {
+    if (!timeValue) return -1;
+    const date = new Date(timeValue);
+    if (Number.isNaN(date.getTime())) return -1;
+    const { hours, minutes } = toBangkokHM(date);
+    return hours * 60 + minutes;
+};
+
+// A datetime-local field holds naive "YYYY-MM-DDTHH:MM" text. These two convert between that text and the
+// instant the API stores, always reading it as Bangkok wall clock rather than the viewer's own timezone.
+export const bangkokLocalToISO = (value) => {
+    if (!value) return null;
+    const date = new Date(`${value.length === 16 ? value : value.slice(0, 16)}:00+07:00`);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+};
+
+export const isoToBangkokLocal = (timeValue) => {
+    if (!timeValue) return "";
+    const key = bangkokDateKey(timeValue);
+    if (!key) return "";
+    const { hours, minutes } = toBangkokHM(new Date(timeValue));
+    return `${key}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};

@@ -1,3 +1,5 @@
+import { toBangkokHM, isoToBangkokLocal } from "../../../utils/bangkokTime";
+
 // Pure date/time helpers shared by the time-log page and its bulk-add modal; nothing here touches React.
 export const WEEKDAY_OPTIONS = [
     { value: 1, label: "Mon" },
@@ -14,12 +16,8 @@ export const toLocalDateTimeValue = (date) => {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
-export const parseToLocalDateTimeValue = (value) => {
-    if (!value) return "";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-    return toLocalDateTimeValue(date);
-};
+// The stored value is an instant; the field wants the wall clock it represents in the business timezone.
+export const parseToLocalDateTimeValue = (value) => isoToBangkokLocal(value);
 
 export const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
     if (!timeValue) return { hour: defaultHour, min: defaultMin };
@@ -34,7 +32,8 @@ export const parseTimeFromConfig = (timeValue, defaultHour, defaultMin) => {
 
         const date = new Date(timeValue);
         if (!Number.isNaN(date.getTime())) {
-            return { hour: date.getHours(), min: date.getMinutes() };
+            const { hours, minutes } = toBangkokHM(date);
+            return { hour: hours, min: minutes };
         }
     }
 

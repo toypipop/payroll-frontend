@@ -19,6 +19,7 @@ import {
     toLocalDateTimeValue,
 } from "./scheduleHelpers";
 import { warningBox, warningLink } from "./warningStyles";
+import { bangkokLocalToISO } from "../../../utils/bangkokTime";
 
 
 
@@ -219,8 +220,8 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
         try {
             const payload = {
                 ...data,
-                check_in: data.check_in ? new Date(data.check_in).toISOString() : null,
-                check_out: data.check_out ? new Date(data.check_out).toISOString() : null,
+                check_in: bangkokLocalToISO(data.check_in),
+                check_out: bangkokLocalToISO(data.check_out),
                 employees_id: parseInt(data.employees_id),
                 companies_id: parseInt(data.companies_id),
                 work_location_id: data.work_location_id ? parseInt(data.work_location_id) : null,
