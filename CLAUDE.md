@@ -125,7 +125,8 @@ npm run build                       # verify build
 go run .                            # run
 gofmt -w <files> && go vet ./...    # required after edits
 go test ./...                       # required after touching service/
-go run ./seed                       # reseed data
+go run ./seed                       # reseed data (merges onto existing rows)
+go run ./seed --reset               # wipe every table first, then reseed from empty
 docker compose -f docker-compose.local.yml up -d   # local Docker
 docker compose -f docker-compose.uat.yml up -d     # UAT Docker
 ```
