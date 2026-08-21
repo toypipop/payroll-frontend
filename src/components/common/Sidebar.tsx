@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import api from "../../api/axiosInstance";
@@ -6,7 +7,7 @@ import type { AppModule } from "../../types/api";
 
 // Every sidebar link shares this shape; only the active colours and the indent differ.
 const NAV_LINK =
-    "mb-0.5 flex items-center rounded-[10px] py-[9px] text-[13px] font-medium no-underline transition-all duration-150";
+    "mb-0.5 flex items-center rounded-[10px] px-3 py-[9px] text-[13px] font-medium no-underline transition-all duration-150";
 
 const Sidebar = () => {
     type SidebarModule = AppModule & {
@@ -163,9 +164,11 @@ const Sidebar = () => {
                 key={item.id}
                 to={item.route_path}
                 className={({ isActive }) =>
-                    `${NAV_LINK} ${isSub ? "pl-5" : "pl-3"} ${
-                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text"
-                    }`
+                    twMerge(
+                        NAV_LINK,
+                        isSub && "pl-5",
+                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
+                    )
                 }
             >
                 {({ isActive }) => (
@@ -198,9 +201,10 @@ const Sidebar = () => {
                             <NavLink
                                 to="/my-payslips"
                                 className={({ isActive }) =>
-                                    `${NAV_LINK} ${
-                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text"
-                                    }`
+                                    twMerge(
+                                        NAV_LINK,
+                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
+                                    )
                                 }
                             >
                                 {({ isActive }) => (
@@ -218,9 +222,10 @@ const Sidebar = () => {
                             <NavLink
                                 to="/dashboard"
                                 className={({ isActive }) =>
-                                    `${NAV_LINK} ${
-                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text"
-                                    }`
+                                    twMerge(
+                                        NAV_LINK,
+                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
+                                    )
                                 }
                             >
                                 {({ isActive }) => (

@@ -6,6 +6,7 @@ import SelectField from "../../components/common/SelectField";
 import HelpIcon from "../../components/common/HelpIcon";
 import MasterDataWarning from "../../components/common/MasterDataWarning";
 import DetailDropdown from "../../components/common/DetailDropdown";
+import Spinner from "../../components/common/Spinner";
 import { TONE_TEXT } from "../../components/common/tone";
 import { useAuth } from "../../hooks/useAuth";
 import useRunPayroll from "./run-payroll/useRunPayroll";
@@ -145,7 +146,7 @@ const RunPayrollPage = () => {
                             <SelectField
                                 label="Select Open Cycle"
                                 options={filteredCycles.map((c) => {
-                                    const fmt = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "";
+                                    const fmt = (d) => d ? new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "";
                                     const dateRange = (c.start_date && c.end_date) ? ` · ${fmt(c.start_date)} – ${fmt(c.end_date)}` : "";
                                     return { id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}${dateRange}` };
                                 })}
@@ -161,7 +162,14 @@ const RunPayrollPage = () => {
                         disabled={!selectedCycleId || calculating}
                         className="mt-5 w-auto disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {calculating ? "⏳ Calculating..." : "▶ Run Calculation"}
+                        {calculating ? (
+                            <>
+                                <Spinner />
+                                Calculating...
+                            </>
+                        ) : (
+                            "▶ Run Calculation"
+                        )}
                     </Button>
                 </div>
 
