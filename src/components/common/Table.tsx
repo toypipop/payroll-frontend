@@ -141,7 +141,10 @@ const Table = <T extends TableRow = TableRow>({
     const [searchQuery, setSearchQuery] = useState("");
 
     const isCompact = density === "compact";
-    const thClass = `border-b border-line-muted text-[11px] font-bold uppercase tracking-[0.07em] whitespace-nowrap text-control ${isCompact ? "px-2.5 py-2" : "px-5 py-[11px]"}`;
+    // A document table has to share the width it has, so its headers wrap instead of setting a minimum the sheet cannot afford.
+    const thClass = `border-b border-line-muted text-[11px] font-bold uppercase tracking-[0.07em] text-control ${
+        fitWidth ? "whitespace-normal" : "whitespace-nowrap"
+    } ${isCompact ? "px-2.5 py-2" : "px-5 py-[11px]"}`;
     const tdClass = `text-main ${isCompact ? "px-2.5 py-[7px] text-xs leading-[1.4]" : "px-5 py-[13px] text-sm leading-[1.55]"}`;
     const pageButtonClass = "min-w-[36px] cursor-pointer rounded-[10px] border border-primary-subtle bg-control-soft px-[11px] py-[7px] text-xs font-semibold text-control transition-all duration-[180ms]";
     const paginationChrome = "bg-control-soft text-control";
