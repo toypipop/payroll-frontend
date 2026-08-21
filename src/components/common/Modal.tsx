@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
 import ReactDOM from "react-dom";
 
 interface ModalProps {
@@ -22,73 +22,21 @@ const Modal = ({ isOpen, onClose, title, children, footer }: ModalProps) => {
 
     if (!isOpen) return null;
 
-    const styles: Record<string, CSSProperties> = {
-        overlay: {
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-            backdropFilter: "blur(4px)", // Modern glass effect
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2000,
-        },
-        modalBox: {
-            backgroundColor: "#ffffff",
-            borderRadius: "16px",
-            width: "90%",
-            maxWidth: "500px",
-            maxHeight: "90vh",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-            animation: "modalSlideUp 0.3s ease-out",
-        },
-        header: {
-            padding: "20px 24px",
-            borderBottom: "1px solid #f1f5f9",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-        },
-        title: {
-            fontSize: "18px",
-            fontWeight: "700",
-            color: "var(--text-main)",
-        },
-        closeBtn: {
-            background: "none",
-            border: "none",
-            fontSize: "20px",
-            cursor: "pointer",
-            color: "#94a3b8",
-        },
-        body: {
-            padding: "24px",
-            overflowY: "auto",
-        },
-        footer: {
-            padding: "16px 24px",
-            borderTop: "1px solid #f1f5f9",
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "12px",
-        },
-    };
     return ReactDOM.createPortal(
-        <div style={styles.overlay}>
-            <div style={styles.modalBox}>
-                <div style={styles.header}>
-                    <h3 style={styles.title}>{title}</h3>
-                    <button style={styles.closeBtn} onClick={onClose}>
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-[4px]">
+            <div
+                className="flex max-h-[90vh] w-[90%] max-w-[500px] animate-[modalSlideUp_0.3s_ease-out] flex-col rounded-2xl bg-card shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1)]"
+            >
+                <div className="flex items-center justify-between border-b border-hover px-6 py-5">
+                    <h3 className="text-lg font-bold text-main">{title}</h3>
+                    <button className="cursor-pointer border-none bg-none text-xl text-subtle" onClick={onClose}>
                         &times;
                     </button>
                 </div>
-                <div style={styles.body}>{children}</div>
-                {footer && <div style={styles.footer}>{footer}</div>}
+                <div className="overflow-y-auto p-6">{children}</div>
+                {footer && (
+                    <div className="flex justify-end gap-3 border-t border-hover px-6 py-4">{footer}</div>
+                )}
             </div>
         </div>,
         document.body

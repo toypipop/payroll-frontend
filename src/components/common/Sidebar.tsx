@@ -1,8 +1,13 @@
 ﻿import React, { useEffect, useState } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
+import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import api from "../../api/axiosInstance";
 import type { AppModule } from "../../types/api";
+
+// Every sidebar link shares this shape; only the active colours and the indent differ.
+const NAV_LINK =
+    "mb-0.5 flex items-center rounded-[10px] px-3 py-[9px] text-[13px] font-medium no-underline transition-all duration-150";
 
 const Sidebar = () => {
     type SidebarModule = AppModule & {
@@ -141,22 +146,14 @@ const Sidebar = () => {
         fetchModules();
     }, []);
 
-    const styles: Record<string, CSSProperties> = {
-        sidebarContainer: { width: "260px", height: "100vh", position: "fixed", background: "linear-gradient(180deg, #0f172a 0%, var(--sidebar-bg) 100%)", borderRight: "1px solid var(--sidebar-border)", display: "flex", flexDirection: "column", padding: "24px 12px", zIndex: 1000, boxShadow: "inset -1px 0 0 rgba(255,255,255,0.04), 8px 0 30px rgba(2,6,23,0.22)" },
-        logoSection: { display: "flex", alignItems: "center", padding: "0 12px", marginBottom: "32px", gap: "10px" },
-        categoryLabel: { fontSize: "10px", fontWeight: "700", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.11em", padding: "14px 12px 6px 12px" },
-        navLink: { display: "flex", alignItems: "center", padding: "9px 12px", borderRadius: "10px", textDecoration: "none", fontSize: "13px", fontWeight: "500", marginBottom: "2px", transition: "all 0.15s ease" },
-        subLink: { paddingLeft: "36px" }
-    };
-
     const renderMenuItem = (item: SidebarModule, isSub = false): ReactNode => {
         const IconComponent = Icons[item.icon] || Icons.Default;
 
         if (item.is_category && !isSub) {
             if (!item.children || item.children.length === 0) return null;
             return (
-                <div key={item.id} style={{ marginBottom: "16px" }}>
-                    <div style={styles.categoryLabel}>{item.module_name}</div>
+                <div key={item.id} className="mb-[16px]">
+                    <div className="px-3 pb-1.5 pt-3.5 text-[10px] font-bold uppercase tracking-[0.11em] text-[rgba(255,255,255,0.45)]">{item.module_name}</div>
                     {item.children.map(child => renderMenuItem(child, true))}
                 </div>
             );
@@ -166,19 +163,20 @@ const Sidebar = () => {
             <NavLink
                 key={item.id}
                 to={item.route_path}
-                style={({ isActive }) => ({
-                    ...styles.navLink,
-                    paddingLeft: isSub ? "20px" : "12px",
-                    backgroundColor: isActive ? "var(--sidebar-active)" : "transparent",
-                    color: isActive ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
-                })}
+                className={({ isActive }) =>
+                    twMerge(
+                        NAV_LINK,
+                        isSub && "pl-5",
+                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
+                    )
+                }
             >
                 {({ isActive }) => (
                     <>
-                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
-                            {IconComponent(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
+                        <div className="mr-[12px] flex items-center">
+                            {IconComponent(isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.75)")}
                         </div>
-                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
                             {item.module_name}
                         </span>
                     </>
@@ -188,39 +186,59 @@ const Sidebar = () => {
     };
 
     return (
-        <div style={styles.sidebarContainer}>
-            <div style={styles.logoSection}>
-                <div style={{ width: "38px", height: "38px", background: "linear-gradient(160deg, #14b8a6, #0f766e)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontWeight: "800", fontSize: "18px", letterSpacing: "0.02em", boxShadow: "0 10px 20px rgba(15, 118, 110, 0.34)" }}>P</div>
-                <span style={{ fontSize: "18px", fontWeight: "700", color: "#f1f5f9", letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>PayrollPro</span>
+        <div className="fixed z-[1000] flex h-screen w-[260px] flex-col border-r border-sidebar-line bg-[linear-gradient(180deg,var(--text-main)_0%,var(--sidebar-bg)_100%)] px-3 py-6 shadow-[inset_-1px_0_0_rgba(255,255,255,0.04),8px_0_30px_rgba(2,6,23,0.22)]">
+            <div className="mb-8 flex items-center gap-2.5 px-3">
+                <div className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] bg-[linear-gradient(160deg,var(--brand-teal),var(--primary-color))] text-[18px] font-extrabold tracking-[0.02em] text-card shadow-[0_10px_20px_rgba(15,118,110,0.34)]">P</div>
+                <span className="text-[18px] font-bold text-hover tracking-[-0.01em] font-[var(--font-display)]">PayrollPro</span>
             </div>
 
-            <nav style={{ flexGrow: 1, overflowY: "auto" }}>
+            <nav className="grow overflow-y-auto">
                 {loading ? <div>Loading...</div> : (() => {
-                    const dashboard = menuItems.filter(m => m.module_key === 'DashboardPage');
                     const help = menuItems.filter(m => m.module_key === 'HelpPage');
-                    const others = menuItems.filter(m => m.module_key !== 'DashboardPage' && m.module_key !== 'HelpPage');
+                    const others = menuItems.filter(m => m.module_key !== 'HelpPage');
                     return (
                         <>
                             <NavLink
                                 to="/my-payslips"
-                                style={({ isActive }) => ({
-                                    ...styles.navLink,
-                                    backgroundColor: isActive ? "var(--sidebar-active)" : "transparent",
-                                    color: isActive ? "var(--sidebar-text-active)" : "var(--sidebar-text)",
-                                })}
+                                className={({ isActive }) =>
+                                    twMerge(
+                                        NAV_LINK,
+                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
+                                    )
+                                }
                             >
                                 {({ isActive }) => (
                                     <>
-                                        <div style={{ marginRight: "12px", display: "flex", alignItems: "center" }}>
-                                            {Icons.ReceiptLong(isActive ? "#2dd4bf" : "rgba(255,255,255,0.75)")}
+                                        <div className="mr-[12px] flex items-center">
+                                            {Icons.ReceiptLong(isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.75)")}
                                         </div>
-                                        <span style={{ fontWeight: isActive ? "600" : "400", whiteSpace: "nowrap" }}>
+                                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
                                             My Payslips
                                         </span>
                                     </>
                                 )}
                             </NavLink>
-                            {dashboard.map(item => renderMenuItem(item))}
+                            {/* Dashboard is not a permission module but the universal landing page, so the link is always drawn. */}
+                            <NavLink
+                                to="/dashboard"
+                                className={({ isActive }) =>
+                                    twMerge(
+                                        NAV_LINK,
+                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
+                                    )
+                                }
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        <div className="mr-[12px] flex items-center">
+                                            {Icons.Dashboard(isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.75)")}
+                                        </div>
+                                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
+                                            Dashboard
+                                        </span>
+                                    </>
+                                )}
+                            </NavLink>
                             {help.map(item => renderMenuItem(item))}
                             {others.map(item => renderMenuItem(item))}
                         </>

@@ -25,8 +25,6 @@ api.interceptors.response.use(
             const isLoginPage = window.location.pathname === "/login";
 
             if (!isLoginPage) {
-                localStorage.removeItem("user");
-
                 window.location.href = "/login";
             }
         }

@@ -31,42 +31,26 @@ export default function HelpModal({ article, lang, onClose }: Props) {
 
   return createPortal(
     <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '16px',
-      }}
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[4px]"
     >
       <div
-        style={{
-          background: 'white', borderRadius: '12px', width: '100%', maxWidth: '520px',
-          maxHeight: '90vh', display: 'flex', flexDirection: 'column',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-        }}
+        className="flex max-h-[90vh] w-full max-w-[520px] flex-col rounded-xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.18)]"
       >
         {/* Header */}
         <div
-          style={{
-            background: '#1a3c34', color: 'white', padding: '16px 20px',
-            borderRadius: '12px 12px 0 0', display: 'flex',
-            justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0,
-          }}
+          className="flex shrink-0 items-start justify-between rounded-t-xl bg-[color:var(--ink-deep)] px-5 py-4 text-white"
         >
           <div>
-            <div style={{ fontSize: '15px', fontWeight: 700 }}>
+            <div className="text-[15px] font-bold">
               {title}
             </div>
-            <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
+            <div className="text-[11px] opacity-60 mt-[2px]">
               {subtitle}
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'none', border: 'none', color: 'white', fontSize: '18px',
-              cursor: 'pointer', opacity: 0.7, lineHeight: 1, padding: '0 0 0 12px',
-            }}
+            className="cursor-pointer border-none bg-none pl-3 text-lg leading-none text-white opacity-70"
             aria-label="Close"
           >
             ✕
@@ -74,20 +58,20 @@ export default function HelpModal({ article, lang, onClose }: Props) {
         </div>
 
         {/* Body */}
-        <div style={{ padding: '20px', overflowY: 'auto' }}>
-          <p style={{ color: '#444', lineHeight: 1.7, marginBottom: '16px', fontSize: '14px' }}>
+        <div className="p-[20px] overflow-y-auto">
+          <p className="text-body leading-[1.7] mb-[16px] text-[14px]">
             {desc}
           </p>
           {steps.length > 0 && (
             <>
-              <div style={{ fontWeight: 600, color: '#1a3c34', marginBottom: '10px', fontSize: '13px' }}>
+              <div className="font-semibold text-[color:var(--ink-deep)] mb-[10px] text-[13px]">
                 {getStepsLabel(article.articleType, lang)}
               </div>
-              <div style={{ background: '#f8fffe', borderLeft: '3px solid #1a3c34', padding: '12px 16px', borderRadius: '4px' }}>
+              <div className="bg-brand-tint border-l-[3px] border-l-[color:var(--ink-deep)] p-[12px_16px] rounded-[4px]">
                 {steps.map((step, i) => (
-                  <div key={i} style={{ fontSize: '13px', lineHeight: 2, color: '#333' }}>
+                  <div key={i} className="text-[13px] leading-[2] text-strong">
                     {article.articleType === 'checklist'
-                      ? <><span style={{ color: '#1a3c34', fontWeight: 700, marginRight: '6px' }}>✓</span>{step}</>
+                      ? <><span className="text-[color:var(--ink-deep)] font-bold mr-[6px]">✓</span>{step}</>
                       : `${i + 1}. ${step}`
                     }
                   </div>

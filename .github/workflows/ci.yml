@@ -1,0 +1,31 @@
+name: CI
+
+# There are no tests yet, so this is the whole automated safety net: the types, the linter and a real build.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Nothing reads the user from localStorage
+        run: |
+          if grep -rn "localStorage" src/ --include="*.ts" --include="*.tsx" | grep -v "^\S*:\s*//"; then
+            echo "::error::the session lives in an httpOnly cookie; read the user from useAuth()"
+            exit 1
+          fi
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build

@@ -143,3 +143,4 @@ skills-lock.json
 # Claude Code — ignore local settings, allow skills
 .claude/*
 !.claude/skills/
+tmp/

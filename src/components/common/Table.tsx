@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import type { ChangeEvent, CSSProperties, Key, MouseEvent, ReactElement, ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
+import type { ChangeEvent, Key, MouseEvent, ReactElement, ReactNode } from "react";
 import type { SortState, TableColumn, TableRow } from "../../types/api";
 
 interface TableProps<T extends TableRow = TableRow> {
@@ -14,6 +15,8 @@ interface TableProps<T extends TableRow = TableRow> {
     sortable?: boolean;
     rowsPerPage?: number;
     enableSearch?: boolean;
+    // A printed sheet cannot be scrolled sideways, so a document table shares the width it has instead of overflowing.
+    fitWidth?: boolean;
     defaultSort?: SortState | null;
     emptyMessage?: ReactNode;
 }
@@ -21,7 +24,7 @@ interface TableProps<T extends TableRow = TableRow> {
 const SortIcon = ({ direction }: { direction: SortState["order"] }) => {
     if (!direction) {
         return (
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-30">
                 <path d="M7 15l5 5 5-5" />
                 <path d="M7 9l5-5 5 5" />
             </svg>
@@ -129,6 +132,7 @@ const Table = <T extends TableRow = TableRow>({
     sortable = true,
     rowsPerPage = 10,
     enableSearch = true,
+    fitWidth = false,
     defaultSort = null,
     emptyMessage = "No data available",
 }: TableProps<T>) => {
@@ -137,6 +141,13 @@ const Table = <T extends TableRow = TableRow>({
     const [searchQuery, setSearchQuery] = useState("");
 
     const isCompact = density === "compact";
+    // A document table has to share the width it has, so its headers wrap instead of setting a minimum the sheet cannot afford.
+    const thClass = `border-b border-line-muted text-[11px] font-bold uppercase tracking-[0.07em] text-control ${
+        fitWidth ? "whitespace-normal" : "whitespace-nowrap"
+    } ${isCompact ? "px-2.5 py-2" : "px-5 py-[11px]"}`;
+    const tdClass = `text-main ${isCompact ? "px-2.5 py-[7px] text-xs leading-[1.4]" : "px-5 py-[13px] text-sm leading-[1.55]"}`;
+    const pageButtonClass = "min-w-[36px] cursor-pointer rounded-[10px] border border-primary-subtle bg-control-soft px-[11px] py-[7px] text-xs font-semibold text-control transition-all duration-[180ms]";
+    const paginationChrome = "bg-control-soft text-control";
 
     const handleHeaderClick = (col: TableColumn<T>) => {
         const nextKey = getSortableKey(col);
@@ -241,149 +252,6 @@ const Table = <T extends TableRow = TableRow>({
         });
     }, [sortedData, searchQuery, columns]);
 
-    const styles: Record<string, CSSProperties> = {
-        tableContainer: {
-            width: "100%",
-        },
-        tableScroll: {
-            width: "100%",
-            overflowX: "auto",
-        },
-        table: {
-            width: "100%",
-            borderCollapse: "separate",
-            borderSpacing: 0,
-            textAlign: "left",
-        },
-        thead: {
-            backgroundColor: "#f0effe",
-        },
-        th: {
-            padding: isCompact ? "8px 10px" : "11px 20px",
-            fontSize: "11px",
-            fontWeight: "700",
-            color: "#6259ca",
-            textTransform: "uppercase",
-            letterSpacing: "0.07em",
-            borderBottom: "1px solid #e2e8f0",
-            whiteSpace: "nowrap",
-        },
-        thSortable: {
-            cursor: "pointer",
-            userSelect: "none",
-        },
-        thContent: {
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-        },
-        td: {
-            padding: isCompact ? "7px 10px" : "13px 20px",
-            fontSize: isCompact ? "12px" : "14px",
-            color: "var(--text-main)",
-            borderBottom: "1px solid #e2e8f0",
-            lineHeight: isCompact ? "1.4" : "1.55",
-        },
-        paginationWrap: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginTop: 0,
-            padding: "8px 4px",
-            backgroundColor: "#f0effe",
-            borderRadius: "10px",
-            fontSize: "13px",
-            color: "#6259ca",
-        },
-        paginationInfo: {
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            flexWrap: "wrap",
-        },
-        pageMetaBadge: {
-            display: "inline-flex",
-            alignItems: "center",
-            padding: "4px 10px",
-            borderRadius: "999px",
-            backgroundColor: "#f0effe",
-            border: "1px solid #d7d2ff",
-            color: "#6259ca",
-            fontSize: "11px",
-            fontWeight: "700",
-            letterSpacing: "0.03em",
-            textTransform: "uppercase",
-        },
-        paginationButtons: {
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            flexWrap: "wrap",
-            justifyContent: "flex-end",
-        },
-        pageButton: {
-            minWidth: "36px",
-            padding: "7px 11px",
-            borderRadius: "10px",
-            border: "1px solid #d7d2ff",
-            backgroundColor: "#f0effe",
-            color: "#6259ca",
-            cursor: "pointer",
-            fontSize: "12px",
-            fontWeight: "600",
-            transition: "all 0.18s ease",
-            boxShadow: "none",
-        },
-        pageButtonActive: {
-            border: "1px solid #6259ca",
-            backgroundColor: "#6259ca",
-            color: "#ffffff",
-            boxShadow: "none",
-        },
-        pageButtonDisabled: {
-            opacity: 0.45,
-            cursor: "not-allowed",
-            boxShadow: "none",
-        },
-        searchBox: {
-            margin: "6px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-        },
-        searchInputWrapper: {
-            flex: 1,
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-        },
-        searchIcon: {
-            position: "absolute",
-            left: "12px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#cbd5e1",
-            pointerEvents: "none",
-        },
-        searchInput: {
-            width: "100%",
-            padding: "10px 12px 10px 38px",
-            fontSize: "14px",
-            fontWeight: "500",
-            border: "1px solid #e2e8f0",
-            borderRadius: "8px",
-            backgroundColor: "#ffffff",
-            color: "var(--text-main)",
-            outline: "none",
-            transition: "all 0.2s ease",
-            boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)",
-        },
-    };
-
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
         setCurrentPage(1);
@@ -413,11 +281,11 @@ const Table = <T extends TableRow = TableRow>({
     }, [page, totalPages]);
 
     return (
-        <div style={styles.tableContainer}>
+        <div className="w-full">
             {enableSearch && (
-                <div style={styles.searchBox}>
-                    <div style={styles.searchInputWrapper}>
-                        <div style={styles.searchIcon}>
+                <div className="m-1.5 flex items-center gap-2.5">
+                    <div className="relative flex w-full flex-1 items-center">
+                        <div className="pointer-events-none absolute left-3 flex items-center justify-center text-line-input">
                             <SearchIcon />
                         </div>
                         <input
@@ -425,24 +293,24 @@ const Table = <T extends TableRow = TableRow>({
                             placeholder="Search..."
                             value={searchQuery}
                             onChange={handleSearchChange}
-                            style={styles.searchInput}
+                            className="w-full rounded-lg border border-line-muted bg-card py-2.5 pl-[38px] pr-3 text-sm font-medium text-main shadow-[0_1px_2px_rgba(0,0,0,0.03)] outline-none transition-all duration-200"
                             onFocus={(e) => {
-                                e.target.style.borderColor = "#6259ca";
+                                e.target.style.borderColor = "var(--control-accent)";
                                 e.target.style.boxShadow = "0 0 0 3px rgba(98, 89, 202, 0.1)";
-                                e.target.style.backgroundColor = "#ffffff";
+                                e.target.style.backgroundColor = "var(--bg-card)";
                             }}
                             onBlur={(e) => {
-                                e.target.style.borderColor = "#e2e8f0";
+                                e.target.style.borderColor = "var(--border-muted)";
                                 e.target.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.03)";
                             }}
                         />
                     </div>
                 </div>
             )}
-            <div style={styles.tableScroll}>
-                <table style={styles.table}>
+            <div className={`w-full ${fitWidth ? "overflow-x-visible" : "overflow-x-auto"}`}>
+                <table className="w-full max-w-full border-separate border-spacing-0 text-left">
                     {!hideHeader && (
-                        <thead style={styles.thead}>
+                        <thead className="bg-control-soft">
                             <tr>
                                 {columns.map((col, index) => {
                                     const sortKey = getSortableKey(col);
@@ -453,14 +321,11 @@ const Table = <T extends TableRow = TableRow>({
                                     return (
                                         <th
                                             key={index}
-                                            style={{
-                                                ...styles.th,
-                                                ...(isSortable ? styles.thSortable : {}),
-                                                ...(col.headerStyle || null),
-                                            }}
+                                            className={twMerge(thClass, isSortable && "cursor-pointer select-none")}
+                                            style={col.headerStyle || undefined}
                                             onClick={() => handleHeaderClick(col)}
                                         >
-                                            <div style={styles.thContent}>
+                                            <div className="flex items-center gap-1.5">
                                                 {col.label}
                                                 {isSortable && <SortIcon direction={sortDir} />}
                                             </div>
@@ -487,13 +352,9 @@ const Table = <T extends TableRow = TableRow>({
                                     <React.Fragment key={key}>
                                         {before}
                                         <tr
-                                            style={{
-                                                backgroundColor: isEven ? "#ffffff" : "#f8fafc",
-                                                cursor: onRowClick ? "pointer" : "default",
-                                                transition: "background-color 0.1s",
-                                            }}
-                                            onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = "#f0effe")}
-                                            onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = isEven ? "#ffffff" : "#f8fafc")}
+                                            className={`transition-colors duration-100 ${isEven ? "bg-card" : "bg-surface"} ${onRowClick ? "cursor-pointer" : "cursor-default"}`}
+                                            onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = "var(--control-accent-soft)")}
+                                            onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => (e.currentTarget.style.backgroundColor = isEven ? "var(--bg-card)" : "var(--surface-subtle)")}
                                             onClick={() => onRowClick && onRowClick(row)}
                                         >
                                             {columns.map((col, colIndex) => {
@@ -503,11 +364,8 @@ const Table = <T extends TableRow = TableRow>({
                                                 return (
                                                     <td
                                                         key={colIndex}
-                                                        style={{
-                                                            ...styles.td,
-                                                            ...(extraCellStyle || null),
-                                                            borderBottom: isLastRow ? "none" : styles.td.borderBottom,
-                                                        }}
+                                                        className={twMerge(tdClass, !isLastRow && "border-b border-line-muted")}
+                                                        style={extraCellStyle || undefined}
                                                     >
                                                         {col.render ? col.render(row, absoluteRowIndex) : getRenderedText(getNestedValue(row, col.key))}
                                                     </td>
@@ -522,13 +380,7 @@ const Table = <T extends TableRow = TableRow>({
                             <tr>
                                 <td
                                     colSpan={columns.length}
-                                    style={{
-                                        ...styles.td,
-                                        textAlign: "center",
-                                        padding: "44px",
-                                        color: "#94a3b8",
-                                        borderBottom: "none",
-                                    }}
+                                    className={twMerge(tdClass, "border-b-0 p-[44px] text-center text-subtle")}
                                 >
                                     {emptyMessage}
                                 </td>
@@ -538,20 +390,17 @@ const Table = <T extends TableRow = TableRow>({
                 </table>
             </div>
             {safeData.length > 0 && totalPages > 1 && (
-                <div style={styles.paginationWrap}>
-                    <div style={styles.paginationInfo}>
-                        <span style={styles.pageMetaBadge}>Page {page} / {totalPages}</span>
+                <div className={`flex flex-wrap items-center justify-between gap-3 rounded-[10px] px-1 py-2 text-[13px] ${paginationChrome}`}>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <span className="inline-flex items-center rounded-full border border-primary-subtle bg-control-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.03em] text-control">Page {page} / {totalPages}</span>
                         <span>
                             Showing {startIndex + 1}-{Math.min(startIndex + safeRowsPerPage, safeData.length)} of {safeData.length}
                         </span>
                     </div>
-                    <div style={styles.paginationButtons}>
+                    <div className="flex flex-wrap items-center justify-end gap-1.5">
                         <button
                             type="button"
-                            style={{
-                                ...styles.pageButton,
-                                ...(page === 1 ? styles.pageButtonDisabled : null),
-                            }}
+                            className={twMerge(pageButtonClass, page === 1 && "cursor-not-allowed opacity-40")}
                             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                             disabled={page === 1}
                         >
@@ -562,13 +411,10 @@ const Table = <T extends TableRow = TableRow>({
 
                             return (
                                 <React.Fragment key={pageNum}>
-                                    {showGap && <span style={{ padding: "0 2px", color: "#94a3b8" }}>...</span>}
+                                    {showGap && <span className="p-[0_2px] text-subtle">...</span>}
                                     <button
                                         type="button"
-                                        style={{
-                                            ...styles.pageButton,
-                                            ...(pageNum === page ? styles.pageButtonActive : null),
-                                        }}
+                                        className={twMerge(pageButtonClass, pageNum === page && "border-control bg-control text-white")}
                                         onClick={() => setCurrentPage(pageNum)}
                                     >
                                         {pageNum}
@@ -578,10 +424,7 @@ const Table = <T extends TableRow = TableRow>({
                         })}
                         <button
                             type="button"
-                            style={{
-                                ...styles.pageButton,
-                                ...(page === totalPages ? styles.pageButtonDisabled : null),
-                            }}
+                            className={twMerge(pageButtonClass, page === totalPages && "cursor-not-allowed opacity-40")}
                             onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                             disabled={page === totalPages}
                         >

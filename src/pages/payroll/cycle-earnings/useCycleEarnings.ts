@@ -1,0 +1,74 @@
+import { useEffect, useState } from "react";
+import api from "../../../api/axiosInstance";
+
+// useCycleEarnings owns the page's server data: the master lists, plus the rows of whichever cycle is selected.
+export const useCycleEarnings = (selectedCycleId) => {
+    const [items, setItems] = useState([]);
+    const [companies, setCompanies] = useState([]);
+    const [cycles, setCycles] = useState([]);
+    const [employees, setEmployees] = useState([]);
+    // Only variable (non-permanent) earning types
+    const [earningTypes, setEarningTypes] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    // Fetch master data once
+    useEffect(() => {
+        const fetchMaster = async () => {
+            try {
+                const [companyRes, cycleRes, empRes, etRes] = await Promise.all([
+                    api.get("/companies/options"),
+                    api.get("/payroll/cycles"),
+                    api.get("/employees"),
+                    api.get("/earning-types/options").catch(() => ({ data: [] })),
+                ]);
+                setCompanies(companyRes.data);
+                setCycles(cycleRes.data);
+                setEmployees(empRes.data);
+                setEarningTypes(etRes.data);
+            } catch (err) {
+                console.error("Master data fetch error:", err);
+            }
+        };
+        fetchMaster();
+    }, []);
+
+    // Fetch cycle earnings when selected cycle changes
+    useEffect(() => {
+        if (!selectedCycleId) {
+            setItems([]);
+            return;
+        }
+        const fetchItems = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get(`/cycle-earnings?cycle_id=${selectedCycleId}`);
+                setItems(res.data);
+            } catch (err) {
+                console.error("Fetch error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchItems();
+    }, [selectedCycleId]);
+
+    const refreshItems = async () => {
+        if (!selectedCycleId) return;
+        const res = await api.get(`/cycle-earnings?cycle_id=${selectedCycleId}`);
+        setItems(res.data);
+    };
+
+    const remove = async (id) => {
+        if (!window.confirm("Delete this variable earning?")) return;
+        try {
+            await api.delete(`/cycle-earnings/${id}`);
+            setItems((prev) => prev.filter((i) => i.id !== id));
+        } catch {
+            alert("Delete failed");
+        }
+    };
+
+    return { items, companies, cycles, employees, earningTypes, loading, refreshItems, remove };
+};
+
+export default useCycleEarnings;

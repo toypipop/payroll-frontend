@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
-import api from "../../api/axiosInstance";
+import useClosedCycleReport from "./shared/useClosedCycleReport";
+import useA4Preview, { printElement } from "./shared/useA4Preview";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
@@ -13,7 +14,7 @@ const fc = (v) =>
 
 const fd = (d) => {
     if (!d) return "—";
-    return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 /* ── CSV export helper ──────────────────────────────────────────────────── */
@@ -54,11 +55,11 @@ const A4BankSummary = ({ data }) => {
         { label: "Code", render: (r) => r.employees_code },
         { label: "Employee Name", render: (r) => `${r.first_name} ${r.last_name}` },
         { label: "Bank", render: (r) => r.bank_name || "—" },
-        { label: "Account No", render: (r) => <span style={{ fontFamily: "monospace" }}>{r.account_no || "—"}</span> },
+        { label: "Account No", render: (r) => <span className="font-mono">{r.account_no || "—"}</span> },
         {
             label: "Net Pay",
             render: (r) => (
-                <span style={{ fontFamily: "monospace", fontWeight: "600", color: "#0f172a" }}>
+                <span className="font-mono font-semibold text-main">
                     ฿{fc(r.net_pay)}
                 </span>
             ),
@@ -68,38 +69,30 @@ const A4BankSummary = ({ data }) => {
     return (
         <div
             id="bank-summary-a4"
-            style={{
-                width: "210mm", minHeight: "297mm", backgroundColor: "#fff",
-                padding: "16mm 14mm", fontFamily: "'Segoe UI', Arial, sans-serif",
-                fontSize: "13px", color: "#1e293b", boxSizing: "border-box",
-            }}
+            className="w-[210mm] min-h-[297mm] bg-white p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
         >
             {/* Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: "14px", marginBottom: "14px", borderBottom: "3px solid #0f172a" }}>
+            <div className="flex justify-between items-start pb-[14px] mb-[14px] border-b-[3px] border-b-main">
                 <div>
-                    <div style={{ fontSize: "22px", fontWeight: "800", color: "#0f172a" }}>{company?.name || "—"}</div>
-                    {company?.address && <div style={{ color: "#64748b", fontSize: "12px", marginTop: "4px" }}>{company.address}</div>}
-                    {company?.tax_id && <div style={{ color: "#64748b", fontSize: "12px" }}>Tax ID: {company.tax_id}</div>}
+                    <div className="text-[22px] font-extrabold text-main">{company?.name || "—"}</div>
+                    {company?.address && <div className="text-muted text-[12px] mt-[4px]">{company.address}</div>}
+                    {company?.tax_id && <div className="text-muted text-[12px]">Tax ID: {company.tax_id}</div>}
                 </div>
-                <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "22px", fontWeight: "900", letterSpacing: "2px", color: "#0f172a", textTransform: "uppercase" }}>BANK TRANSFER</div>
-                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "6px" }}>{cycle?.cycle_name}</div>
-                    <div style={{ color: "#64748b", fontSize: "12px" }}>{fd(cycle?.start_date)} — {fd(cycle?.end_date)}</div>
+                <div className="text-right">
+                    <div className="text-[22px] font-black tracking-[2px] text-main uppercase">BANK TRANSFER</div>
+                    <div className="text-muted text-[12px] mt-[6px]">{cycle?.cycle_name}</div>
+                    <div className="text-muted text-[12px]">{fd(cycle?.start_date)} — {fd(cycle?.end_date)}</div>
                 </div>
             </div>
             {/* Table */}
-            <Table columns={summaryColumns} data={rows} />
-            <div style={{
-                display: "grid", gridTemplateColumns: "1fr auto",
-                backgroundColor: "#0f172a", color: "#fff",
-                padding: "10px",
-            }}>
-                <div style={{ fontWeight: "800", fontSize: "13px" }}>Total Net Pay</div>
-                <div style={{ textAlign: "right", fontFamily: "monospace", fontWeight: "900", fontSize: "15px" }}>
+            <Table columns={summaryColumns} data={rows} enableSearch={false} sortable={false} fitWidth />
+            <div className="grid grid-cols-[1fr_auto] bg-main text-white p-[10px]">
+                <div className="font-extrabold text-[13px]">Total Net Pay</div>
+                <div className="text-right font-mono font-black text-[15px]">
                     ฿{fc(total_net_pay)}
                 </div>
             </div>
-            <div style={{ marginTop: "40px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
+            <div className="mt-[40px] text-center text-[10px] text-subtle">
                 Bank Transfer Summary — {company?.name} — {cycle?.cycle_name} — Records are immutable once the cycle is closed.
             </div>
         </div>
@@ -108,80 +101,31 @@ const A4BankSummary = ({ data }) => {
 
 // Page component
 const BankTransferReportPage = () => {
-    const [cycles, setCycles] = useState([]);
-    const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [data, setData] = useState(null);
-    const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingData, setLoadingData] = useState(false);
+    const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
+        useClosedCycleReport((cycleId) => `/reports/bank-transfer/${cycleId}`);
     const [isPrintOpen, setIsPrintOpen] = useState(false);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setLoadingCycles(true);
-                const res = await api.get("/payroll/cycles");
-                const closed = (res.data || []).filter((c) => c.is_closed);
-                setCycles(closed);
-                if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
-            } catch { /* silent */ } finally { setLoadingCycles(false); }
-        })();
-    }, []);
+    useA4Preview(isPrintOpen, () => setIsPrintOpen(false));
 
-    useEffect(() => {
-        if (!selectedCycleId) return;
-        (async () => {
-            try {
-                setLoadingData(true);
-                setData(null);
-                const res = await api.get(`/reports/bank-transfer/${selectedCycleId}`);
-                setData(res.data);
-            } catch { setData(null); } finally { setLoadingData(false); }
-        })();
-    }, [selectedCycleId]);
-
-    useEffect(() => {
-        if (!isPrintOpen) return;
-
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [isPrintOpen]);
-
-    useEffect(() => {
-        if (!isPrintOpen) return;
-        const handleEsc = (e) => { if (e.key === "Escape") setIsPrintOpen(false); };
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [isPrintOpen]);
-
-    const handlePrint = () => {
-        const style = document.createElement("style");
-        style.innerHTML = `@media print { body * { visibility: hidden !important; } #bank-summary-a4, #bank-summary-a4 * { visibility: visible !important; } #bank-summary-a4 { position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; box-shadow: none !important; margin: 0 !important; } @page { margin: 0; size: A4; } }`;
-        document.head.appendChild(style);
-        window.print();
-        document.head.removeChild(style);
-    };
+    const handlePrint = () => printElement("bank-summary-a4");
 
     const columns = [
         {
             label: "Employee",
             render: (r) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>{r.first_name} {r.last_name}</div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>{r.employees_code}</div>
+                    <div className="font-semibold text-main">{r.first_name} {r.last_name}</div>
+                    <div className="text-[11px] text-subtle mt-[2px]">{r.employees_code}</div>
                 </div>
             ),
         },
-        { label: "Bank", render: (r) => r.bank_name || <span style={{ color: "#f59e0b" }}>Not Set</span> },
-        { label: "Account No", render: (r) => <span style={{ fontFamily: "monospace" }}>{r.account_no || "—"}</span> },
+        { label: "Bank", render: (r) => r.bank_name || <span className="text-accent">Not Set</span> },
+        { label: "Account No", render: (r) => <span className="font-mono">{r.account_no || "—"}</span> },
         { label: "Account Name", render: (r) => r.account_name || "—" },
         {
             label: "Net Pay",
             render: (r) => (
-                <span style={{ fontFamily: "monospace", fontWeight: "700", color: "#0f172a" }}>฿{fc(r.net_pay)}</span>
+                <span className="font-mono font-bold text-main">฿{fc(r.net_pay)}</span>
             ),
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
@@ -194,16 +138,16 @@ const BankTransferReportPage = () => {
     const cycle = data?.cycle;
     const rows = data?.rows || [];
     const printPreview = isPrintOpen ? (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
-            <div id="print-toolbar" style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-                <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>Bank Transfer Summary Preview</span>
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={handlePrint} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
-                    <button onClick={() => setIsPrintOpen(false)} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+        <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-main z-[10000] overflow-y-auto">
+            <div id="print-toolbar" className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+                <span className="text-white font-bold text-[15px]">Bank Transfer Summary Preview</span>
+                <div className="flex gap-[10px]">
+                    <button onClick={handlePrint} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
+                    <button onClick={() => setIsPrintOpen(false)} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                 </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
-                <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
+            <div className="flex justify-center p-[32px_24px_48px]">
+                <div className="shadow-[0_4px_32px_rgba(0,0,0,0.4)] rounded-[4px]">
                     <A4BankSummary data={data} />
                 </div>
             </div>
@@ -215,11 +159,11 @@ const BankTransferReportPage = () => {
             <PageHeader title="Bank Transfer" />
 
             {/* Cycle selector */}
-            <Card style={{ marginBottom: "20px" }}>
+            <Card className="mb-5">
                 {loadingCycles ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                    <div className="text-subtle text-[14px]">Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>No closed payroll cycles available.</div>
+                    <div className="text-subtle text-[14px]">No closed payroll cycles available.</div>
                 ) : (
                     <>
                         <SelectField
@@ -227,10 +171,10 @@ const BankTransferReportPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {cycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">
                                 Period: <strong>{fd(cycle.start_date)}</strong> —&nbsp;<strong>{fd(cycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                             </div>
@@ -241,30 +185,30 @@ const BankTransferReportPage = () => {
 
             {/* Actions */}
             {data && rows.length > 0 && (
-                <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
-                    <Button variant="primary" onClick={() => exportCSV(rows, data.company, cycle)} style={{ width: "auto", padding: "9px 18px" }}>
+                <div className="flex gap-[10px] mb-[16px]">
+                    <Button variant="primary" onClick={() => exportCSV(rows, data.company, cycle)} className="w-auto px-[18px] py-[9px]">
                         Export CSV (iBusiness)
                     </Button>
-                    <Button variant="primary" onClick={() => setIsPrintOpen(true)} style={{ width: "auto", padding: "9px 18px" }}>
+                    <Button variant="primary" onClick={() => setIsPrintOpen(true)} className="w-auto px-[18px] py-[9px]">
                         Print Summary PDF
                     </Button>
                 </div>
             )}
 
             {/* Table */}
-            <Card style={{ padding: 0 }}>
+            <Card className="p-0">
                 {loadingData ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                    <div className="p-[40px] text-center text-subtle">Loading...</div>
                 ) : rows.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         {selectedCycleId ? "No payroll records found for this cycle." : "Select a closed cycle above."}
                     </div>
                 ) : (
                     <>
                         <Table columns={columns} data={rows} />
-                        <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "#f8fafc" }}>
-                            <span style={{ color: "#64748b" }}>Total Employees: <strong>{rows.length}</strong></span>
-                            <span style={{ color: "#0f172a", fontWeight: "800", fontSize: "15px", fontFamily: "monospace" }}>
+                        <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
+                            <span className="text-muted">Total Employees: <strong>{rows.length}</strong></span>
+                            <span className="text-main font-extrabold text-[15px] font-mono">
                                 Total Net Pay: ฿{fc(data?.total_net_pay)}
                             </span>
                         </div>

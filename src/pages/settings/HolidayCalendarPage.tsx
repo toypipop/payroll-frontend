@@ -1,110 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from "react";
 
-import api from "../../api/axiosInstance";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
-import Modal from "../../components/common/Modal";
-import InputField from "../../components/common/InputField";
-import DateField from "../../components/common/DateField";
-import CheckboxField from "../../components/common/CheckboxField";
-import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
-
-const schema = z.object({
-    companies_id: z.string().min(1, "Company is required"),
-    date: z.string().min(1, "Date is required"),
-    name: z.string().min(1, "Holiday name is required"),
-    is_paid: z.boolean().default(true),
-});
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
-const emptyForm = { companies_id: homeCompanyId, date: "", name: "", is_paid: true };
+import { useAuth } from "../../hooks/useAuth";
+import useHolidays from "./holidays/useHolidays";
+import HolidayFormModal from "./holidays/HolidayFormModal";
 
 const HolidayCalendarPage = () => {
-    const [items, setItems] = useState([]);
-    const [companyOptions, setCompanyOptions] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { homeCompanyId } = useAuth();
+    const { items, companyOptions, loading, fetchData, remove } = useHolidays();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingId, setEditingId] = useState(null);
+    const [editing, setEditing] = useState(null);
 
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
-        resolver: zodResolver(schema),
-        defaultValues: emptyForm,
-    });
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [res, companiesRes] = await Promise.all([
-                api.get("/master/holidays"),
-                api.get("/companies/options"),
-            ]);
-            setItems(res.data || []);
-            setCompanyOptions((companiesRes.data || []).map((c) => ({ id: c.id, name: c.name })));
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchData(); }, []);
-
-    const onSubmit = async (data) => {
-        try {
-            const payload = { ...data, companies_id: Number(data.companies_id) };
-            if (editingId) {
-                await api.put(`/master/holidays/${editingId}`, payload);
-            } else {
-                await api.post("/master/holidays", payload);
-            }
-            fetchData();
-            closeModal();
-        } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
-        }
-    };
-
-    const handleEdit = (item) => {
-        setEditingId(item.id);
-        reset({
-            companies_id: item.companies_id ? String(item.companies_id) : "",
-            date: item.date ? item.date.substring(0, 10) : "",
-            name: item.name,
-            is_paid: item.is_paid,
-        });
+    const openAdd = () => {
+        setEditing(null);
         setIsModalOpen(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditingId(null);
-        reset(emptyForm);
+    const openEdit = (row) => {
+        setEditing(row);
+        setIsModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Delete this holiday?")) return;
-        try {
-            await api.delete(`/master/holidays/${id}`);
-            fetchData();
-        } catch (err) {
-            const errData = err.response?.data;
-            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
-        }
-    };
-
-    const smallBtn = { padding: "4px 12px", fontSize: "12px", width: "auto" };
+    const smallBtn = "px-3 py-1 text-xs w-auto";
 
     const columns = [
         {
             label: "Date",
-            render: (row) => row.date ? new Date(row.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—",
+            render: (row) => row.date ? new Date(row.date).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "—",
         },
         { label: "Holiday Name", key: "name" },
         { label: "Company", render: (row) => row.companies?.name || "—" },
@@ -112,9 +37,9 @@ const HolidayCalendarPage = () => {
         {
             label: "Actions",
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => handleEdit(row)} style={smallBtn}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} style={smallBtn}>Delete</Button>
+                <div className="flex gap-[8px]">
+                    <Button variant="ghost" onClick={() => openEdit(row)} className={smallBtn}>Edit</Button>
+                    <Button variant="danger" onClick={() => remove(row.id)} className={smallBtn}>Delete</Button>
                 </div>
             ),
         },
@@ -125,51 +50,23 @@ const HolidayCalendarPage = () => {
             <PageHeader
                 title="Holiday Calendar"
                 actionButton={
-                    <Button onClick={() => { setEditingId(null); reset(emptyForm); setIsModalOpen(true); }} style={{ width: "auto" }}>
+                    <Button onClick={openAdd}>
                         + Add Holiday
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
-                {loading ? <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div> : <Table columns={columns} data={items} />}
+            <Card className="p-0">
+                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
             </Card>
 
-            <Modal
+            <HolidayFormModal
                 isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingId ? "Edit Holiday" : "Add Holiday"}
-                footer={
-                    <>
-                        <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>Cancel</Button>
-                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>{editingId ? "Update" : "Save"}</Button>
-                    </>
-                }
-            >
-                <SelectField
-                    label="Company"
-                    options={companyOptions}
-                    {...register("companies_id")}
-                    error={errors.companies_id?.message}
-                    required
-                />
-                <Controller
-                    name="date"
-                    control={control}
-                    render={({ field }) => (
-                        <DateField
-                            name={field.name}
-                            label="Date"
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            error={errors.date?.message}
-                            required
-                        />
-                    )}
-                />
-                <InputField label="Holiday Name" {...register("name")} error={errors.name?.message} required />
-                <CheckboxField label="Paid Holiday" {...register("is_paid")} />
-            </Modal>
+                onClose={() => setIsModalOpen(false)}
+                onSaved={fetchData}
+                editing={editing}
+                homeCompanyId={homeCompanyId}
+                companyOptions={companyOptions}
+            />
         </>
     );
 };

@@ -1,14 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import api from "../../api/axiosInstance";
 import useTransactionsData from "../../hooks/useTransactionsData";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
-import Modal from "../../components/common/Modal";
 import Badge from "../../components/common/Badge";
+import { TONE_TEXT } from "../../components/common/tone";
 import SelectField from "../../components/common/SelectField";
+import { useAuth } from "../../hooks/useAuth";
+import useTransactionSlip from "./transactions/useTransactionSlip";
+import TransactionDetailsModal from "./transactions/TransactionDetailsModal";
 
 const formatCurrency = (value) =>
     Number(value || 0).toLocaleString("en-US", {
@@ -18,17 +20,22 @@ const formatCurrency = (value) =>
 
 const formatDate = (value) => {
     if (!value) return "-";
-    return new Date(value).toLocaleDateString("en-GB", {
+    return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok",
         day: "2-digit",
         month: "short",
         year: "numeric",
     });
 };
 
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
+const StatCard = ({ label, value, tone = 'neutral' }) => (
+    <Card className="min-w-[155px] flex-1">
+        <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">{label}</div>
+        <div className={`mt-1.5 text-[22px] font-extrabold leading-none tabular-nums ${TONE_TEXT[tone]}`}>{value}</div>
+    </Card>
+);
 
 const TransactionsPage = () => {
+    const { homeCompanyId } = useAuth();
     const [searchParams] = useSearchParams();
     const cycleFromQuery = searchParams.get("cycle_id") || "";
 
@@ -42,25 +49,10 @@ const TransactionsPage = () => {
         loadingTransactions,
     } = useTransactionsData(cycleFromQuery);
 
-    const [selectedTransaction, setSelectedTransaction] = useState(null);
-    const [slipData, setSlipData] = useState(null);
-    const [slipError, setSlipError] = useState<string | null>(null);
-    const [loadingDetails, setLoadingDetails] = useState(false);
-
-    const [companies, setCompanies] = useState([]);
-    const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
-
-    useEffect(() => {
-        const fetchCompanies = async () => {
-            try {
-                const res = await api.get("/companies/options");
-                setCompanies(res.data || []);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchCompanies();
-    }, []);
+    const {
+        companies, selectedCompanyId, setSelectedCompanyId,
+        selectedTransaction, slipData, slipError, loadingDetails, openDetails, closeDetails,
+    } = useTransactionSlip(homeCompanyId);
 
     const filteredCycles = selectedCompanyId
         ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId))
@@ -73,8 +65,6 @@ const TransactionsPage = () => {
     }, [cycleFromQuery, setSelectedCycleId]);
 
     // Keep the selected cycle in sync with the company filter: the data hook
-    // auto-selects the first closed cycle overall, which may not belong to
-    // the default (home) company, so re-pin it to the first filtered cycle.
     useEffect(() => {
         if (cycleFromQuery || !selectedCycleId) return;
         const belongsToCompany = filteredCycles.some((c) => String(c.id) === String(selectedCycleId));
@@ -82,28 +72,6 @@ const TransactionsPage = () => {
         setSelectedCycleId(filteredCycles.length > 0 ? String(filteredCycles[0].id) : "");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cycles, selectedCompanyId]);
-
-    const openDetails = async (tx) => {
-        setSelectedTransaction(tx);
-        setSlipData(null);
-        setSlipError(null);
-        setLoadingDetails(true);
-        try {
-            const res = await api.get(`/payroll/slip/${tx.id}`);
-            setSlipData(res.data || null);
-        } catch (err) {
-            const msg = err.response?.data?.error || "Unable to load transaction details.";
-            setSlipError(msg);
-        } finally {
-            setLoadingDetails(false);
-        }
-    };
-
-    const closeDetails = () => {
-        setSelectedTransaction(null);
-        setSlipData(null);
-        setSlipError(null);
-    };
 
     const totals = useMemo(() => {
         return filteredTransactions.reduce<{ net: number; earning: number; deduction: number }>(
@@ -125,10 +93,10 @@ const TransactionsPage = () => {
             searchableKeys: ["employees.first_name", "employees.last_name", "employees.employees_code"],
             render: (row) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>
+                    <div className="font-semibold text-main">
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                    <div className="text-[12px] text-subtle mt-[2px]">
                         {row.employees?.employees_code || "-"}
                     </div>
                 </div>
@@ -146,7 +114,7 @@ const TransactionsPage = () => {
             sortKey: "total_earning",
             sortValue: (row) => row.total_earning || 0,
             render: (row) => (
-                <span style={{ color: "#10b981", fontFamily: "monospace" }}>
+                <span className="text-success font-mono">
                     ฿{formatCurrency(row.total_earning)}
                 </span>
             ),
@@ -156,7 +124,7 @@ const TransactionsPage = () => {
             sortKey: "total_deduction",
             sortValue: (row) => row.total_deduction || 0,
             render: (row) => (
-                <span style={{ color: "#ef4444", fontFamily: "monospace" }}>
+                <span className="text-danger font-mono">
                     ฿{formatCurrency(row.total_deduction)}
                 </span>
             ),
@@ -166,7 +134,7 @@ const TransactionsPage = () => {
             sortKey: "net_pay",
             sortValue: (row) => row.net_pay || 0,
             render: (row) => (
-                <span style={{ color: "#0f172a", fontWeight: 700, fontFamily: "monospace" }}>
+                <span className="text-main font-bold font-mono">
                     ฿{formatCurrency(row.net_pay)}
                 </span>
             ),
@@ -178,40 +146,12 @@ const TransactionsPage = () => {
         },
     ];
 
-    const detailColumns = [
-        { label: "Item", key: "item_name" },
-        {
-            label: "Type",
-            sortKey: "type",
-            sortValue: (row) => (row.type || "").toLowerCase(),
-            render: (row) => <Badge status={row.type === "earning" ? "active" : "rejected"}>{row.type}</Badge>,
-        },
-        {
-            label: "Amount",
-            sortKey: "amount",
-            sortValue: (row) => Number(row.amount) || 0,
-            searchValue: (row) => (Number(row.amount) || 0).toLocaleString("th-TH", { minimumFractionDigits: 2 }),
-            render: (row) => (
-                <span style={{ fontFamily: "monospace", fontWeight: 600 }}>
-                    ฿{formatCurrency(row.amount)}
-                </span>
-            ),
-        },
-    ];
-
-    const StatCard = ({ label, value, color = '#0f172a' }) => (
-        <Card style={{ minWidth: '155px', flex: 1 }}>
-            <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
-            <div style={{ marginTop: '6px', fontSize: '22px', fontWeight: '800', color, fontVariantNumeric: 'tabular-nums', lineHeight: '1' }}>{value}</div>
-        </Card>
-    );
-
     return (
         <>
             <PageHeader title="Transactions" />
 
-            <Card style={{ marginBottom: "16px" }}>
-                <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "end" }}>
+            <Card className="mb-4">
+                <div className="flex gap-[16px] flex-wrap items-end">
                     <SelectField
                         label="Company"
                         options={companies.map((c) => ({ id: c.id, name: c.name }))}
@@ -220,17 +160,17 @@ const TransactionsPage = () => {
                             setSelectedCompanyId(e.target.value);
                             setSelectedCycleId("");
                         }}
-                        containerStyle={{ flex: 1, minWidth: "220px", marginBottom: 0 }}
+                        containerClassName="mb-0 flex-1 min-w-[220px]"
                     />
                     <SelectField
                         label="Closed Payroll Cycle"
                         options={filteredCycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                         value={selectedCycleId}
                         onChange={(e) => setSelectedCycleId(e.target.value)}
-                        containerStyle={{ flex: 1, minWidth: "220px", marginBottom: 0 }}
+                        containerClassName="mb-0 flex-1 min-w-[220px]"
                     />
 
-                    <div style={{ marginLeft: "auto" }}>
+                    <div className="ml-auto">
                         <Badge status={cycleInfo?.is_closed ? "cancelled" : "pending"}>
                             {cycleInfo?.is_closed ? "Closed / Immutable" : "Awaiting Closed Cycle"}
                         </Badge>
@@ -238,30 +178,30 @@ const TransactionsPage = () => {
                 </div>
 
                 {cycleInfo && (
-                    <div style={{ marginTop: "12px", fontSize: "13px", color: "#64748b" }}>
+                    <div className="mt-[12px] text-[13px] text-muted">
                         Period: {formatDate(cycleInfo.start_date)} - {formatDate(cycleInfo.end_date)}
                     </div>
                 )}
             </Card>
 
             {selectedCycleId && (
-                <div style={{ display: "flex", gap: "14px", marginBottom: "16px", flexWrap: "wrap" }}>
+                <div className="flex gap-[14px] mb-[16px] flex-wrap">
                     <StatCard label="Transactions"   value={filteredTransactions.length} />
-                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   color="#10b981" />
-                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} color="#ef4444" />
-                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        color="#0f172a" />
+                    <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   tone="success" />
+                    <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} tone="danger" />
+                    <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        tone="neutral" />
                 </div>
             )}
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loadingCycles || loadingTransactions ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading transactions...</div>
+                    <div className="p-[40px] text-center text-subtle">Loading transactions...</div>
                 ) : !selectedCycleId ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         Select a closed payroll cycle to view immutable transactions.
                     </div>
                 ) : filteredTransactions.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         No transaction records found for this cycle.
                     </div>
                 ) : (
@@ -269,50 +209,13 @@ const TransactionsPage = () => {
                 )}
             </Card>
 
-            <Modal
-                isOpen={!!selectedTransaction}
+            <TransactionDetailsModal
+                transaction={selectedTransaction}
+                slipData={slipData}
+                slipError={slipError}
+                loading={loadingDetails}
                 onClose={closeDetails}
-                title={`Transaction Details${selectedTransaction?.employees ? ` - ${selectedTransaction.employees.first_name} ${selectedTransaction.employees.last_name}` : ""}`}
-            >
-                {loadingDetails ? (
-                    <div style={{ padding: "12px 0", color: "#94a3b8" }}>Loading details...</div>
-                ) : slipError ? (
-                    <div style={{ padding: "12px 0", color: "#ef4444" }}>{slipError}</div>
-                ) : !slipData?.slip ? (
-                    <div style={{ padding: "12px 0", color: "#94a3b8" }}>No data available.</div>
-                ) : (
-                    <>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Cycle</span>
-                            <span style={{ fontWeight: 600 }}>{slipData.cycle?.cycle_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Position (at payout)</span>
-                            <span style={{ fontWeight: 600 }}>{slipData.slip.position_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Department (at payout)</span>
-                            <span style={{ fontWeight: 600 }}>{slipData.slip.department_name || "-"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Paid to Bank Account</span>
-                            <span style={{ fontWeight: 600 }}>
-                                {slipData.slip.bank_name || "-"} {slipData.slip.bank_account_no ? `(${slipData.slip.bank_account_no})` : ""}
-                            </span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "13px" }}>
-                            <span style={{ color: "#64748b" }}>Net Pay</span>
-                            <span style={{ fontWeight: 700 }}>฿{formatCurrency(slipData.slip.net_pay)}</span>
-                        </div>
-                        <div style={{ margin: "12px 0" }}>
-                            <Badge status="cancelled">Read-only audit trail</Badge>
-                        </div>
-                        <Card style={{ padding: "0px" }}>
-                            <Table columns={detailColumns} data={slipData.slip.details || []} />
-                        </Card>
-                    </>
-                )}
-            </Modal>
+            />
         </>
     );
 };

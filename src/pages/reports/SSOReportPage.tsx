@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
-import api from "../../api/axiosInstance";
+import useClosedCycleReport from "./shared/useClosedCycleReport";
+import useA4Preview, { printElement } from "./shared/useA4Preview";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
@@ -13,7 +14,7 @@ const fc = (v) =>
 
 const fd = (d) => {
     if (!d) return "—";
-    return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 /* ── A4 SSO 1-10 Document ───────────────────────────────────────────────── */
@@ -35,13 +36,13 @@ const A4SSO = ({ data }) => {
         {
             label: "Employee SSO",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "#0369a1", fontWeight: "600" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "var(--primary-color)", fontWeight: "600" },
             render: (r) => fc(r.employee_sso),
         },
         {
             label: "Employer SSO",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "#7c3aed", fontWeight: "600" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "var(--primary-color)", fontWeight: "600" },
             render: (r) => fc(r.employer_sso),
         },
         {
@@ -55,18 +56,14 @@ const A4SSO = ({ data }) => {
     return (
         <div
             id="sso-a4"
-            style={{
-                width: "210mm", minHeight: "297mm", backgroundColor: "#fff",
-                padding: "16mm 14mm", fontFamily: "'Segoe UI', Arial, sans-serif",
-                fontSize: "13px", color: "#1e293b", boxSizing: "border-box",
-            }}
+            className="w-[210mm] min-h-[297mm] bg-white p-[16mm_14mm] font-[Segoe_UI,Arial,sans-serif] text-[13px] text-strong box-border"
         >
             {/* Header */}
-            <div style={{ textAlign: "center", marginBottom: "18px", paddingBottom: "14px", borderBottom: "3px solid #0f172a" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "2px" }}>แบบ สปส.1-10 / SSO Form 1-10 — Monthly Social Security Contribution</div>
-                <div style={{ fontSize: "22px", fontWeight: "900", color: "#0f172a", marginTop: "6px" }}>{company?.name || "—"}</div>
-                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Tax ID: {company?.tax_id || "—"} &nbsp;|&nbsp; {company?.address || ""}</div>
-                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+            <div className="text-center mb-[18px] pb-[14px] border-b-[3px] border-b-main">
+                <div className="text-[11px] font-bold text-muted uppercase tracking-[2px]">แบบ สปส.1-10 / SSO Form 1-10 — Monthly Social Security Contribution</div>
+                <div className="text-[22px] font-black text-main mt-[6px]">{company?.name || "—"}</div>
+                <div className="text-[12px] text-muted mt-[4px]">Tax ID: {company?.tax_id || "—"} &nbsp;|&nbsp; {company?.address || ""}</div>
+                <div className="text-[12px] text-muted mt-[2px]">
                     Pay Period: {fd(cycle?.start_date)} — {fd(cycle?.end_date)} &nbsp;|&nbsp; SSO Rate: {sso_rate}% (Max ฿{fc(sso_max)}/month)
                 </div>
             </div>
@@ -75,27 +72,30 @@ const A4SSO = ({ data }) => {
                 columns={printColumns}
                 data={rows}
                 density="compact"
+                enableSearch={false}
+                sortable={false}
+                fitWidth
                 renderAfterRow={(row, rowIndex, allRows) => {
                     if (rowIndex !== allRows.length - 1) return null;
                     return (
-                        <tr style={{ backgroundColor: "#0f172a", color: "#fff", fontWeight: "800" }}>
-                            <td colSpan={5} style={{ padding: "10px 10px" }}>Total</td>
-                            <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_employee_sso)}</td>
-                            <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_employer_sso)}</td>
-                            <td style={{ padding: "10px 10px", textAlign: "right", fontFamily: "monospace" }}>{fc(total_sso_combined)}</td>
+                        <tr className="bg-main text-white font-extrabold">
+                            <td colSpan={5} className="p-[10px_10px]">Total</td>
+                            <td className="p-[10px_10px] text-right font-mono">{fc(total_employee_sso)}</td>
+                            <td className="p-[10px_10px] text-right font-mono">{fc(total_employer_sso)}</td>
+                            <td className="p-[10px_10px] text-right font-mono">{fc(total_sso_combined)}</td>
                         </tr>
                     );
                 }}
             />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", marginTop: "40px", paddingTop: "16px", borderTop: "1px solid #e2e8f0" }}>
+            <div className="grid grid-cols-[1fr_1fr] gap-[40px] mt-[40px] pt-[16px] border-t border-t-line-muted">
                 {["HR / Payroll Officer", "Authorised Signatory"].map((l) => (
-                    <div key={l} style={{ textAlign: "center" }}>
-                        <div style={{ height: "40px", borderBottom: "1px solid #334155" }} />
-                        <div style={{ fontSize: "11px", color: "#64748b", marginTop: "6px" }}>{l}</div>
+                    <div key={l} className="text-center">
+                        <div className="h-[40px] border-b border-b-secondary" />
+                        <div className="text-[11px] text-muted mt-[6px]">{l}</div>
                     </div>
                 ))}
             </div>
-            <div style={{ marginTop: "16px", textAlign: "center", fontSize: "10px", color: "#94a3b8" }}>
+            <div className="mt-[16px] text-center text-[10px] text-subtle">
                 SSO Form 1-10 — {company?.name} — {cycle?.cycle_name} — Computer generated, immutable record.
             </div>
         </div>
@@ -142,62 +142,13 @@ const exportEFiling = (data) => {
 
 // Page component
 const SSOReportPage = () => {
-    const [cycles, setCycles] = useState([]);
-    const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [data, setData] = useState(null);
-    const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingData, setLoadingData] = useState(false);
+    const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
+        useClosedCycleReport((cycleId) => `/reports/sso/${cycleId}`);
     const [isPrintOpen, setIsPrintOpen] = useState(false);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setLoadingCycles(true);
-                const res = await api.get("/payroll/cycles");
-                const closed = (res.data || []).filter((c) => c.is_closed);
-                setCycles(closed);
-                if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
-            } catch { /* silent */ } finally { setLoadingCycles(false); }
-        })();
-    }, []);
+    useA4Preview(isPrintOpen, () => setIsPrintOpen(false));
 
-    useEffect(() => {
-        if (!selectedCycleId) return;
-        (async () => {
-            try {
-                setLoadingData(true);
-                setData(null);
-                const res = await api.get(`/reports/sso/${selectedCycleId}`);
-                setData(res.data);
-            } catch { setData(null); } finally { setLoadingData(false); }
-        })();
-    }, [selectedCycleId]);
-
-    useEffect(() => {
-        if (!isPrintOpen) return;
-
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [isPrintOpen]);
-
-    useEffect(() => {
-        if (!isPrintOpen) return;
-        const handleEsc = (e) => { if (e.key === "Escape") setIsPrintOpen(false); };
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [isPrintOpen]);
-
-    const handlePrint = () => {
-        const style = document.createElement("style");
-        style.innerHTML = `@media print { body * { visibility: hidden !important; } #sso-a4, #sso-a4 * { visibility: visible !important; } #sso-a4 { position: fixed !important; top: 0 !important; left: 0 !important; width: 210mm !important; box-shadow: none !important; margin: 0 !important; } @page { margin: 0; size: A4; } }`;
-        document.head.appendChild(style);
-        window.print();
-        document.head.removeChild(style);
-    };
+    const handlePrint = () => printElement("sso-a4");
 
     const cycle = data?.cycle;
     const rows = data?.rows || [];
@@ -207,38 +158,38 @@ const SSOReportPage = () => {
             label: "Employee",
             render: (r) => (
                 <div>
-                    <div style={{ fontWeight: "600", color: "#0f172a" }}>{r.first_name} {r.last_name}</div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "2px" }}>{r.employees_code}</div>
+                    <div className="font-semibold text-main">{r.first_name} {r.last_name}</div>
+                    <div className="text-[11px] text-subtle mt-[2px]">{r.employees_code}</div>
                 </div>
             ),
         },
-        { label: "Wages (Base)", render: (r) => <span style={{ fontFamily: "monospace" }}>฿{fc(r.wages)}</span> },
+        { label: "Wages (Base)", render: (r) => <span className="font-mono">฿{fc(r.wages)}</span> },
         {
             label: "Employee SSO",
-            render: (r) => <span style={{ fontFamily: "monospace", color: "#0369a1", fontWeight: "600" }}>{fc(r.employee_sso)}</span>,
+            render: (r) => <span className="font-mono text-primary font-semibold">{fc(r.employee_sso)}</span>,
         },
         {
             label: "Employer SSO",
-            render: (r) => <span style={{ fontFamily: "monospace", color: "#7c3aed", fontWeight: "600" }}>{fc(r.employer_sso)}</span>,
+            render: (r) => <span className="font-mono text-primary font-semibold">{fc(r.employer_sso)}</span>,
         },
         {
             label: "Total SSO",
-            render: (r) => <span style={{ fontFamily: "monospace", fontWeight: "700" }}>{fc(r.employee_sso + r.employer_sso)}</span>,
+            render: (r) => <span className="font-mono font-bold">{fc(r.employee_sso + r.employer_sso)}</span>,
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
     ];
 
     const printPreview = isPrintOpen ? (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#0f172a", zIndex: 10000, overflowY: "auto" }}>
-            <div style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "#1e293b", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-                <span style={{ color: "#fff", fontWeight: "700", fontSize: "15px" }}>SSO Form 1-10 Preview</span>
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={handlePrint} style={{ backgroundColor: "#10b981", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "700", fontSize: "13px" }}>Print / Save PDF</button>
-                    <button onClick={() => setIsPrintOpen(false)} style={{ backgroundColor: "transparent", color: "#94a3b8", border: "1px solid #334155", borderRadius: "8px", cursor: "pointer", padding: "9px 18px", fontWeight: "600", fontSize: "13px" }}>Close</button>
+        <div className="fixed top-[0px] left-[0px] right-[0px] bottom-[0px] bg-main z-[10000] overflow-y-auto">
+            <div className="sticky top-[0px] z-[1] bg-strong p-[12px_28px] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+                <span className="text-white font-bold text-[15px]">SSO Form 1-10 Preview</span>
+                <div className="flex gap-[10px]">
+                    <button onClick={handlePrint} className="bg-success text-white border-none rounded-[8px] cursor-pointer p-[9px_18px] font-bold text-[13px]">Print / Save PDF</button>
+                    <button onClick={() => setIsPrintOpen(false)} className="bg-transparent text-subtle border border-secondary rounded-[8px] cursor-pointer p-[9px_18px] font-semibold text-[13px]">Close</button>
                 </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", padding: "32px 24px 48px" }}>
-                <div style={{ boxShadow: "0 4px 32px rgba(0,0,0,0.4)", borderRadius: "4px" }}>
+            <div className="flex justify-center p-[32px_24px_48px]">
+                <div className="shadow-[0_4px_32px_rgba(0,0,0,0.4)] rounded-[4px]">
                     <A4SSO data={data} />
                 </div>
             </div>
@@ -250,11 +201,11 @@ const SSOReportPage = () => {
             <PageHeader title="Social Security (SSO)" />
 
             {/* Cycle selector */}
-            <Card style={{ marginBottom: "20px" }}>
+            <Card className="mb-5">
                 {loadingCycles ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>Loading cycles...</div>
+                    <div className="text-subtle text-[14px]">Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ color: "#94a3b8", fontSize: "14px" }}>No closed payroll cycles available.</div>
+                    <div className="text-subtle text-[14px]">No closed payroll cycles available.</div>
                 ) : (
                     <>
                         <SelectField
@@ -262,14 +213,14 @@ const SSOReportPage = () => {
                             options={cycles.map((c) => ({ id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}` }))}
                             value={selectedCycleId}
                             onChange={(e) => setSelectedCycleId(e.target.value)}
-                            containerStyle={{ marginBottom: 0 }}
+                            containerClassName="mb-0"
                         />
                         {cycle && (
-                            <div style={{ marginTop: "10px", fontSize: "13px", color: "#64748b", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div className="mt-[10px] text-[13px] text-muted flex items-center gap-[10px]">
                                 Period: <strong>{fd(cycle.start_date)}</strong> —&nbsp;<strong>{fd(cycle.end_date)}</strong>
                                 <Badge status="cancelled">Closed / Locked</Badge>
                                 {data?.sso_rate != null && (
-                                    <span style={{ fontSize: "12px", color: "#475569" }}>SSO Rate: <strong>{data.sso_rate}%</strong> (Max ฿{fc(data.sso_max)}/mo)</span>
+                                    <span className="text-[12px] text-body">SSO Rate: <strong>{data.sso_rate}%</strong> (Max ฿{fc(data.sso_max)}/mo)</span>
                                 )}
                             </div>
                         )}
@@ -279,31 +230,31 @@ const SSOReportPage = () => {
 
             {/* Actions */}
             {data && rows.length > 0 && (
-                <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
-                    <Button variant="primary" onClick={() => exportEFiling(data)} style={{ width: "auto", padding: "9px 18px" }}>
+                <div className="flex gap-[10px] mb-[16px]">
+                    <Button variant="primary" onClick={() => exportEFiling(data)} className="w-auto px-[18px] py-[9px]">
                         Export E-Filing (.txt)
                     </Button>
-                    <Button variant="primary" onClick={() => setIsPrintOpen(true)} style={{ width: "auto", padding: "9px 18px" }}>
+                    <Button variant="primary" onClick={() => setIsPrintOpen(true)} className="w-auto px-[18px] py-[9px]">
                         Print SSO 1-10 PDF
                     </Button>
                 </div>
             )}
 
             {/* Table */}
-            <Card style={{ padding: 0 }}>
+            <Card className="p-0">
                 {loadingData ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading...</div>
+                    <div className="p-[40px] text-center text-subtle">Loading...</div>
                 ) : rows.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         {selectedCycleId ? "No records found for this cycle." : "Select a closed cycle above."}
                     </div>
                 ) : (
                     <>
                         <Table columns={columns} data={rows} />
-                        <div style={{ padding: "14px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "32px", fontSize: "13px", background: "#f8fafc" }}>
-                            <span style={{ color: "#64748b" }}>Employee SSO: <strong style={{ color: "#0369a1", fontFamily: "monospace" }}>{fc(data?.total_employee_sso)}</strong></span>
-                            <span style={{ color: "#64748b" }}>Employer SSO: <strong style={{ color: "#7c3aed", fontFamily: "monospace" }}>{fc(data?.total_employer_sso)}</strong></span>
-                            <span style={{ color: "#0f172a", fontWeight: "800", fontFamily: "monospace" }}>Combined: ฿{fc(data?.total_sso_combined)}</span>
+                        <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
+                            <span className="text-muted">Employee SSO: <strong className="text-primary font-mono">{fc(data?.total_employee_sso)}</strong></span>
+                            <span className="text-muted">Employer SSO: <strong className="text-primary font-mono">{fc(data?.total_employer_sso)}</strong></span>
+                            <span className="text-main font-extrabold font-mono">Combined: ฿{fc(data?.total_sso_combined)}</span>
                         </div>
                     </>
                 )}

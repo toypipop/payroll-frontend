@@ -26,34 +26,26 @@ export default function HelpPage() {
     : []
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="p-[24px]">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+      <div className="flex justify-between items-start mb-[24px]">
         <div>
-          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1a3c34' }}>
+          <div className="text-[20px] font-bold text-[color:var(--ink-deep)]">
             {lang === 'en' ? 'Help Center' : 'คู่มือการใช้งาน'}
           </div>
-          <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+          <div className="text-[12px] text-subtle mt-[4px]">
             {lang === 'th' ? 'เลือกหมวดหมู่ที่ต้องการ' : 'Select a category'}
           </div>
         </div>
         {/* Language toggle */}
         <button
           onClick={() => setLang(l => l === 'en' ? 'th' : 'en')}
-          style={{
-            background: '#f0f0f0', border: 'none', borderRadius: '20px',
-            padding: '4px 8px', display: 'flex', gap: '4px', cursor: 'pointer',
-          }}
+          className="bg-line-light border-none rounded-[20px] p-[4px_8px] flex gap-[4px] cursor-pointer"
         >
           {(['en', 'th'] as const).map((l) => (
             <span
               key={l}
-              style={{
-                background: lang === l ? '#1a3c34' : 'transparent',
-                color: lang === l ? 'white' : '#666',
-                borderRadius: '14px', padding: '2px 10px',
-                fontSize: '12px', fontWeight: lang === l ? 600 : 400,
-              }}
+              className={`rounded-[14px] px-2.5 py-0.5 text-xs ${lang === l ? 'bg-[color:var(--ink-deep)] font-semibold text-white' : 'bg-transparent font-normal text-muted'}`}
             >
               {l.toUpperCase()}
             </span>
@@ -62,49 +54,42 @@ export default function HelpPage() {
       </div>
 
       {/* Search bar */}
-      <div style={{ marginBottom: '20px', position: 'relative' }}>
+      <div className="mb-[20px] relative">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={lang === 'th' ? 'ค้นหาคู่มือ...' : 'Search help articles...'}
-          style={{
-            width: '100%', padding: '10px 16px', fontSize: '14px',
-            border: '1px solid #e0e0e0', borderRadius: '10px',
-            outline: 'none', background: 'white', boxSizing: 'border-box',
-          }}
+          className="box-border w-full rounded-[10px] border border-line-muted bg-white px-4 py-2.5 text-sm outline-none"
         />
       </div>
 
       {search.trim().length > 0 ? (
         /* Search results */
         <div>
-          <div style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>
+          <div className="text-[12px] text-subtle mb-[12px]">
             {lang === 'th'
               ? `พบ ${searchResults.length} ผลลัพธ์`
               : `${searchResults.length} result${searchResults.length !== 1 ? 's' : ''}`}
           </div>
           {searchResults.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#aaa', padding: '40px 0', fontSize: '14px' }}>
+            <div className="text-center text-subtle p-[40px_0] text-[14px]">
               {lang === 'th' ? 'ไม่พบผลลัพธ์' : 'No results found'}
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+            <div className="grid grid-cols-3 gap-3">
               {searchResults.map((article) => {
                 const cat = HELP_CATEGORIES.find((c) => c.id === article.category)
                 return (
                   <div
                     key={article.id}
                     onClick={() => setSelectedArticle(article)}
-                    style={{
-                      background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
-                      padding: '16px', cursor: 'pointer',
-                    }}
+                    className="cursor-pointer rounded-xl border border-line-muted bg-white p-4"
                   >
-                    <div style={{ fontWeight: 600, fontSize: '13px', color: '#1a3c34', marginBottom: '4px' }}>
+                    <div className="font-semibold text-[13px] text-[color:var(--ink-deep)] mb-[4px]">
                       {lang === 'th' ? article.titleTH : article.titleEN}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#888' }}>
+                    <div className="text-[11px] text-subtle">
                       {cat ? (lang === 'th' ? cat.titleTH : cat.titleEN) : ''}
                     </div>
                   </div>
@@ -128,15 +113,12 @@ export default function HelpPage() {
               <div
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                style={{
-                  background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
-                  padding: '16px', cursor: 'pointer',
-                }}
+                className="cursor-pointer rounded-xl border border-line-muted bg-white p-4"
               >
-                <div style={{ fontWeight: 600, fontSize: '14px', color: '#1a3c34', marginBottom: '4px' }}>
+                <div className="font-semibold text-[14px] text-[color:var(--ink-deep)] mb-[4px]">
                   {lang === 'th' ? cat.titleTH : cat.titleEN}
                 </div>
-                <div style={{ fontSize: '11px', color: '#888' }}>
+                <div className="text-[11px] text-subtle">
                   {cat.titleEN} · {count} {lang === 'th' ? 'บทความ' : 'articles'}
                 </div>
               </div>
@@ -144,11 +126,11 @@ export default function HelpPage() {
           }
           return (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              <div className="grid grid-cols-3 gap-3">
                 {scenarioCategories.map(renderCategoryCard)}
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid #e0e0e0', margin: '20px 0' }} />
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              <hr className="border-none border-t border-t-line-muted m-[20px_0]" />
+              <div className="grid grid-cols-3 gap-3">
                 {moduleCategories.map(renderCategoryCard)}
               </div>
             </div>
@@ -159,24 +141,18 @@ export default function HelpPage() {
         <div>
           <button
             onClick={() => setSelectedCategory(null)}
-            style={{
-              background: 'none', border: 'none', color: '#1a3c34', cursor: 'pointer',
-              fontSize: '14px', fontWeight: 600, padding: '0 0 16px 0', display: 'block',
-            }}
+            className="bg-none border-none text-[color:var(--ink-deep)] cursor-pointer text-[14px] font-semibold p-[0_0_16px_0] block"
           >
             {lang === 'th' ? '← กลับ' : '← Back'}
           </button>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+          <div className="grid grid-cols-3 gap-3">
             {categoryArticles.map((article) => (
               <div
                 key={article.id}
                 onClick={() => setSelectedArticle(article)}
-                style={{
-                  background: 'white', border: '1px solid #e0e0e0', borderRadius: '12px',
-                  padding: '16px', cursor: 'pointer',
-                }}
+                className="cursor-pointer rounded-xl border border-line-muted bg-white p-4"
               >
-                <div style={{ fontWeight: 600, fontSize: '13px', color: '#1a3c34' }}>
+                <div className="font-semibold text-[13px] text-[color:var(--ink-deep)]">
                   {lang === 'th' ? article.titleTH : article.titleEN}
                 </div>
               </div>

@@ -29,6 +29,11 @@ export interface AppModule {
     parent_id?: ApiId | null;
     order?: number;
     icon?: string;
+    // What the backend can enforce for this module; the matrix is driven by these, never by a hardcoded frontend list.
+    scope_level?: "company" | "employee";
+    allowed_actions?: ("VIEW" | "CREATE" | "EDIT" | "DELETE")[];
+    allowed_scopes?: ("Own" | "Department" | "Companies")[];
+    actions_atomic?: boolean;
 }
 
 export interface PayrollCycle {

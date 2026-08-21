@@ -1,253 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from "react";
 
-import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
-import Modal from "../../components/common/Modal";
-import InputField from "../../components/common/InputField";
-import SelectField from "../../components/common/SelectField";
-import DateField from "../../components/common/DateField";
 import HelpIcon from "../../components/common/HelpIcon";
-import MasterDataWarning from "../../components/common/MasterDataWarning";
-
-import { Controller } from "react-hook-form";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
-// Validation schema for leave requests
-const leaveSchema = z.object({
-    companies_id: z.string().min(1, "Please select a company"),
-    employees_id: z.string().min(1, "Please select an employee"),
-    leave_type_id: z.string().min(1, "Please select leave type"),
-    // Accept YYYY-MM-DD string from DateField
-    start_date: z.string().min(1, "Start date is required"),
-    end_date: z.string().min(1, "End date is required"),
-    reason: z.string().max(500, "Reason must be less than 500 characters").optional().or(z.literal("")),
-}).refine((data) => {
-    if (data.start_date && data.end_date) {
-        // Same day is allowed (1 day leave)
-        return data.end_date >= data.start_date;
-    }
-    return true;
-}, {
-    message: "End date must be on or after start date",
-    path: ["end_date"],
-});
+import { useAuth } from "../../hooks/useAuth";
+import useLeaveRequests from "./leave-requests/useLeaveRequests";
+import LeaveRequestFormModal from "./leave-requests/LeaveRequestFormModal";
 
 const LeaveRequestsPage = () => {
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { homeCompanyId } = useAuth();
+    const { requests, loading, fetchRequests, remove, masterCompanies, masterEmployees, masterLeaveTypes, employeeData } = useLeaveRequests();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingId, setEditingId] = useState(null);
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
-    const [masterCompanies, setMasterCompanies] = useState([]);
-    const [masterEmployees, setMasterEmployees] = useState([]);
-    const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
-    const [employeeData, setEmployeeData] = useState({});
+    const [editing, setEditing] = useState(null);
 
-    // Initialize form with hook form
-    const {
-        register,
-        handleSubmit,
-        reset,
-        setValue,
-        watch,
-        control,
-        formState: { errors },
-    } = useForm({
-        resolver: zodResolver(leaveSchema),
-        defaultValues: {
-            companies_id: homeCompanyId,
-            employees_id: "",
-            leave_type_id: "",
-            start_date: "",
-            end_date: "",
-            reason: "",
-        },
-    });
-
-    const fetchRequests = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get("/leaves/requests");
-            setRequests(response.data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
+    const openAdd = () => {
+        setEditing(null);
+        setIsModalOpen(true);
     };
 
-    useEffect(() => {
-        const fetchMasterData = async () => {
-            try {
-                const [empRes, ltRes, companyRes] = await Promise.all([
-                    api.get("/employees"),
-                    api.get("/master/leave-types/options").catch(() => ({ data: [] })),
-                    api.get("/companies/options"),
-                ]);
-                setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
-                setMasterEmployees(
-                    empRes.data.map((e) => ({
-                        id: e.id,
-                        name: `${e.employees_code || "-"} - ${e.first_name} ${e.last_name}`,
-                        companies_id: e.companies_id,
-                    }))
-                );
-                
-                const empDataMap = {};
-                empRes.data.forEach((e) => {
-                    empDataMap[e.id] = e;
-                });
-                setEmployeeData(empDataMap);
-
-                setMasterLeaveTypes((ltRes.data || []).map((lt) => ({ 
-                    id: lt.id,
-                    name: lt.name,
-                    companies_id: lt.companies_id 
-                })));
-            } catch (err) {
-                console.error("Master Data Load Error", err);
-            }
-        };
-        fetchMasterData();
-        fetchRequests();
-    }, []);
-
-    const onSubmit = async (data) => {
-        try {
-            const employeeId = Number(data.employees_id);
-            const leaveTypeId = Number(data.leave_type_id);
-            const companyId = Number(data.companies_id);
-            const selectedLeaveType = masterLeaveTypes.find((lt) => String(lt.id) === String(data.leave_type_id));
-
-            if (!Number.isFinite(employeeId) || employeeId <= 0) {
-                alert("Please select an employee");
-                return;
-            }
-
-            if (filteredEmployees.length === 0) {
-                alert("This company has no employees. Please add one before saving.");
-                return;
-            }
-
-            if (!Number.isFinite(leaveTypeId) || leaveTypeId <= 0) {
-                alert("Please select leave type");
-                return;
-            }
-
-            if (!selectedLeaveType?.name) {
-                alert("Please select a valid leave type");
-                return;
-            }
-
-            const payload = {
-                ...data,
-                employees_id: employeeId,
-                leave_type_id: leaveTypeId,
-                companies_id: companyId,
-                start_date: `${data.start_date}T00:00:00Z`,
-                end_date: `${data.end_date}T00:00:00Z`,
-            };
-
-            if (editingId) {
-                await api.put(`/leaves/requests/${editingId}`, payload);
-            } else {
-                await api.post("/leaves/requests", payload);
-            }
-            fetchRequests();
-            closeModal();
-        } catch (err) {
-            alert(err.response?.data?.error || "Operation Failed");
-        }
-    };
-    const handleEdit = (req) => {
+    // Only a pending request can still be changed, which is why Edit refuses anything else.
+    const openEdit = (req) => {
         if (req.status !== "Pending") {
             alert("Only pending requests can be edited");
             return;
         }
-
-        setEditingId(req.id);
-        setValue("companies_id", req.companies_id?.toString() || req.employees?.companies_id?.toString() || "");
-        setValue("employees_id", req.employees_id?.toString() || "");
-        setSelectedEmployeeId(req.employees_id?.toString() || "");
-        setValue("leave_type_id", req.leave_type_id?.toString() || "");
-        setValue("start_date", req.start_date ? req.start_date.split("T")[0] : "");
-        setValue("end_date", req.end_date ? req.end_date.split("T")[0] : "");
-        setValue("reason", req.reason || "");
+        setEditing(req);
         setIsModalOpen(true);
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this request?")) {
-            try {
-                await api.delete(`/leaves/requests/${id}`);
-                fetchRequests();
-            } catch (err) {
-                alert(err.response?.data?.error || "Delete Failed");
-            }
-        }
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditingId(null);
-        setSelectedEmployeeId("");
-        reset();
-    };
-
-    const openCreateModal = () => {
-        setEditingId(null);
-        setSelectedEmployeeId("");
-        reset({
-            employees_id: "",
-            companies_id: homeCompanyId,
-            leave_type_id: "",
-            start_date: "",
-            end_date: "",
-            reason: "",
-        });
-        setIsModalOpen(true);
-    };
-
-    const selectedCompanyId = watch("companies_id");
-    const filteredEmployees = selectedCompanyId
-        ? masterEmployees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId))
-        : [];
-    const selectedEmployeeCompaniesId = selectedCompanyId || (selectedEmployeeId
-        ? employeeData[selectedEmployeeId]?.companies_id
-        : null);
-    
-    const filteredLeaveTypes = selectedEmployeeCompaniesId
-        ? masterLeaveTypes.filter((lt) =>
-            !lt.companies_id || String(lt.companies_id) === String(selectedEmployeeCompaniesId)
-        )
-        : masterLeaveTypes;
-
-    const showNoLeaveTypesWarning = !!selectedEmployeeCompaniesId && filteredLeaveTypes.length === 0;
-    const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
-
-    const handleEmployeeChange = (e) => {
-        const empId = e.target.value;
-        setSelectedEmployeeId(empId);
-        setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
-        setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
-    };
-    const handleLeaveTypeChange = (e) => {
-        setValue("leave_type_id", e.target.value, { shouldValidate: true, shouldDirty: true });
-    };
-    const handleCompanyChange = (e) => {
-        setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
-        setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
-        setSelectedEmployeeId("");
-        setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
     };
 
     const columns = [
@@ -256,11 +37,11 @@ const LeaveRequestsPage = () => {
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
             searchValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""} ${row.employees?.employees_code || ""}`.trim(),
             render: (row) => (
-                <div style={{ whiteSpace: "nowrap" }}>
-                    <div style={{ fontWeight: "600" }}>
+                <div className="whitespace-nowrap">
+                    <div className="font-semibold">
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#64748b" }}>
+                    <div className="text-[11px] text-muted">
                         {row.employees?.employees_code}
                     </div>
                 </div>
@@ -278,10 +59,10 @@ const LeaveRequestsPage = () => {
             sortKey: "start_date",
             sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             render: (row) => {
-                const formatD = (d) => new Date(d).toLocaleDateString('en-GB', {
+                const formatD = (d) => new Date(d).toLocaleDateString('en-GB', { timeZone: "Asia/Bangkok",
                     day: '2-digit', month: '2-digit', year: '2-digit'
                 });
-                return <div style={{ whiteSpace: "nowrap" }}>{formatD(row.start_date)} - {formatD(row.end_date)}</div>;
+                return <div className="whitespace-nowrap">{formatD(row.start_date)} - {formatD(row.end_date)}</div>;
             }
         },
         {
@@ -295,13 +76,13 @@ const LeaveRequestsPage = () => {
             sortValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim().toLowerCase(),
             searchValue: (row) => `${row.approver?.first_name || ""} ${row.approver?.last_name || ""}`.trim(),
             render: (row) => (
-                <div style={{ fontSize: "13px", color: "#475569" }}>
+                <div className="text-[13px] text-body">
                     {row.approver ? (
-                        <div style={{ whiteSpace: "nowrap" }}>
+                        <div className="whitespace-nowrap">
                             {row.approver.first_name} {row.approver.last_name}
                         </div>
                     ) : (
-                        <span style={{ color: "#94a3b8", fontStyle: "italic" }}>-</span>
+                        <span className="text-subtle italic">-</span>
                     )}
                 </div>
             ),
@@ -315,22 +96,18 @@ const LeaveRequestsPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="flex gap-[8px]">
                     <Button
                         variant="ghost"
-                        onClick={() => handleEdit(row)}
-                        style={{
-                            ...smallBtn,
-                            opacity: row.status === "Pending" ? 1 : 0.45,
-                            cursor: row.status === "Pending" ? "pointer" : "not-allowed",
-                        }}
+                        onClick={() => openEdit(row)}
+                        className={`${smallBtn} ${row.status === "Pending" ? "opacity-100 cursor-pointer" : "opacity-45 cursor-not-allowed"}`}
                     >
                         Edit
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => handleDelete(row.id || row.ID)}
-                        style={smallBtn}
+                        onClick={() => remove(row.id || row.ID)}
+                        className={smallBtn}
                     >
                         Delete
                     </Button>
@@ -338,139 +115,40 @@ const LeaveRequestsPage = () => {
             ),
         },
     ];
-    
+
     return (
         <>
             <PageHeader
-                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Leave Requests<HelpIcon articleId="leave-requests" /></span>}
+                title={<span className="flex items-center gap-[8px]">Leave Requests<HelpIcon articleId="leave-requests" /></span>}
                 actionButton={
-                    <Button
-                        onClick={openCreateModal}
-                        style={{ width: "auto" }}
-                    >
+                    <Button onClick={openAdd}>
                         + Create Request
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>Loading...</div>
+                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
                     <Table columns={columns} data={requests} />
                 )}
             </Card>
 
-            <Modal
+            <LeaveRequestFormModal
                 isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingId ? "Edit Leave Request" : "New Leave Request"}
-                footer={
-                    <>
-                        <Button
-                            variant="ghost"
-                            onClick={closeModal}
-                            style={{ width: "auto" }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleSubmit(onSubmit)}
-                            style={{ width: "auto" }}
-                            disabled={showNoLeaveTypesWarning || showNoEmployeesWarning}
-                        >
-                            {editingId ? "Update" : "Submit"}
-                        </Button>
-                    </>
-                }
-            >
-                <SelectField
-                    label="Company"
-                    options={masterCompanies}
-                    {...register("companies_id")}
-                    error={errors.companies_id?.message}
-                    onChange={(e) => {
-                        handleCompanyChange(e);
-                    }}
-                    required
-                />
-
-                <SelectField
-                    label="Employee"
-                    options={filteredEmployees}
-                    {...register("employees_id")}
-                    error={errors.employees_id?.message}
-                    onChange={(e) => {
-                        handleEmployeeChange(e);
-                    }}
-                    disabled={!selectedCompanyId}
-                    required
-                />
-                {showNoEmployeesWarning && (
-                    <MasterDataWarning
-                        message="This company has no employees yet."
-                        routePath="/employees"
-                        moduleKey="EmployeesListPage"
-                    />
-                )}
-
-                <SelectField
-                    label="Leave Type"
-                    options={filteredLeaveTypes}
-                    {...register("leave_type_id")}
-                    error={errors.leave_type_id?.message}
-                    onChange={handleLeaveTypeChange}
-                    disabled={!selectedEmployeeId}
-                    required
-                />
-                {showNoLeaveTypesWarning && (
-                    <MasterDataWarning
-                        message="This company has no leave types yet."
-                        routePath="/leave-types"
-                        moduleKey="MasterLeaveTypePage"
-                    />
-                )}
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                    <Controller
-                        control={control}
-                        name="start_date"
-                        render={({ field }) => (
-                            <DateField
-                                label="Start Date"
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={errors.start_date?.message}
-                                required
-                            />
-                        )}
-                    />
-
-                    <Controller
-                        control={control}
-                        name="end_date"
-                        render={({ field }) => (
-                            <DateField
-                                label="End Date"
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={errors.end_date?.message}
-                                required
-                            />
-                        )}
-                    />
-                </div>
-
-                <InputField
-                    label="Reason"
-                    placeholder="Provide details about your leave..."
-                    {...register("reason")}
-                    error={errors.reason?.message}
-                />
-            </Modal>
+                onClose={() => setIsModalOpen(false)}
+                onSaved={fetchRequests}
+                editing={editing}
+                homeCompanyId={homeCompanyId}
+                masterCompanies={masterCompanies}
+                masterEmployees={masterEmployees}
+                masterLeaveTypes={masterLeaveTypes}
+                employeeData={employeeData}
+            />
         </>
     );
 };
 
-const smallBtn = { padding: "6px 12px", fontSize: "12px" };
+const smallBtn = "px-3 py-1.5 text-xs";
 
 export default LeaveRequestsPage;

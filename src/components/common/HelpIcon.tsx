@@ -17,13 +17,7 @@ export default function HelpIcon({ articleId, lang = 'th' }: Props) {
       <button
         onClick={() => setOpen(true)}
         title={lang === 'th' ? 'ดูคู่มือ' : 'View help'}
-        style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          width: '20px', height: '20px', borderRadius: '50%',
-          border: '1.5px solid #1a3c34', background: 'transparent',
-          color: '#1a3c34', fontSize: '11px', fontWeight: 700,
-          cursor: 'pointer', lineHeight: 1, flexShrink: 0,
-        }}
+        className="inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.5px] border-[color:var(--ink-deep)] bg-transparent text-[11px] font-bold leading-none text-[color:var(--ink-deep)]"
       >
         ?
       </button>

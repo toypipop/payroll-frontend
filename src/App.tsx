@@ -1,6 +1,7 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import api from "./api/axiosInstance";
+import { AuthProvider } from "./contexts/AuthContext";
 import MainLayout from "./components/layouts/MainLayout";
 import type { AppModule, AuthMeResponse, UserProfile } from "./types/api";
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
@@ -25,6 +26,7 @@ function App() {
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState<UserProfile | null>(null);
 
     useEffect(() => {
         const verifySession = async () => {
@@ -37,10 +39,10 @@ function App() {
                     companies_id: res.data.companies_id,
                     accessible_company_ids: res.data.accessible_company_ids || [],
                 };
-                localStorage.setItem("user", JSON.stringify(userPayload));
+                setUser(userPayload);
                 setIsAuthenticated(true);
             } catch {
-                localStorage.removeItem("user");
+                setUser(null);
                 setIsAuthenticated(false);
             } finally {
                 setAuthLoading(false);
@@ -75,6 +77,7 @@ function App() {
     if (loading || authLoading) return null;
 
     return (
+        <AuthProvider user={user}>
         <Router>
             <Suspense fallback={null}>
                 <Routes>
@@ -143,6 +146,7 @@ function App() {
                 </Routes>
             </Suspense>
         </Router>
+        </AuthProvider>
     );
 }
 

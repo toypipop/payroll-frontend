@@ -1,105 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from "react";
 
-import api from "../../api/axiosInstance";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
-import Modal from "../../components/common/Modal";
-import InputField from "../../components/common/InputField";
-import SelectField from "../../components/common/SelectField";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
-const positionSchema = z.object({
-    pos_name: z.string().min(1, "Position name is required"),
-    companies_id: z.coerce.number().min(1, "Please select a companies"),
-});
+import { useAuth } from "../../hooks/useAuth";
+import usePositions from "./positions/usePositions";
+import PositionFormModal from "./positions/PositionFormModal";
 
 const PositionSettings = () => {
-    const [positions, setPositions] = useState([]);
-    const [companies, setCompanies] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { homeCompanyId } = useAuth();
+    const { positions, companies, loading, fetchData, remove } = usePositions();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingId, setEditingId] = useState(null);
+    const [editing, setEditing] = useState(null);
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm({
-        resolver: zodResolver(positionSchema),
-        defaultValues: { pos_name: "", companies_id: homeCompanyId },
-    });
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [posRes, compRes] = await Promise.all([
-                api.get("/positions"),
-                api.get("/companies/options"),
-            ]);
-            setPositions(posRes.data || []);
-            setCompanies(compRes.data || []);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const onSubmit = async (data) => {
-        try {
-            if (editingId) {
-                await api.put(`/positions/${editingId}`, data);
-            } else {
-                await api.post("/positions", data);
-            }
-            fetchData();
-            closeModal();
-        } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
-        }
-    };
-
-    const handleEdit = (item) => {
-        setEditingId(item.id);
-        reset({
-            pos_name: item.pos_name,
-            companies_id: item.companies_id,
-        });
+    const openAdd = () => {
+        setEditing(null);
         setIsModalOpen(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setEditingId(null);
-        reset({ pos_name: "", companies_id: homeCompanyId });
+    const openEdit = (row) => {
+        setEditing(row);
+        setIsModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (!id) return;
-        if (window.confirm("Are you sure you want to delete this position?")) {
-            try {
-                await api.delete(`/positions/${id}`);
-                fetchData();
-            } catch (err) {
-                const errData = err.response?.data;
-                alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
-            }
-        }
-    };
-
-    // Updated table columns without ID
     const columns = [
         {
             label: "Position Name",
@@ -112,11 +36,11 @@ const PositionSettings = () => {
         {
             label: "Actions",
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button variant="ghost" onClick={() => handleEdit(row)} style={smallBtn}>
+                <div className="flex gap-[8px]">
+                    <Button variant="ghost" onClick={() => openEdit(row)} className={smallBtn}>
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id || row.ID)} style={smallBtn}>
+                    <Button variant="danger" onClick={() => remove(row.id || row.ID)} className={smallBtn}>
                         Delete
                     </Button>
                 </div>
@@ -129,21 +53,14 @@ const PositionSettings = () => {
             <PageHeader
                 title="Position Management"
                 actionButton={
-                    <Button
-                        onClick={() => {
-                            setEditingId(null);
-                            reset({ pos_name: "", companies_id: homeCompanyId });
-                            setIsModalOpen(true);
-                        }}
-                        style={{ width: "auto" }}
-                    >
+                    <Button onClick={openAdd}>
                         + Add Position
                     </Button>
                 }
             />
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center" }}>
+                    <div className="p-[40px] text-center">
                         Loading...
                     </div>
                 ) : (
@@ -151,43 +68,18 @@ const PositionSettings = () => {
                 )}
             </Card>
 
-            <Modal
+            <PositionFormModal
                 isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingId ? "Edit Position" : "Add New Position"}
-                footer={
-                    <>
-                        <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>
-                            {editingId ? "Update" : "Save"}
-                        </Button>
-                    </>
-                }
-            >
-                <SelectField
-                    label="Companies"
-                    {...register("companies_id")}
-                    error={errors.companies_id?.message}
-                    options={companies.map((c) => ({
-                        id: c.id,
-                        name: c.name
-                    }))}
-                    disabled={!!editingId}
-                    required
-                />
-                <InputField
-                    label="Position Name"
-                    {...register("pos_name")}
-                    error={errors.pos_name?.message}
-                    required
-                />
-            </Modal>
+                onClose={() => setIsModalOpen(false)}
+                onSaved={fetchData}
+                editing={editing}
+                homeCompanyId={homeCompanyId}
+                companies={companies}
+            />
         </>
     );
 };
 
-const smallBtn = { padding: "6px 12px", fontSize: "12px" };
+const smallBtn = "px-3 py-1.5 text-xs";
 
 export default PositionSettings;

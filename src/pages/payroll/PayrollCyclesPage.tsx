@@ -1,104 +1,24 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
-import api from "../../api/axiosInstance";
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
-import Modal from "../../components/common/Modal";
-import InputField from "../../components/common/InputField";
-import DateField from "../../components/common/DateField";
-import SelectField from "../../components/common/SelectField";
 import Badge from "../../components/common/Badge";
 import HelpIcon from "../../components/common/HelpIcon";
-
-const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const homeCompanyId = String(userData.companies_id || "");
-
-const cycleSchema = z.object({
-    cycle_name: z.string().min(1, "Cycle name is required"),
-    start_date: z.string().min(1, "Start date is required"),
-    end_date: z.string().min(1, "End date is required"),
-    companies_id: z.string().min(1, "Company is required"),
-}).refine((d) => d.end_date > d.start_date, {
-    message: "End date must be after start date",
-    path: ["end_date"],
-});
+import { useAuth } from "../../hooks/useAuth";
+import usePayrollCycles from "./cycles/usePayrollCycles";
+import CycleFormModal from "./cycles/CycleFormModal";
 
 const formatDate = (d) =>
-    new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 
 const PayrollCyclesPage = () => {
+    const { homeCompanyId } = useAuth();
     const navigate = useNavigate();
-    const [cycles, setCycles] = useState([]);
-    const [companies, setCompanies] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { cycles, companies, loading, fetchCycles, closeCycle } = usePayrollCycles();
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
-        resolver: zodResolver(cycleSchema),
-        defaultValues: { companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" },
-    });
-
-    const fetchCycles = async () => {
-        try {
-            setLoading(true);
-            const res = await api.get("/payroll/cycles");
-            setCycles(res.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchCompanies = async () => {
-        try {
-            const res = await api.get("/companies/options");
-            setCompanies(res.data || []);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    useEffect(() => {
-        fetchCycles();
-        fetchCompanies();
-    }, []);
-
-    const onSubmit = async (data) => {
-        try {
-            await api.post("/payroll/cycles", {
-                cycle_name: data.cycle_name,
-                start_date: data.start_date + "T00:00:00Z",
-                end_date: data.end_date + "T00:00:00Z",
-                companies_id: Number(data.companies_id),
-            });
-            fetchCycles();
-            closeModal();
-        } catch (err) {
-            alert(err.response?.data?.error || "Failed to create cycle");
-        }
-    };
-
-    const handleClose = async (id, name) => {
-        if (!window.confirm(`Close cycle "${name}"? This will lock all payroll data for this period.`)) return;
-        try {
-            await api.patch(`/payroll/cycles/${id}/close`);
-            fetchCycles();
-        } catch (err) {
-            alert(err.response?.data?.error || "Failed to close cycle");
-        }
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        reset({ companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" });
-    };
 
     const columns = [
         {
@@ -106,7 +26,7 @@ const PayrollCyclesPage = () => {
             sortKey: "cycle_name",
             searchableKeys: ["cycle_name"],
             render: (row) => (
-                <span style={{ fontWeight: "600", color: "#1e293b" }}>{row.cycle_name}</span>
+                <span className="font-semibold text-strong">{row.cycle_name}</span>
             ),
         },
         {
@@ -115,7 +35,7 @@ const PayrollCyclesPage = () => {
             sortValue: (row) => new Date(row.start_date).getTime(),
             searchableKeys: ["start_date", "end_date"],
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "#475569" }}>
+                <span className="text-[13px] text-body">
                     {formatDate(row.start_date)} — {formatDate(row.end_date)}
                 </span>
             ),
@@ -136,7 +56,7 @@ const PayrollCyclesPage = () => {
             sortKey: "created_at",
             sortValue: (row) => new Date(row.created_at).getTime(),
             render: (row) => (
-                <span style={{ fontSize: "13px", color: "#94a3b8" }}>{formatDate(row.created_at)}</span>
+                <span className="text-[13px] text-subtle">{formatDate(row.created_at)}</span>
             ),
         },
         {
@@ -149,20 +69,20 @@ const PayrollCyclesPage = () => {
             label: "Actions",
             sortable: false,
             render: (row) => (
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <div className="flex gap-[8px] flex-wrap">
                     {row.is_closed ? (
                         <Button
                             variant="ghost"
                             onClick={() => navigate(`/transactions?cycle_id=${row.id}`)}
-                            style={{ fontSize: "12px", padding: "6px 14px" }}
+                            className="text-xs px-3.5 py-1.5"
                         >
                             View Transactions
                         </Button>
                     ) : (
                         <Button
                             variant="danger"
-                            onClick={() => handleClose(row.id, row.cycle_name)}
-                            style={{ fontSize: "12px", padding: "6px 14px" }}
+                            onClick={() => closeCycle(row.id, row.cycle_name)}
+                            className="text-xs px-3.5 py-1.5"
                         >
                             Close Cycle
                         </Button>
@@ -175,19 +95,19 @@ const PayrollCyclesPage = () => {
     return (
         <>
             <PageHeader
-                title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>Payroll Cycles<HelpIcon articleId="payroll-cycles" /></span>}
+                title={<span className="flex items-center gap-[8px]">Payroll Cycles<HelpIcon articleId="payroll-cycles" /></span>}
                 actionButton={
-                    <Button onClick={() => setIsModalOpen(true)} style={{ width: "auto" }}>
+                    <Button onClick={() => setIsModalOpen(true)} className="w-auto">
                         + New Cycle
                     </Button>
                 }
             />
 
-            <Card style={{ padding: "0px" }}>
+            <Card className="p-0">
                 {loading ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>Loading cycles...</div>
+                    <div className="p-[40px] text-center text-subtle">Loading cycles...</div>
                 ) : cycles.length === 0 ? (
-                    <div style={{ padding: "40px", textAlign: "center", color: "#94a3b8" }}>
+                    <div className="p-[40px] text-center text-subtle">
                         No payroll cycles yet. Create your first cycle to get started.
                     </div>
                 ) : (
@@ -195,66 +115,13 @@ const PayrollCyclesPage = () => {
                 )}
             </Card>
 
-            <Modal
+            <CycleFormModal
                 isOpen={isModalOpen}
-                onClose={closeModal}
-                title="Create New Payroll Cycle"
-                footer={
-                    <>
-                        <Button variant="ghost" onClick={closeModal} style={{ width: "auto" }}>Cancel</Button>
-                        <Button onClick={handleSubmit(onSubmit)} style={{ width: "auto" }}>Create Cycle</Button>
-                    </>
-                }
-            >
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <Controller
-                        name="companies_id"
-                        control={control}
-                        render={({ field }) => (
-                            <SelectField
-                                label="Company"
-                                options={companies}
-                                value={field.value}
-                                onChange={(e) => field.onChange(e.target.value)}
-                                error={errors.companies_id?.message}
-                                required
-                            />
-                        )}
-                    />
-                    <InputField
-                        label="Cycle Name"
-                        error={errors.cycle_name?.message}
-                        {...register("cycle_name")}
-                        required
-                    />
-                    <Controller
-                        name="start_date"
-                        control={control}
-                        render={({ field }) => (
-                            <DateField
-                                label="Start Date"
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={errors.start_date?.message}
-                                required
-                            />
-                        )}
-                    />
-                    <Controller
-                        name="end_date"
-                        control={control}
-                        render={({ field }) => (
-                            <DateField
-                                label="End Date"
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={errors.end_date?.message}
-                                required
-                            />
-                        )}
-                    />
-                </div>
-            </Modal>
+                onClose={() => setIsModalOpen(false)}
+                onSaved={fetchCycles}
+                homeCompanyId={homeCompanyId}
+                companies={companies}
+            />
         </>
     );
 };

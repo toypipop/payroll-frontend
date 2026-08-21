@@ -1,15 +1,17 @@
-import React, { forwardRef } from "react";
+import { twMerge } from "tailwind-merge";
+import { forwardRef } from "react";
 import type { CSSProperties, InputHTMLAttributes } from "react";
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: unknown;
     style?: CSSProperties;
+    containerClassName?: string;
     containerStyle?: CSSProperties;
     required?: boolean;
 }
 
-// Wrap with forwardRef for React Hook Form
+// The focus ring used to be set by hand in onFocus/onBlur; it is a `focus:` variant now, so the handlers only forward.
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     (
         {
@@ -18,75 +20,36 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             placeholder,
             error,
             style, // Allow external style overrides
-            containerStyle, // Allow overriding container-level styles
+            containerStyle,
+            containerClassName = "", // Allow overriding container-level styles
             required,
+            className = "",
             ...props // This includes name, onChange, onBlur from register()
         },
         ref,
-    ) => {
-        const styles: Record<string, CSSProperties> = {
-            container: {
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                marginBottom: "20px",
-                width: "100%",
-            },
-            label: {
-                fontSize: "13px",
-                fontWeight: "500",
-                color: "#64748b",
-            },
-            input: {
-                height: "40px",
-                padding: "0 14px",
-                borderRadius: "8px",
-                border: `1px solid ${error ? "#ef4444" : "#e2e8f0"}`,
-                fontSize: "14px",
-                outline: "none",
-                transition: "border-color 0.2s",
-                fontFamily: "inherit",
-                backgroundColor: "#f8fafc",
-                color: "#1e293b",
-                boxSizing: "border-box",
-                ...style, // Merge external styles
-            },
-            errorText: {
-                fontSize: "12px",
-                color: "#ef4444",
-                marginTop: "2px",
-            },
-        };
-
-        return (
-            <div style={{ ...styles.container, ...containerStyle }}>
-                {label && (
-                    <label style={styles.label}>
-                        {label}
-                        {required && <span style={{ color: "#ef4444" }}> *</span>}
-                    </label>
+    ) => (
+        <div className={twMerge("mb-5 flex w-full flex-col gap-1.5", containerClassName)} style={containerStyle}>
+            {label && (
+                <label className="text-[13px] font-medium text-muted">
+                    {label}
+                    {required && <span className="text-danger"> *</span>}
+                </label>
+            )}
+            <input
+                ref={ref}
+                type={type}
+                placeholder={placeholder || `Enter ${label || ""}`}
+                className={twMerge(
+                    "h-10 w-full rounded-lg border bg-surface px-3.5 font-[inherit] text-sm text-strong outline-none transition-colors",
+                    error ? "border-danger" : "border-line-muted focus:border-control",
+                    className,
                 )}
-                <input
-                    ref={ref} // Attach the ref here
-                    type={type}
-                    placeholder={placeholder || `Enter ${label || ""}`}
-                    style={styles.input}
-                    // Extract handlers or use defaults
-                    {...props}
-                    onFocus={(e) => {
-                        if (!error)
-                            e.target.style.borderColor = "#6259ca";
-                        if (props.onFocus) props.onFocus(e);
-                    }}
-                    onBlur={(e) => {
-                        if (!error) e.target.style.borderColor = "#e2e8f0";
-                        if (props.onBlur) props.onBlur(e);
-                    }}
-                />
-                {error && <span style={styles.errorText}>{String(error)}</span>}
-            </div>
-        );
-    },
+                style={style}
+                {...props}
+            />
+            {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
+        </div>
+    ),
 );
 
 // Setting displayName for easier debugging

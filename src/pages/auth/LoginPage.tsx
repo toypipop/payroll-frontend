@@ -34,15 +34,7 @@ const LoginPage = () => {
             });
 
             if (response.data?.id) {
-                const userPayload = {
-                    id: response.data.id,
-                    fullName: response.data.full_name,
-                    roles: response.data.roles,
-                    companies_id: response.data.companies_id,
-                    accessible_company_ids: response.data.accessible_company_ids || [],
-                };
-                localStorage.setItem("user", JSON.stringify(userPayload));
-
+                // A full page load is what re-runs App's /auth/me, which is the single source of the signed-in user.
                 window.location.href = "/dashboard";
             }
         } catch (loginError) {
@@ -62,66 +54,22 @@ const LoginPage = () => {
     };
 
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: `
-                    radial-gradient(circle at 15% 25%, rgba(15, 118, 110, 0.55) 0%, transparent 50%),
-                    radial-gradient(circle at 85% 75%, rgba(245, 158, 11, 0.35) 0%, transparent 50%),
-                    radial-gradient(circle at 75% 10%, rgba(15, 118, 110, 0.25) 0%, transparent 40%),
-                    radial-gradient(circle at 25% 85%, rgba(245, 158, 11, 0.2) 0%, transparent 40%),
-                    linear-gradient(135deg, #0b1a19 0%, #0f2421 100%)
-                `,
-            }}
+        <div className="flex min-h-screen items-center justify-center bg-auth"
         >
-            <Card
-                style={{
-                    maxWidth: "400px",
-                    width: "100%",
-                    textAlign: "center",
-                    backgroundColor: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(24px)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    boxShadow: "0 32px 64px rgba(0, 0, 0, 0.4)",
-                }}
-            >
-                <div
-                    style={{
-                        width: "60px",
-                        height: "60px",
-                        backgroundColor: "var(--primary-color)",
-                        color: "white",
-                        borderRadius: "16px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "24px",
-                        fontWeight: "bold",
-                        margin: "0 auto 24px auto",
-                    }}
+            <Card className="w-full max-w-[400px] border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.08)] text-center shadow-[0_32px_64px_rgba(0,0,0,0.4)] backdrop-blur-[24px]">
+                <div className="mx-auto mb-6 inline-flex h-[60px] w-[60px] items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-white"
                 >
                     P
                 </div>
 
-                <h2 style={{ color: "#f8fafc", marginBottom: "8px" }}>Payroll Pro</h2>
-                <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: "32px" }}>
+                <h2 className="mb-[8px] text-2xl font-bold text-inverse">Payroll Pro</h2>
+                <p className="text-[color:rgba(255,255,255,0.55)] mb-[32px]">
                     Please sign in to your account
                 </p>
 
                 {error && (
                     <div
-                        style={{
-                            color: "#fca5a5",
-                            backgroundColor: "rgba(239, 68, 68, 0.15)",
-                            padding: "12px",
-                            borderRadius: "10px",
-                            marginBottom: "20px",
-                            border: "1px solid rgba(239, 68, 68, 0.3)",
-                            fontSize: "14px",
-                        }}
+                        className="text-danger-line bg-[color:rgba(239,_68,_68,_0.15)] p-[12px] rounded-[10px] mb-[20px] border border-[color:rgba(239,_68,_68,_0.3)] text-[14px]"
                     >
                         {error}
                     </div>
@@ -134,11 +82,7 @@ const LoginPage = () => {
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
                         required
-                        style={{
-                            backgroundColor: "rgba(255,255,255,0.08)",
-                            color: "#f8fafc",
-                            border: "1px solid rgba(255,255,255,0.18)",
-                        }}
+                        className="border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.08)] text-inverse"
                     />
                     <InputField
                         type="password"
@@ -146,11 +90,7 @@ const LoginPage = () => {
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         required
-                        style={{
-                            backgroundColor: "rgba(255,255,255,0.08)",
-                            color: "#f8fafc",
-                            border: "1px solid rgba(255,255,255,0.18)",
-                        }}
+                        className="border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.08)] text-inverse"
                     />
                     <Button type="submit">Sign In</Button>
                 </form>

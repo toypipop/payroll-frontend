@@ -1,6 +1,7 @@
 import React, { forwardRef, useState, useRef, useEffect, useCallback } from "react";
 import type { CSSProperties, Ref, SelectHTMLAttributes } from "react";
 import { createPortal } from "react-dom";
+import { twMerge } from "tailwind-merge";
 
 export interface SelectOption {
     id: unknown;
@@ -13,6 +14,7 @@ interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
     error?: unknown;
     placeholder?: string;
     style?: CSSProperties;
+    containerClassName?: string;
     containerStyle?: CSSProperties;
     value?: unknown;
     onChange?: (
@@ -23,7 +25,7 @@ interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
 }
 
 const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
-    ({ label, options = [], error, placeholder, style, containerStyle, value, onChange, onBlur, name, disabled, searchable = true, required, ...props }, ref) => {
+    ({ label, options = [], error, placeholder, style, containerStyle, containerClassName = "", value, onChange, onBlur, name, disabled, searchable = true, required, ...props }, ref) => {
         const [open, setOpen] = useState(false);
         const [hovered, setHovered] = useState<unknown>(null);
         const [searchTerm, setSearchTerm] = useState("");
@@ -155,27 +157,17 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
             setOpen(false);
         };
 
-        const borderColor = error ? "#ef4444" : open ? "#6259ca" : "#e2e8f0";
+        const borderClass = error ? "border-danger" : open ? "border-control" : "border-line-muted";
 
         const dropdownList = open && createPortal(
             <div
                 id="select-portal-dropdown"
-                style={{
-                    position: "absolute",
-                    top: dropdownPos.top,
-                    left: dropdownPos.left,
-                    width: dropdownPos.width,
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "10px",
-                    boxShadow: "0 8px 24px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.07)",
-                    zIndex: 99999,
-                    maxHeight: "220px",
-                    padding: "4px",
-                }}
+                className="absolute z-[99999] max-h-[220px] rounded-[10px] border border-line-muted bg-card p-1 shadow-[0_8px_24px_rgba(15,23,42,0.14),0_2px_8px_rgba(15,23,42,0.07)]"
+                // measured from the trigger when the dropdown opens, so it cannot be a class
+                style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
             >
                 {searchable && (
-                    <div style={{ padding: "4px 4px 8px" }}>
+                    <div className="p-[4px_4px_8px]">
                         <input
                             ref={searchInputRef}
                             type="text"
@@ -189,23 +181,14 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                 }
                             }}
                             placeholder={`Search ${label || "options"}`}
-                            style={{
-                                width: "100%",
-                                height: "36px",
-                                padding: "0 12px",
-                                fontSize: "13.5px",
-                                borderRadius: "8px",
-                                border: "1px solid #e2e8f0",
-                                backgroundColor: "#f8fafc",
-                                color: "#1e293b",
-                            }}
+                            className="w-full h-[36px] p-[0_12px] text-[13.5px] rounded-[8px] border border-line-muted bg-surface text-strong"
                         />
                     </div>
                 )}
 
-                <div style={{ maxHeight: searchable ? "168px" : "212px", overflowY: "auto" }}>
+                <div className={`overflow-y-auto ${searchable ? "max-h-[168px]" : "max-h-[212px]"}`}>
                     {filteredOptions.length === 0 ? (
-                        <div style={{ padding: "10px 12px", fontSize: "13px", color: "#94a3b8", textAlign: "center" }}>
+                        <div className="p-[10px_12px] text-[13px] text-subtle text-center">
                             {options.length === 0 ? "No options" : "No matches found"}
                         </div>
                     ) : (
@@ -219,23 +202,15 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                                     onMouseEnter={() => setHovered(opt.id)}
                                     onMouseLeave={() => setHovered(null)}
                                     onMouseDown={(e) => { e.preventDefault(); handleSelect(opt.id); }}
-                                    style={{
-                                        padding: "9px 12px",
-                                        fontSize: "13.5px",
-                                        borderRadius: "7px",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        backgroundColor: isSelected ? "#f0effe" : isHov ? "#f8f7ff" : "transparent",
-                                        color: isSelected ? "#6259ca" : "#1e293b",
-                                        fontWeight: isSelected ? "600" : "400",
-                                        transition: "background-color 0.1s",
-                                    }}
+                                    className={twMerge(
+                                        "flex cursor-pointer items-center justify-between rounded-[7px] px-3 py-[9px] text-[13.5px] font-normal text-strong transition-colors duration-100",
+                                        isHov && "bg-primary-subtle",
+                                        isSelected && "bg-control-soft font-semibold text-control",
+                                    )}
                                 >
                                     <span>{opt.name}</span>
                                     {isSelected && (
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6259ca" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="stroke-control" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
                                     )}
@@ -249,15 +224,15 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
         );
 
         return (
-            <div style={{ marginBottom: "20px", width: "100%", ...containerStyle }}>
+            <div className={twMerge("mb-5 w-full", containerClassName)} style={containerStyle}>
                 {label && (
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "500", color: "#64748b", marginBottom: "6px" }}>
+                    <label className="block text-[13px] font-medium text-muted mb-[6px]">
                         {label}
-                        {required && <span style={{ color: "#ef4444" }}> *</span>}
+                        {required && <span className="text-danger"> *</span>}
                     </label>
                 )}
 
-                <div style={{ position: "relative", ...style }}>
+                <div className="relative" style={style}>
                     {/* Hidden native select for RHF ref-based control */}
                     <select
                         ref={setRefs}
@@ -265,7 +240,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         disabled={disabled}
                         onBlur={onBlur}
                         onChange={() => {}}
-                        style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 0, height: 0 }}
+                        className="absolute opacity-0 pointer-events-none w-[0px] h-[0px]"
                         tabIndex={-1}
                         {...props}
                     >
@@ -297,30 +272,20 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         tabIndex={disabled ? -1 : 0}
                         aria-expanded={open}
                         aria-haspopup="listbox"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            height: "40px",
-                            padding: "0 14px",
-                            fontSize: "14px",
-                            borderRadius: "8px",
-                            border: `1px solid ${borderColor}`,
-                            backgroundColor: disabled ? "#f1f5f9" : "#f8fafc",
-                            color: isEmpty ? "#94a3b8" : "#1e293b",
-                            cursor: disabled ? "not-allowed" : "pointer",
-                            userSelect: "none",
-                            transition: "border-color 0.15s, box-shadow 0.15s",
-                            boxSizing: "border-box",
-                            boxShadow: open ? "0 0 0 3px rgba(98,89,202,0.12)" : "none",
-                        }}
+                        className={twMerge(
+                            "box-border flex h-10 select-none items-center justify-between rounded-lg border px-3.5 text-sm transition-[border-color,box-shadow] duration-150",
+                            borderClass,
+                            disabled ? "cursor-not-allowed bg-hover" : "cursor-pointer bg-surface",
+                            isEmpty ? "text-subtle" : "text-strong",
+                            open && "shadow-[0_0_0_3px_rgba(15,118,110,0.12)]",
+                        )}
                     >
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayText}</span>
+                        <span className="overflow-hidden truncate whitespace-nowrap">{displayText}</span>
                         <svg
                             width="14" height="14" viewBox="0 0 24 24" fill="none"
-                            stroke={error ? "#ef4444" : open ? "#6259ca" : "#94a3b8"}
+                            stroke={error ? "var(--status-danger)" : open ? "var(--control-accent)" : "var(--text-subtle)"}
                             strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                            style={{ flexShrink: 0, marginLeft: "8px", transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+                            className={`ml-2 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : "rotate-0"}`}
                         >
                             <polyline points="6 9 12 15 18 9" />
                         </svg>
@@ -330,7 +295,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     {dropdownList}
                 </div>
 
-                {error && <div style={{ fontSize: "12px", color: "#ef4444", marginTop: "4px" }}>{String(error)}</div>}
+                {error && <div className="text-[12px] text-danger mt-[4px]">{String(error)}</div>}
             </div>
         );
     },
