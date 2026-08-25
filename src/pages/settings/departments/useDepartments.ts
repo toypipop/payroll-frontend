@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, Department, DepartmentCategory } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useDepartments owns the page's server data: the three lists it renders, the loading flag, and the two calls that change them.
 export const useDepartments = () => {
-    const [departments, setDepartments] = useState([]);
-    const [companies, setCompanies] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
+    const [categories, setCategories] = useState<DepartmentCategory[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
@@ -30,15 +33,14 @@ export const useDepartments = () => {
         fetchData();
     }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!id) return;
         if (!window.confirm("Are you sure you want to delete this department?")) return;
         try {
             await api.delete(`/departments/${id}`);
             fetchData();
         } catch (err) {
-            const errData = err.response?.data;
-            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

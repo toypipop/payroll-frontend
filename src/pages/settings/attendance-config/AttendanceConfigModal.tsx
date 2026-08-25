@@ -10,6 +10,8 @@ import InputField from "../../../components/common/InputField";
 import ToggleField from "../../../components/common/ToggleField";
 import TimeField from "../../../components/common/TimeField";
 import { formatTime } from "../../../utils/bangkokTime";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company } from "../../../types/domain";
 
 const attendanceConfigSchema = z.object({
     companies_id: z.number(),
@@ -24,6 +26,8 @@ const attendanceConfigSchema = z.object({
     is_overtime_earnings_enabled: z.boolean().default(false),
     is_extra_earnings_enabled: z.boolean().default(false),
 });
+
+type AttendanceConfigFormValues = z.infer<typeof attendanceConfigSchema>;
 
 const DEFAULTS = {
     companies_id: 0,
@@ -40,7 +44,14 @@ const DEFAULTS = {
 };
 
 // AttendanceConfigModal owns the config form and the save call; the page only says which company is being configured.
-const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
+interface AttendanceConfigModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    company: Company | null;
+}
+
+const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }: AttendanceConfigModalProps) => {
     const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
         resolver: zodResolver(attendanceConfigSchema),
         defaultValues: DEFAULTS,
@@ -51,7 +62,7 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
         if (!isOpen || !company) return;
         const config = company.attendance_config;
         reset({
-            companies_id: company.id,
+            companies_id: Number(company.id),
             late_rate_per_minute: config?.late_rate_per_minute ?? 5.0,
             absent_rate_per_day: config?.absent_rate_per_day ?? 300.0,
             is_late_deduction_enabled: config?.is_late_deduction_enabled ?? true,
@@ -65,13 +76,13 @@ const AttendanceConfigModal = ({ isOpen, onClose, onSaved, company }) => {
         });
     }, [isOpen, company, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: AttendanceConfigFormValues) => {
         try {
             await api.post("/attendance/config", data);
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

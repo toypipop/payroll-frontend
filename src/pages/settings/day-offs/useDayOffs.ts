@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, DayOff } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 export const weekdayOptions = [
     { id: "0", name: "Sunday" },
@@ -11,12 +14,12 @@ export const weekdayOptions = [
     { id: "6", name: "Saturday" },
 ];
 
-export const weekdayName = (value) => weekdayOptions.find((o) => String(o.id) === String(value))?.name || "-";
+export const weekdayName = (value: unknown) => weekdayOptions.find((o) => String(o.id) === String(value))?.name || "-";
 
 // useDayOffs owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useDayOffs = () => {
-    const [items, setItems] = useState([]);
-    const [companyOptions, setCompanyOptions] = useState([]);
+    const [items, setItems] = useState<DayOff[]>([]);
+    const [companyOptions, setCompanyOptions] = useState<Company[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
@@ -27,7 +30,7 @@ export const useDayOffs = () => {
                 api.get("/master/day-offs/companies").catch(() => ({ data: [] })),
             ]);
             setItems(res.data || []);
-            setCompanyOptions((companiesRes.data || []).map((c) => ({ id: c.id, name: c.name })));
+            setCompanyOptions((companiesRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
         } catch (err) {
             console.error("Fetch Error:", err);
         } finally {
@@ -37,13 +40,13 @@ export const useDayOffs = () => {
 
     useEffect(() => { fetchData(); }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this day off?")) return;
         try {
             await api.delete(`/master/day-offs/${id}`);
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

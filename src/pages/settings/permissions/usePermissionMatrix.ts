@@ -1,5 +1,47 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { AppModule, ApiId } from "../../../types/api";
+import type { Role } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+
+// One editable row of the matrix: what the module allows, and what this role currently holds on it.
+export interface PermissionRow {
+    module_id?: ApiId;
+    module_key: string;
+    module_name: string;
+    companies_name: string;
+    allowed_actions: string[];
+    allowed_scopes: string[];
+    actions_atomic: boolean;
+    can_view: boolean;
+    can_create: boolean;
+    can_edit: boolean;
+    can_delete: boolean;
+    data_scope: string;
+}
+
+// The same row once it has been placed in a group: it now knows where it sits in the flat list, which is
+// the index every edit writes back through.
+export type GroupedPermissionRow = PermissionRow & { _flatIdx: number };
+
+// A category and the rows shown under it, in the module tree's own order.
+export interface PermissionGroup {
+    categoryName: string;
+    items: GroupedPermissionRow[];
+}
+
+// What the server sends for one role: every module, plus the access rows the role holds.
+interface PermissionResponse {
+    modules: AppModule[];
+    access: {
+        module_id?: ApiId;
+        can_view?: boolean;
+        can_create?: boolean;
+        can_edit?: boolean;
+        can_delete?: boolean;
+        data_scope?: string;
+    }[];
+}
 
 export const dataScopeOptions = [
     { id: "Own", name: "Own Data Only" },
@@ -9,38 +51,38 @@ export const dataScopeOptions = [
 
 // usePermissionMatrix owns everything the matrix reads and writes: the roles list, the module tree, and the editable rows for the selected role.
 export const usePermissionMatrix = () => {
-    const [roles, setRoles] = useState([]);
-    const [selectedRoles, setSelectedRoles] = useState(null);
-    const [permissions, setPermissions] = useState([]);
-    const [moduleTree, setModuleTree] = useState([]);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [selectedRoles, setSelectedRoles] = useState<Role | null>(null);
+    const [permissions, setPermissions] = useState<PermissionRow[]>([]);
+    const [moduleTree, setModuleTree] = useState<AppModule[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Fetch module tree once — same source as the Sidebar
     useEffect(() => {
-        api.get("/modules").then(res => {
+        api.get<AppModule[]>("/modules").then(res => {
             const all = res.data;
             const tree = all
                 .filter(m => !m.parent_id)
-                .sort((a, b) => a.order - b.order)
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
                 .map(parent => ({
                     ...parent,
                     children: all
                         .filter(c => c.parent_id === parent.id)
-                        .sort((a, b) => a.order - b.order),
+                        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
                 }));
             setModuleTree(tree);
         }).catch(err => console.error("Load Modules Error", err));
     }, []);
 
-    const selectRole = useCallback(async (role) => {
+    const selectRole = useCallback(async (role: Role | null) => {
         if (!role) return;
         setSelectedRoles(role);
         setLoading(true);
         try {
-            const res = await api.get(`/permissions/${role.id}`);
-            const matrixData = res.data.modules.map((m) => {
+            const res = await api.get<PermissionResponse>(`/permissions/${role.id}`);
+            const matrixData: PermissionRow[] = res.data.modules.map((m) => {
                 const access = res.data.access.find((a) => a.module_id === m.id);
-                const allowedScopes = m.allowed_scopes || ["Companies"];
+                const allowedScopes: string[] = m.allowed_scopes ?? ["Companies"];
                 const savedScope = access?.data_scope;
                 return {
                     module_id: m.id,
@@ -56,7 +98,7 @@ export const usePermissionMatrix = () => {
                     can_edit: Boolean(access?.can_edit),
                     can_delete: Boolean(access?.can_delete),
                     // Clamp to something this module can honour — a stored scope from before the module was locked down would otherwise show a value the server will not apply.
-                    data_scope: allowedScopes.includes(savedScope) ? savedScope : allowedScopes[0],
+                    data_scope: savedScope && allowedScopes.includes(savedScope) ? savedScope : allowedScopes[0],
                 };
             });
             setPermissions(matrixData);
@@ -69,7 +111,7 @@ export const usePermissionMatrix = () => {
 
     const fetchRoles = useCallback(async () => {
         try {
-            const res = await api.get("/roles");
+            const res = await api.get<Role[]>("/roles");
             setRoles(res.data);
             if (res.data.length > 0) {
                 selectRole(res.data[0]);
@@ -83,14 +125,15 @@ export const usePermissionMatrix = () => {
         fetchRoles();
     }, [fetchRoles]);
 
-    const updateLocal = (index, field, value?) => {
+    // A caller either names one field, or hands over a patch of several at once.
+    const updateLocal = (index: number | undefined, field: keyof PermissionRow | Partial<PermissionRow>, value?: unknown) => {
         if (index === undefined) return;
         setPermissions((prev) => {
             const newData = [...prev];
             if (typeof field === "object") {
                 newData[index] = { ...newData[index], ...field };
             } else {
-                newData[index] = { ...newData[index], [field]: value };
+                newData[index] = { ...newData[index], [field]: value } as PermissionRow;
             }
             return newData;
         });
@@ -102,22 +145,23 @@ export const usePermissionMatrix = () => {
             await api.post(`/permissions/${selectedRoles.id}`, permissions);
             alert("Permissions saved successfully!");
         } catch (err) {
-            alert(err.response?.data?.error || "Save error");
+            alert(apiErrorMessage(err, "Save error"));
         }
     };
 
     // Group permissions by sidebar category order
     const groupedPermissions = useMemo(() => {
         if (!moduleTree.length) return [];
-        const permMap = new Map(permissions.map((p, idx) => [p.module_id, { ...p, _flatIdx: idx }]));
-        const groups = [];
+        const permMap = new Map<ApiId | undefined, GroupedPermissionRow>(
+            permissions.map((p, idx) => [p.module_id, { ...p, _flatIdx: idx }]));
+        const groups: PermissionGroup[] = [];
 
         // Render in the module tree's own order (driven by seed `Order`).
         for (const node of moduleTree) {
             if (node.is_category) {
                 const items = (node.children || [])
                     .map(child => permMap.get(child.id))
-                    .filter(Boolean);
+                    .filter((item): item is GroupedPermissionRow => Boolean(item));
                 if (items.length > 0) {
                     groups.push({ categoryName: node.module_name, items });
                 }

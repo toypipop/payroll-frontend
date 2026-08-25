@@ -4,16 +4,18 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import DateField from "../../components/common/DateField";
 import useAttendanceSummary from "./summaries/useAttendanceSummary";
+import type { TableColumn } from "../../types/api";
+import type { DeductionSummaryRow } from "../../types/domain";
 
 const DeductionSummaryPage = () => {
     const { summary, loading, fromDate, setFromDate, toDate, setToDate, meta, fetchSummary } =
-        useAttendanceSummary("/deduction/summary", "Failed to load deduction summary");
+        useAttendanceSummary<DeductionSummaryRow>("/deduction/summary", "Failed to load deduction summary");
 
     const totalLateMin = summary.reduce((s, r) => s + r.total_late_minutes, 0);
     const totalAbsent = summary.reduce((s, r) => s + r.total_absent_days, 0);
     const totalAmount = summary.reduce((s, r) => s + r.total_amount, 0);
 
-    const columns = [
+    const columns: TableColumn<DeductionSummaryRow>[] = [
         { label: "Code", key: "employees_code" },
         { label: "Full Name", key: "full_name" },
         { label: "Companies", key: "company_name" },

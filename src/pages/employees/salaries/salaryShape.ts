@@ -1,115 +1,114 @@
 // The salary rows come back from several shapes of payload, so every read goes through one of these getters instead of guessing at the call site. Nothing here touches React.
-export const getEmployeeId = (emp) =>
-    emp?.ID ?? emp?.id ?? emp?.employees_id ?? emp?.employee_id ?? emp?.employees?.id ?? null;
+//
+// The payloads are deliberately typed as a bag of unknown keys: that is exactly the situation these getters
+// exist for, and naming a single interface here would claim a certainty the endpoints do not offer.
+// `object` rather than an index-signature type, so a page can pass a typed row straight in.
+export type SalaryPayload = object | null | undefined;
 
-export const getSalaryStructure = (emp) =>
-    emp?.salaries_structure ?? emp?.salary_structure ?? emp?.salaries ?? null;
+// read pulls the first key that carries a value, in the order the caller listed them.
+const read = (source: SalaryPayload, ...keys: string[]): unknown => {
+    if (!source) return undefined;
+    const bag = source as Record<string, unknown>;
+    for (const key of keys) {
+        const value = bag[key];
+        if (value !== undefined && value !== null) return value;
+    }
+    return undefined;
+};
 
-export const getSalaryRecordId = (salary, row) =>
+export const getEmployeeId = (emp: SalaryPayload) => {
+    const direct = read(emp, "ID", "id", "employees_id", "employee_id");
+    if (direct !== undefined) return direct as string | number;
+    const nested = read(emp, "employees") as Record<string, unknown> | null | undefined;
+    return (nested?.id as string | number | undefined) ?? null;
+};
+
+export const getSalaryStructure = (emp: SalaryPayload) =>
+    (read(emp, "salaries_structure", "salary_structure", "salaries") ?? null) as SalaryPayload | SalaryPayload[];
+
+export const getSalaryRecordId = (salary: SalaryPayload, row?: SalaryPayload) =>
     Number(
-        salary?.id ??
-            salary?.ID ??
-            salary?.salary_id ??
-            salary?.SalaryID ??
-            salary?.salaries_id ??
-            salary?.salaries_structure_id ??
-            row?.salary_id ??
-            row?.SalaryID ??
-            row?.salaries_id ??
-            row?.salaries_structure_id ??
+        read(salary, "id", "ID", "salary_id", "SalaryID", "salaries_id", "salaries_structure_id") ??
+            read(row, "salary_id", "SalaryID", "salaries_id", "salaries_structure_id") ??
             0,
     );
 
-export const getSalaryBaseAmount = (salary, row) =>
+export const getSalaryBaseAmount = (salary: SalaryPayload, row?: SalaryPayload) =>
     Number(
-        salary?.base_salaries ??
-            salary?.base_salary ??
-            salary?.BaseSalaries ??
-            salary?.BaseSalary ??
-            row?.base_salaries ??
-            row?.base_salary ??
-            row?.BaseSalaries ??
-            row?.BaseSalary ??
+        read(salary, "base_salaries", "base_salary", "BaseSalaries", "BaseSalary") ??
+            read(row, "base_salaries", "base_salary", "BaseSalaries", "BaseSalary") ??
             0,
     );
 
-export const getSalaryEffectiveDate = (salary, row) =>
-    salary?.effective_date ??
-    salary?.effectiveDate ??
-    salary?.EffectiveDate ??
-    row?.effective_date ??
-    row?.effectiveDate ??
-    row?.EffectiveDate ??
-    "";
+export const getSalaryEffectiveDate = (salary: SalaryPayload, row?: SalaryPayload) =>
+    String(
+        read(salary, "effective_date", "effectiveDate", "EffectiveDate") ??
+            read(row, "effective_date", "effectiveDate", "EffectiveDate") ??
+            "",
+    );
 
-export const getSalaryDeletedAt = (salary, row) =>
-    salary?.deleted_at ??
-    salary?.deletedAt ??
-    salary?.DeletedAt ??
-    row?.deleted_at ??
-    row?.deletedAt ??
-    row?.DeletedAt;
+export const getSalaryDeletedAt = (salary: SalaryPayload, row?: SalaryPayload): unknown =>
+    read(salary, "deleted_at", "deletedAt", "DeletedAt") ??
+    read(row, "deleted_at", "deletedAt", "DeletedAt");
 
-export const getSalaryStructures = (emp) => {
+export const getSalaryStructures = (emp: SalaryPayload): SalaryPayload[] => {
     const direct = getSalaryStructure(emp);
     if (Array.isArray(direct)) return direct;
     if (direct && typeof direct === "object") return [direct];
 
-    const fromArray =
-        emp?.salaries_structures ??
-        emp?.salary_structures ??
-        emp?.salaries_history ??
-        emp?.salaryHistory ??
-        emp?.SalaryStructures;
-    if (Array.isArray(fromArray)) return fromArray;
+    const fromArray = read(emp, "salaries_structures", "salary_structures", "salaries_history", "salaryHistory", "SalaryStructures");
+    if (Array.isArray(fromArray)) return fromArray as SalaryPayload[];
 
+    // The row may itself be the salary, flattened onto the employee.
+    const flat = emp as Record<string, unknown> | null | undefined;
     if (
-        emp?.base_salaries !== undefined ||
-        emp?.base_salary !== undefined ||
-        emp?.effective_date !== undefined ||
-        emp?.deleted_at !== undefined ||
-        emp?.salary_id !== undefined ||
-        emp?.salaries_id !== undefined ||
-        emp?.salaries_structure_id !== undefined
+        flat?.base_salaries !== undefined ||
+        flat?.base_salary !== undefined ||
+        flat?.effective_date !== undefined ||
+        flat?.deleted_at !== undefined ||
+        flat?.salary_id !== undefined ||
+        flat?.salaries_id !== undefined ||
+        flat?.salaries_structure_id !== undefined
     ) {
         return [{
-            id: emp?.salary_id ?? emp?.salaries_id ?? emp?.salaries_structure_id ?? 0,
-            base_salaries: emp?.base_salaries,
-            base_salary: emp?.base_salary,
-            effective_date: emp?.effective_date,
-            deleted_at: emp?.deleted_at,
-            created_at: emp?.created_at,
-            updated_at: emp?.updated_at,
-            deletedAt: emp?.deletedAt,
-            effectiveDate: emp?.effectiveDate,
-            BaseSalaries: emp?.BaseSalaries,
-            BaseSalary: emp?.BaseSalary,
+            id: flat?.salary_id ?? flat?.salaries_id ?? flat?.salaries_structure_id ?? 0,
+            base_salaries: flat?.base_salaries,
+            base_salary: flat?.base_salary,
+            effective_date: flat?.effective_date,
+            deleted_at: flat?.deleted_at,
+            created_at: flat?.created_at,
+            updated_at: flat?.updated_at,
+            deletedAt: flat?.deletedAt,
+            effectiveDate: flat?.effectiveDate,
+            BaseSalaries: flat?.BaseSalaries,
+            BaseSalary: flat?.BaseSalary,
         }];
     }
 
     return [];
 };
 
-export const getLatestSalaryStructure = (emp) => {
+export const getLatestSalaryStructure = (emp: SalaryPayload) => {
     const structures = getSalaryStructures(emp);
     if (!structures.length) return null;
     return [...structures].sort((a, b) => getSalaryRecordId(b, emp) - getSalaryRecordId(a, emp))[0];
 };
 
-export const isSoftDeleted = (deletedAt) => {
+export const isSoftDeleted = (deletedAt: unknown): boolean => {
     if (deletedAt && typeof deletedAt === "object") {
-        if (Object.prototype.hasOwnProperty.call(deletedAt, "Valid") && deletedAt.Valid === false) {
+        const bag = deletedAt as Record<string, unknown>;
+        if (Object.prototype.hasOwnProperty.call(bag, "Valid") && bag.Valid === false) {
             return false;
         }
 
         const nested =
-            deletedAt.Time ??
-            deletedAt.time ??
-            deletedAt.Bool ??
-            deletedAt.bool ??
-            deletedAt.Int64 ??
-            deletedAt.int64 ??
-            deletedAt.value;
+            bag.Time ??
+            bag.time ??
+            bag.Bool ??
+            bag.bool ??
+            bag.Int64 ??
+            bag.int64 ??
+            bag.value;
 
         if (nested !== undefined) return isSoftDeleted(nested);
     }

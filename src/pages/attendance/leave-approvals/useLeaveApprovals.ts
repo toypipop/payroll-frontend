@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { LeaveRequest } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useLeaveApprovals owns the pending queue and the approve/reject call, including the quota warning that call has to confirm first.
-export const useLeaveApprovals = (approverId) => {
-    const [pendingRequests, setPendingRequests] = useState([]);
+export const useLeaveApprovals = (approverId?: ApiId) => {
+    const [pendingRequests, setPendingRequests] = useState<LeaveRequest[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchPending = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/leaves/approved");
+            const response = await api.get<LeaveRequest[]>("/leaves/approved");
             setPendingRequests(response.data);
         } catch (err) {
             console.error(err);
@@ -22,7 +25,7 @@ export const useLeaveApprovals = (approverId) => {
         fetchPending();
     }, []);
 
-    const decide = async (row, newStatus) => {
+    const decide = async (row: LeaveRequest, newStatus: string) => {
         let confirmMsg = `Are you sure you want to ${newStatus.toLowerCase()} this request?`;
         if (newStatus === "Approved" && row.quota_exceeded) {
             confirmMsg = `⚠ This employee will exceed the yearly quota for ${row.leave_type} `
@@ -38,7 +41,7 @@ export const useLeaveApprovals = (approverId) => {
             });
             fetchPending();
         } catch (err) {
-            alert(err.response?.data?.error || "Action failed");
+            alert(apiErrorMessage(err, "Action failed"));
         }
     };
 

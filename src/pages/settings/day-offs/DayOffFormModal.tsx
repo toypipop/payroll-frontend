@@ -10,6 +10,8 @@ import InputField from "../../../components/common/InputField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
 import { weekdayOptions } from "./useDayOffs";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, DayOff } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().optional(),
@@ -18,8 +20,19 @@ const schema = z.object({
     is_paid: z.boolean().default(true),
 });
 
+type DayOffFormValues = z.infer<typeof schema>;
+
 // DayOffFormModal owns the form and the save call; the page only says which row is being edited.
-const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }) => {
+interface DayOffFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: DayOff | null;
+    homeCompanyId: string;
+    companyOptions: Company[];
+}
+
+const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }: DayOffFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, weekday: "", name: "", is_paid: true },
@@ -38,7 +51,7 @@ const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, com
             : { companies_id: homeCompanyId, weekday: "", name: "", is_paid: true });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: DayOffFormValues) => {
         try {
             const payload = {
                 ...data,
@@ -54,7 +67,7 @@ const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, com
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

@@ -8,21 +8,23 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import type { SSOReport, SSORow } from "../../types/reports";
+import type { TableColumn } from "../../types/api";
 
-const fc = (v) =>
+const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fd = (d) => {
+const fd = (d: number | string | null | undefined) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 /* ── A4 SSO 1-10 Document ───────────────────────────────────────────────── */
-const A4SSO = ({ data }) => {
+const A4SSO = ({ data }: { data: SSOReport | null }) => {
     if (!data) return null;
     const { cycle, company, rows = [], sso_rate, sso_max, total_employee_sso, total_employer_sso, total_sso_combined } = data;
 
-    const printColumns = [
+    const printColumns: TableColumn<SSORow>[] = [
         { label: "#", render: (r, i) => i + 1 },
         { label: "Companies", render: (r) => r.companies_name },
         { label: "Code", render: (r) => r.employees_code },
@@ -103,17 +105,17 @@ const A4SSO = ({ data }) => {
 };
 
 /* ── E-Filing Text Export ───────────────────────────────────────────────── */
-const exportEFiling = (data) => {
+const exportEFiling = (data: SSOReport | null) => {
     if (!data?.rows?.length) return;
     const { company, cycle, rows } = data;
     // Fixed-width text format (common SSO e-filing layout)
-    const pad = (s, n) => String(s || "").padEnd(n).slice(0, n);
-    const padL = (s, n) => String(s || "").padStart(n).slice(-n);
+    const pad = (s: string | number, n: number) => String(s || "").padEnd(n).slice(0, n);
+    const padL = (s: string | number, n: number) => String(s || "").padStart(n).slice(-n);
 
     const lines = rows.map((r, i) =>
         [
             pad(i + 1, 5),
-            pad(r.employees_code, 15),
+            pad(r.employees_code ?? "", 15),
             pad(`${r.first_name} ${r.last_name}`, 40),
             padL(Math.round(r.wages * 100), 12),
             padL(Math.round(r.employee_sso * 100), 10),
@@ -143,7 +145,7 @@ const exportEFiling = (data) => {
 // Page component
 const SSOReportPage = () => {
     const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
-        useClosedCycleReport((cycleId) => `/reports/sso/${cycleId}`);
+        useClosedCycleReport<SSOReport>((cycleId) => `/reports/sso/${cycleId}`);
     const [isPrintOpen, setIsPrintOpen] = useState(false);
 
     useA4Preview(isPrintOpen, () => setIsPrintOpen(false));
@@ -153,7 +155,7 @@ const SSOReportPage = () => {
     const cycle = data?.cycle;
     const rows = data?.rows || [];
 
-    const columns = [
+    const columns: TableColumn<SSORow>[] = [
         {
             label: "Employee",
             render: (r) => (

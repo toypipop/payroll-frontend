@@ -7,24 +7,26 @@ import Card from "../../components/common/Card";
 import { useAuth } from "../../hooks/useAuth";
 import usePositions from "./positions/usePositions";
 import PositionFormModal from "./positions/PositionFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Position } from "../../types/domain";
 
 const PositionSettings = () => {
     const { homeCompanyId } = useAuth();
     const { positions, companies, loading, fetchData, remove } = usePositions();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Position | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Position) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Position>[] = [
         {
             label: "Position Name",
             key: "pos_name"
@@ -40,7 +42,7 @@ const PositionSettings = () => {
                     <Button variant="ghost" onClick={() => openEdit(row)} className={smallBtn}>
                         Edit
                     </Button>
-                    <Button variant="danger" onClick={() => remove(row.id || row.ID)} className={smallBtn}>
+                    <Button variant="danger" onClick={() => remove(row.id)} className={smallBtn}>
                         Delete
                     </Button>
                 </div>

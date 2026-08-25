@@ -2,14 +2,15 @@ import Card from "../../../components/common/Card";
 import Modal from "../../../components/common/Modal";
 import Table from "../../../components/common/Table";
 import Badge from "../../../components/common/Badge";
+import type { PayrollTransaction, PayrollTransactionDetail, PayslipResponse, TableColumn } from "../../../types/api";
 
-const formatCurrency = (value) =>
+const formatCurrency = (value: number | string | null | undefined) =>
     Number(value || 0).toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
 
-const detailColumns = [
+const detailColumns: TableColumn<PayrollTransactionDetail>[] = [
     { label: "Item", key: "item_name" },
     {
         label: "Type",
@@ -31,7 +32,15 @@ const detailColumns = [
 ];
 
 // TransactionDetailsModal shows one closed payslip. Everything in it is a read-only audit trail.
-const TransactionDetailsModal = ({ transaction, slipData, slipError, loading, onClose }) => (
+interface TransactionDetailsModalProps {
+    transaction: PayrollTransaction | null;
+    slipData: PayslipResponse | null;
+    slipError: string | null;
+    loading: boolean;
+    onClose: () => void;
+}
+
+const TransactionDetailsModal = ({ transaction, slipData, slipError, loading, onClose }: TransactionDetailsModalProps) => (
     <Modal
         isOpen={!!transaction}
         onClose={onClose}

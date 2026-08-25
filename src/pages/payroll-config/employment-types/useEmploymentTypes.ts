@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useEmploymentTypes owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useEmploymentTypes = () => {
     const [items, setItems] = useState([]);
-    const [companies, setCompanies] = useState([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
@@ -25,14 +28,13 @@ export const useEmploymentTypes = () => {
 
     useEffect(() => { fetchData(); }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this employment type?")) return;
         try {
             await api.delete(`/master/employment-types/${id}`);
             fetchData();
         } catch (err) {
-            const errData = err.response?.data;
-            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

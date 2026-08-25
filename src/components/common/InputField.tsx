@@ -4,7 +4,7 @@ import type { CSSProperties, InputHTMLAttributes } from "react";
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
-    error?: unknown;
+    error?: string;
     style?: CSSProperties;
     containerClassName?: string;
     containerStyle?: CSSProperties;
@@ -47,7 +47,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 style={style}
                 {...props}
             />
-            {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
+            {error && <span className="mt-0.5 text-xs text-danger">{error}</span>}
         </div>
     ),
 );

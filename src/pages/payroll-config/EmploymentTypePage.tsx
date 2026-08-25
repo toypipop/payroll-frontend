@@ -7,26 +7,28 @@ import Card from "../../components/common/Card";
 import { useAuth } from "../../hooks/useAuth";
 import useEmploymentTypes from "./employment-types/useEmploymentTypes";
 import EmploymentTypeFormModal from "./employment-types/EmploymentTypeFormModal";
+import type { TableColumn } from "../../types/api";
+import type { EmploymentType } from "../../types/domain";
 
 const EmploymentTypePage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
     const { items, companies, loading, fetchData, remove } = useEmploymentTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<EmploymentType | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: EmploymentType) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
     const smallBtn = "px-3 py-1 text-xs w-auto";
 
-    const columns = [
+    const columns: TableColumn<EmploymentType>[] = [
         { label: "Name", key: "name" },
         { label: "Description", key: "description" },
         {

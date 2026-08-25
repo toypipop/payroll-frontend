@@ -1,29 +1,34 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company } from "../../../types/domain";
+import type { ApiId, CycleDiff, PayrollCycle, PayrollRunResult, PayrollTransaction, PreCheckIssue } from "../../../types/api";
+import type { PayrollConfig } from "../../../types/domain";
+import { apiErrorBody, apiErrorStatus } from "../../../utils/apiError";
+import { apiErrorMessage } from "../../../utils/apiError";
 
 // useRunPayroll owns the whole run: which cycle is selected, its config, the pre-check, the calculation and the diff that follows it.
-export const useRunPayroll = (homeCompanyId) => {
-    const [companies, setCompanies] = useState([]);
+export const useRunPayroll = (homeCompanyId: string) => {
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
-    const [cycles, setCycles] = useState([]);
+    const [cycles, setCycles] = useState<PayrollCycle[]>([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [selectedCycle, setSelectedCycle] = useState(null); // Track cycle object
-    const [transactions, setTransactions] = useState([]);
-    const [payrollConfig, setPayrollConfig] = useState(null);
+    const [selectedCycle, setSelectedCycle] = useState<PayrollCycle | null>(null); // Track cycle object
+    const [transactions, setTransactions] = useState<PayrollTransaction[]>([]);
+    const [payrollConfig, setPayrollConfig] = useState<PayrollConfig | null>(null);
     const [loadingCycles, setLoadingCycles] = useState(true);
     const [loadingTx, setLoadingTx] = useState(false);
     const [loadingConfig, setLoadingConfig] = useState(false);
     const [calculating, setCalculating] = useState(false);
-    const [calcResult, setCalcResult] = useState(null);
-    const [preCheckIssues, setPreCheckIssues] = useState<any[]>([]);
+    const [calcResult, setCalcResult] = useState<PayrollRunResult | null>(null);
+    const [preCheckIssues, setPreCheckIssues] = useState<PreCheckIssue[]>([]);
     const [pendingCalculate, setPendingCalculate] = useState(false);
-    const [diffData, setDiffData] = useState<any>(null);
+    const [diffData, setDiffData] = useState<CycleDiff | null>(null);
 
     const fetchCycles = async () => {
         try {
             setLoadingCycles(true);
             const res = await api.get("/payroll/cycles");
-            const open = (res.data || []).filter((c) => !c.is_closed);
+            const open = ((res.data || []) as PayrollCycle[]).filter((c) => !c.is_closed);
             setCycles(open);
         } catch (err) {
             console.error(err);
@@ -32,7 +37,7 @@ export const useRunPayroll = (homeCompanyId) => {
         }
     };
 
-    const fetchTransactions = async (cycleId) => {
+    const fetchTransactions = async (cycleId?: ApiId) => {
         if (!cycleId) return;
         try {
             setLoadingTx(true);
@@ -41,14 +46,14 @@ export const useRunPayroll = (homeCompanyId) => {
             setTransactions([...(res.data.transactions || [])]);
         } catch (err) {
             setTransactions([]);
-            if (err.response?.status !== 404) console.error(err);
+            if (apiErrorStatus(err) !== 404) console.error(err);
         } finally {
             setLoadingTx(false);
         }
     };
 
     // Fetch config for selected cycle's company
-    const fetchPayrollConfigForCycle = async (cycle) => {
+    const fetchPayrollConfigForCycle = async (cycle: PayrollCycle | null) => {
         if (!cycle?.id) {
             console.warn("Cannot fetch config: cycle object missing or invalid", cycle);
             setPayrollConfig(null);
@@ -64,7 +69,7 @@ export const useRunPayroll = (homeCompanyId) => {
                 setPayrollConfig(null);
             }
         } catch (err) {
-            console.error("Failed to fetch payroll config:", err.response?.data || err.message);
+            console.error("Failed to fetch payroll config:", apiErrorBody(err) ?? err);
             setPayrollConfig(null);
         } finally {
             setLoadingConfig(false);
@@ -88,7 +93,7 @@ export const useRunPayroll = (homeCompanyId) => {
         ? cycles.filter((c) => String(c.companies_id) === String(selectedCompanyId))
         : cycles;
 
-    const changeCompany = (companyId) => {
+    const changeCompany = (companyId: string) => {
         setSelectedCompanyId(companyId);
         setSelectedCycleId("");
         setSelectedCycle(null);
@@ -101,7 +106,7 @@ export const useRunPayroll = (homeCompanyId) => {
     };
 
     // Picking a cycle drops whatever the previous one produced, so nothing stale is shown against the new selection.
-    const selectCycle = (cycleId) => {
+    const selectCycle = (cycleId: string) => {
         setSelectedCycleId(cycleId);
         setPreCheckIssues([]);
         setPendingCalculate(false);
@@ -143,7 +148,7 @@ export const useRunPayroll = (homeCompanyId) => {
             const diffRes = await api.get(`/payroll/diff/${selectedCycleId}`);
             setDiffData(diffRes.data);
         } catch (err) {
-            alert(err.response?.data?.error || "Calculation failed");
+            alert(apiErrorMessage(err, "Calculation failed"));
         } finally {
             setCalculating(false);
         }

@@ -10,9 +10,10 @@ import HelpIcon from "../../components/common/HelpIcon";
 import { useAuth } from "../../hooks/useAuth";
 import usePayrollCycles from "./cycles/usePayrollCycles";
 import CycleFormModal from "./cycles/CycleFormModal";
+import type { PayrollCycle, TableColumn } from "../../types/api";
 
-const formatDate = (d) =>
-    new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
+const formatDate = (d?: string) =>
+    d ? new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 const PayrollCyclesPage = () => {
     const { homeCompanyId } = useAuth();
@@ -20,7 +21,7 @@ const PayrollCyclesPage = () => {
     const { cycles, companies, loading, fetchCycles, closeCycle } = usePayrollCycles();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const columns = [
+    const columns: TableColumn<PayrollCycle>[] = [
         {
             label: "Cycle Name",
             sortKey: "cycle_name",
@@ -32,7 +33,7 @@ const PayrollCyclesPage = () => {
         {
             label: "Period",
             sortKey: "start_date",
-            sortValue: (row) => new Date(row.start_date).getTime(),
+            sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             searchableKeys: ["start_date", "end_date"],
             render: (row) => (
                 <span className="text-[13px] text-body">
@@ -54,9 +55,9 @@ const PayrollCyclesPage = () => {
         {
             label: "Created",
             sortKey: "created_at",
-            sortValue: (row) => new Date(row.created_at).getTime(),
+            sortValue: (row) => (row.created_at ? new Date(String(row.created_at)).getTime() : 0),
             render: (row) => (
-                <span className="text-[13px] text-subtle">{formatDate(row.created_at)}</span>
+                <span className="text-[13px] text-subtle">{formatDate(row.created_at as string | undefined)}</span>
             ),
         },
         {

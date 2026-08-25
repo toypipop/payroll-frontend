@@ -10,6 +10,28 @@ import SelectField from "../../../components/common/SelectField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
 import { WEEKDAY_OPTIONS, formatHHMM, parseTimeFromConfig } from "./scheduleHelpers";
 import { warningBox, warningLink, successBox, dangerBox } from "./warningStyles";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { OptionRow, ScheduleConfig } from "../../../types/domain";
+
+// What POST /timelogs/bulk answers with: how many logs it wrote, and the dates it left alone.
+interface BulkCreateResult {
+    created_count?: number;
+    skipped_count?: number;
+    skipped_dates?: string[];
+}
+
+interface BulkCreateModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onCreated: () => void;
+    homeCompanyId: string;
+    masterCompanies: OptionRow[];
+    masterEmployees: OptionRow[];
+    masterWorkLocations: OptionRow[];
+    attendanceConfigs: Record<string, ScheduleConfig>;
+    dayOffWeekdaysByCompany: Record<string, number[]>;
+    canManageAttendanceSettings: boolean;
+}
 
 // BulkCreateModal owns every piece of bulk-add state, which is why the page itself only tracks whether the modal is open.
 const BulkCreateModal = ({
@@ -23,7 +45,7 @@ const BulkCreateModal = ({
     attendanceConfigs,
     dayOffWeekdaysByCompany,
     canManageAttendanceSettings,
-}) => {
+}: BulkCreateModalProps) => {
         const [bulkCompanyId, setBulkCompanyId] = useState(homeCompanyId);
         const [bulkEmployeeId, setBulkEmployeeId] = useState("");
         const [bulkWorkLocationId, setBulkWorkLocationId] = useState("");
@@ -33,7 +55,7 @@ const BulkCreateModal = ({
         const [bulkCheckInTime, setBulkCheckInTime] = useState("09:00");
         const [bulkCheckOutTime, setBulkCheckOutTime] = useState("18:00");
         const [bulkSubmitting, setBulkSubmitting] = useState(false);
-        const [bulkResult, setBulkResult] = useState(null);
+        const [bulkResult, setBulkResult] = useState<BulkCreateResult | null>(null);
         const [bulkError, setBulkError] = useState("");
 
         const bulkFilteredEmployees = bulkCompanyId
@@ -42,30 +64,30 @@ const BulkCreateModal = ({
         const bulkFilteredWorkLocations = bulkCompanyId
             ? masterWorkLocations.filter((loc) => !loc.companies_id || String(loc.companies_id) === String(bulkCompanyId))
             : [];
-        const bulkCompanyConfig = bulkCompanyId ? attendanceConfigs[bulkCompanyId] : null;
+        const bulkCompanyConfig = bulkCompanyId ? attendanceConfigs[String(bulkCompanyId)] : null;
         const bulkShowNoConfigWarning = !!bulkCompanyId && !(bulkCompanyConfig && bulkCompanyConfig.is_configured);
-        const bulkShowNoDayOffsWarning = !!bulkCompanyId && (dayOffWeekdaysByCompany[bulkCompanyId] || []).length === 0;
+        const bulkShowNoDayOffsWarning = !!bulkCompanyId && (dayOffWeekdaysByCompany[String(bulkCompanyId)] || []).length === 0;
         const bulkShowNoEmployeesWarning = !!bulkCompanyId && bulkFilteredEmployees.length === 0;
 
-        const toggleBulkWeekday = (value) => {
+        const toggleBulkWeekday = (value: number) => {
             setBulkWeekdays((prev) =>
                 prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value].sort()
             );
         };
 
         // Default weekdays/times to a company's actual day-offs/attendance config
-        const applyBulkDefaultsForCompany = (companyId) => {
-            const dayOffWeekdays = dayOffWeekdaysByCompany[companyId] || [];
+        const applyBulkDefaultsForCompany = (companyId: string) => {
+            const dayOffWeekdays = dayOffWeekdaysByCompany[String(companyId)] || [];
             setBulkWeekdays([0, 1, 2, 3, 4, 5, 6].filter((d) => !dayOffWeekdays.includes(d)));
 
-            const cfg = attendanceConfigs[companyId];
+            const cfg = attendanceConfigs[String(companyId)];
             if (cfg && cfg.is_configured) {
                 setBulkCheckInTime(formatHHMM(parseTimeFromConfig(cfg.work_start_time, 9, 0)));
                 setBulkCheckOutTime(formatHHMM(parseTimeFromConfig(cfg.work_end_time, 18, 0)));
             }
         };
 
-        const handleBulkCompanyChange = (e) => {
+        const handleBulkCompanyChange = (e: { target: { value: string } }) => {
             const companyId = e.target.value;
             setBulkCompanyId(companyId);
             setBulkEmployeeId("");
@@ -131,7 +153,7 @@ const BulkCreateModal = ({
                 setBulkResult(res.data);
                 onCreated();
             } catch (err) {
-                setBulkError(err.response?.data?.error || "Bulk add failed");
+                setBulkError(apiErrorMessage(err, "Bulk add failed"));
             } finally {
                 setBulkSubmitting(false);
             }
@@ -162,13 +184,13 @@ const BulkCreateModal = ({
                         <div>
                             <div className={successBox}>
                                 Created <strong>{bulkResult.created_count}</strong> time log(s).
-                                {bulkResult.skipped_count > 0 && (
+                                {(bulkResult.skipped_count ?? 0) > 0 && (
                                     <span> Skipped {bulkResult.skipped_count} date(s) that already had a log.</span>
                                 )}
                             </div>
-                            {bulkResult.skipped_dates?.length > 0 && (
+                            {(bulkResult.skipped_dates?.length ?? 0) > 0 && (
                                 <ul className="m-[8px_0_0_16px] p-[0px] text-[12px] text-muted">
-                                    {bulkResult.skipped_dates.map((d) => <li key={d}>{d}</li>)}
+                                    {bulkResult.skipped_dates?.map((d) => <li key={d}>{d}</li>)}
                                 </ul>
                             )}
                         </div>

@@ -7,26 +7,28 @@ import Card from "../../components/common/Card";
 import { useAuth } from "../../hooks/useAuth";
 import useWorkLocations from "./work-locations/useWorkLocations";
 import WorkLocationFormModal from "./work-locations/WorkLocationFormModal";
+import type { TableColumn } from "../../types/api";
+import type { WorkLocation } from "../../types/domain";
 
 const WorkLocationPage = () => {
     const { homeCompanyId } = useAuth();
     const { items, companyOptions, loading, fetchData, remove } = useWorkLocations();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<WorkLocation | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: WorkLocation) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
     const smallBtn = "px-3 py-1 text-xs w-auto";
 
-    const columns = [
+    const columns: TableColumn<WorkLocation>[] = [
         { label: "Location Name", key: "name" },
         { label: "Company", render: (row) => row.companies?.name || "—" },
         {

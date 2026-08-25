@@ -7,26 +7,28 @@ import Card from "../../components/common/Card";
 import { useAuth } from "../../hooks/useAuth";
 import useHolidays from "./holidays/useHolidays";
 import HolidayFormModal from "./holidays/HolidayFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Holiday } from "../../types/domain";
 
 const HolidayCalendarPage = () => {
     const { homeCompanyId } = useAuth();
     const { items, companyOptions, loading, fetchData, remove } = useHolidays();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Holiday | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Holiday) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
     const smallBtn = "px-3 py-1 text-xs w-auto";
 
-    const columns = [
+    const columns: TableColumn<Holiday>[] = [
         {
             label: "Date",
             render: (row) => row.date ? new Date(row.date).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "—",

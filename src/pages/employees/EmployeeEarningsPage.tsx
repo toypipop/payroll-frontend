@@ -7,24 +7,26 @@ import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 import useEmployeeEarnings from "./employee-earnings/useEmployeeEarnings";
 import EmployeeEarningFormModal from "./employee-earnings/EmployeeEarningFormModal";
+import type { TableColumn } from "../../types/api";
+import type { EmployeeEarning } from "../../types/domain";
 
 const EmployeeEarningsPage = () => {
     const { homeCompanyId } = useAuth();
     const { items, companies, employees, earningTypes, loading, fetchItems, remove } = useEmployeeEarnings();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<EmployeeEarning | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: EmployeeEarning) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<EmployeeEarning>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",

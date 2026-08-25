@@ -4,16 +4,18 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import DateField from "../../components/common/DateField";
 import useAttendanceSummary from "./summaries/useAttendanceSummary";
+import type { TableColumn } from "../../types/api";
+import type { EarningSummaryRow } from "../../types/domain";
 
 const EarningSummaryPage = () => {
     const { summary, loading, fromDate, setFromDate, toDate, setToDate, meta, fetchSummary } =
-        useAttendanceSummary("/earning/summary", "Failed to load earning summary");
+        useAttendanceSummary<EarningSummaryRow>("/earning/summary", "Failed to load earning summary");
 
     const totalOtMins = summary.reduce((s, r) => s + r.total_overtime_minutes, 0);
     const totalExtraDays = summary.reduce((s, r) => s + r.total_extra_days, 0);
     const totalAmount = summary.reduce((s, r) => s + r.total_amount, 0);
 
-    const columns = [
+    const columns: TableColumn<EarningSummaryRow>[] = [
         { label: "Code", key: "employees_code" },
         { label: "Full Name", key: "full_name" },
         { label: "Companies", key: "company_name" },

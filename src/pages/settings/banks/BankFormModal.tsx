@@ -7,6 +7,8 @@ import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Bank } from "../../../types/domain";
 
 const bankSchema = z.object({
     bank_code: z.string().min(1, "Bank code is required").max(10, "Max 10 characters"),
@@ -14,10 +16,19 @@ const bankSchema = z.object({
     swift_code: z.string().optional(),
 });
 
+type BankFormValues = z.infer<typeof bankSchema>;
+
 const EMPTY = { bank_code: "", bank_name: "", swift_code: "" };
 
 // BankFormModal owns the form and the save call; the page only says which row is being edited.
-const BankFormModal = ({ isOpen, onClose, onSaved, editing }) => {
+interface BankFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Bank | null;
+}
+
+const BankFormModal = ({ isOpen, onClose, onSaved, editing }: BankFormModalProps) => {
     const {
         register,
         handleSubmit,
@@ -36,7 +47,7 @@ const BankFormModal = ({ isOpen, onClose, onSaved, editing }) => {
             : EMPTY);
     }, [isOpen, editing, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: BankFormValues) => {
         try {
             if (editing) {
                 await api.put(`/master/banks/${editing.id}`, data);
@@ -46,7 +57,7 @@ const BankFormModal = ({ isOpen, onClose, onSaved, editing }) => {
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

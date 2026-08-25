@@ -8,6 +8,8 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, Department, DepartmentCategory } from "../../../types/domain";
 
 const departmentSchema = z.object({
     dept_name: z.string().min(2, "Department name is required"),
@@ -15,8 +17,21 @@ const departmentSchema = z.object({
     category_id: z.string().min(1, "Please select a category"),
 });
 
+type DepartmentFormValues = z.infer<typeof departmentSchema>;
+
 // DepartmentFormModal owns the form: its schema, its draft category name, and the save call. The page only says which row is being edited.
-const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies, categories, onCategoryCreated }) => {
+interface DepartmentFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Department | null;
+    homeCompanyId: string;
+    companies: Company[];
+    categories: DepartmentCategory[];
+    onCategoryCreated: (category: DepartmentCategory) => void;
+}
+
+const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies, categories, onCategoryCreated }: DepartmentFormModalProps) => {
     const [newCategoryName, setNewCategoryName] = useState("");
     const {
         register,
@@ -44,7 +59,7 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
             : { dept_name: "", companies_id: homeCompanyId, category_id: "" });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: DepartmentFormValues) => {
         try {
             let categoryId = data.category_id;
             if (categoryId === "__new__") {
@@ -66,7 +81,7 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

@@ -1,5 +1,5 @@
 // toDateStr normalises whatever a DateField hands back into the YYYY-MM-DD the summary endpoints expect.
-export const toDateStr = (date) => {
+export const toDateStr = (date: Date | string) => {
     if (!date) return "";
 
     if (typeof date === "string") {
@@ -23,7 +23,7 @@ export const toDateStr = (date) => {
 // monthToDate is the range both summary pages open on: the first of this month through today.
 export const monthToDate = () => {
     const now = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
+    const pad = (n: number) => String(n).padStart(2, "0");
     return {
         from: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`,
         to: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,

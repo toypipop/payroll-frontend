@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, Role } from "../../../types/domain";
+import type { ApiId } from "../../../types/api";
 
 // useRoles owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useRoles = () => {
-    const [roles, setRoles] = useState([]);
-    const [companies, setCompanies] = useState([]);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchRoles = async () => {
@@ -30,7 +32,7 @@ export const useRoles = () => {
 
     useEffect(() => { fetchInitialData(); }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure you want to delete this role?")) return;
         try {
             await api.delete(`/roles/${id}`);

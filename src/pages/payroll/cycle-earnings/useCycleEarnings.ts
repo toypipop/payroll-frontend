@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, CycleEarning, EarningType, Employee } from "../../../types/domain";
+import type { ApiId, PayrollCycle } from "../../../types/api";
 
 // useCycleEarnings owns the page's server data: the master lists, plus the rows of whichever cycle is selected.
-export const useCycleEarnings = (selectedCycleId) => {
-    const [items, setItems] = useState([]);
-    const [companies, setCompanies] = useState([]);
-    const [cycles, setCycles] = useState([]);
-    const [employees, setEmployees] = useState([]);
+export const useCycleEarnings = (selectedCycleId?: ApiId) => {
+    const [items, setItems] = useState<CycleEarning[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
+    const [cycles, setCycles] = useState<PayrollCycle[]>([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     // Only variable (non-permanent) earning types
-    const [earningTypes, setEarningTypes] = useState([]);
+    const [earningTypes, setEarningTypes] = useState<EarningType[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Fetch master data once
@@ -58,7 +60,7 @@ export const useCycleEarnings = (selectedCycleId) => {
         setItems(res.data);
     };
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this variable earning?")) return;
         try {
             await api.delete(`/cycle-earnings/${id}`);

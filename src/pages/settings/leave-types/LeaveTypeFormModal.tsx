@@ -9,6 +9,8 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, LeaveTypeSetting } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
@@ -17,8 +19,19 @@ const schema = z.object({
     max_days_per_year: z.coerce.number().min(0, "Must be 0 or more").default(0),
 });
 
+type LeaveTypeFormValues = z.infer<typeof schema>;
+
 // LeaveTypeFormModal owns the form and the save call; the page only says which row is being edited.
-const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }) => {
+interface LeaveTypeFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: LeaveTypeSetting | null;
+    homeCompanyId: string;
+    companyOptions: Company[];
+}
+
+const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }: LeaveTypeFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, name: "", is_paid: true, max_days_per_year: 0 },
@@ -37,7 +50,7 @@ const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, 
             : { companies_id: homeCompanyId, name: "", is_paid: true, max_days_per_year: 0 });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: LeaveTypeFormValues) => {
         try {
             const payload = { ...data, companies_id: Number(data.companies_id) };
             if (editing) {
@@ -48,7 +61,7 @@ const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, 
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

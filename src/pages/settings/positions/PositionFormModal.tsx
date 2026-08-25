@@ -8,14 +8,27 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, Position } from "../../../types/domain";
 
 const positionSchema = z.object({
     pos_name: z.string().min(1, "Position name is required"),
     companies_id: z.coerce.number().min(1, "Please select a companies"),
 });
 
+type PositionFormValues = z.infer<typeof positionSchema>;
+
 // PositionFormModal owns the form and the save call; the page only says which row is being edited.
-const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies }) => {
+interface PositionFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Position | null;
+    homeCompanyId: string;
+    companies: Company[];
+}
+
+const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies }: PositionFormModalProps) => {
     const {
         register,
         handleSubmit,
@@ -34,7 +47,7 @@ const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, c
             : { pos_name: "", companies_id: homeCompanyId });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: PositionFormValues) => {
         try {
             if (editing) {
                 await api.put(`/positions/${editing.id}`, data);
@@ -44,7 +57,7 @@ const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, c
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

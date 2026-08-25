@@ -8,6 +8,8 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, EmploymentType } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
@@ -15,8 +17,19 @@ const schema = z.object({
     description: z.string().optional(),
 });
 
+type EmploymentTypeFormValues = z.infer<typeof schema>;
+
 // EmploymentTypeFormModal owns the form and the save call; the page only says which row is being edited.
-const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }) => {
+interface EmploymentTypeFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: EmploymentType | null;
+    defaultCompanieId: string;
+    companies: Company[];
+}
+
+const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: EmploymentTypeFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: defaultCompanieId, name: "", description: "" },
@@ -30,7 +43,7 @@ const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
             : { companies_id: defaultCompanieId, name: "", description: "" });
     }, [isOpen, editing, defaultCompanieId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: EmploymentTypeFormValues) => {
         try {
             if (editing) {
                 await api.put(`/master/employment-types/${editing.id}`, data);
@@ -40,7 +53,7 @@ const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

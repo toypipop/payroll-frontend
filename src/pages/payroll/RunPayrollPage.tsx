@@ -12,8 +12,12 @@ import { useAuth } from "../../hooks/useAuth";
 import useRunPayroll from "./run-payroll/useRunPayroll";
 import CycleDiffCard from "./run-payroll/CycleDiffCard";
 import PreCheckPanel from "./run-payroll/PreCheckPanel";
+import type { PayrollTransaction, TableColumn } from "../../types/api";
 
-const formatCurrency = (val) =>
+// How the backend's tax_calculation values read on screen.
+const TAX_METHOD_LABELS: Record<string, string> = { Progressive: "Thai Progressive Rate", None: "No Tax" };
+
+const formatCurrency = (val: number | string | null | undefined) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const RunPayrollPage = () => {
@@ -26,7 +30,7 @@ const RunPayrollPage = () => {
         calculate, runCalculate,
     } = useRunPayroll(homeCompanyId);
 
-    const columns = [
+    const columns: TableColumn<PayrollTransaction>[] = [
         {
             label: "Employee",
             sortKey: "employees.first_name",
@@ -146,7 +150,7 @@ const RunPayrollPage = () => {
                             <SelectField
                                 label="Select Open Cycle"
                                 options={filteredCycles.map((c) => {
-                                    const fmt = (d) => d ? new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "";
+                                    const fmt = (d?: string) => d ? new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" }) : "";
                                     const dateRange = (c.start_date && c.end_date) ? ` · ${fmt(c.start_date)} – ${fmt(c.end_date)}` : "";
                                     return { id: c.id, name: `${c.cycle_name}${c.companies?.name ? ` (${c.companies.name})` : ""}${dateRange}` };
                                 })}
@@ -198,7 +202,7 @@ const RunPayrollPage = () => {
                                 { label: "SSO Rate", value: `${payrollConfig.sso_rate}%` },
                                 { label: "SSO Max", value: `฿${formatCurrency(payrollConfig.sso_max_amount)}` },
                                 { label: "Min Salary", value: `฿${formatCurrency(payrollConfig.sso_min_salary)}` },
-                                { label: "Tax Method", value: { Progressive: "Thai Progressive Rate", None: "No Tax" }[payrollConfig.tax_calculation] || payrollConfig.tax_calculation || "Thai Progressive Rate" },
+                                { label: "Tax Method", value: TAX_METHOD_LABELS[payrollConfig.tax_calculation ?? ""] || payrollConfig.tax_calculation || "Thai Progressive Rate" },
                             ].map((item) => (
                                 <div key={item.label}>
                                     <div className="text-[11px] text-subtle mb-[3px]">{item.label}</div>
@@ -220,23 +224,23 @@ const RunPayrollPage = () => {
                 {calcResult && (
                     <div className="mt-[12px] p-[10px_14px] rounded-[8px] bg-success-soft border border-success-line text-success-text text-[13px]">
                         <strong>{calcResult.processed_count}</strong> employees processed
-                        {calcResult.skipped_count > 0 && (
+                        {(calcResult.skipped_count ?? 0) > 0 && (
                             <span className="text-warning-text"> · {calcResult.skipped_count} skipped (no salary record)</span>
                         )}
-                        {calcResult.skipped_employees?.length > 0 && (
+                        {(calcResult.skipped_employees?.length ?? 0) > 0 && (
                             <ul className="m-[6px_0_0_16px] p-[0px] text-[12px] text-warning-text">
-                                {calcResult.skipped_employees.map((name: string) => <li key={name}>{name}</li>)}
+                                {calcResult.skipped_employees?.map((name: string) => <li key={name}>{name}</li>)}
                             </ul>
                         )}
                     </div>
                 )}
 
                 {/* Informational, not a warning: new hires pro-rated because they started mid-cycle. */}
-                {calcResult?.prorated_employees?.length > 0 && (
+                {(calcResult?.prorated_employees?.length ?? 0) > 0 && (
                     <div className="mt-[10px] p-[10px_14px] rounded-[8px] bg-primary-subtle border border-primary text-primary text-[13px]">
-                        <strong>{calcResult.prorated_employees.length}</strong> new hire{calcResult.prorated_employees.length > 1 ? "s" : ""} paid pro-rated this cycle (started mid-cycle)
+                        <strong>{calcResult?.prorated_employees?.length}</strong> new hire{(calcResult?.prorated_employees?.length ?? 0) > 1 ? "s" : ""} paid pro-rated this cycle (started mid-cycle)
                         <ul className="m-[6px_0_0_16px] p-[0px] text-[12px]">
-                            {calcResult.prorated_employees.map((p: { name: string; days: number; total_days: number }) => (
+                            {calcResult?.prorated_employees?.map((p) => (
                                 <li key={p.name}>{p.name} — {p.days}/{p.total_days} days</li>
                             ))}
                         </ul>

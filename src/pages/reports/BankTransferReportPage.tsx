@@ -8,17 +8,19 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import type { BankTransferReport, BankTransferRow, ReportCompany } from "../../types/reports";
+import type { PayrollCycle, TableColumn } from "../../types/api";
 
-const fc = (v) =>
+const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fd = (d) => {
+const fd = (d: number | string | null | undefined) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 /* ── CSV export helper ──────────────────────────────────────────────────── */
-const exportCSV = (rows, company, cycle) => {
+const exportCSV = (rows: BankTransferRow[] | undefined, company: ReportCompany | null | undefined, cycle: PayrollCycle | null | undefined) => {
     if (!rows?.length) return;
     const header = ["No", "Companies", "Employee Code", "Employee Name", "Bank", "Account No", "Account Name", "Net Pay (THB)"];
     const lines = rows.map((r, i) => [
@@ -45,11 +47,11 @@ const exportCSV = (rows, company, cycle) => {
 };
 
 /* ── A4 Summary PDF Print ───────────────────────────────────────────────── */
-const A4BankSummary = ({ data }) => {
+const A4BankSummary = ({ data }: { data: BankTransferReport | null }) => {
     if (!data) return null;
     const { cycle, company, rows = [], total_net_pay } = data;
 
-    const summaryColumns = [
+    const summaryColumns: TableColumn<BankTransferRow>[] = [
         { label: "#", render: (r, i) => i + 1 },
         { label: "Companies", render: (r) => r.companies_name },
         { label: "Code", render: (r) => r.employees_code },
@@ -102,14 +104,14 @@ const A4BankSummary = ({ data }) => {
 // Page component
 const BankTransferReportPage = () => {
     const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
-        useClosedCycleReport((cycleId) => `/reports/bank-transfer/${cycleId}`);
+        useClosedCycleReport<BankTransferReport>((cycleId) => `/reports/bank-transfer/${cycleId}`);
     const [isPrintOpen, setIsPrintOpen] = useState(false);
 
     useA4Preview(isPrintOpen, () => setIsPrintOpen(false));
 
     const handlePrint = () => printElement("bank-summary-a4");
 
-    const columns = [
+    const columns: TableColumn<BankTransferRow>[] = [
         {
             label: "Employee",
             render: (r) => (

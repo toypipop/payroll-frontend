@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Bank, Company, Department, Employee, EmploymentType, OptionRow, Position, Role } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useEmployees owns the page's server data: the employee rows plus every master list the form cascades through.
 export const useEmployees = () => {
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(true);
-    const [masterDepts, setMasterDepts] = useState([]);
-    const [masterPos, setMasterPos] = useState([]);
-    const [masterRoles, setMasterRoles] = useState([]);
-    const [masterCompanies, setMasterCompanies] = useState([]);
-    const [masterBanks, setMasterBanks] = useState([]);
-    const [masterEmploymentTypes, setMasterEmploymentTypes] = useState([]);
+    const [masterDepts, setMasterDepts] = useState<OptionRow[]>([]);
+    const [masterPos, setMasterPos] = useState<OptionRow[]>([]);
+    const [masterRoles, setMasterRoles] = useState<OptionRow[]>([]);
+    const [masterCompanies, setMasterCompanies] = useState<OptionRow[]>([]);
+    const [masterBanks, setMasterBanks] = useState<OptionRow[]>([]);
+    const [masterEmploymentTypes, setMasterEmploymentTypes] = useState<OptionRow[]>([]);
 
     const fetchEmployees = async () => {
         try {
@@ -35,33 +38,34 @@ export const useEmployees = () => {
                     api.get("/master/banks/options").catch(() => ({ data: [] })),
                     api.get("/companies/options").catch(() => ({ data: [] })),
                 ]);
-                setMasterBanks((banksRes.data || []).map((b) => ({ id: b.id, name: `${b.bank_code} — ${b.bank_name}` })));
+                setMasterBanks((banksRes.data || []).map((b: Bank) => ({ id: b.id, name: `${b.bank_code} — ${b.bank_name}` })));
                 setMasterEmploymentTypes(
-                    (empTypesRes.data || []).map((t) => ({
+                    (empTypesRes.data || []).map((t: EmploymentType) => ({
                         id: t.id,
                         name: t.name,
                         companies_id: t.companies_id,
                     })),
                 );
-                setMasterCompanies((compRes.data || []).map((c) => ({ id: c.id, name: c.name })));
+                setMasterCompanies((compRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
 
                 // Check property names from API match your Backend JSON response (English Comment)
                 setMasterDepts(
-                    deptRes.data.map((d) => ({
+                    // The /options endpoints answer with `name`; the full records use their own column name.
+                    (deptRes.data as (Department & OptionRow)[]).map((d) => ({
                         id: d.id,
                         name: d.dept_name || d.name,
                         companies_id: d.companies_id,
                     })),
                 );
                 setMasterPos(
-                    posRes.data.map((p) => ({
+                    (posRes.data as (Position & OptionRow)[]).map((p) => ({
                         id: p.id,
                         name: p.pos_name || p.name,
                         companies_id: p.companies_id,
                     })),
                 );
                 setMasterRoles(
-                    rolesRes.data.map((r) => ({
+                    (rolesRes.data as (Role & OptionRow)[]).map((r) => ({
                         id: r.id,
                         name: r.roles_name || r.name,
                         companies_id: r.companies_id,
@@ -75,13 +79,13 @@ export const useEmployees = () => {
         fetchEmployees();
     }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure you want to delete this employees?")) return;
         try {
             await api.delete(`/employees/${id}`);
             fetchEmployees();
         } catch (err) {
-            alert(err.response?.data?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

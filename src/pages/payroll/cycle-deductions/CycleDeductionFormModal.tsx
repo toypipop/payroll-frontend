@@ -9,6 +9,9 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, CycleDeduction, DeductionType, Employee } from "../../../types/domain";
+import type { PayrollCycle } from "../../../types/api";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -19,8 +22,23 @@ const schema = z.object({
     amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
 });
 
+type CycleDeductionFormValues = z.infer<typeof schema>;
+
 // CycleDeductionFormModal owns the cascading company to cycle to employee form and the save call.
-const CycleDeductionFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanyId, defaultCycleId, companies, cycles, employees, deductionTypes }) => {
+interface CycleDeductionFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: CycleDeduction | null;
+    defaultCompanyId: string;
+    defaultCycleId: string;
+    companies: Company[];
+    cycles: PayrollCycle[];
+    employees: Employee[];
+    deductionTypes: DeductionType[];
+}
+
+const CycleDeductionFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanyId, defaultCycleId, companies, cycles, employees, deductionTypes }: CycleDeductionFormModalProps) => {
     const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: defaultCompanyId, cycle_id: "", employees_id: "", deduction_type_id: "", amount: "" },
@@ -53,7 +71,7 @@ const CycleDeductionFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
         if (!isOpen) return;
         reset(editing
             ? {
-                id: editing.id,
+                id: editing.id == null ? undefined : Number(editing.id),
                 companies_id: editing.companies_id
                     || editing.employees?.companies_id
                     || cycles.find((c) => String(c.id) === String(editing.cycle_id))?.companies_id
@@ -73,7 +91,7 @@ const CycleDeductionFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
             });
     }, [isOpen, editing, defaultCompanyId, defaultCycleId, cycles, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: CycleDeductionFormValues) => {
         try {
             if (filteredEmployees.length === 0) {
                 alert("This company has no employees. Please add one before saving.");
@@ -87,7 +105,7 @@ const CycleDeductionFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
             await onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Operation failed");
+            alert(apiErrorMessage(err, "Operation failed"));
         }
     };
 

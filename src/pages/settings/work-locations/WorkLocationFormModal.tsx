@@ -8,14 +8,27 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, WorkLocation } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
     name: z.string().min(1, "Location name is required"),
 });
 
+type WorkLocationFormValues = z.infer<typeof schema>;
+
 // WorkLocationFormModal owns the form and the save call; the page only says which row is being edited.
-const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }) => {
+interface WorkLocationFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: WorkLocation | null;
+    homeCompanyId: string;
+    companyOptions: Company[];
+}
+
+const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }: WorkLocationFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, name: "" },
@@ -29,7 +42,7 @@ const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             : { companies_id: homeCompanyId, name: "" });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: WorkLocationFormValues) => {
         try {
             const payload = { ...data, companies_id: Number(data.companies_id) };
             if (editing) {
@@ -40,7 +53,7 @@ const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

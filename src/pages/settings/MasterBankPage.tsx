@@ -6,25 +6,27 @@ import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import useBanks from "./banks/useBanks";
 import BankFormModal from "./banks/BankFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Bank } from "../../types/domain";
 
 const MasterBankPage = () => {
     const { banks, loading, fetchData, remove } = useBanks();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Bank | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Bank) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
     const smallBtn = "px-3 py-1 text-xs w-auto";
 
-    const columns = [
+    const columns: TableColumn<Bank>[] = [
         { label: "Code", key: "bank_code" },
         { label: "Bank Name", key: "bank_name" },
         { label: "SWIFT Code", key: "swift_code" },

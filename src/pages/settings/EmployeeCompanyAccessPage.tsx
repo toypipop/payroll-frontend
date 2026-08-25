@@ -7,23 +7,25 @@ import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import useEmployeeCompanyAccess from "./employee-company-access/useEmployeeCompanyAccess";
 import AccessFormModal from "./employee-company-access/AccessFormModal";
+import type { TableColumn } from "../../types/api";
+import type { EmployeeCompanyAccess } from "../../types/domain";
 
 const EmployeeCompanyAccessPage = () => {
     const { accessRows, employees, companies, roles, loading, fetchAccessRows, remove } = useEmployeeCompanyAccess();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<EmployeeCompanyAccess | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: EmployeeCompanyAccess) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<EmployeeCompanyAccess>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",

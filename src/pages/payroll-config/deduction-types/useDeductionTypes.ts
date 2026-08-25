@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, EmployeeDeduction } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useDeductionTypes owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useDeductionTypes = () => {
-    const [deductions, setDeductions] = useState([]);
-    const [companies, setCompanies] = useState([]);
+    const [deductions, setDeductions] = useState<EmployeeDeduction[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDeductions = async () => {
@@ -30,14 +33,13 @@ export const useDeductionTypes = () => {
 
     useEffect(() => { fetchInitialData(); }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure?")) return;
         try {
             await api.delete(`/deduction-types/${id}`);
             await fetchDeductions();
         } catch (err) {
-            const errData = err.response?.data;
-            alert(errData?.reason ? `${errData.error}: ${errData.reason}` : errData?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

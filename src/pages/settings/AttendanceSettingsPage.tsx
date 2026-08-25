@@ -7,9 +7,11 @@ import Button from "../../components/common/Button";
 import useAttendanceConfigs from "./attendance-config/useAttendanceConfigs";
 import AttendanceConfigModal from "./attendance-config/AttendanceConfigModal";
 import { formatDisplayTime } from "../../utils/bangkokTime";
+import type { TableColumn } from "../../types/api";
+import type { Company } from "../../types/domain";
 
 // flag renders one of the config's on/off switches, or "Not Set" when the company has no config yet.
-const flag = (enabled) => {
+const flag = (enabled?: boolean) => {
     if (enabled === undefined) return <span className="text-subtle">Not Set</span>;
     return enabled
         ? <span className="text-success-text font-semibold">ON</span>
@@ -19,14 +21,14 @@ const flag = (enabled) => {
 const AttendanceSettingsPage = () => {
     const { configs, loading, fetchConfigs } = useAttendanceConfigs();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedCompanie, setSelectedCompanie] = useState(null);
+    const [selectedCompanie, setSelectedCompanie] = useState<Company | null>(null);
 
-    const openEdit = (companie) => {
+    const openEdit = (companie: Company) => {
         setSelectedCompanie(companie);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Company>[] = [
         { label: "Companies", key: "name" },
         {
             label: "Work Start",

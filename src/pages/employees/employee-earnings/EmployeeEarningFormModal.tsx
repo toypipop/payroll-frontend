@@ -9,6 +9,8 @@ import Modal from "../../../components/common/Modal";
 import DecimalField from "../../../components/common/DecimalField";
 import SelectField from "../../../components/common/SelectField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, EarningType, Employee, EmployeeEarning } from "../../../types/domain";
 
 const schema = z.object({
     id: z.number().optional(),
@@ -18,8 +20,21 @@ const schema = z.object({
     amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
 });
 
+type EmployeeEarningFormValues = z.infer<typeof schema>;
+
 // EmployeeEarningFormModal owns the cascading company to employee to earning-type form and the save call.
-const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies, employees, earningTypes }) => {
+interface EmployeeEarningFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: EmployeeEarning | null;
+    homeCompanyId: string;
+    companies: Company[];
+    employees: Employee[];
+    earningTypes: EarningType[];
+}
+
+const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies, employees, earningTypes }: EmployeeEarningFormModalProps) => {
     const { register, handleSubmit, reset, watch, setValue, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, employees_id: "", earning_type_id: "", amount: "" },
@@ -52,7 +67,7 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
         if (!isOpen) return;
         reset(editing
             ? {
-                id: editing.id,
+                id: editing.id == null ? undefined : Number(editing.id),
                 companies_id: editing.companies_id || editing.employees?.companies_id || "",
                 employees_id: editing.employees_id,
                 earning_type_id: editing.earning_type_id,
@@ -61,7 +76,7 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
             : { id: undefined, companies_id: homeCompanyId, employees_id: "", earning_type_id: "", amount: "" });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: EmployeeEarningFormValues) => {
         try {
             if (filteredEmployees.length === 0) {
                 alert("This company has no employees. Please add one before saving.");
@@ -85,7 +100,7 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
             await onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Operation failed");
+            alert(apiErrorMessage(err, "Operation failed"));
         }
     };
 

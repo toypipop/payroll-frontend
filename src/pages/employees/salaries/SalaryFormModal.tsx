@@ -17,6 +17,9 @@ import {
     getSalaryEffectiveDate,
     isSoftDeleted,
 } from "./salaryShape";
+import type { SalaryRow } from "./useSalaries";
+import type { ApiId } from "../../../types/api";
+import { apiErrorBody, apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
 
 /* --- 1. Validation Schema (English Comment) --- */
 const salariesSchema = z.object({
@@ -36,6 +39,8 @@ const salariesSchema = z.object({
     is_active: z.boolean().default(true),
 });
 
+type SalaryFormValues = z.infer<typeof salariesSchema>;
+
 const DEFAULT_FORM_VALUES = {
     companies_id: "",
     employees_id: "",
@@ -44,8 +49,15 @@ const DEFAULT_FORM_VALUES = {
     is_active: true,
 };
 
+interface SalaryFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    employee: SalaryRow | null;
+}
+
 // SalaryFormModal owns the adjustment form and the save call; the page only says which employee row is being adjusted.
-const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
+const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModalProps) => {
     const {
         handleSubmit,
         reset,
@@ -55,6 +67,13 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
         resolver: zodResolver(salariesSchema),
         defaultValues: DEFAULT_FORM_VALUES,
     });
+
+    // The version of the record this form was seeded from, sent back on save so a stale screen is refused.
+    const seededVersion = Number(
+        (employee?.__salary as Record<string, unknown> | null | undefined)?.version
+        ?? (getLatestSalaryStructure(employee) as Record<string, unknown> | null)?.version
+        ?? 0,
+    );
 
     // Re-seed the form whenever the page opens the modal, defaulting the effective date to today when the row has none.
     useEffect(() => {
@@ -78,16 +97,19 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
             employees_id: String(getEmployeeId(employee)),
             base_salaries: getSalaryBaseAmount(ss, employee) || "",
             effective_date: finalDate,
-            is_active: typeof ss?.is_active === "boolean"
-                ? ss.is_active
+            is_active: typeof (ss as Record<string, unknown> | null)?.is_active === "boolean"
+                ? Boolean((ss as Record<string, unknown>).is_active)
                 : !isSoftDeleted(getSalaryDeletedAt(ss, employee)),
         });
     }, [isOpen, employee, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: SalaryFormValues) => {
         try {
-            const payload = {
+            // `id` only travels when an existing record is being disabled, so the payload keeps room for it.
+            const payload: Record<string, unknown> = {
                 ...data,
+                // The version the form was seeded from: the server refuses the save if that record has moved since.
+                version: seededVersion,
                 companies_id: Number(data.companies_id),
                 employees_id: Number(data.employees_id),
                 base_salaries: Number(data.base_salaries),
@@ -98,9 +120,10 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
             };
 
             // Disabling an existing structure is an update of that row, so the id has to travel with it.
-            const currentId = (employee?.__salary || getLatestSalaryStructure(employee))?.id || null;
+            const current = (employee?.__salary || getLatestSalaryStructure(employee)) as Record<string, unknown> | null;
+            const currentId = current?.id ?? null;
             if (!data.is_active && currentId) {
-                payload.id = currentId;
+                payload.id = currentId as ApiId;
             }
 
             // Backend uses POST /salaries for both create and update.
@@ -108,12 +131,18 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }) => {
             onSaved();
             onClose();
         } catch (err) {
-            console.error("Save salary failed:", err.response?.data || err);
-            alert(
-                err.response?.data?.error ||
-                    err.response?.data?.message ||
-                    "Save Failed"
-            );
+            console.error("Save salary failed:", apiErrorBody(err) ?? err);
+            // 412 means the record moved since this form was seeded: the screen is stale, so reload it.
+            // Everything else — including a 409 over the effective date — leaves the form open to be corrected.
+            if (apiErrorStatus(err) === 412) {
+                alert(`${apiErrorMessage(err, "This record was changed by someone else.")}
+
+Reloading the list.`);
+                onSaved();
+                onClose();
+                return;
+            }
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

@@ -10,6 +10,8 @@ import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
 import DateField from "../../../components/common/DateField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Employee, LeaveRequest, OptionRow } from "../../../types/domain";
 
 // Validation schema for leave requests
 const leaveSchema = z.object({
@@ -31,6 +33,8 @@ const leaveSchema = z.object({
     path: ["end_date"],
 });
 
+type LeaveRequestFormValues = z.infer<typeof leaveSchema>;
+
 const emptyForm = (homeCompanyId: string) => ({
     companies_id: homeCompanyId,
     employees_id: "",
@@ -40,8 +44,21 @@ const emptyForm = (homeCompanyId: string) => ({
     reason: "",
 });
 
+interface LeaveRequestFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: LeaveRequest | null;
+    homeCompanyId: string;
+    masterCompanies: OptionRow[];
+    masterEmployees: OptionRow[];
+    masterLeaveTypes: OptionRow[];
+    // Keyed by employee id, as useLeaveRequests builds it.
+    employeeData: Record<string, Employee>;
+}
+
 // LeaveRequestFormModal owns the cascading company to employee to leave-type form and the save call.
-const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterLeaveTypes, employeeData }) => {
+const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterLeaveTypes, employeeData }: LeaveRequestFormModalProps) => {
     const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
     const {
         register,
@@ -92,23 +109,23 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
     const showNoLeaveTypesWarning = !!selectedEmployeeCompaniesId && filteredLeaveTypes.length === 0;
     const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
 
-    const handleEmployeeChange = (e) => {
+    const handleEmployeeChange = (e: { target: { value: string } }) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
         setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
         setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
     };
-    const handleLeaveTypeChange = (e) => {
+    const handleLeaveTypeChange = (e: { target: { value: string } }) => {
         setValue("leave_type_id", e.target.value, { shouldValidate: true, shouldDirty: true });
     };
-    const handleCompanyChange = (e) => {
+    const handleCompanyChange = (e: { target: { value: string } }) => {
         setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
         setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
         setSelectedEmployeeId("");
         setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
     };
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: LeaveRequestFormValues) => {
         try {
             const employeeId = Number(data.employees_id);
             const leaveTypeId = Number(data.leave_type_id);
@@ -152,7 +169,7 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Operation Failed");
+            alert(apiErrorMessage(err, "Operation Failed"));
         }
     };
 

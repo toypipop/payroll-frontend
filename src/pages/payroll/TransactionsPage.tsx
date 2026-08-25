@@ -11,14 +11,16 @@ import SelectField from "../../components/common/SelectField";
 import { useAuth } from "../../hooks/useAuth";
 import useTransactionSlip from "./transactions/useTransactionSlip";
 import TransactionDetailsModal from "./transactions/TransactionDetailsModal";
+import type { Tone } from "../../components/common/tone";
+import type { PayrollTransaction, TableColumn } from "../../types/api";
 
-const formatCurrency = (value) =>
+const formatCurrency = (value: number | string | null | undefined) =>
     Number(value || 0).toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
 
-const formatDate = (value) => {
+const formatDate = (value: number | string | null | undefined) => {
     if (!value) return "-";
     return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok",
         day: "2-digit",
@@ -27,7 +29,13 @@ const formatDate = (value) => {
     });
 };
 
-const StatCard = ({ label, value, tone = 'neutral' }) => (
+interface StatCardProps {
+    label: string;
+    value?: number | string;
+    tone?: Tone;
+}
+
+const StatCard = ({ label, value, tone = 'neutral' }: StatCardProps) => (
     <Card className="min-w-[155px] flex-1">
         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">{label}</div>
         <div className={`mt-1.5 text-[22px] font-extrabold leading-none tabular-nums ${TONE_TEXT[tone]}`}>{value}</div>
@@ -73,6 +81,16 @@ const TransactionsPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cycles, selectedCompanyId]);
 
+    // When these figures were last computed. This page reads what the last run stored and never recalculates, so
+    // on a cycle that is still open the numbers can be older than the salary and attendance data behind them —
+    // saying when they were produced is what lets the reader tell.
+    const calculatedAt = useMemo(() => {
+        const stamps = filteredTransactions
+            .map((tx) => (tx.updated_at ? new Date(tx.updated_at).getTime() : 0))
+            .filter((time) => time > 0);
+        return stamps.length > 0 ? new Date(Math.max(...stamps)) : null;
+    }, [filteredTransactions]);
+
     const totals = useMemo(() => {
         return filteredTransactions.reduce<{ net: number; earning: number; deduction: number }>(
             (acc, tx) => {
@@ -85,7 +103,7 @@ const TransactionsPage = () => {
         );
     }, [filteredTransactions]);
 
-    const columns = [
+    const columns: TableColumn<PayrollTransaction>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",
@@ -180,6 +198,20 @@ const TransactionsPage = () => {
                 {cycleInfo && (
                     <div className="mt-[12px] text-[13px] text-muted">
                         Period: {formatDate(cycleInfo.start_date)} - {formatDate(cycleInfo.end_date)}
+                        {calculatedAt && (
+                            <>
+                                {" · "}
+                                Figures calculated{" "}
+                                {calculatedAt.toLocaleString("en-GB", {
+                                    timeZone: "Asia/Bangkok",
+                                    day: "2-digit", month: "short", year: "numeric",
+                                    hour: "2-digit", minute: "2-digit",
+                                })}
+                                {!cycleInfo.is_closed && (
+                                    <span className="text-accent"> · recalculate on the Run Payroll page to refresh</span>
+                                )}
+                            </>
+                        )}
                     </div>
                 )}
             </Card>

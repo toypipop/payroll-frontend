@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, Employee, LeaveRequest, LeaveTypeSetting, OptionRow } from "../../../types/domain";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useLeaveRequests owns the page's server data: the requests plus the master lists the form cascades through.
 export const useLeaveRequests = () => {
-    const [requests, setRequests] = useState([]);
+    const [requests, setRequests] = useState<LeaveRequest[]>([]);
     const [loading, setLoading] = useState(true);
-    const [masterCompanies, setMasterCompanies] = useState([]);
-    const [masterEmployees, setMasterEmployees] = useState([]);
-    const [masterLeaveTypes, setMasterLeaveTypes] = useState([]);
-    const [employeeData, setEmployeeData] = useState({});
+    // The three master lists are dropdown options this hook builds, not the API's full records.
+    const [masterCompanies, setMasterCompanies] = useState<OptionRow[]>([]);
+    const [masterEmployees, setMasterEmployees] = useState<OptionRow[]>([]);
+    const [masterLeaveTypes, setMasterLeaveTypes] = useState<OptionRow[]>([]);
+    const [employeeData, setEmployeeData] = useState<Record<string, Employee>>({});
 
     const fetchRequests = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/leaves/requests");
+            const response = await api.get<LeaveRequest[]>("/leaves/requests");
             setRequests(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -30,22 +34,22 @@ export const useLeaveRequests = () => {
                     api.get("/master/leave-types/options").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
                 ]);
-                setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
+                setMasterCompanies((companyRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
-                    empRes.data.map((e) => ({
+                    (empRes.data as Employee[]).map((e) => ({
                         id: e.id,
                         name: `${e.employees_code || "-"} - ${e.first_name} ${e.last_name}`,
                         companies_id: e.companies_id,
                     }))
                 );
 
-                const empDataMap = {};
-                empRes.data.forEach((e) => {
-                    empDataMap[e.id] = e;
+                const empDataMap: Record<string, Employee> = {};
+                (empRes.data as Employee[]).forEach((e) => {
+                    if (e.id != null) empDataMap[String(e.id)] = e;
                 });
                 setEmployeeData(empDataMap);
 
-                setMasterLeaveTypes((ltRes.data || []).map((lt) => ({
+                setMasterLeaveTypes((ltRes.data || []).map((lt: LeaveTypeSetting) => ({
                     id: lt.id,
                     name: lt.name,
                     companies_id: lt.companies_id
@@ -58,13 +62,13 @@ export const useLeaveRequests = () => {
         fetchRequests();
     }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure you want to delete this request?")) return;
         try {
             await api.delete(`/leaves/requests/${id}`);
             fetchRequests();
         } catch (err) {
-            alert(err.response?.data?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

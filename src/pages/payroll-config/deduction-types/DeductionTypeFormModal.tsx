@@ -9,6 +9,8 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, DeductionType } from "../../../types/domain";
 
 const deductionSchema = z.object({
     id: z.number().optional(),
@@ -18,8 +20,19 @@ const deductionSchema = z.object({
     is_sso_deductible: z.boolean().default(false),
 });
 
+type DeductionTypeFormValues = z.infer<typeof deductionSchema>;
+
 // DeductionTypeFormModal owns the form and the save call; the page only says which row is being edited.
-const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }) => {
+interface DeductionTypeFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: DeductionType | null;
+    defaultCompanieId: string;
+    companies: Company[];
+}
+
+const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: DeductionTypeFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(deductionSchema),
         defaultValues: {
@@ -32,15 +45,23 @@ const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultComp
     // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
     useEffect(() => {
         if (!isOpen) return;
-        reset(editing || {
+        reset(editing
+            ? {
+                id: editing.id == null ? undefined : Number(editing.id),
+                companies_id: editing.companies_id,
+                name: editing.name ?? "",
+                is_tax_deductible: editing.is_tax_deductible,
+                is_sso_deductible: editing.is_sso_deductible,
+            }
+            : {
             id: undefined,
             companies_id: defaultCompanieId,
             is_tax_deductible: false,
             is_sso_deductible: false,
-        });
+            });
     }, [isOpen, editing, defaultCompanieId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: DeductionTypeFormValues) => {
         try {
             if (data.id) {
                 await api.put(`/deduction-types/${data.id}`, data);
@@ -50,7 +71,7 @@ const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultComp
             await onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Operation failed");
+            alert(apiErrorMessage(err, "Operation failed"));
         }
     };
 

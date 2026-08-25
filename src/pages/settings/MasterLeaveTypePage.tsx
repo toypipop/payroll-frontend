@@ -7,30 +7,32 @@ import Card from "../../components/common/Card";
 import { useAuth } from "../../hooks/useAuth";
 import useLeaveTypes from "./leave-types/useLeaveTypes";
 import LeaveTypeFormModal from "./leave-types/LeaveTypeFormModal";
+import type { TableColumn } from "../../types/api";
+import type { LeaveTypeSetting } from "../../types/domain";
 
 const MasterLeaveTypePage = () => {
     const { homeCompanyId } = useAuth();
     const { items, companyOptions, loading, fetchData, remove } = useLeaveTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<LeaveTypeSetting | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: LeaveTypeSetting) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
     const smallBtn = "px-3 py-1 text-xs w-auto";
 
-    const columns = [
+    const columns: TableColumn<LeaveTypeSetting>[] = [
         { label: "Leave Type", key: "name" },
         { label: "Company", render: (row) => row.companies?.name || "—" },
         { label: "Paid", render: (row) => row.is_paid ? "Yes" : "No" },
-        { label: "Max Days/Year", render: (row) => row.max_days_per_year > 0 ? row.max_days_per_year : "Unlimited" },
+        { label: "Max Days/Year", render: (row) => (row.max_days_per_year ?? 0) > 0 ? row.max_days_per_year : "Unlimited" },
         {
             label: "Actions",
             render: (row) => (

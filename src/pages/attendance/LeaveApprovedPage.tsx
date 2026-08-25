@@ -4,12 +4,14 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 import useLeaveApprovals from "./leave-approvals/useLeaveApprovals";
+import type { TableColumn } from "../../types/api";
+import type { LeaveRequest } from "../../types/domain";
 
 const LeaveApprovedPage = () => {
     const { user } = useAuth();
     const { pendingRequests, loading, decide } = useLeaveApprovals(user?.id);
 
-    const columns = [
+    const columns: TableColumn<LeaveRequest>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",
@@ -37,9 +39,9 @@ const LeaveApprovedPage = () => {
             sortKey: "start_date",
             sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             render: (row) => {
-                const formatDT = (d) => {
-                    const date = new Date(d);
-                    return date.toLocaleString('en-GB', {
+                const formatDT = (d?: string) => {
+                    if (!d) return "—";
+                    return new Date(d).toLocaleString('en-GB', {
                         day: '2-digit', month: '2-digit', year: '2-digit',
                         hour: '2-digit', minute: '2-digit'
                     });

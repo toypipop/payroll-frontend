@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, EarningType, Employee , EmployeeEarning } from "../../../types/domain";
+import type { ApiId } from "../../../types/api";
 
 // useEmployeeEarnings owns the page's server data: the assignments plus the three option lists the form cascades through.
 export const useEmployeeEarnings = () => {
-    const [items, setItems] = useState([]);
-    const [companies, setCompanies] = useState([]);
-    const [employees, setEmployees] = useState([]);
-    const [earningTypes, setEarningTypes] = useState([]);
+    const [items, setItems] = useState<EmployeeEarning[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [earningTypes, setEarningTypes] = useState<EarningType[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchItems = async () => {
@@ -36,7 +38,7 @@ export const useEmployeeEarnings = () => {
 
     useEffect(() => { fetchData(); }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this assignment?")) return;
         try {
             await api.delete(`/employee-earnings/${id}`);

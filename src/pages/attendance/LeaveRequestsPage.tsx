@@ -9,12 +9,14 @@ import HelpIcon from "../../components/common/HelpIcon";
 import { useAuth } from "../../hooks/useAuth";
 import useLeaveRequests from "./leave-requests/useLeaveRequests";
 import LeaveRequestFormModal from "./leave-requests/LeaveRequestFormModal";
+import type { TableColumn } from "../../types/api";
+import type { LeaveRequest } from "../../types/domain";
 
 const LeaveRequestsPage = () => {
     const { homeCompanyId } = useAuth();
     const { requests, loading, fetchRequests, remove, masterCompanies, masterEmployees, masterLeaveTypes, employeeData } = useLeaveRequests();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<LeaveRequest | null>(null);
 
     const openAdd = () => {
         setEditing(null);
@@ -22,7 +24,7 @@ const LeaveRequestsPage = () => {
     };
 
     // Only a pending request can still be changed, which is why Edit refuses anything else.
-    const openEdit = (req) => {
+    const openEdit = (req: LeaveRequest) => {
         if (req.status !== "Pending") {
             alert("Only pending requests can be edited");
             return;
@@ -31,7 +33,7 @@ const LeaveRequestsPage = () => {
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<LeaveRequest>[] = [
         { label: "Employee",
             sortKey: "employee_name",
             sortValue: (row) => `${row.employees?.first_name || ""} ${row.employees?.last_name || ""}`.trim().toLowerCase(),
@@ -59,9 +61,9 @@ const LeaveRequestsPage = () => {
             sortKey: "start_date",
             sortValue: (row) => (row.start_date ? new Date(row.start_date).getTime() : 0),
             render: (row) => {
-                const formatD = (d) => new Date(d).toLocaleDateString('en-GB', { timeZone: "Asia/Bangkok",
-                    day: '2-digit', month: '2-digit', year: '2-digit'
-                });
+                const formatD = (d?: string) => d
+                    ? new Date(d).toLocaleDateString('en-GB', { timeZone: "Asia/Bangkok", day: '2-digit', month: '2-digit', year: '2-digit' })
+                    : "—";
                 return <div className="whitespace-nowrap">{formatD(row.start_date)} - {formatD(row.end_date)}</div>;
             }
         },
@@ -106,7 +108,7 @@ const LeaveRequestsPage = () => {
                     </Button>
                     <Button
                         variant="danger"
-                        onClick={() => remove(row.id || row.ID)}
+                        onClick={() => remove(row.id)}
                         className={smallBtn}
                     >
                         Delete

@@ -107,7 +107,7 @@ export default function HelpPage() {
           const scenarioCategories = HELP_CATEGORIES.filter(c =>
             !['overview', 'employees', 'attendance', 'payroll', 'reports', 'settings', 'payroll-config'].includes(c.id)
           )
-          const renderCategoryCard = (cat) => {
+          const renderCategoryCard = (cat: (typeof HELP_CATEGORIES)[number]) => {
             const count = HELP_ARTICLES.filter((a) => a.category === cat.id).length
             return (
               <div

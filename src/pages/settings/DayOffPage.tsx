@@ -7,26 +7,28 @@ import Card from "../../components/common/Card";
 import { useAuth } from "../../hooks/useAuth";
 import useDayOffs, { weekdayName } from "./day-offs/useDayOffs";
 import DayOffFormModal from "./day-offs/DayOffFormModal";
+import type { TableColumn } from "../../types/api";
+import type { DayOff } from "../../types/domain";
 
 const DayOffPage = () => {
     const { homeCompanyId } = useAuth();
     const { items, companyOptions, loading, fetchData, remove } = useDayOffs();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<DayOff | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: DayOff) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
     const smallBtn = "px-3 py-1 text-xs w-auto";
 
-    const columns = [
+    const columns: TableColumn<DayOff>[] = [
         {
             label: "Weekday",
             sortKey: "weekday",

@@ -1,22 +1,28 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Company, DayOff, Employee, OptionRow, ScheduleConfig, TimeLog } from "../../../types/domain";
+import type { AppModule } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { ApiId } from "../../../types/api";
 
 // useTimelogs owns the page's server data: the logs plus every master list the form and the bulk modal read.
 export const useTimelogs = () => {
-    const [timeLogs, setTimeLogs] = useState([]);
+    const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
     const [loading, setLoading] = useState(true);
-    const [masterCompanies, setMasterCompanies] = useState([]);
-    const [masterEmployees, setMasterEmployees] = useState([]);
-    const [masterWorkLocations, setMasterWorkLocations] = useState([]);
-    const [employeeData, setEmployeeData] = useState({});
-    const [attendanceConfigs, setAttendanceConfigs] = useState({});
-    const [dayOffWeekdaysByCompany, setDayOffWeekdaysByCompany] = useState({});
+    // The three master lists are dropdown options this hook builds, not the API's full records.
+    const [masterCompanies, setMasterCompanies] = useState<OptionRow[]>([]);
+    const [masterEmployees, setMasterEmployees] = useState<OptionRow[]>([]);
+    const [masterWorkLocations, setMasterWorkLocations] = useState<OptionRow[]>([]);
+    // Keyed lookups the form reads while the user picks: employee by id, and per-company schedule and days off.
+    const [employeeData, setEmployeeData] = useState<Record<string, Employee>>({});
+    const [attendanceConfigs, setAttendanceConfigs] = useState<Record<string, ScheduleConfig>>({});
+    const [dayOffWeekdaysByCompany, setDayOffWeekdaysByCompany] = useState<Record<string, number[]>>({});
     const [canManageAttendanceSettings, setCanManageAttendanceSettings] = useState(false);
 
     const fetchTimeLogs = async () => {
         try {
             setLoading(true);
-            const response = await api.get("/timelogs");
+            const response = await api.get<TimeLog[]>("/timelogs");
             setTimeLogs(response.data);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -37,44 +43,45 @@ export const useTimelogs = () => {
                     api.get("/modules/mine").catch(() => ({ data: [] })),
                     api.get("/master/day-offs/options").catch(() => ({ data: [] })),
                 ]);
-                setMasterCompanies((companyRes.data || []).map((c) => ({ id: c.id, name: c.name })));
+                setMasterCompanies((companyRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
                 setMasterEmployees(
-                    empRes.data.map((e) => ({
+                    (empRes.data as Employee[]).map((e) => ({
                         id: e.id,
                         name: `${e.employees_code} - ${e.first_name} ${e.last_name}`,
                         companies_id: e.companies_id,
                     }))
                 );
                 
-                const empDataMap = {};
-                empRes.data.forEach((e) => {
-                    empDataMap[e.id] = e;
+                const empDataMap: Record<string, Employee> = {};
+                (empRes.data as Employee[]).forEach((e) => {
+                    if (e.id != null) empDataMap[String(e.id)] = e;
                 });
                 setEmployeeData(empDataMap);
                 
-                setMasterWorkLocations((locRes.data || []).map((l) => ({ 
+                setMasterWorkLocations((locRes.data || []).map((l: OptionRow) => ({ 
                     id: l.id, 
                     name: l.name,
                     companies_id: l.companies_id 
                 })));
 
-                const configMap = {};
-                (schedRes.data || []).forEach((c) => {
+                const configMap: Record<string, ScheduleConfig> = {};
+                (schedRes.data || []).forEach((c: ScheduleConfig) => {
                     if (c.companies_id) {
-                        configMap[c.companies_id] = c;
+                        configMap[String(c.companies_id)] = c;
                     }
                 });
                 setAttendanceConfigs(configMap);
 
-                const dayOffMap = {};
-                (dayOffRes.data || []).forEach((d) => {
-                    if (!dayOffMap[d.companies_id]) dayOffMap[d.companies_id] = [];
-                    dayOffMap[d.companies_id].push(d.weekday);
+                const dayOffMap: Record<string, number[]> = {};
+                (dayOffRes.data || []).forEach((d: DayOff) => {
+                    const key = String(d.companies_id);
+                    if (!dayOffMap[key]) dayOffMap[key] = [];
+                    if (d.weekday != null) dayOffMap[key].push(d.weekday);
                 });
                 setDayOffWeekdaysByCompany(dayOffMap);
 
-                const moduleKeys = [];
-                const collectKeys = (items) => {
+                const moduleKeys: string[] = [];
+                const collectKeys = (items?: AppModule[]) => {
                     (items || []).forEach((m) => {
                         if (m.module_key) moduleKeys.push(m.module_key);
                         if (m.children) collectKeys(m.children);
@@ -90,13 +97,13 @@ export const useTimelogs = () => {
         fetchTimeLogs();
     }, []);
 
-    const remove = async (id) => {
+    const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure you want to delete this log?")) return;
         try {
             await api.delete(`/timelogs/${id}`);
             fetchTimeLogs();
         } catch (err) {
-            alert(err.response?.data?.error || "Delete Failed");
+            alert(apiErrorMessage(err, "Delete Failed"));
         }
     };
 

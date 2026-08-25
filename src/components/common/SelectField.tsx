@@ -3,15 +3,18 @@ import type { CSSProperties, Ref, SelectHTMLAttributes } from "react";
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 
+// An option is whatever the caller hands over, as long as it carries an id and a label.
+// Both are optional because they come straight off an API row, where a `/options` endpoint and a full
+// record disagree on which fields are present; the component already renders a missing name as "".
 export interface SelectOption {
-    id: unknown;
-    name: string;
+    id?: unknown;
+    name?: string;
 }
 
 interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "onChange" | "value"> {
     label?: string;
     options?: SelectOption[];
-    error?: unknown;
+    error?: string;
     placeholder?: string;
     style?: CSSProperties;
     containerClassName?: string;
@@ -295,7 +298,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     {dropdownList}
                 </div>
 
-                {error && <div className="text-[12px] text-danger mt-[4px]">{String(error)}</div>}
+                {error && <div className="text-[12px] text-danger mt-[4px]">{error}</div>}
             </div>
         );
     },

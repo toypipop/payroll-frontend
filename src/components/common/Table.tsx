@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import type { ChangeEvent, Key, MouseEvent, ReactElement, ReactNode } from "react";
 import type { SortState, TableColumn, TableRow } from "../../types/api";
 
-interface TableProps<T extends TableRow = TableRow> {
+interface TableProps<T extends object = TableRow> {
     columns: TableColumn<T>[];
     data?: T[];
     onRowClick?: (row: T) => void;
@@ -53,7 +53,7 @@ const SearchIcon = () => (
 
 const ACTION_LABEL_PATTERN = /^(actions?|command|tools?)$/i;
 
-const isActionColumn = (col: TableColumn) => {
+const isActionColumn = <T extends object>(col: TableColumn<T>) => {
     const label = String(col.label ?? "").trim();
     return label === "" || ACTION_LABEL_PATTERN.test(label);
 };
@@ -76,7 +76,7 @@ const getRenderedText = (value: unknown): string => {
     return "";
 };
 
-const getColumnValue = <T extends TableRow>(col: TableColumn<T>, row: T, rowIndex = 0) => {
+const getColumnValue = <T extends object>(col: TableColumn<T>, row: T, rowIndex = 0) => {
     if (col.sortValue && typeof col.sortValue === "function") return col.sortValue(row);
     if (col.searchValue && typeof col.searchValue === "function") return col.searchValue(row);
     if (col.sortKey) return getNestedValue(row, col.sortKey);
@@ -85,7 +85,7 @@ const getColumnValue = <T extends TableRow>(col: TableColumn<T>, row: T, rowInde
     return null;
 };
 
-const getSortableKey = (col: TableColumn): string | null => {
+const getSortableKey = <T extends object>(col: TableColumn<T>): string | null => {
     if (col.sortable === false) return null;
     if (col.sortValue || col.searchValue || col.sortKey || col.key) return col.sortKey || col.key || String(col.label ?? "");
     if (col.render && !isActionColumn(col)) return String(col.label ?? "");
@@ -120,7 +120,7 @@ const normalizeSortValue = (value: unknown) => {
     return raw.toLowerCase();
 };
 
-const Table = <T extends TableRow = TableRow>({
+const Table = <T extends object = TableRow>({
     columns,
     data = [],
     onRowClick,
@@ -343,7 +343,7 @@ const Table = <T extends TableRow = TableRow>({
                                 const isEven = rowIndex % 2 === 0;
                                 const key = getRowKey
                                     ? getRowKey(row, absoluteRowIndex)
-                                    : (row && (row.id ?? row.module_id)) ?? absoluteRowIndex;
+                                    : (row && ((row as TableRow).id ?? (row as TableRow).module_id)) ?? absoluteRowIndex;
 
                                 const before = renderBeforeRow ? renderBeforeRow(row, absoluteRowIndex, paginatedData) : null;
                                 const after = renderAfterRow ? renderAfterRow(row, absoluteRowIndex, paginatedData) : null;

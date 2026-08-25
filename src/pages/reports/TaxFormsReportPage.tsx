@@ -10,21 +10,25 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import type { PND1Report, PND1Row, Tawi50Report } from "../../types/reports";
+import type { ApiId, TableColumn } from "../../types/api";
+import type { PayrollTransaction } from "../../types/api";
+import { apiErrorMessage } from "../../utils/apiError";
 
-const fc = (v) =>
+const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fd = (d) => {
+const fd = (d: number | string | null | undefined) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 /* ── A4 PND.1 Document ──────────────────────────────────────────────────── */
-const A4PND1 = ({ data }) => {
+const A4PND1 = ({ data }: { data: PND1Report | null }) => {
     if (!data) return null;
     const { cycle, company, rows = [], total_gross, total_tax, total_sso } = data;
 
-    const printColumns = [
+    const printColumns: TableColumn<PND1Row>[] = [
         { label: "#", render: (r, i) => i + 1 },
         { label: "Companies", render: (r) => r.companies_name },
         { label: "Code", render: (r) => r.employees_code },
@@ -100,7 +104,7 @@ const A4PND1 = ({ data }) => {
 };
 
 /* ── A4 50 Tawi Certificate ─────────────────────────────────────────────── */
-const A4Tawi50 = ({ data }) => {
+const A4Tawi50 = ({ data }: { data: Tawi50Report | null }) => {
     if (!data) return null;
     const { cycle, company, transaction: tx } = data;
     return (
@@ -162,8 +166,8 @@ const TaxFormsReportPage = () => {
     const {
         cycles, selectedCycleId, setSelectedCycleId,
         data: pnd1Data, loadingCycles, loadingData: loadingPND1,
-    } = useClosedCycleReport((cycleId) => `/reports/tax-forms/pnd1/${cycleId}`);
-    const [tawiData, setTawiData] = useState(null);
+    } = useClosedCycleReport<PND1Report>((cycleId) => `/reports/tax-forms/pnd1/${cycleId}`);
+    const [tawiData, setTawiData] = useState<Tawi50Report | null>(null);
     const [loadingTawi, setLoadingTawi] = useState(false);
     const [viewMode, setViewMode] = useState("pnd1"); // "pnd1" | "pnd1-print" | "tawi"
 
@@ -175,9 +179,9 @@ const TaxFormsReportPage = () => {
 
     useA4Preview(viewMode === "pnd1-print" || viewMode === "tawi", () => setViewMode("pnd1"));
 
-    const handlePrint = (id) => printElement(id);
+    const handlePrint = (id: string) => printElement(id);
 
-    const handleView50Tawi = async (txId) => {
+    const handleView50Tawi = async (txId: ApiId) => {
         try {
             setLoadingTawi(true);
             setTawiData(null);
@@ -185,14 +189,14 @@ const TaxFormsReportPage = () => {
             const res = await api.get(`/reports/tax-forms/50tawi/${txId}`);
             setTawiData(res.data);
         } catch (err) {
-            alert(err?.response?.data?.error || "Failed to load 50 Tawi certificate");
+            alert(apiErrorMessage(err, "Failed to load 50 Tawi certificate"));
             setViewMode("pnd1");
         } finally { setLoadingTawi(false); }
     };
 
     const cycle = pnd1Data?.cycle;
 
-    const columns = [
+    const columns: TableColumn<PND1Row>[] = [
         {
             label: "Employee",
             render: (r) => (
@@ -215,28 +219,21 @@ const TaxFormsReportPage = () => {
             render: (r) => <span className="font-mono text-danger-text font-semibold">{fc(r.tax_withheld)}</span>,
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
-        {
-            label: "",
-            render: (r) => (
-                <Button variant="ghost" onClick={() => handleView50Tawi(r.employees_id)} className="text-xs px-3 py-1.5 w-auto">
-                    50 Tawi
-                </Button>
-            ),
-        },
     ];
 
     // PND1 has employees via transaction API returns EmployeesCode not ID Fetch transaction list, store IDs by code
-    const [txMap, setTxMap] = useState({}); // employees_code -> tx.id
+    // employees_code -> transaction id, so a row can open that employee's certificate.
+    const [txMap, setTxMap] = useState<Record<string, ApiId>>({});
 
     useEffect(() => {
         if (!selectedCycleId) return;
         (async () => {
             try {
                 const res = await api.get(`/reports/tax-forms/transactions/${selectedCycleId}`);
-                const map = {};
-                (res.data?.transactions || []).forEach((tx) => {
+                const map: Record<string, ApiId> = {};
+                (res.data?.transactions || []).forEach((tx: PayrollTransaction) => {
                     if (tx.employees?.employees_code) {
-                        map[tx.employees.employees_code] = tx.id;
+                        map[String(tx.employees.employees_code)] = tx.id as ApiId;
                     }
                 });
                 setTxMap(map);
@@ -244,12 +241,12 @@ const TaxFormsReportPage = () => {
         })();
     }, [selectedCycleId]);
 
-    const enrichedColumns = [
+    const enrichedColumns: TableColumn<PND1Row>[] = [
         ...columns.slice(0, 5),
         {
             label: "",
             render: (r) => {
-                const txId = txMap[r.employees_code];
+                const txId = txMap[r.employees_code ?? ""];
                 if (!txId) return null;
                 return (
                     <Button variant="ghost" onClick={() => handleView50Tawi(txId)} className="text-xs px-3 py-1.5 w-auto">
@@ -332,7 +329,7 @@ const TaxFormsReportPage = () => {
             </Card>
 
             {/* Tab buttons */}
-            {pnd1Data && pnd1Data.rows?.length > 0 && (
+            {pnd1Data && (pnd1Data.rows?.length ?? 0) > 0 && (
                 <div className="flex gap-[10px] mb-[16px]">
                     <Button
                         variant="primary"

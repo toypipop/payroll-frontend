@@ -7,24 +7,26 @@ import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 import useEmployeeDeductions from "./employee-deductions/useEmployeeDeductions";
 import EmployeeDeductionFormModal from "./employee-deductions/EmployeeDeductionFormModal";
+import type { TableColumn } from "../../types/api";
+import type { EmployeeDeduction } from "../../types/domain";
 
 const EmployeeDeductionsPage = () => {
     const { homeCompanyId } = useAuth();
     const { items, companies, employees, deductionTypes, loading, fetchItems, remove } = useEmployeeDeductions();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<EmployeeDeduction | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: EmployeeDeduction) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<EmployeeDeduction>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",

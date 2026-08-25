@@ -9,6 +9,8 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import DateField from "../../../components/common/DateField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company } from "../../../types/domain";
 
 const cycleSchema = z.object({
     cycle_name: z.string().min(1, "Cycle name is required"),
@@ -20,8 +22,18 @@ const cycleSchema = z.object({
     path: ["end_date"],
 });
 
+type CycleFormValues = z.infer<typeof cycleSchema>;
+
 // CycleFormModal owns the create form and the save call. A cycle is never edited here, only created or closed.
-const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }) => {
+interface CycleFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    homeCompanyId: string;
+    companies: Company[];
+}
+
+const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: CycleFormModalProps) => {
     const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
         resolver: zodResolver(cycleSchema),
         defaultValues: { companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" },
@@ -33,7 +45,7 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }) 
         reset({ companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" });
     }, [isOpen, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: CycleFormValues) => {
         try {
             await api.post("/payroll/cycles", {
                 cycle_name: data.cycle_name,
@@ -44,7 +56,7 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }) 
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Failed to create cycle");
+            alert(apiErrorMessage(err, "Failed to create cycle"));
         }
     };
 

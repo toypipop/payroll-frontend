@@ -8,24 +8,26 @@ import Badge from "../../components/common/Badge";
 import { useAuth } from "../../hooks/useAuth";
 import useDeductionTypes from "./deduction-types/useDeductionTypes";
 import DeductionTypeFormModal from "./deduction-types/DeductionTypeFormModal";
+import type { TableColumn } from "../../types/api";
+import type { DeductionType } from "../../types/domain";
 
 const DeductionTypesPage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
     const { deductions, companies, loading, fetchDeductions, remove } = useDeductionTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<DeductionType | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: DeductionType) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<DeductionType>[] = [
         { label: "Deduction Name", key: "name" },
         {
             label: "Tax Deductible",

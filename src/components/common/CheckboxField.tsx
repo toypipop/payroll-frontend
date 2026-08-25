@@ -3,7 +3,7 @@ import type { InputHTMLAttributes } from "react";
 
 interface CheckboxFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
-    error?: unknown;
+    error?: string;
 }
 
 // Use forwardRef for React Hook Form
@@ -22,7 +22,7 @@ const CheckboxField = React.forwardRef<HTMLInputElement, CheckboxFieldProps>(
                 />
                 <span className="cursor-pointer text-sm font-medium text-secondary">{label}</span>
             </label>
-            {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
+            {error && <span className="mt-0.5 text-xs text-danger">{error}</span>}
         </div>
     ),
 );

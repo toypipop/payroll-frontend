@@ -9,6 +9,8 @@ import HelpIcon from "../../components/common/HelpIcon";
 import { useAuth } from "../../hooks/useAuth";
 import useEmployees from "./employees/useEmployees";
 import EmployeeFormModal from "./employees/EmployeeFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Employee } from "../../types/domain";
 
 const EmployeesListPage = () => {
     const { homeCompanyId } = useAuth();
@@ -17,19 +19,19 @@ const EmployeesListPage = () => {
         masterDepts, masterPos, masterRoles, masterCompanies, masterBanks, masterEmploymentTypes,
     } = useEmployees();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Employee | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Employee) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Employee>[] = [
         { label: "Code", key: "employees_code", searchableKeys: ['employees_code'] },
         {
             label: "Full Name",

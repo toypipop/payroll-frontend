@@ -6,6 +6,7 @@ import api from "../../api/axiosInstance";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
 import InputField from "../../components/common/InputField";
+import { apiErrorMessage } from "../../utils/apiError";
 
 interface LoginResponse {
     id: number;
@@ -44,7 +45,7 @@ const LoginPage = () => {
                 setError(
                     loginError.code === "ERR_NETWORK"
                         ? "Can't Connect To Server"
-                        : loginError.response?.data?.error || "Invalid credentials",
+                        : apiErrorMessage(loginError, "Invalid credentials"),
                 );
                 return;
             }

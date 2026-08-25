@@ -6,18 +6,20 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import usePayrollConfigs from "./global-settings/usePayrollConfigs";
 import PayrollConfigModal from "./global-settings/PayrollConfigModal";
+import type { TableColumn } from "../../types/api";
+import type { Company } from "../../types/domain";
 
 const PayrollGlobalSettingsPage = () => {
     const { configs, loading, fetchConfigs } = usePayrollConfigs();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedCompanie, setSelectedCompanie] = useState(null);
+    const [selectedCompanie, setSelectedCompanie] = useState<Company | null>(null);
 
-    const openEdit = (companie) => {
+    const openEdit = (companie: Company) => {
         setSelectedCompanie(companie);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Company>[] = [
         { label: "Companies", key: "name" },
         {
             label: "SSO Rate",
@@ -28,7 +30,7 @@ const PayrollGlobalSettingsPage = () => {
             render: (row) => {
                 const labels = { Progressive: "Thai Progressive Rate", None: "No Tax" };
                 const val = row.payroll_config?.tax_calculation;
-                return val ? (labels[val] || val) : <span className="text-subtle">Not Set</span>;
+                return val ? (labels[val as keyof typeof labels] || val) : <span className="text-subtle">Not Set</span>;
             }
         },
         {

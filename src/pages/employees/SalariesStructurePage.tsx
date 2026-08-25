@@ -8,6 +8,7 @@ import Badge from "../../components/common/Badge";
 import useSalaries from "./salaries/useSalaries";
 import SalaryFormModal from "./salaries/SalaryFormModal";
 import SalaryHistoryModal from "./salaries/SalaryHistoryModal";
+import SalaryRecordEditModal from "./salaries/SalaryRecordEditModal";
 import {
     getEmployeeId,
     getSalaryBaseAmount,
@@ -16,9 +17,12 @@ import {
     getSalaryRecordId,
     isSoftDeleted,
 } from "./salaries/salaryShape";
+import type { TableColumn } from "../../types/api";
+import type { SalaryRow } from "./salaries/useSalaries";
+import type { SalaryHistoryRow } from "../../types/domain";
 
 // formatDate renders a stored effective date as YYYY/MM/DD, or the fallback when the row carries Go's zero date.
-const formatDate = (date, fallback) => {
+const formatDate = (date: string, fallback: string) => {
     if (!date || date.startsWith("0001")) return fallback;
     try {
         const d = new Date(date);
@@ -37,11 +41,13 @@ const SalariesStructurePage = () => {
         historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord,
     } = useSalaries();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedEmp, setSelectedEmp] = useState(null);
+    const [selectedEmp, setSelectedEmp] = useState<SalaryRow | null>(null);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-    const [historyEmp, setHistoryEmp] = useState(null);
+    const [historyEmp, setHistoryEmp] = useState<SalaryRow | null>(null);
+    // The record whose date is being moved, or null when that modal is closed.
+    const [editingRecord, setEditingRecord] = useState<SalaryHistoryRow | null>(null);
 
-    const openEdit = (emp) => {
+    const openEdit = (emp: SalaryRow) => {
         if (!getEmployeeId(emp)) {
             alert("Unable to find employee id for this row.");
             return;
@@ -50,7 +56,7 @@ const SalariesStructurePage = () => {
         setIsModalOpen(true);
     };
 
-    const openHistory = (emp) => {
+    const openHistory = (emp: SalaryRow) => {
         const empId = getEmployeeId(emp);
         if (!empId) {
             alert("Unable to find employee id for this row.");
@@ -67,7 +73,7 @@ const SalariesStructurePage = () => {
         clearHistory();
     };
 
-    const columns = [
+    const columns: TableColumn<SalaryRow>[] = [
         { label: "Code", key: "employees_code", searchableKeys: ['employees_code'] },
         {
             label: "Full Name",
@@ -168,7 +174,18 @@ const SalariesStructurePage = () => {
                 employee={historyEmp}
                 rows={historyRows}
                 loading={historyLoading}
-                onDelete={(recordId) => deleteHistoryRecord(recordId, getEmployeeId(historyEmp))}
+                onDelete={(recordId) => deleteHistoryRecord(recordId, getEmployeeId(historyEmp) ?? undefined)}
+                onEdit={setEditingRecord}
+            />
+
+            <SalaryRecordEditModal
+                record={editingRecord}
+                onClose={() => setEditingRecord(null)}
+                onSaved={() => {
+                    // The move changes both the history and which record is in force, so reload both.
+                    fetchHistory(getEmployeeId(historyEmp) ?? undefined);
+                    fetchSalaries();
+                }}
             />
         </>
     );

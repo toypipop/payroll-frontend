@@ -8,24 +8,27 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import { apiErrorMessage } from "../../utils/apiError";
+import type { PayslipReport, ReportCompany } from "../../types/reports";
+import type { ApiId, PayrollCycle, PayrollTransaction, PayrollTransactionDetail, TableColumn } from "../../types/api";
 
-const formatCurrency = (val) =>
+const formatCurrency = (val: number | string | null | undefined) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatDate = (d) => {
+const formatDate = (d: number | string | null | undefined) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 // A4 payslip document
-const A4Payslip = ({ slip, cycle, company }) => {
+const A4Payslip = ({ slip, cycle, company }: { slip: PayrollTransaction | null; cycle: PayrollCycle | null; company: ReportCompany | null }) => {
     if (!slip) return null;
 
     const earnings = slip.details?.filter((d) => d.type === "earning") || [];
     const deductions = slip.details?.filter((d) => d.type === "deduction") || [];
     const totalDeductions = deductions.reduce((s, d) => s + (d.amount || 0), 0);
 
-    const earningsColumns = [
+    const earningsColumns: TableColumn<PayrollTransactionDetail>[] = [
         {
             label: "Earning",
             render: (item) => item.item_name,
@@ -40,7 +43,7 @@ const A4Payslip = ({ slip, cycle, company }) => {
         },
     ];
 
-    const deductionsColumns = [
+    const deductionsColumns: TableColumn<PayrollTransactionDetail>[] = [
         {
             label: "Deduction",
             render: (item) => item.item_name,
@@ -177,13 +180,13 @@ const A4Payslip = ({ slip, cycle, company }) => {
 };
 
 const PayslipsReportPage = () => {
-    const [cycles, setCycles] = useState([]);
+    const [cycles, setCycles] = useState<PayrollCycle[]>([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [selectedCycle, setSelectedCycle] = useState(null);
-    const [transactions, setTransactions] = useState([]);
+    const [selectedCycle, setSelectedCycle] = useState<PayrollCycle | null>(null);
+    const [transactions, setTransactions] = useState<PayrollTransaction[]>([]);
     const [loadingCycles, setLoadingCycles] = useState(true);
     const [loadingTx, setLoadingTx] = useState(false);
-    const [slip, setSlip] = useState(null);
+    const [slip, setSlip] = useState<PayslipReport | null>(null);
     const [isSlipOpen, setIsSlipOpen] = useState(false);
     const [loadingSlip, setLoadingSlip] = useState(false);
 
@@ -191,9 +194,9 @@ const PayslipsReportPage = () => {
         try {
             setLoadingCycles(true);
             const res = await api.get("/payroll/cycles");
-            const closed = (res.data || []).filter((c) => c.is_closed);
+            const closed = ((res.data || []) as PayrollCycle[]).filter((c) => c.is_closed);
             setCycles(closed);
-            if (closed.length > 0) setSelectedCycleId(closed[0].id);
+            if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
         } catch (err) {
             console.error(err);
         } finally {
@@ -201,7 +204,7 @@ const PayslipsReportPage = () => {
         }
     };
 
-    const fetchTransactions = async (cycleId) => {
+    const fetchTransactions = async (cycleId?: ApiId) => {
         if (!cycleId) return;
         try {
             setLoadingTx(true);
@@ -224,7 +227,7 @@ const PayslipsReportPage = () => {
         setSlip(null);
     });
 
-    const handleViewSlip = async (transactionId) => {
+    const handleViewSlip = async (transactionId?: ApiId) => {
         try {
             setLoadingSlip(true);
             setIsSlipOpen(true);
@@ -232,7 +235,7 @@ const PayslipsReportPage = () => {
             const res = await api.get(`/payslips/${transactionId}`);
             setSlip(res.data);
         } catch (err) {
-            alert(err.response?.data?.error || "Failed to load payslip");
+            alert(apiErrorMessage(err, "Failed to load payslip"));
             setIsSlipOpen(false);
         } finally {
             setLoadingSlip(false);
@@ -250,7 +253,7 @@ const PayslipsReportPage = () => {
     const cycleData = slip?.cycle;
     const companyData = slip?.company;
 
-    const columns = [
+    const columns: TableColumn<PayrollTransaction>[] = [
         {
             label: "Employee",
             render: (row) => (
@@ -351,7 +354,7 @@ const PayslipsReportPage = () => {
                     </div>
                 ) : slipData ? (
                     <div className="shadow-[0_4px_32px_rgba(0,0,0,0.4)] rounded-[4px]">
-                        <A4Payslip slip={slipData} cycle={cycleData} company={companyData} />
+                        <A4Payslip slip={slipData} cycle={cycleData ?? null} company={companyData ?? null} />
                     </div>
                 ) : null}
             </div>

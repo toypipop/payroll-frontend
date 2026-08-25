@@ -7,6 +7,8 @@ import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company } from "../../../types/domain";
 
 const companiesSchema = z.object({
     name: z.string().min(1, "Companies name is required"),
@@ -22,10 +24,19 @@ const companiesSchema = z.object({
         .regex(/^\d+$/, "Phone must contain only numbers"),
 });
 
+type CompanyFormValues = z.infer<typeof companiesSchema>;
+
 const EMPTY = { name: "", tax_id: "", address: "", phone: "" };
 
 // CompanyFormModal owns the form and the save call; the page only says which row is being edited.
-const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }) => {
+interface CompanyFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Company | null;
+}
+
+const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }: CompanyFormModalProps) => {
     const {
         register,
         handleSubmit,
@@ -44,7 +55,7 @@ const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }) => {
             : EMPTY);
     }, [isOpen, editing, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: CompanyFormValues) => {
         try {
             if (editing) {
                 await api.put(`/companies/${editing.id}`, data);
@@ -54,7 +65,7 @@ const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }) => {
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

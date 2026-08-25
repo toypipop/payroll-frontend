@@ -6,20 +6,21 @@ import Table from "../../components/common/Table";
 import Badge from "../../components/common/Badge";
 import useMyPayslips from "./my-payslips/useMyPayslips";
 import PayslipDetailsModal from "./my-payslips/PayslipDetailsModal";
+import type { MySlip, TableColumn } from "../../types/api";
 
-const formatCurrency = (value) =>
+const formatCurrency = (value: number | string | null | undefined) =>
     Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatDate = (value) => {
+const formatDate = (value: number | string | null | undefined) => {
     if (!value) return "-";
     return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 const MyPayslipsPage = () => {
     const { slips, loading } = useMyPayslips();
-    const [selected, setSelected] = useState(null);
+    const [selected, setSelected] = useState<MySlip | null>(null);
 
-    const columns = [
+    const columns: TableColumn<MySlip>[] = [
         {
             label: "Payroll Cycle",
             sortKey: "cycle_name",

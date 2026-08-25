@@ -10,6 +10,8 @@ import InputField from "../../../components/common/InputField";
 import DateField from "../../../components/common/DateField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, Holiday } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
@@ -18,8 +20,19 @@ const schema = z.object({
     is_paid: z.boolean().default(true),
 });
 
+type HolidayFormValues = z.infer<typeof schema>;
+
 // HolidayFormModal owns the form and the save call; the page only says which row is being edited.
-const HolidayFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }) => {
+interface HolidayFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Holiday | null;
+    homeCompanyId: string;
+    companyOptions: Company[];
+}
+
+const HolidayFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }: HolidayFormModalProps) => {
     const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, date: "", name: "", is_paid: true },
@@ -38,7 +51,7 @@ const HolidayFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, co
             : { companies_id: homeCompanyId, date: "", name: "", is_paid: true });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: HolidayFormValues) => {
         try {
             const payload = { ...data, companies_id: Number(data.companies_id) };
             if (editing) {
@@ -49,7 +62,7 @@ const HolidayFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, co
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

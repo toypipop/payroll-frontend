@@ -6,17 +6,19 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import type { JournalEntry, PayrollAnalysisReport } from "../../types/reports";
+import type { ApiId, PayrollTransaction, TableColumn } from "../../types/api";
 
-const fc = (v) =>
+const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const fd = (d) => {
+const fd = (d: number | string | null | undefined) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
 // Excel/CSV export utilities
-const exportExcel = (data) => {
+const exportExcel = (data: PayrollAnalysisReport | null) => {
     if (!data?.transactions?.length) return;
     const { cycle, company, transactions, summary } = data;
 
@@ -25,7 +27,7 @@ const exportExcel = (data) => {
         "Base Salary", "Gross Earnings", "Other Deductions", "SSO (Emp)", "Tax Withheld", "Net Pay",
     ];
 
-    const rows = transactions.map((tx) => [
+    const rows = (transactions ?? []).map((tx) => [
         tx.employees?.companies?.name || "",
         tx.employees?.employees_code || "",
         `${tx.employees?.first_name || ""} ${tx.employees?.last_name || ""}`,
@@ -39,14 +41,15 @@ const exportExcel = (data) => {
         tx.net_pay?.toFixed(2) || "0.00",
     ]);
 
+    const total = (value?: number) => (value ?? 0).toFixed(2);
     const totalsRow = [
         "TOTAL", "", "", "", "",
         "",
-        summary.total_gross.toFixed(2),
-        summary.total_other_deductions.toFixed(2),
-        summary.total_sso_employee.toFixed(2),
-        summary.total_tax.toFixed(2),
-        summary.total_net.toFixed(2),
+        total(summary?.total_gross),
+        total(summary?.total_other_deductions),
+        total(summary?.total_sso_employee),
+        total(summary?.total_tax),
+        total(summary?.total_net),
     ];
 
     const csv = [headers, ...rows, [""], totalsRow]
@@ -63,7 +66,13 @@ const exportExcel = (data) => {
 };
 
 /* ── Summary Cards ──────────────────────────────────────────────────────── */
-const SummaryCard = ({ label, value, color }) => (
+interface SummaryCardProps {
+    label: string;
+    value?: number;
+    color?: string;
+}
+
+const SummaryCard = ({ label, value, color }: SummaryCardProps) => (
     <div className="flex-[1_1_160px] rounded-[10px] border border-line-muted bg-white px-5 py-4">
         <div className="text-[11px] font-bold text-subtle uppercase tracking-[0.06em]">{label}</div>
         <div className="mt-1.5 font-mono text-xl font-extrabold text-main" style={color ? { color } : undefined}>฿{fc(value)}</div>
@@ -71,7 +80,7 @@ const SummaryCard = ({ label, value, color }) => (
 );
 
 /* ── Expanded Detail Panel ──────────────────────────────────────────────── */
-const DetailPanel = ({ tx }) => {
+const DetailPanel = ({ tx }: { tx: PayrollTransaction | null }) => {
     if (!tx) return null;
     const earnings = tx.details?.filter((d) => d.type === "earning") || [];
     const deductions = tx.details?.filter((d) => d.type === "deduction") || [];
@@ -106,12 +115,12 @@ const DetailPanel = ({ tx }) => {
 // Page component
 const PayrollAnalysisPage = () => {
     const { cycles, selectedCycleId, setSelectedCycleId, data, loadingCycles, loadingData } =
-        useClosedCycleReport((cycleId) => `/reports/payroll-analysis/${cycleId}`);
-    const [expandedTx, setExpandedTx] = useState(null);
+        useClosedCycleReport<PayrollAnalysisReport>((cycleId) => `/reports/payroll-analysis/${cycleId}`);
+    const [expandedTx, setExpandedTx] = useState<ApiId | null>(null);
     const [activeTab, setActiveTab] = useState("register"); // "register" | "journal"
 
     // A new cycle's rows replace the old ones, so an expanded row from the previous cycle must not stay open.
-    const selectCycle = (cycleId) => {
+    const selectCycle = (cycleId: string) => {
         setExpandedTx(null);
         setSelectedCycleId(cycleId);
     };
@@ -121,7 +130,7 @@ const PayrollAnalysisPage = () => {
     const transactions = useMemo(() => data?.transactions || [], [data]);
     const journal = useMemo(() => data?.journal || [], [data]);
 
-    const registerColumns = useMemo(() => [
+    const registerColumns = useMemo<TableColumn<PayrollTransaction>[]>(() => [
         {
             label: "Employee",
             render: (tx) => (
@@ -162,7 +171,7 @@ const PayrollAnalysisPage = () => {
             render: (tx) => (
                 <Button
                     variant="ghost"
-                    onClick={() => setExpandedTx(expandedTx === tx.id ? null : tx.id)}
+                    onClick={() => setExpandedTx(expandedTx === tx.id ? null : tx.id ?? null)}
                     className="w-auto px-3 py-[5px] text-xs"
                 >
                     {expandedTx === tx.id ? "▲ Hide" : "▼ Details"}
@@ -171,7 +180,7 @@ const PayrollAnalysisPage = () => {
         },
     ], [expandedTx]);
 
-    const journalColumns = [
+    const journalColumns: TableColumn<JournalEntry>[] = [
         { label: "Account", render: (r) => <span className="font-medium">{r.account}</span> },
         {
             label: "Debit (฿)",
@@ -192,7 +201,7 @@ const PayrollAnalysisPage = () => {
             <Table
                 columns={registerColumns}
                 data={transactions}
-                getRowKey={(row) => row.id}
+                getRowKey={(row) => String(row.id)}
                 renderAfterRow={(row, rowIndex, allRows) => {
                     if (expandedTx !== row.id) return null;
                     const isLastRow = rowIndex === allRows.length - 1;
@@ -244,7 +253,7 @@ const PayrollAnalysisPage = () => {
                 <div className="flex flex-wrap gap-[12px] mb-[20px]">
                     <SummaryCard label="Total Gross Earnings" value={summary.total_gross} color="var(--status-success-text)" />
                     <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="var(--accent-color)" />
-                    <SummaryCard label="SSO (Employee + Employer)" value={summary.total_sso_employee + summary.total_sso_employer} color="var(--primary-color)" />
+                    <SummaryCard label="SSO (Employee + Employer)" value={(summary.total_sso_employee ?? 0) + (summary.total_sso_employer ?? 0)} color="var(--primary-color)" />
                     <SummaryCard label="Tax Withheld" value={summary.total_tax} color="var(--status-danger-text)" />
                     <SummaryCard label="Total Net Pay" value={summary.total_net} color="var(--text-main)" />
                 </div>

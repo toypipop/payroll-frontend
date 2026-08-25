@@ -7,24 +7,26 @@ import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 import useRoles from "./roles/useRoles";
 import RoleFormModal from "./roles/RoleFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Role } from "../../types/domain";
 
 const RolesPage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
     const { roles, companies, loading, fetchRoles, remove } = useRoles();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Role | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Role) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Role>[] = [
         { label: "Role Name", key: "roles_name" },
         {
             label: "Companies",

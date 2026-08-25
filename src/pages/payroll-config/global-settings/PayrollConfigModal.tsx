@@ -8,6 +8,8 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company } from "../../../types/domain";
 
 const payrollConfigSchema = z.object({
     companies_id: z.number(),
@@ -17,8 +19,17 @@ const payrollConfigSchema = z.object({
     tax_calculation: z.string().min(1, "Tax method is required"),
 });
 
+type PayrollConfigFormValues = z.infer<typeof payrollConfigSchema>;
+
 // PayrollConfigModal owns the config form and the save call; the page only says which company is being configured.
-const PayrollConfigModal = ({ isOpen, onClose, onSaved, company }) => {
+interface PayrollConfigModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    company: Company | null;
+}
+
+const PayrollConfigModal = ({ isOpen, onClose, onSaved, company }: PayrollConfigModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(payrollConfigSchema),
         defaultValues: {
@@ -34,7 +45,7 @@ const PayrollConfigModal = ({ isOpen, onClose, onSaved, company }) => {
     useEffect(() => {
         if (!isOpen || !company) return;
         reset({
-            companies_id: company.id,
+            companies_id: Number(company.id),
             sso_rate: company.payroll_config?.sso_rate || 5.0,
             sso_max_amount: company.payroll_config?.sso_max_amount || 750,
             sso_min_salary: company.payroll_config?.sso_min_salary || 1650,
@@ -42,13 +53,13 @@ const PayrollConfigModal = ({ isOpen, onClose, onSaved, company }) => {
         });
     }, [isOpen, company, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: PayrollConfigFormValues) => {
         try {
             await api.post("/global", data);
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

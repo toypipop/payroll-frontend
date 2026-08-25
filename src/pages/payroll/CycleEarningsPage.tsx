@@ -8,8 +8,10 @@ import SelectField from "../../components/common/SelectField";
 import { useAuth } from "../../hooks/useAuth";
 import useCycleEarnings from "./cycle-earnings/useCycleEarnings";
 import CycleEarningFormModal from "./cycle-earnings/CycleEarningFormModal";
+import type { TableColumn } from "../../types/api";
+import type { CycleEarning } from "../../types/domain";
 
-const formatDate = (value) => {
+const formatDate = (value: number | string | null | undefined) => {
     if (!value) return "-";
     return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok",
         day: "2-digit",
@@ -24,14 +26,14 @@ const CycleEarningsPage = () => {
     const [selectedCycleId, setSelectedCycleId] = useState("");
     const { items, companies, cycles, employees, earningTypes, loading, refreshItems, remove } = useCycleEarnings(selectedCycleId);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<CycleEarning | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: CycleEarning) => {
         setEditing(row);
         setIsModalOpen(true);
     };
@@ -40,7 +42,7 @@ const CycleEarningsPage = () => {
     const selectedCycleLabel = cycles.find((c) => String(c.id) === String(selectedCycleId));
     const selectedCycleClosed = !!selectedCycleLabel?.is_closed;
 
-    const columns = [
+    const columns: TableColumn<CycleEarning>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",

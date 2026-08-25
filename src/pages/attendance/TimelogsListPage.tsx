@@ -9,6 +9,8 @@ import useTimelogs from "./timelogs/useTimelogs";
 import TimeLogFormModal from "./timelogs/TimeLogFormModal";
 import BulkCreateModal from "./timelogs/BulkCreateModal";
 import { bangkokDateKey, bangkokMinutes, formatDisplayTime } from "../../utils/bangkokTime";
+import type { TableColumn } from "../../types/api";
+import type { TimeLog } from "../../types/domain";
 
 const TimelogsListPage = () => {
     const { homeCompanyId } = useAuth();
@@ -19,19 +21,19 @@ const TimelogsListPage = () => {
     } = useTimelogs();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<TimeLog | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (log) => {
+    const openEdit = (log: TimeLog) => {
         setEditing(log);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<TimeLog>[] = [
         {
             label: "Employee",
             sortKey: "employee_name",

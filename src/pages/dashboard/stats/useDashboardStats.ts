@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { Employee } from "../../../types/domain";
+import type { PayrollCycle } from "../../../types/api";
+
+// The four figures the dashboard shows.
+export interface DashboardStats {
+    employees: number;
+    totalCycles: number;
+    activeCycles: number;
+    closedCycles: number;
+}
 
 // useDashboardStats reads from two modules the viewer may not both have, which is why a refused source counts as zero rather than blanking the page.
 export const useDashboardStats = () => {
-    const [stats, setStats] = useState(null);
+    const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -14,8 +24,8 @@ export const useDashboardStats = () => {
                 api.get('/payroll/cycles'),
             ]);
 
-            const employees = empRes.status === 'fulfilled' ? (empRes.value.data || []) : [];
-            const cycles = cycleRes.status === 'fulfilled' ? (cycleRes.value.data || []) : [];
+            const employees: Employee[] = empRes.status === 'fulfilled' ? (empRes.value.data || []) : [];
+            const cycles: PayrollCycle[] = cycleRes.status === 'fulfilled' ? (cycleRes.value.data || []) : [];
 
             setStats({
                 employees:    employees.length,

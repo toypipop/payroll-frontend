@@ -49,6 +49,11 @@ This agent manages **both** repos every session:
 - Employee-linked forms must cascade company → department/position/role/employment type/employee and reject mismatches.
 - Time Logs: end <= start means overnight (e.g. `16:00` → `00:00` checks out next day).
 - Leave Requests: only `Pending` status can be edited.
+- **The Transactions page says when its figures were calculated.** It reads what the last run stored and never recalculates, so on a cycle that is still open the numbers can be older than the data behind them; the line under the period shows the newest `updated_at` among the cycle's transactions, and points at Run Payroll when the cycle is open. Closing a cycle recalculates it first, so a closed cycle's figures are never stale — which is why this is a note rather than a guard.
+- **Salary history is a timeline, and the Edit button on a row moves it.** `SalaryRecordEditModal` sends `PATCH /salaries/:id` with the record's own `version`; a **412** means the row moved underneath the form (reload), while a **409** names something the user can fix in the form that stays open — another record already on that date, or a period already paid out. A row the payroll already paid against shows "Locked" and offers neither Edit nor Delete.
+- **Editing a salary sends the `version` it was seeded from.** The backend refuses the save with **409** when that
+  record has moved since, and `SalaryFormModal` turns the 409 into "changed by someone else" plus a reload rather
+  than retrying. Anything else that becomes concurrently editable needs the same round trip.
 - **Company field is immutable after creation** everywhere: the "Companies" `SelectField` must be `disabled={!!editingId}` on any edit form (Employees, Departments, Positions, Roles, EarningTypes, DeductionTypes, DayOff, ...) to match the backend rejecting `companies_id` changes on update.
 - All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`/`toLocaleTimeString()`, which is wrong whenever the viewer's machine isn't set to Bangkok. `src/utils/bangkokTime.ts` is the only place that knows the offset: `toBangkokHM`, `formatTime`, `formatDisplayTime`, `bangkokDateKey`, `bangkokMinutes`, and the datetime-local pair `bangkokLocalToISO` / `isoToBangkokLocal`.
 - **A date is rendered in the business timezone too.** Every `toLocaleDateString` in the app passes `timeZone: "Asia/Bangkok"`; without it a cycle running 01–30 Apr Bangkok reads as 31 Mar–29 Apr to a viewer in New York, because the stored instant is 17:00 the previous day there.
@@ -85,6 +90,29 @@ Only two inline `style` attributes remain in the whole app — the portal positi
 `DetailDropdown`, which are `top`/`left`/`width` in px measured from the trigger with
 `getBoundingClientRect()` when the panel opens. A class cannot hold a number that does not exist until
 render, and moving the same assignment into a ref would only hide it from grep. Everything else is a class.
+
+## TypeScript
+
+`strict` and `noImplicitAny` are **on**. Three files carry the weight:
+
+- **`src/types/api.ts`** — the wire shapes that are not domain rows: `AppModule`, `PayrollCycle`, `PayrollTransaction`,
+  the run/pre-check/diff responses, and the `TableColumn<T>` the tables are generic over.
+- **`src/types/domain.ts`** — the API's rows, named after the backend models. **Every field is optional**, because a
+  list endpoint, an `/options` endpoint and a detail endpoint return different subsets of the same row; a required
+  field would be a lie on two of the three. A dropdown list built by a hook is `OptionRow[]`, not the full record.
+- **`src/types/reports.ts`** — one envelope per report endpoint (cycle, company, rows, totals).
+
+Two rules that come up on every page:
+
+- **A caught error is `unknown`.** Never reach for `err.response` — `src/utils/apiError.ts` has
+  `apiErrorMessage(err, fallback)` (server message, plus the delete guard's `reason`), `apiErrorBody`, and
+  `apiErrorStatus`. That is also the only place that knows the `{ error, reason }` shape the API returns.
+- **A table's columns are typed, and that types the renders.** Write `const columns: TableColumn<Employee>[] = [...]`
+  and every `render: (row) => ...` gets `row` for free. `TableColumn<T extends object>` deliberately does not require
+  an index signature, so the plain domain interfaces fit.
+
+A form's values come from its schema: `type XFormValues = z.infer<typeof schema>`, or `z.input<...>` where the fields
+hold strings that zod coerces (see `EmployeeFormModal`). `SelectField`'s option only needs `{ id?, name? }`.
 
 ## Page Layout
 

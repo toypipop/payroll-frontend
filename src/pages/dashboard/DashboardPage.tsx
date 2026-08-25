@@ -5,8 +5,17 @@ import Badge from '../../components/common/Badge';
 import { useAuth } from "../../hooks/useAuth";
 import useDashboardStats from "./stats/useDashboardStats";
 import { TONE_TEXT, TONE_SOFT_BG, TONE_BG, TONE_BORDER_HOVER } from "../../components/common/tone";
+import type { Tone } from "../../components/common/tone";
 
-const StatCard = ({ label, value, sub, tone = 'neutral', loading }) => (
+interface StatCardProps {
+    label: string;
+    value?: number | string;
+    sub?: string;
+    tone?: Tone;
+    loading?: boolean;
+}
+
+const StatCard = ({ label, value, sub, tone = 'neutral', loading }: StatCardProps) => (
     <Card className="flex-1 min-w-[150px]">
         <div className="text-[10px] font-bold text-subtle uppercase tracking-[0.08em]">
             {label}
@@ -18,7 +27,8 @@ const StatCard = ({ label, value, sub, tone = 'neutral', loading }) => (
     </Card>
 );
 
-const quickLinks = [
+// A quick link's tone drives its colours, so it names one rather than carrying a colour.
+const quickLinks: { label: string; desc: string; path: string; tone: Tone }[] = [
     { label: 'Run Payroll',   desc: 'Calculate & process a new cycle',   path: '/run-payroll',   tone: 'brand' },
     { label: 'Employees',    desc: 'Manage employee records',            path: '/employees',     tone: 'brand' },
     { label: 'Payslips',     desc: 'Browse closed-cycle payslips',       path: '/payslips',      tone: 'success' },
@@ -39,7 +49,7 @@ const DashboardPage = () => {
                 <div>
                     <div className="text-subtle text-[12px] mb-[4px]">Welcome back,</div>
                     <div className="text-main text-[20px] font-extrabold">
-                        {storedUser.fullName || 'Administrator'}
+                        {storedUser?.fullName || 'Administrator'}
                     </div>
                     <div className="text-subtle text-[12px] mt-[5px]">
                         {new Date().toLocaleDateString('en-GB', { timeZone: "Asia/Bangkok", weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}

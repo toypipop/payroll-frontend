@@ -2,20 +2,23 @@ import type { CSSProperties } from "react";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
 import Table from "../../../components/common/Table";
+import type { TableColumn } from "../../../types/api";
+import type { GroupedPermissionRow, PermissionGroup, PermissionRow } from "./usePermissionMatrix";
 
 // Which actions and data scopes a module supports is declared by the backend
 
-const ACTION_FIELD = {
+// Which boolean column each action writes to.
+const ACTION_FIELD: Record<string, keyof PermissionRow> = {
     VIEW: "can_view",
     CREATE: "can_create",
     EDIT: "can_edit",
     DELETE: "can_delete",
 };
 
-const allowsAction = (item, action) => (item?.allowed_actions || []).includes(action);
+const allowsAction = (item: PermissionRow, action: string) => (item?.allowed_actions || []).includes(action);
 
 // A module with a single permitted scope has nothing to choose, so the selector is replaced by a plain label explaining why.
-const hasScopeChoice = (item) => (item?.allowed_scopes || []).length > 1;
+const hasScopeChoice = (item: PermissionRow) => (item?.allowed_scopes || []).length > 1;
 
 const fixedScopeStyle: CSSProperties = {
     display: "flex",
@@ -43,8 +46,18 @@ const categoryRowStyle = {
 };
 
 // Permission matrix with table structure
-const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, handleUpdateLocal }) => {
-    const flatItems = groupedPermissions.flatMap((group) =>
+// A matrix row carries the group it was rendered under, so the category header can be drawn on its first row.
+type MatrixRow = GroupedPermissionRow & { _categoryName: string; _categoryStart: boolean };
+
+interface PermissionMatrixProps {
+    permissions: PermissionRow[];
+    groupedPermissions: PermissionGroup[];
+    dataScopeOptions: { id: string; name: string }[];
+    handleUpdateLocal: (index: number | undefined, field: keyof PermissionRow | Partial<PermissionRow>, value?: unknown) => void;
+}
+
+const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, handleUpdateLocal }: PermissionMatrixProps) => {
+    const flatItems: MatrixRow[] = groupedPermissions.flatMap((group) =>
         (group.items || []).map((item, idx) => ({
             ...item,
             _categoryName: group.categoryName,
@@ -52,7 +65,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
         }))
     );
 
-    const columns = [
+    const columns: TableColumn<MatrixRow>[] = [
         {
             label: "Module",
             render: (item) => item.module_name,
@@ -162,7 +175,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
         <Table
             columns={columns}
             data={flatItems}
-            getRowKey={(row) => row.module_id}
+            getRowKey={(row) => String(row.module_id)}
             renderBeforeRow={(row) => {
                 if (!row._categoryStart) return null;
                 return (

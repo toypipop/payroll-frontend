@@ -4,7 +4,7 @@ import type { ChangeEvent, CSSProperties, FocusEvent, InputHTMLAttributes } from
 
 interface DecimalFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
     label?: string;
-    error?: unknown;
+    error?: string;
     style?: CSSProperties;
     containerClassName?: string;
     containerStyle?: CSSProperties;
@@ -99,7 +99,7 @@ const DecimalField = forwardRef<HTMLInputElement, DecimalFieldProps>(
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                 />
-                {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
+                {error && <span className="mt-0.5 text-xs text-danger">{error}</span>}
             </div>
         );
     },

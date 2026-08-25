@@ -1,5 +1,14 @@
+import type { PreCheckIssue } from "../../../types/api";
+
+interface PreCheckPanelProps {
+    issues: PreCheckIssue[];
+    pendingCalculate: boolean;
+    onProceed: () => void;
+    onDismiss: () => void;
+}
+
 // PreCheckPanel shows what the pre-check found and, when the run is still pending, lets the operator proceed anyway or back out.
-const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
+const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }: PreCheckPanelProps) => {
     if (issues.length === 0) return null;
 
     return (
@@ -10,9 +19,9 @@ const PreCheckPanel = ({ issues, pendingCalculate, onProceed, onDismiss }) => {
             {issues.map((issue, i) => (
                 <div key={i} className="mb-[8px]">
                     <div className="text-[13px] text-warning-text">{issue.message}</div>
-                    {issue.employees?.length > 0 && (
+                    {(issue.employees?.length ?? 0) > 0 && (
                         <ul className="m-[4px_0_0_16px] p-[0px] text-[12px] text-warning-text">
-                            {issue.employees.map((name: string) => <li key={name}>{name}</li>)}
+                            {issue.employees?.map((name: string) => <li key={name}>{name}</li>)}
                         </ul>
                     )}
                 </div>

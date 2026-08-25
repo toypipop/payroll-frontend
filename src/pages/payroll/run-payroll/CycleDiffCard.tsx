@@ -1,17 +1,22 @@
 import Card from "../../../components/common/Card";
 import { TONE_TEXT } from "../../../components/common/tone";
+import type { CycleDiff } from "../../../types/api";
 
-const fmt = (v: number) => Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const fmt = (v?: number) => Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-const diff = (a: number, b: number) => {
-    const d = a - b;
+const diff = (a?: number, b?: number) => {
+    const d = (a ?? 0) - (b ?? 0);
     const sign = d > 0 ? "+" : "";
     const tone = d > 0 ? "success" : d < 0 ? "danger" : "muted";
     return <span className={`text-[11px] font-semibold ${TONE_TEXT[tone]}`}>{sign}{fmt(d)}</span>;
 };
 
 // CycleDiffCard compares this run against the previous cycle. It renders nothing when there is no previous cycle to compare with.
-const CycleDiffCard = ({ diffData }) => {
+interface CycleDiffCardProps {
+    diffData: CycleDiff | null;
+}
+
+const CycleDiffCard = ({ diffData }: CycleDiffCardProps) => {
     if (!diffData?.has_previous || !diffData.current || !diffData.previous) return null;
 
     const cur = diffData.current;

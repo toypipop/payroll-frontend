@@ -4,7 +4,7 @@ import type { ChangeEvent, CSSProperties, InputHTMLAttributes } from "react";
 
 interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
     label?: string;
-    error?: unknown;
+    error?: string;
     style?: CSSProperties;
     containerClassName?: string;
     containerStyle?: CSSProperties;
@@ -76,7 +76,7 @@ const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
                     style={style}
                     {...props}
                 />
-                {error && <span className="mt-0.5 text-xs text-danger">{String(error)}</span>}
+                {error && <span className="mt-0.5 text-xs text-danger">{error}</span>}
             </div>
         );
     },

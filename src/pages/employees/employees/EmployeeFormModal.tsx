@@ -11,9 +11,13 @@ import NumberField from "../../../components/common/NumberField";
 import SelectField from "../../../components/common/SelectField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Bank, Company, Department, Employee, EmploymentType, Position, Role } from "../../../types/domain";
+import type { Resolver } from "react-hook-form";
+import type { ApiId } from "../../../types/api";
 
 // Validation schema for employee
-const createEmployeesSchema = (isEditing, requireCompany) => z.object({
+const createEmployeesSchema = (isEditing: boolean, requireCompany: boolean) => z.object({
     employees_code: z.string().min(2, "Employees code is required"),
     first_name: z.string().min(1, "First name is required"),
     last_name: z.string().min(1, "Last name is required"),
@@ -34,6 +38,9 @@ const createEmployeesSchema = (isEditing, requireCompany) => z.object({
     account_no: z.string().optional(),
 });
 
+// What the fields hold, which is the schema's *input*: every select carries a string until zod coerces it.
+type EmployeeFormValues = z.input<ReturnType<typeof createEmployeesSchema>>;
+
 const makeEmptyEmployeeForm = (homeCompanyId: string) => ({
     employees_code: "",
     first_name: "",
@@ -52,14 +59,29 @@ const makeEmptyEmployeeForm = (homeCompanyId: string) => ({
 });
 
 // EmployeeFormModal owns the cascading company to department/position/role form and the save call.
-const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterDepts, masterPos, masterRoles, masterCompanies, masterBanks, masterEmploymentTypes }) => {
+interface EmployeeFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Employee | null;
+    homeCompanyId: string;
+    masterDepts: Department[];
+    masterPos: Position[];
+    masterRoles: Role[];
+    masterCompanies: Company[];
+    masterBanks: Bank[];
+    masterEmploymentTypes: EmploymentType[];
+}
+
+const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterDepts, masterPos, masterRoles, masterCompanies, masterBanks, masterEmploymentTypes }: EmployeeFormModalProps) => {
     // Ref to skip cascade-reset during edit initialization
     const isEditLoading = useRef(false);
     // Refs for dynamic resolver
-    const editingIdRef = useRef(null);
+    const editingIdRef = useRef<ApiId | null>(null);
     const requireCompanyRef = useRef(false);
 
-    const dynamicResolver = useCallback(
+    // The schema depends on whether this is an edit and whether a company must be picked, so it is rebuilt per validation.
+    const dynamicResolver: Resolver<EmployeeFormValues> = useCallback(
         (values, ctx, options) =>
             zodResolver(createEmployeesSchema(!!editingIdRef.current, requireCompanyRef.current))(
                 values, ctx, options
@@ -75,7 +97,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
         watch,
         control,
         formState: { errors },
-    } = useForm({
+    } = useForm<EmployeeFormValues>({
         resolver: dynamicResolver,
         defaultValues: makeEmptyEmployeeForm(homeCompanyId),
     });
@@ -102,7 +124,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             roles_id: editing.roles_id ? String(editing.roles_id) : "",
             companies_id: editing.companies_id ? String(editing.companies_id) : "",
             employment_type_id: editing.employment_type_id ? String(editing.employment_type_id) : "",
-            is_active: editing.is_active === true || editing.is_active === "true",
+            is_active: editing.is_active === true,
             bank_id: editing.bank_id ? String(editing.bank_id) : "",
             account_name: editing.account_name || "",
             account_no: editing.account_no || "",
@@ -141,16 +163,16 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
     const showNoRolesWarning = !!selectedCompaniesId && filteredRoles.length === 0;
     const hasMissingRequiredMaster = showNoDeptWarning || showNoPosWarning || showNoRolesWarning;
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: EmployeeFormValues) => {
         try {
             const payload = {
                 ...data,
-                dept_id: parseInt(data.dept_id),
-                pos_id: parseInt(data.pos_id),
-                roles_id: parseInt(data.roles_id),
-                companies_id: data.companies_id ? parseInt(data.companies_id) : undefined,
-                employment_type_id: data.employment_type_id ? parseInt(data.employment_type_id) : null,
-                bank_id: data.bank_id ? parseInt(data.bank_id) : null,
+                dept_id: Number(data.dept_id),
+                pos_id: Number(data.pos_id),
+                roles_id: Number(data.roles_id),
+                companies_id: data.companies_id ? Number(data.companies_id) : undefined,
+                employment_type_id: data.employment_type_id ? Number(data.employment_type_id) : null,
+                bank_id: data.bank_id ? Number(data.bank_id) : null,
             };
 
             if (editing) {
@@ -162,7 +184,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

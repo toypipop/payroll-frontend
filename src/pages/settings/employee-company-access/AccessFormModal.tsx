@@ -9,6 +9,8 @@ import Modal from "../../../components/common/Modal";
 import SelectField from "../../../components/common/SelectField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { EmployeeCompanyAccess, OptionRow } from "../../../types/domain";
 
 const accessSchema = z.object({
     employee_id: z.string().min(1, "Please select an employee"),
@@ -16,6 +18,8 @@ const accessSchema = z.object({
     role_id: z.string().min(1, "Please select a role"),
     is_active: z.boolean().default(true),
 });
+
+type AccessFormValues = z.infer<typeof accessSchema>;
 
 const EMPTY_FORM = {
     employee_id: "",
@@ -25,7 +29,17 @@ const EMPTY_FORM = {
 };
 
 // AccessFormModal owns the cascading employee to company to role form and the save call; the page only says which row is being edited.
-const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, companies, roles }) => {
+interface AccessFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: EmployeeCompanyAccess | null;
+    employees: OptionRow[];
+    companies: OptionRow[];
+    roles: OptionRow[];
+}
+
+const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, companies, roles }: AccessFormModalProps) => {
     const {
         control,
         handleSubmit,
@@ -77,7 +91,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
         }
     }, [filteredRoles, selectedRoleId, setValue]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: AccessFormValues) => {
         try {
             if (employees.length === 0) {
                 alert("There are no employees yet. Please add one before saving.");
@@ -99,7 +113,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
             await onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save failed");
+            alert(apiErrorMessage(err, "Save failed"));
         }
     };
 

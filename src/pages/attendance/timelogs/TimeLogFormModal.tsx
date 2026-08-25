@@ -20,6 +20,9 @@ import {
 } from "./scheduleHelpers";
 import { warningBox, warningLink } from "./warningStyles";
 import { bangkokLocalToISO } from "../../../utils/bangkokTime";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Employee, OptionRow, ScheduleConfig, TimeLog } from "../../../types/domain";
+import type { ApiId } from "../../../types/api";
 
 
 
@@ -41,10 +44,28 @@ const timeLogSchema = z.object({
     path: ["check_out"],
 });
 
+type TimeLogFormValues = z.infer<typeof timeLogSchema>;
 
+
+
+interface TimeLogFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: TimeLog | null;
+    homeCompanyId: string;
+    masterCompanies: OptionRow[];
+    masterEmployees: OptionRow[];
+    masterWorkLocations: OptionRow[];
+    // Keyed by employee id and company id, as useTimelogs builds them.
+    employeeData: Record<string, Employee>;
+    attendanceConfigs: Record<string, ScheduleConfig>;
+    dayOffWeekdaysByCompany: Record<string, number[]>;
+    canManageAttendanceSettings: boolean;
+}
 
 // TimeLogFormModal owns the manual entry form: the cascade, the schedule auto-fill, and the save call.
-const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterWorkLocations, employeeData, attendanceConfigs, dayOffWeekdaysByCompany, canManageAttendanceSettings }) => {
+const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterWorkLocations, employeeData, attendanceConfigs, dayOffWeekdaysByCompany, canManageAttendanceSettings }: TimeLogFormModalProps) => {
     const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
     const {
         register,
@@ -76,7 +97,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
             reset({ companies_id: homeCompanyId, employees_id: "", check_in: "", check_out: "", work_location_id: "", remark: "" });
             return;
         }
-        setSelectedEmployeeId(editing.employees_id?.toString());
+        setSelectedEmployeeId(editing.employees_id?.toString() ?? "");
         reset({
             companies_id: editing.companies_id?.toString() || editing.employees?.companies_id?.toString() || "",
             employees_id: editing.employees_id?.toString(),
@@ -101,22 +122,22 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
         )
         : masterWorkLocations;
 
-    const selectedCompanyConfig = selectedCompanyId ? attendanceConfigs[selectedCompanyId] : null;
+    const selectedCompanyConfig = selectedCompanyId ? attendanceConfigs[String(selectedCompanyId)] : null;
     const showNoConfigWarning = !!selectedCompanyId && !(selectedCompanyConfig && selectedCompanyConfig.is_configured);
     const showNoWorkLocationsWarning = !!selectedEmployeeCompaniesId && filteredWorkLocations.length === 0;
-    const showNoDayOffsWarning = !!selectedCompanyId && (dayOffWeekdaysByCompany[selectedCompanyId] || []).length === 0;
+    const showNoDayOffsWarning = !!selectedCompanyId && (dayOffWeekdaysByCompany[String(selectedCompanyId)] || []).length === 0;
     const showNoEmployeesWarning = !!selectedCompanyId && filteredEmployees.length === 0;
 
     // Bulk Add derived state
 
 
     // Returns the configured schedule for a company, or null when that company has no attendance config (so callers skip auto-filling times).
-    const getScheduleConfig = (companiesId) => {
-        const cfg = companiesId ? attendanceConfigs[companiesId] : null;
+    const getScheduleConfig = (companiesId?: ApiId | null) => {
+        const cfg = companiesId ? attendanceConfigs[String(companiesId)] : null;
         return cfg && cfg.is_configured ? cfg : null;
     };
 
-    const getScheduleDurationMinutes = (empId) => {
+    const getScheduleDurationMinutes = (empId: string) => {
         const emp = employeeData[empId];
         const config = getScheduleConfig(emp?.companies_id);
         if (!config) return null;
@@ -129,7 +150,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
             : (24 * 60) - startMinutes + endMinutes;
     };
 
-    const setCheckOutFromCheckIn = (checkInValue, empId = selectedEmployeeId) => {
+    const setCheckOutFromCheckIn = (checkInValue: string, empId: string = selectedEmployeeId) => {
         if (!checkInValue || !empId) return;
 
         const duration = getScheduleDurationMinutes(empId);
@@ -143,7 +164,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
         setValue("check_out", toLocalDateTimeValue(checkOutDate), { shouldValidate: true, shouldDirty: true });
     };
 
-    const fillScheduleTimesForEmployee = (empId) => {
+    const fillScheduleTimesForEmployee = (empId: string) => {
         if (!empId) {
             setValue("check_in", "");
             setValue("check_out", "");
@@ -180,12 +201,12 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
         setValue("check_out", toLocalDateTimeValue(checkOutDate), { shouldValidate: true, shouldDirty: true });
     };
 
-    const handleCheckInChange = (value) => {
+    const handleCheckInChange = (value: string) => {
         setValue("check_in", value, { shouldValidate: true, shouldDirty: true });
         setCheckOutFromCheckIn(value);
     };
 
-    const handleEmployeeChange = (e) => {
+    const handleEmployeeChange = (e: { target: { value: string } }) => {
         const empId = e.target.value;
         setSelectedEmployeeId(empId);
         setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
@@ -193,7 +214,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
         fillScheduleTimesForEmployee(empId);
     };
 
-    const handleCompanyChange = (e) => {
+    const handleCompanyChange = (e: { target: { value: string } }) => {
         setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
         setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
         setSelectedEmployeeId("");
@@ -203,7 +224,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
     };
 
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: TimeLogFormValues) => {
         const cfg = data.companies_id ? attendanceConfigs[data.companies_id] : null;
         if (!(cfg && cfg.is_configured)) {
             alert("This company has no Attendance Config. Please set it up before saving.");
@@ -222,9 +243,9 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
                 ...data,
                 check_in: bangkokLocalToISO(data.check_in),
                 check_out: bangkokLocalToISO(data.check_out),
-                employees_id: parseInt(data.employees_id),
-                companies_id: parseInt(data.companies_id),
-                work_location_id: data.work_location_id ? parseInt(data.work_location_id) : null,
+                employees_id: Number(data.employees_id),
+                companies_id: Number(data.companies_id),
+                work_location_id: data.work_location_id ? Number(data.work_location_id) : null,
             };
 
             if (editing) {
@@ -235,7 +256,7 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
             onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Save Failed");
+            alert(apiErrorMessage(err, "Save Failed"));
         }
     };
 

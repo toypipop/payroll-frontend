@@ -8,6 +8,8 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, Role } from "../../../types/domain";
 
 const roleSchema = z.object({
     id: z.number().optional(),
@@ -15,8 +17,19 @@ const roleSchema = z.object({
     roles_name: z.string().min(1, "Role name is required"),
 });
 
+type RoleFormValues = z.infer<typeof roleSchema>;
+
 // RoleFormModal owns the form and the save call; the page only says which row is being edited.
-const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }) => {
+interface RoleFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: Role | null;
+    defaultCompanieId: string;
+    companies: Company[];
+}
+
+const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: RoleFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(roleSchema),
         defaultValues: {
@@ -29,11 +42,11 @@ const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, c
     useEffect(() => {
         if (!isOpen) return;
         reset(editing
-            ? { id: editing.id, companies_id: editing.companies_id, roles_name: editing.roles_name }
+            ? { id: editing.id == null ? undefined : Number(editing.id), companies_id: editing.companies_id, roles_name: editing.roles_name ?? "" }
             : { id: undefined, companies_id: defaultCompanieId, roles_name: "" });
     }, [isOpen, editing, defaultCompanieId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: RoleFormValues) => {
         try {
             if (data.id) {
                 await api.put(`/roles/${data.id}`, data);
@@ -43,7 +56,7 @@ const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, c
             await onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Operation failed");
+            alert(apiErrorMessage(err, "Operation failed"));
         }
     };
 

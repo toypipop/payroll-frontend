@@ -2,16 +2,17 @@ import Card from "../../../components/common/Card";
 import Modal from "../../../components/common/Modal";
 import Table from "../../../components/common/Table";
 import Badge from "../../../components/common/Badge";
+import type { MySlip, PayrollTransactionDetail, TableColumn } from "../../../types/api";
 
-const formatCurrency = (value) =>
+const formatCurrency = (value: number | string | null | undefined) =>
     Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatDate = (value) => {
+const formatDate = (value: number | string | null | undefined) => {
     if (!value) return "-";
     return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" });
 };
 
-const detailColumns = [
+const detailColumns: TableColumn<PayrollTransactionDetail>[] = [
     { label: "Item", key: "item_name" },
     {
         label: "Type",
@@ -29,8 +30,13 @@ const detailColumns = [
     },
 ];
 
+interface PayslipDetailsModalProps {
+    slip: MySlip | null;
+    onClose: () => void;
+}
+
 // PayslipDetailsModal shows one of the caller's own closed payslips, read-only.
-const PayslipDetailsModal = ({ slip, onClose }) => (
+const PayslipDetailsModal = ({ slip, onClose }: PayslipDetailsModalProps) => (
     <Modal
         isOpen={!!slip}
         onClose={onClose}

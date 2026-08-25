@@ -1,15 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { TONE_TEXT } from "./tone";
+import type { Tone } from "./tone";
+import type { PayrollTransactionDetail } from "../../types/api";
 
-const formatCurrency = (val) =>
+const formatCurrency = (val: number | string | null | undefined) =>
     Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+interface DetailDropdownProps {
+    total: number | string | null | undefined;
+    details: PayrollTransactionDetail[];
+    tone?: Tone;
+    filterFn?: (detail: PayrollTransactionDetail) => boolean;
+    itemToneFn?: (detail: PayrollTransactionDetail) => Tone;
+}
+
 // DetailDropdown shows a total that expands into the lines behind it. The panel renders through a portal so a table cell cannot clip it.
-const DetailDropdown = ({ total, details, tone = "neutral", filterFn, itemToneFn }) => {
+const DetailDropdown = ({ total, details, tone = "neutral", filterFn, itemToneFn }: DetailDropdownProps) => {
     const [open, setOpen] = useState(false);
     const [pos, setPos] = useState({ top: 0, left: 0 });
-    const btnRef = useRef(null);
+    const btnRef = useRef<HTMLButtonElement>(null);
     const filtered = details.filter(filterFn || (() => true));
     const hasDetails = filtered.length > 0;
 

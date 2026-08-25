@@ -6,23 +6,25 @@ import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
 import useCompanies from "./companies/useCompanies";
 import CompanyFormModal from "./companies/CompanyFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Company } from "../../types/domain";
 
 const CompaniesPage = () => {
     const { companies, loading, fetchCompanies, remove } = useCompanies();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Company | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Company) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Company>[] = [
         { label: "Companies Name", key: "name" },
         { label: "Tax ID", key: "tax_id" },
         { label: "Phone", key: "phone" },

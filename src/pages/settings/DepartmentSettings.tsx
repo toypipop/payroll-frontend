@@ -7,24 +7,26 @@ import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 import useDepartments from "./departments/useDepartments";
 import DepartmentFormModal from "./departments/DepartmentFormModal";
+import type { TableColumn } from "../../types/api";
+import type { Department } from "../../types/domain";
 
 const DepartmentSettings = () => {
     const { homeCompanyId } = useAuth();
     const { departments, companies, categories, setCategories, loading, fetchData, remove } = useDepartments();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<Department | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: Department) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<Department>[] = [
         { label: "Department Name", key: "dept_name" },
         {
             label: "Companies",

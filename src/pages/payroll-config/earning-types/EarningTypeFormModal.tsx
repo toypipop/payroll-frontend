@@ -9,6 +9,8 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
+import { apiErrorMessage } from "../../../utils/apiError";
+import type { Company, EarningType } from "../../../types/domain";
 
 const earningSchema = z.object({
     id: z.number().optional(),
@@ -18,8 +20,19 @@ const earningSchema = z.object({
     is_sso: z.boolean().default(true),
 });
 
+type EarningTypeFormValues = z.infer<typeof earningSchema>;
+
 // EarningTypeFormModal owns the form and the save call; the page only says which row is being edited.
-const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }) => {
+interface EarningTypeFormModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSaved: () => void;
+    editing: EarningType | null;
+    defaultCompanieId: string;
+    companies: Company[];
+}
+
+const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: EarningTypeFormModalProps) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(earningSchema),
         defaultValues: {
@@ -32,15 +45,23 @@ const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompan
     // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
     useEffect(() => {
         if (!isOpen) return;
-        reset(editing || {
+        reset(editing
+            ? {
+                id: editing.id == null ? undefined : Number(editing.id),
+                companies_id: editing.companies_id,
+                name: editing.name ?? "",
+                is_taxable: editing.is_taxable,
+                is_sso: editing.is_sso,
+            }
+            : {
             id: undefined,
             companies_id: defaultCompanieId,
             is_taxable: true,
             is_sso: true,
-        });
+            });
     }, [isOpen, editing, defaultCompanieId, reset]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: EarningTypeFormValues) => {
         try {
             if (data.id) {
                 await api.put(`/earning-types/${data.id}`, data);
@@ -50,7 +71,7 @@ const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompan
             await onSaved();
             onClose();
         } catch (err) {
-            alert(err.response?.data?.error || "Operation failed");
+            alert(apiErrorMessage(err, "Operation failed"));
         }
     };
 

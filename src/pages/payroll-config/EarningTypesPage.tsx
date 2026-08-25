@@ -8,24 +8,26 @@ import Badge from "../../components/common/Badge";
 import { useAuth } from "../../hooks/useAuth";
 import useEarningTypes from "./earning-types/useEarningTypes";
 import EarningTypeFormModal from "./earning-types/EarningTypeFormModal";
+import type { TableColumn } from "../../types/api";
+import type { EarningType } from "../../types/domain";
 
 const EarningTypesPage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
     const { earnings, companies, loading, fetchEarnings, remove } = useEarningTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+    const [editing, setEditing] = useState<EarningType | null>(null);
 
     const openAdd = () => {
         setEditing(null);
         setIsModalOpen(true);
     };
 
-    const openEdit = (row) => {
+    const openEdit = (row: EarningType) => {
         setEditing(row);
         setIsModalOpen(true);
     };
 
-    const columns = [
+    const columns: TableColumn<EarningType>[] = [
         { label: "Name", key: "name" },
         {
             label: "Taxable",
