@@ -49,8 +49,10 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: 
         try {
             await api.post("/payroll/cycles", {
                 cycle_name: data.cycle_name,
-                start_date: data.start_date + "T00:00:00Z",
-                end_date: data.end_date + "T00:00:00Z",
+                // Bare calendar dates: the server reads them as whole days in the business timezone. Pinning
+                // an offset here is what put two conventions into payroll_cycle in the first place.
+                start_date: data.start_date,
+                end_date: data.end_date,
                 companies_id: Number(data.companies_id),
             });
             onSaved();

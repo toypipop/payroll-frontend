@@ -49,6 +49,18 @@ export interface PayrollCycle {
     [key: string]: unknown;
 }
 
+// What GET /payroll/cycles/options returns. Unlike PayrollCycle, every field is guaranteed: the endpoint
+// exists to serve exactly this shape to pages that only need to know when each period runs and whether it
+// is closed.
+export interface PayrollCycleOption {
+    id: ApiId;
+    cycle_name: string;
+    start_date: string;
+    end_date: string;
+    is_closed: boolean;
+    companies_id: ApiId;
+}
+
 export interface PayrollEmployee {
     id?: ApiId;
     employees_code?: string;

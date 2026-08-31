@@ -8,7 +8,10 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import DateField from "../../../components/common/DateField";
 import DecimalField from "../../../components/common/DecimalField";
+import MasterDataWarning from "../../../components/common/MasterDataWarning";
 import { apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
+import { closedCycleFor } from "./closedCycles";
+import { useClosedCycles } from "./useClosedCycles";
 import type { SalaryHistoryRow } from "../../../types/domain";
 
 const schema = z.object({
@@ -29,10 +32,15 @@ interface SalaryRecordEditModalProps {
 // main salary form is addressed by date, so it can only ever reach the record already sitting on the date typed
 // into it, and correcting a date typed wrong would otherwise mean deleting the record and entering it again.
 const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditModalProps) => {
-    const { handleSubmit, reset, control, formState: { errors } } = useForm<SalaryRecordEditValues>({
+    const { handleSubmit, reset, control, watch, formState: { errors } } = useForm<SalaryRecordEditValues>({
         resolver: zodResolver(schema),
         defaultValues: { effective_date: "", base_salaries: "" },
     });
+
+    // Moving a record into a closed period is one of the three things the server refuses; it is also the only
+    // one that can be seen coming, so the form says it before the user spends a save on it.
+    const cycles = useClosedCycles(!!record);
+    const closedCycle = closedCycleFor(watch("effective_date"), record?.companies_id, cycles);
 
     useEffect(() => {
         if (!record) return;
@@ -95,6 +103,15 @@ const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditMod
                     />
                 )}
             />
+            {closedCycle && (
+                <MasterDataWarning
+                    message={`That date falls inside "${closedCycle.cycle_name}", a payroll cycle that is already closed. Saving it will be refused — pick a date in an open period.`}
+                    routePath="/payroll-cycles"
+                    moduleKey="PayrollCyclesPage"
+                    linkLabel="View payroll cycles"
+                />
+            )}
+
             <Controller
                 name="base_salaries"
                 control={control}

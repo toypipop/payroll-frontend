@@ -10,6 +10,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
+    // Pure logic only — the helpers under src/ that are deliberately written without React so they can be
+    // checked without rendering. No jsdom, so a UI test would need this widened first.
+    test: {
+      environment: 'node',
+      include: ['src/**/*.test.ts'],
+    },
     server: {
       port: 5174,
       proxy: {

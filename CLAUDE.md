@@ -57,6 +57,9 @@ This agent manages **both** repos every session:
 - **Company field is immutable after creation** everywhere: the "Companies" `SelectField` must be `disabled={!!editingId}` on any edit form (Employees, Departments, Positions, Roles, EarningTypes, DeductionTypes, DayOff, ...) to match the backend rejecting `companies_id` changes on update.
 - All wall-clock/time-of-day values (Attendance Config work start/end, Time Log check-in/out) are anchored to a fixed Asia/Bangkok (UTC+7, no DST) business timezone — never read/derive them with the browser's local `Date.getHours()`/`getMinutes()`/`toLocaleTimeString()`, which is wrong whenever the viewer's machine isn't set to Bangkok. `src/utils/bangkokTime.ts` is the only place that knows the offset: `toBangkokHM`, `formatTime`, `formatDisplayTime`, `bangkokDateKey`, `bangkokMinutes`, and the datetime-local pair `bangkokLocalToISO` / `isoToBangkokLocal`.
 - **A date is rendered in the business timezone too.** Every `toLocaleDateString` in the app passes `timeZone: "Asia/Bangkok"`; without it a cycle running 01–30 Apr Bangkok reads as 31 Mar–29 Apr to a viewer in New York, because the stored instant is 17:00 the previous day there.
+- **"Today" is `bangkokDateKey(new Date())`, never `new Date().toISOString().split("T")[0]`.** The latter is the UTC calendar day, so between 00:00 and 07:00 Bangkok a form seeded that way defaults to *yesterday* — which for a salary's effective date silently backdates the raise into the previous period.
+- **A calendar date goes to the API as bare `YYYY-MM-DD`.** Do not pin an offset on it — `CycleFormModal` used to send `data.start_date + "T00:00:00Z"`, which is how `payroll_cycle` ended up holding two storage conventions at once. The server reads the bare text as a whole day in the business timezone (`timeutil.ParseDayStart`) and stores a period's end at 23:59:59 of its last day.
+- **A period covers whole business days, so `closedCycles.ts` compares instants, not day keys.** A cycle runs `00:00:00+07:00` to `23:59:59+07:00`, so any instant inside the typed day gives the same verdict; the comparison mirrors the server's rather than reducing either side to a calendar day, which would have to special-case the closing instant. Verified against the live API on every boundary date of a closed/open pair.
 - A datetime-local input holds naive `YYYY-MM-DDTHH:MM` text. Convert it with `bangkokLocalToISO` on the way out and `isoToBangkokLocal` on the way in — `new Date(value).toISOString()` reads that text in the viewer's timezone and silently shifts what the user typed.
 
 ## Styling
@@ -145,6 +148,7 @@ pages/<area>/<feature>/
 ```bash
 npm install && npm run dev          # run
 npm run typecheck && npm run lint   # required after edits
+npm test                            # vitest, node env, src/**/*.test.ts — pure helpers only, no jsdom
 npm run build                       # verify build
 ```
 

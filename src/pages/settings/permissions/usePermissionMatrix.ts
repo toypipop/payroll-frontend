@@ -7,6 +7,8 @@ import { apiErrorMessage } from "../../../utils/apiError";
 // One editable row of the matrix: what the module allows, and what this role currently holds on it.
 export interface PermissionRow {
     module_id?: ApiId;
+    // A category is a heading in the tree, not a page: it holds no permissions and is never sent on save.
+    is_category: boolean;
     module_key: string;
     module_name: string;
     companies_name: string;
@@ -86,6 +88,7 @@ export const usePermissionMatrix = () => {
                 const savedScope = access?.data_scope;
                 return {
                     module_id: m.id,
+                    is_category: Boolean(m.is_category),
                     module_key: m.module_key,
                     module_name: m.module_name,
                     companies_name: role.companies?.name || "System",
@@ -142,7 +145,21 @@ export const usePermissionMatrix = () => {
     const save = async () => {
         if (!selectedRoles) return;
         try {
-            await api.post(`/permissions/${selectedRoles.id}`, permissions);
+            // The handler binds six fields; the rest of the row is capability the server sent us in the
+            // first place. Categories are dropped because they carry no permission row — and every
+            // remaining module is sent whether or not it is ticked, since the server replaces the role's
+            // rows wholesale and an omitted module would lose its saved data_scope.
+            const payload = permissions
+                .filter((row) => !row.is_category)
+                .map(({ module_id, can_view, can_create, can_edit, can_delete, data_scope }) => ({
+                    module_id,
+                    can_view,
+                    can_create,
+                    can_edit,
+                    can_delete,
+                    data_scope,
+                }));
+            await api.post(`/permissions/${selectedRoles.id}`, payload);
             alert("Permissions saved successfully!");
         } catch (err) {
             alert(apiErrorMessage(err, "Save error"));

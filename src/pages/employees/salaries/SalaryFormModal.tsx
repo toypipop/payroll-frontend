@@ -18,6 +18,10 @@ import {
     isSoftDeleted,
 } from "./salaryShape";
 import type { SalaryRow } from "./useSalaries";
+import { bangkokDateKey } from "../../../utils/bangkokTime";
+import MasterDataWarning from "../../../components/common/MasterDataWarning";
+import { closedCycleFor } from "./closedCycles";
+import { useClosedCycles } from "./useClosedCycles";
 import type { ApiId } from "../../../types/api";
 import { apiErrorBody, apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
 
@@ -45,7 +49,7 @@ const DEFAULT_FORM_VALUES = {
     companies_id: "",
     employees_id: "",
     base_salaries: "",
-    effective_date: new Date().toISOString().split("T")[0],
+    effective_date: bangkokDateKey(new Date()),
     is_active: true,
 };
 
@@ -62,11 +66,17 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
         handleSubmit,
         reset,
         control,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(salariesSchema),
         defaultValues: DEFAULT_FORM_VALUES,
     });
+
+    // Saying which closed period a date lands in costs one request, and saves the user a round trip that
+    // would only come back as a 409.
+    const cycles = useClosedCycles(isOpen);
+    const closedCycle = closedCycleFor(watch("effective_date"), employee?.companies_id, cycles);
 
     // The version of the record this form was seeded from, sent back on save so a stale screen is refused.
     const seededVersion = Number(
@@ -81,15 +91,13 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
         const ss = employee.__salary || getLatestSalaryStructure(employee) || null;
 
         const existingDate = getSalaryEffectiveDate(ss, employee);
-        let finalDate = new Date().toISOString().split("T")[0];
+        // The date this form shows is a business-timezone calendar day, so it is read through
+        // bangkokDateKey: toISOString() would hand back yesterday between 00:00 and 07:00 in Bangkok.
+        const today = bangkokDateKey(new Date());
+        let finalDate = today;
 
         if (existingDate && !existingDate.startsWith("0001")) {
-            try {
-                const d = new Date(existingDate);
-                finalDate = d.toISOString().split("T")[0];
-            } catch {
-                finalDate = new Date().toISOString().split("T")[0];
-            }
+            finalDate = bangkokDateKey(existingDate) || today;
         }
 
         reset({
@@ -195,6 +203,15 @@ Reloading the list.`);
                     />
                 )}
             />
+
+            {closedCycle && (
+                <MasterDataWarning
+                    message={`That date falls inside "${closedCycle.cycle_name}", a payroll cycle that is already closed. Saving it will be refused — pick a date in an open period.`}
+                    routePath="/payroll-cycles"
+                    moduleKey="PayrollCyclesPage"
+                    linkLabel="View payroll cycles"
+                />
+            )}
 
             <p className="text-[12px] text-muted mt-[8px]">
                 * Adjustments will be applied to payroll calculations from this date onwards.
