@@ -114,6 +114,8 @@ export interface SalariesStructure {
 // GET /salaries/history/:id — one record plus whether it may still be erased.
 export interface SalaryHistoryRow extends SalariesStructure {
     can_delete?: boolean;
+    // The closed cycles paid from this record, oldest first. Non-empty is exactly why can_delete is false.
+    locked_by?: string[];
 }
 
 export interface Employee {

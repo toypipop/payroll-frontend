@@ -137,3 +137,18 @@ export const isSoftDeleted = (deletedAt: unknown): boolean => {
 
     return Boolean(deletedAt);
 };
+
+// lockedReason turns the closed cycles paid from a record into the line the history table shows. The most
+// recent cycle is named because it is the one that would have to be reopened first; the rest are counted,
+// since a record that has been through five payrolls cannot list them all in the width available.
+export const lockedReason = (cycles: string[] | undefined) => {
+    const names = cycles ?? [];
+    if (names.length === 0) return { label: "", title: "Already used in a payroll calculation" };
+
+    const latest = names[names.length - 1];
+    const others = names.length - 1;
+    return {
+        label: others > 0 ? `Paid in ${latest} +${others} more` : `Paid in ${latest}`,
+        title: `Paid in ${names.length} closed payroll cycle${names.length > 1 ? "s" : ""}: ${names.join(", ")}`,
+    };
+};

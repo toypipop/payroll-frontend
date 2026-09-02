@@ -3,6 +3,7 @@ import Modal from "../../../components/common/Modal";
 import Badge from "../../../components/common/Badge";
 import type { Employee, SalaryHistoryRow } from "../../../types/domain";
 import type { ApiId } from "../../../types/api";
+import { lockedReason } from "./salaryShape";
 
 interface SalaryHistoryModalProps {
     isOpen: boolean;
@@ -57,6 +58,7 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                     <tbody>
                         {rows.map((rec) => {
                             const status = statusOf(rec, currentRecordId);
+                            const locked = lockedReason(rec.locked_by);
                             const date = rec.effective_date;
                             const dateLabel = date && !date.startsWith("0001")
                                 ? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Bangkok", day: "2-digit", month: "short", year: "numeric" })
@@ -91,8 +93,14 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                                 </Button>
                                             </div>
                                         ) : (
-                                            <span className="text-[11px] text-line-input" title="Already used in a payroll calculation">
-                                                Locked
+                                            <span
+                                                className="inline-flex flex-col items-end text-[11px] leading-tight text-line-input"
+                                                title={locked.title}
+                                            >
+                                                <span>Locked</span>
+                                                {locked.label && (
+                                                    <span className="text-[10px] text-subtle">{locked.label}</span>
+                                                )}
                                             </span>
                                         )}
                                     </td>
