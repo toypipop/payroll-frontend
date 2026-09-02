@@ -9,6 +9,7 @@ import useSalaries from "./salaries/useSalaries";
 import SalaryFormModal from "./salaries/SalaryFormModal";
 import SalaryHistoryModal from "./salaries/SalaryHistoryModal";
 import SalaryRecordEditModal from "./salaries/SalaryRecordEditModal";
+import DeleteReasonModal from "./salaries/DeleteReasonModal";
 import {
     getEmployeeId,
     getSalaryBaseAmount,
@@ -17,7 +18,7 @@ import {
     getSalaryRecordId,
     isSoftDeleted,
 } from "./salaries/salaryShape";
-import type { TableColumn } from "../../types/api";
+import type { ApiId, TableColumn } from "../../types/api";
 import type { SalaryRow } from "./salaries/useSalaries";
 import type { SalaryHistoryRow } from "../../types/domain";
 
@@ -46,6 +47,8 @@ const SalariesStructurePage = () => {
     const [historyEmp, setHistoryEmp] = useState<SalaryRow | null>(null);
     // The record whose date is being moved, or null when that modal is closed.
     const [editingRecord, setEditingRecord] = useState<SalaryHistoryRow | null>(null);
+    // Which record the delete prompt is asking about; the prompt collects the reason the trail records.
+    const [deletingRecordId, setDeletingRecordId] = useState<ApiId | null>(null);
 
     const openEdit = (emp: SalaryRow) => {
         if (!getEmployeeId(emp)) {
@@ -174,7 +177,7 @@ const SalariesStructurePage = () => {
                 employee={historyEmp}
                 rows={historyRows}
                 loading={historyLoading}
-                onDelete={(recordId) => deleteHistoryRecord(recordId, getEmployeeId(historyEmp) ?? undefined)}
+                onDelete={(recordId) => setDeletingRecordId(recordId ?? null)}
                 onEdit={setEditingRecord}
             />
 
@@ -185,6 +188,18 @@ const SalariesStructurePage = () => {
                     // The move changes both the history and which record is in force, so reload both.
                     fetchHistory(getEmployeeId(historyEmp) ?? undefined);
                     fetchSalaries();
+                }}
+            />
+
+            <DeleteReasonModal
+                // Remounting per record is what clears the reason between deletes.
+                key={deletingRecordId ?? "closed"}
+                open={deletingRecordId !== null}
+                onCancel={() => setDeletingRecordId(null)}
+                onConfirm={(reason) => {
+                    const recordId = deletingRecordId ?? undefined;
+                    setDeletingRecordId(null);
+                    deleteHistoryRecord(recordId, reason, getEmployeeId(historyEmp) ?? undefined);
                 }}
             />
         </>

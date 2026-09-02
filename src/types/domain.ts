@@ -111,6 +111,23 @@ export interface SalariesStructure {
     employees?: Employee | null;
 }
 
+// GET /salaries/audit/:employees_id — one entry in the trail of who changed this employee's pay and why.
+// Every field the server sends is present on every row, so unlike the domain rows above nothing here is
+// optional except the change itself, which is one-sided for a create and absent for a switch-off.
+export interface SalaryAuditEntry {
+    id: ApiId;
+    created_at: string;
+    action: "created" | "amount_changed" | "moved" | "switched_off" | "deleted";
+    reason: string;
+    actor_id: ApiId;
+    actor_name: string;
+    salaries_structure_id: ApiId | null;
+    from_amount: number | null;
+    to_amount: number | null;
+    from_date: string | null;
+    to_date: string | null;
+}
+
 // GET /salaries/history/:id — one record plus whether it may still be erased.
 export interface SalaryHistoryRow extends SalariesStructure {
     can_delete?: boolean;

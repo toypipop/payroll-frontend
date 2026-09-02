@@ -4,6 +4,8 @@ import Badge from "../../../components/common/Badge";
 import type { Employee, SalaryHistoryRow } from "../../../types/domain";
 import type { ApiId } from "../../../types/api";
 import { lockedReason } from "./salaryShape";
+import { auditActionLabel, auditChangeText } from "./auditLine";
+import { useSalaryAudit } from "./useSalaryAudit";
 
 interface SalaryHistoryModalProps {
     isOpen: boolean;
@@ -28,6 +30,8 @@ const statusOf = (rec: SalaryHistoryRow, currentId: ApiId | undefined) => {
 const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete, onEdit }: SalaryHistoryModalProps) => {
     // The rows arrive newest first, so the record in force is the first switched-on one.
     const currentRecordId = rows.find((rec) => rec.is_active)?.id;
+    // The trail is loaded only while the modal is open, and covers changes to records that no longer exist.
+    const { entries: auditEntries, loading: auditLoading } = useSalaryAudit(isOpen ? employee?.id : undefined);
 
     return (
     <Modal
@@ -111,6 +115,41 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                 </table>
             </div>
         )}
+
+        <div className="mt-5 border-t border-t-hover pt-4">
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-subtle">Change log</div>
+            {auditLoading ? (
+                <div className="text-[12px] text-subtle">Loading...</div>
+            ) : auditEntries.length === 0 ? (
+                <div className="text-[12px] text-subtle">
+                    No changes recorded yet — the log starts from the first change made here.
+                </div>
+            ) : (
+                <ul className="flex flex-col gap-2.5">
+                    {auditEntries.map((entry) => {
+                        const change = auditChangeText(entry);
+                        return (
+                            <li key={entry.id} className="text-[12px] leading-snug">
+                                <div className="text-main">
+                                    <span className="font-semibold">{auditActionLabel(entry.action)}</span>
+                                    <span className="text-subtle"> · {entry.actor_name} · </span>
+                                    <span className="text-subtle">
+                                        {new Date(entry.created_at).toLocaleDateString("en-GB", {
+                                            timeZone: "Asia/Bangkok",
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                        })}
+                                    </span>
+                                </div>
+                                {change && <div className="text-subtle">{change}</div>}
+                                <div className="text-main">&ldquo;{entry.reason}&rdquo;</div>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </div>
     </Modal>
     );
 };

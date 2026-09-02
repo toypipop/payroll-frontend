@@ -8,6 +8,7 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import DateField from "../../../components/common/DateField";
 import DecimalField from "../../../components/common/DecimalField";
+import InputField from "../../../components/common/InputField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
 import { apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
 import { closedCycleFor } from "./closedCycles";
@@ -17,6 +18,8 @@ import type { SalaryHistoryRow } from "../../../types/domain";
 const schema = z.object({
     effective_date: z.string().min(1, "Effective date is required"),
     base_salaries: z.preprocess((val) => Number(val), z.number().min(0.01, "Base salary must be greater than 0")),
+    // Required, and trimmed before it is measured: a reason of spaces answers nothing the trail is kept for.
+    reason: z.string().trim().min(1, "Say why this record is being moved"),
 });
 
 type SalaryRecordEditValues = z.input<typeof schema>;
@@ -34,7 +37,7 @@ interface SalaryRecordEditModalProps {
 const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditModalProps) => {
     const { handleSubmit, reset, control, watch, formState: { errors } } = useForm<SalaryRecordEditValues>({
         resolver: zodResolver(schema),
-        defaultValues: { effective_date: "", base_salaries: "" },
+        defaultValues: { effective_date: "", base_salaries: "", reason: "" },
     });
 
     // Moving a record into a closed period is one of the three things the server refuses; it is also the only
@@ -47,6 +50,8 @@ const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditMod
         reset({
             effective_date: String(record.effective_date ?? "").slice(0, 10),
             base_salaries: record.base_salaries ?? "",
+            // Never carried over from the last change: a reason describes this edit, not the previous one.
+            reason: "",
         });
     }, [record, reset]);
 
@@ -56,6 +61,7 @@ const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditMod
             await api.patch(`/salaries/${record.id}`, {
                 effective_date: data.effective_date,
                 base_salaries: Number(data.base_salaries),
+                reason: data.reason,
                 // The version this form was drawn from: the server refuses the edit if the record has moved since.
                 version: record.version ?? 0,
             });
@@ -121,6 +127,22 @@ const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditMod
                         value={field.value}
                         onChange={field.onChange}
                         error={errors.base_salaries?.message}
+                        required
+                    />
+                )}
+            />
+            <Controller
+                name="reason"
+                control={control}
+                render={({ field }) => (
+                    <InputField
+                        name={field.name}
+                        label="Reason for this change"
+                        placeholder="e.g. annual review, promotion, correction"
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        error={errors.reason?.message}
                         required
                     />
                 )}

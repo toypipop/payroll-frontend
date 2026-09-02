@@ -9,6 +9,7 @@ import Modal from "../../../components/common/Modal";
 import DecimalField from "../../../components/common/DecimalField";
 import DateField from "../../../components/common/DateField";
 import CheckboxField from "../../../components/common/CheckboxField";
+import InputField from "../../../components/common/InputField";
 import {
     getEmployeeId,
     getLatestSalaryStructure,
@@ -40,6 +41,8 @@ const salariesSchema = z.object({
     ),
     effective_date: z.string().min(1, "Effective date is required").regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
     is_active: z.boolean().default(true),
+    // Required, and trimmed before it is measured: a reason of spaces answers nothing the trail is kept for.
+    reason: z.string().trim().min(1, "Say why this change is being made"),
 });
 
 type SalaryFormValues = z.infer<typeof salariesSchema>;
@@ -50,6 +53,7 @@ const DEFAULT_FORM_VALUES = {
     base_salaries: "",
     effective_date: bangkokDateKey(new Date()),
     is_active: true,
+    reason: "",
 };
 
 interface SalaryFormModalProps {
@@ -105,6 +109,8 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
             base_salaries: getSalaryBaseAmount(ss, employee) || "",
             effective_date: finalDate,
             is_active: salaryActiveDefault(ss, employee),
+            // Never carried over from the last change: a reason describes this edit, not the previous one.
+            reason: "",
         });
     }, [isOpen, employee, reset]);
 
@@ -120,6 +126,7 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
                 base_salaries: Number(data.base_salaries),
                 base_salary: Number(data.base_salaries),
                 effective_date: data.effective_date,
+                reason: data.reason,
                 is_active: Boolean(data.is_active),
                 deleted_at: !data.is_active,
             };
@@ -196,6 +203,23 @@ Reloading the list.`);
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         error={errors.effective_date?.message}
+                        required
+                    />
+                )}
+            />
+
+            <Controller
+                name="reason"
+                control={control}
+                render={({ field }) => (
+                    <InputField
+                        name={field.name}
+                        label="Reason for this change"
+                        placeholder="e.g. annual review, promotion, correction"
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        error={errors.reason?.message}
                         required
                     />
                 )}

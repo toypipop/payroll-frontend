@@ -67,10 +67,10 @@ export const useSalaries = () => {
 
     const clearHistory = () => setHistoryRows([]);
 
-    const deleteHistoryRecord = async (recordId?: ApiId, empId?: ApiId) => {
-        if (!window.confirm("Delete this salary record permanently? This cannot be undone.")) return;
+    // The reason travels in the body: a delete is a salary change like any other, and the trail needs it.
+    const deleteHistoryRecord = async (recordId: ApiId | undefined, reason: string, empId?: ApiId) => {
         try {
-            await api.delete(`/salaries/${recordId}`);
+            await api.delete(`/salaries/${recordId}`, { data: { reason } });
             if (empId) fetchHistory(empId);
             fetchSalaries();
         } catch (err) {
