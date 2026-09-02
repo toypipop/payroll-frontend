@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lockedReason } from "./salaryShape";
+import { lockedReason, salaryActiveDefault } from "./salaryShape";
 
 // A locked row is normally locked by several cycles at once — in the seeded data every locked record has
 // been through five — so the line has to name one and account for the rest rather than list them all.
@@ -29,5 +29,27 @@ describe("lockedReason", () => {
         expect(lockedReason([]).title).toBe("Already used in a payroll calculation");
         expect(lockedReason(undefined).label).toBe("");
         expect(lockedReason(undefined).title).toBe("Already used in a payroll calculation");
+    });
+});
+
+// GET /salaries answers "nothing in force" with a placeholder structure rather than nothing at all, and the
+// placeholder carries is_active: false. Trusting that flag opened the form unticked, so a first salary was
+// posted as a disable: the server switched off nothing, answered 200, and the amount was never written.
+describe("salaryActiveDefault", () => {
+    const placeholder = { id: 0, base_salaries: 0, is_active: false, effective_date: "0001-01-01T00:00:00Z" };
+
+    it("starts switched on when the row has no salary record yet", () => {
+        expect(salaryActiveDefault(placeholder)).toBe(true);
+        expect(salaryActiveDefault(null)).toBe(true);
+    });
+
+    it("keeps a real record's own flag", () => {
+        expect(salaryActiveDefault({ id: 11, is_active: true })).toBe(true);
+        expect(salaryActiveDefault({ id: 11, is_active: false })).toBe(false);
+    });
+
+    it("falls back to the soft-delete marker when a real record carries no flag", () => {
+        expect(salaryActiveDefault({ id: 11, deleted_at: 0 })).toBe(true);
+        expect(salaryActiveDefault({ id: 11, deleted_at: "2027-01-01T00:00:00Z" })).toBe(false);
     });
 });

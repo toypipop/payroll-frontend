@@ -152,3 +152,18 @@ export const lockedReason = (cycles: string[] | undefined) => {
         title: `Paid in ${names.length} closed payroll cycle${names.length > 1 ? "s" : ""}: ${names.join(", ")}`,
     };
 };
+
+// salaryActiveDefault decides how the "Active Salary Structure" box opens.
+//
+// GET /salaries answers an employee with nothing in force — no salary at all, or every record switched off —
+// with a placeholder structure whose id is 0 and whose is_active is false. Reading that flag back would open
+// the form unticked, and saving it posts a disable rather than a create: the server switches off nothing,
+// answers 200, and the salary the user just typed is never written. A row with no record yet is a row whose
+// first salary is being entered, and a first salary is switched on.
+export const salaryActiveDefault = (salary: SalaryPayload, row?: SalaryPayload): boolean => {
+    if (getSalaryRecordId(salary, row) === 0) return true;
+
+    const flag = read(salary, "is_active", "isActive", "IsActive");
+    if (typeof flag === "boolean") return flag;
+    return !isSoftDeleted(getSalaryDeletedAt(salary, row));
+};

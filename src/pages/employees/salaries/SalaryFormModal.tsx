@@ -13,9 +13,8 @@ import {
     getEmployeeId,
     getLatestSalaryStructure,
     getSalaryBaseAmount,
-    getSalaryDeletedAt,
     getSalaryEffectiveDate,
-    isSoftDeleted,
+    salaryActiveDefault,
 } from "./salaryShape";
 import type { SalaryRow } from "./useSalaries";
 import { bangkokDateKey } from "../../../utils/bangkokTime";
@@ -105,9 +104,7 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
             employees_id: String(getEmployeeId(employee)),
             base_salaries: getSalaryBaseAmount(ss, employee) || "",
             effective_date: finalDate,
-            is_active: typeof (ss as Record<string, unknown> | null)?.is_active === "boolean"
-                ? Boolean((ss as Record<string, unknown>).is_active)
-                : !isSoftDeleted(getSalaryDeletedAt(ss, employee)),
+            is_active: salaryActiveDefault(ss, employee),
         });
     }, [isOpen, employee, reset]);
 
