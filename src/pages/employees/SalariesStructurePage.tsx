@@ -10,6 +10,7 @@ import SalaryFormModal from "./salaries/SalaryFormModal";
 import SalaryHistoryModal from "./salaries/SalaryHistoryModal";
 import SalaryRecordEditModal from "./salaries/SalaryRecordEditModal";
 import DeleteReasonModal from "./salaries/DeleteReasonModal";
+import BulkRaiseModal from "./salaries/BulkRaiseModal";
 import {
     getEmployeeId,
     getSalaryBaseAmount,
@@ -38,7 +39,7 @@ const formatDate = (date: string, fallback: string) => {
 
 const SalariesStructurePage = () => {
     const {
-        salariesData, loading, fetchSalaries,
+        salariesData, loading, companyOptions, fetchSalaries,
         historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord,
     } = useSalaries();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +50,7 @@ const SalariesStructurePage = () => {
     const [editingRecord, setEditingRecord] = useState<SalaryHistoryRow | null>(null);
     // Which record the delete prompt is asking about; the prompt collects the reason the trail records.
     const [deletingRecordId, setDeletingRecordId] = useState<ApiId | null>(null);
+    const [isBulkOpen, setIsBulkOpen] = useState(false);
 
     const openEdit = (emp: SalaryRow) => {
         if (!getEmployeeId(emp)) {
@@ -151,7 +153,12 @@ const SalariesStructurePage = () => {
 
     return (
         <>
-            <PageHeader title="Salaries Management" />
+            <PageHeader
+                title="Salaries Management"
+                actionButton={
+                    <Button onClick={() => setIsBulkOpen(true)}>+ Raise several</Button>
+                }
+            />
             <Card className="p-0">
                 {loading ? (
                     <div className="p-[40px] text-center">Loading...</div>
@@ -189,6 +196,14 @@ const SalariesStructurePage = () => {
                     fetchHistory(getEmployeeId(historyEmp) ?? undefined);
                     fetchSalaries();
                 }}
+            />
+
+            <BulkRaiseModal
+                isOpen={isBulkOpen}
+                onClose={() => setIsBulkOpen(false)}
+                onApplied={fetchSalaries}
+                rows={salariesData}
+                companies={companyOptions}
             />
 
             <DeleteReasonModal

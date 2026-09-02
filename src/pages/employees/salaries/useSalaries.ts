@@ -3,7 +3,7 @@ import api from "../../../api/axiosInstance";
 import { getLatestSalaryStructure, getSalaryRecordId } from "./salaryShape";
 import type { SalaryPayload } from "./salaryShape";
 import type { ApiId } from "../../../types/api";
-import type { Employee, SalaryHistoryRow } from "../../../types/domain";
+import type { Employee, OptionRow, SalaryHistoryRow } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
 
 // One page row: the employee, plus the latest salary record resolved out of whatever shape the payload used.
@@ -20,6 +20,8 @@ export const useSalaries = () => {
     const [loading, setLoading] = useState(true);
     const [historyRows, setHistoryRows] = useState<SalaryHistoryRow[]>([]);
     const [historyLoading, setHistoryLoading] = useState(false);
+    // The bulk raise filters by company, so the page needs the same options every employee-linked form uses.
+    const [companyOptions, setCompanyOptions] = useState<OptionRow[]>([]);
 
     const fetchSalaries = async () => {
         try {
@@ -50,6 +52,9 @@ export const useSalaries = () => {
 
     useEffect(() => {
         fetchSalaries();
+        api.get<OptionRow[]>("/companies/options")
+            .then((res) => setCompanyOptions(Array.isArray(res.data) ? res.data : []))
+            .catch(() => setCompanyOptions([]));
     }, []);
 
     const fetchHistory = async (empId?: ApiId) => {
@@ -78,7 +83,7 @@ export const useSalaries = () => {
         }
     };
 
-    return { salariesData, loading, fetchSalaries, historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord };
+    return { salariesData, loading, companyOptions, fetchSalaries, historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord };
 };
 
 export default useSalaries;
