@@ -42,13 +42,13 @@ const A4PND1 = ({ data }: { data: PND1Report | null }) => {
         {
             label: "SSO (Emp)",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "var(--status-warning-text)" },
             render: (r) => fc(r.sso_amount),
         },
         {
             label: "Tax Withheld",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "var(--status-danger-text)" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", fontWeight: "600", color: "var(--status-warning-text)" },
             render: (r) => fc(r.tax_withheld),
         },
     ];
@@ -81,8 +81,8 @@ const A4PND1 = ({ data }: { data: PND1Report | null }) => {
                         <tr className="bg-main text-white font-extrabold">
                             <td colSpan={4} className="p-[10px_10px]">Total</td>
                             <td className="p-[10px_10px] text-right font-mono">฿{fc(total_gross)}</td>
-                            <td className="p-[10px_10px] text-right font-mono">{fc(total_sso)}</td>
-                            <td className="p-[10px_10px] text-right font-mono">{fc(total_tax)}</td>
+                            <td className="p-[10px_10px] text-right font-mono text-accent">{fc(total_sso)}</td>
+                            <td className="p-[10px_10px] text-right font-mono text-accent">{fc(total_tax)}</td>
                         </tr>
                     );
                 }}
@@ -140,7 +140,7 @@ const A4Tawi50 = ({ data }: { data: Tawi50Report | null }) => {
                 {[
                     { label: "Gross Income", value: `฿${fc(tx?.total_earning)}`, tone: "success" as const },
                     { label: "SSO (Employee)", value: `฿${fc(tx?.sso_amount)}`, tone: "accent" as const },
-                    { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, tone: "danger" as const },
+                    { label: "Tax Withheld", value: `฿${fc(tx?.tax_amount)}`, tone: "accent" as const },
                     { label: "Net Pay", value: `฿${fc(tx?.net_pay)}`, tone: "neutral" as const },
                 ].map(({ label, value, tone }) => (
                     <div key={label} className="border border-line-muted rounded-[6px] p-[10px_12px] bg-white">
@@ -216,7 +216,7 @@ const TaxFormsReportPage = () => {
         },
         {
             label: "Tax Withheld",
-            render: (r) => <span className="font-mono text-danger-text font-semibold">{fc(r.tax_withheld)}</span>,
+            render: (r) => <span className="font-mono text-accent font-semibold">{fc(r.tax_withheld)}</span>,
         },
         { label: "Companies", render: (r) => r.companies_name || "—" },
     ];
@@ -360,8 +360,8 @@ const TaxFormsReportPage = () => {
                             <Table columns={enrichedColumns} data={pnd1Data.rows || []} />
                             <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
                                 <span className="text-muted">Total Gross: <strong className="text-success-text font-mono">฿{fc(pnd1Data.total_gross)}</strong></span>
-                                <span className="text-muted">Total SSO: <strong className="text-accent font-mono">{fc(pnd1Data.total_sso)}</strong></span>
-                                <span className="text-muted">Total Tax: <strong className="text-danger-text font-mono">{fc(pnd1Data.total_tax)}</strong></span>
+                                <span className="text-muted">Total SSO: <strong className="text-main font-mono">{fc(pnd1Data.total_sso)}</strong></span>
+                                <span className="text-muted">Total Tax: <strong className="text-main font-mono">{fc(pnd1Data.total_tax)}</strong></span>
                             </div>
                         </>
                     )}

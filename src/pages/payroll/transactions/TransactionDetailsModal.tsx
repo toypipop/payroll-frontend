@@ -16,7 +16,12 @@ const detailColumns: TableColumn<PayrollTransactionDetail>[] = [
         label: "Type",
         sortKey: "type",
         sortValue: (row) => (row.type || "").toLowerCase(),
-        render: (row) => <Badge status={row.type === "earning" ? "active" : "rejected"}>{row.type}</Badge>,
+        render: (row) => {
+            const isStatutoryWithholding = row.item_name === "Social Security (SSO)" || row.item_name === "Income Tax";
+            return isStatutoryWithholding
+                ? <Badge status="pending">Statutory</Badge>
+                : <Badge status={row.type === "earning" ? "active" : "rejected"}>{row.type}</Badge>;
+        },
     },
     {
         label: "Amount",

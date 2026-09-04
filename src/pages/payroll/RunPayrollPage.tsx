@@ -12,6 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 import useRunPayroll from "./run-payroll/useRunPayroll";
 import CycleDiffCard from "./run-payroll/CycleDiffCard";
 import PreCheckPanel from "./run-payroll/PreCheckPanel";
+import { payrollDetailTone } from "./payrollDetailTone";
 import type { PayrollTransaction, TableColumn } from "../../types/api";
 
 // How the backend's tax_calculation values read on screen.
@@ -85,7 +86,7 @@ const RunPayrollPage = () => {
                         d.item_name !== "Base Salary" &&
                         d.item_name !== "Income Tax"
                     }
-                    itemToneFn={(d) => (d.is_tax_relevant ? (d.type === "earning" ? "success" : "danger") : "muted")}
+                    itemToneFn={payrollDetailTone}
                 />
             ),
         },
@@ -94,7 +95,7 @@ const RunPayrollPage = () => {
             sortKey: "sso_amount",
             sortValue: (row) => row.sso_amount || 0,
             render: (row) => (
-                <span className="font-mono text-accent">
+                <span className="font-mono font-semibold text-accent">
                     ฿{formatCurrency(row.sso_amount)}
                 </span>
             ),
@@ -104,7 +105,7 @@ const RunPayrollPage = () => {
             sortKey: "tax_amount",
             sortValue: (row) => row.tax_amount || 0,
             render: (row) => (
-                <span className="font-mono text-accent">
+                <span className="font-mono font-semibold text-accent">
                     ฿{formatCurrency(row.tax_amount)}
                 </span>
             ),

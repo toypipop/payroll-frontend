@@ -18,6 +18,8 @@ interface BulkCreateResult {
     created_count?: number;
     skipped_count?: number;
     skipped_dates?: string[];
+    holiday_count?: number;
+    holiday_dates?: string[];
 }
 
 interface BulkCreateModalProps {
@@ -187,11 +189,19 @@ const BulkCreateModal = ({
                                 {(bulkResult.skipped_count ?? 0) > 0 && (
                                     <span> Skipped {bulkResult.skipped_count} date(s) that already had a log.</span>
                                 )}
+                                {(bulkResult.holiday_count ?? 0) > 0 && (
+                                    <span> Skipped {bulkResult.holiday_count} holiday date(s).</span>
+                                )}
                             </div>
                             {(bulkResult.skipped_dates?.length ?? 0) > 0 && (
                                 <ul className="m-[8px_0_0_16px] p-[0px] text-[12px] text-muted">
                                     {bulkResult.skipped_dates?.map((d) => <li key={d}>{d}</li>)}
                                 </ul>
+                            )}
+                            {(bulkResult.holiday_dates?.length ?? 0) > 0 && (
+                                <div className="mt-[8px] text-[12px] text-muted">
+                                    Holidays: {bulkResult.holiday_dates?.join(", ")}
+                                </div>
                             )}
                         </div>
                     ) : (

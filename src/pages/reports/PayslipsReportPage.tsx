@@ -9,6 +9,8 @@ import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
 import { apiErrorMessage } from "../../utils/apiError";
+import { TONE_TEXT_STRONG } from "../../components/common/tone";
+import { payrollDetailTone } from "../payroll/payrollDetailTone";
 import type { PayslipReport, ReportCompany } from "../../types/reports";
 import type { ApiId, PayrollCycle, PayrollTransaction, PayrollTransactionDetail, TableColumn } from "../../types/api";
 
@@ -46,12 +48,12 @@ const A4Payslip = ({ slip, cycle, company }: { slip: PayrollTransaction | null; 
     const deductionsColumns: TableColumn<PayrollTransactionDetail>[] = [
         {
             label: "Deduction",
-            render: (item) => item.item_name,
+            render: (item) => <span className="text-main">{item.item_name}</span>,
         },
         {
             label: "Amount",
             render: (item) => (
-                <span className="font-mono text-danger-text font-semibold">
+                <span className={`font-mono font-semibold ${TONE_TEXT_STRONG[payrollDetailTone(item)]}`}>
                     ({formatCurrency(item.amount)})
                 </span>
             ),

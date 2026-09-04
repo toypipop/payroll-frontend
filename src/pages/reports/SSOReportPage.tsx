@@ -38,13 +38,13 @@ const A4SSO = ({ data }: { data: SSOReport | null }) => {
         {
             label: "Employee SSO",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "var(--primary-color)", fontWeight: "600" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "var(--status-warning-text)", fontWeight: "600" },
             render: (r) => fc(r.employee_sso),
         },
         {
             label: "Employer SSO",
             headerStyle: { textAlign: "right" },
-            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "var(--primary-color)", fontWeight: "600" },
+            cellStyle: { textAlign: "right", fontFamily: "monospace", color: "var(--status-warning-text)", fontWeight: "600" },
             render: (r) => fc(r.employer_sso),
         },
         {
@@ -82,8 +82,8 @@ const A4SSO = ({ data }: { data: SSOReport | null }) => {
                     return (
                         <tr className="bg-main text-white font-extrabold">
                             <td colSpan={5} className="p-[10px_10px]">Total</td>
-                            <td className="p-[10px_10px] text-right font-mono">{fc(total_employee_sso)}</td>
-                            <td className="p-[10px_10px] text-right font-mono">{fc(total_employer_sso)}</td>
+                            <td className="p-[10px_10px] text-right font-mono text-accent">{fc(total_employee_sso)}</td>
+                            <td className="p-[10px_10px] text-right font-mono text-accent">{fc(total_employer_sso)}</td>
                             <td className="p-[10px_10px] text-right font-mono">{fc(total_sso_combined)}</td>
                         </tr>
                     );
@@ -168,11 +168,11 @@ const SSOReportPage = () => {
         { label: "Wages (Base)", render: (r) => <span className="font-mono">฿{fc(r.wages)}</span> },
         {
             label: "Employee SSO",
-            render: (r) => <span className="font-mono text-primary font-semibold">{fc(r.employee_sso)}</span>,
+            render: (r) => <span className="font-mono text-accent font-semibold">{fc(r.employee_sso)}</span>,
         },
         {
             label: "Employer SSO",
-            render: (r) => <span className="font-mono text-primary font-semibold">{fc(r.employer_sso)}</span>,
+            render: (r) => <span className="font-mono text-accent font-semibold">{fc(r.employer_sso)}</span>,
         },
         {
             label: "Total SSO",
@@ -254,8 +254,8 @@ const SSOReportPage = () => {
                     <>
                         <Table columns={columns} data={rows} />
                         <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[32px] text-[13px] bg-surface">
-                            <span className="text-muted">Employee SSO: <strong className="text-primary font-mono">{fc(data?.total_employee_sso)}</strong></span>
-                            <span className="text-muted">Employer SSO: <strong className="text-primary font-mono">{fc(data?.total_employer_sso)}</strong></span>
+                            <span className="text-muted">Employee SSO: <strong className="text-accent font-mono">{fc(data?.total_employee_sso)}</strong></span>
+                            <span className="text-muted">Employer SSO: <strong className="text-accent font-mono">{fc(data?.total_employer_sso)}</strong></span>
                             <span className="text-main font-extrabold font-mono">Combined: ฿{fc(data?.total_sso_combined)}</span>
                         </div>
                     </>

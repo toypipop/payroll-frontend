@@ -6,6 +6,8 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
+import { TONE_TEXT_STRONG } from "../../components/common/tone";
+import { payrollDetailTone } from "../payroll/payrollDetailTone";
 import type { JournalEntry, PayrollAnalysisReport } from "../../types/reports";
 import type { ApiId, PayrollTransaction, TableColumn } from "../../types/api";
 
@@ -102,7 +104,7 @@ const DetailPanel = ({ tx }: { tx: PayrollTransaction | null }) => {
                     {deductions.map((d, i) => (
                         <div key={i} className="flex justify-between text-[13px] mb-[4px]">
                             <span className="text-body">{d.item_name}</span>
-                            <span className="font-mono text-danger-text">({fc(d.amount)})</span>
+                            <span className={`font-mono ${TONE_TEXT_STRONG[payrollDetailTone(d)]}`}>({fc(d.amount)})</span>
                         </div>
                     ))}
                     {deductions.length === 0 && <div className="text-subtle text-[12px]">—</div>}
@@ -151,15 +153,15 @@ const PayrollAnalysisPage = () => {
         },
         {
             label: "Deductions",
-            render: (tx) => <span className="font-mono text-accent">({fc(tx.total_deduction)})</span>,
+            render: (tx) => <span className="font-mono text-danger-text">({fc(tx.total_deduction)})</span>,
         },
         {
             label: "SSO",
-            render: (tx) => <span className="font-mono text-primary">({fc(tx.sso_amount)})</span>,
+            render: (tx) => <span className="font-mono font-semibold text-accent">({fc(tx.sso_amount)})</span>,
         },
         {
             label: "Tax",
-            render: (tx) => <span className="font-mono text-danger-text">({fc(tx.tax_amount)})</span>,
+            render: (tx) => <span className="font-mono font-semibold text-accent">({fc(tx.tax_amount)})</span>,
         },
         {
             label: "Net Pay",
@@ -252,9 +254,9 @@ const PayrollAnalysisPage = () => {
             {summary && (
                 <div className="flex flex-wrap gap-[12px] mb-[20px]">
                     <SummaryCard label="Total Gross Earnings" value={summary.total_gross} color="var(--status-success-text)" />
-                    <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="var(--accent-color)" />
-                    <SummaryCard label="SSO (Employee + Employer)" value={(summary.total_sso_employee ?? 0) + (summary.total_sso_employer ?? 0)} color="var(--primary-color)" />
-                    <SummaryCard label="Tax Withheld" value={summary.total_tax} color="var(--status-danger-text)" />
+                    <SummaryCard label="Other Deductions" value={summary.total_other_deductions} color="var(--status-danger-text)" />
+                    <SummaryCard label="SSO (Employee + Employer)" value={(summary.total_sso_employee ?? 0) + (summary.total_sso_employer ?? 0)} color="var(--accent-color)" />
+                    <SummaryCard label="Tax Withheld" value={summary.total_tax} color="var(--accent-color)" />
                     <SummaryCard label="Total Net Pay" value={summary.total_net} color="var(--text-main)" />
                 </div>
             )}
@@ -301,7 +303,7 @@ const PayrollAnalysisPage = () => {
                             <div className="p-[14px_20px] border-t border-t-line-muted flex justify-end gap-[24px] text-[13px] bg-surface flex-wrap">
                                 <span className="text-muted">Employees: <strong>{transactions.length}</strong></span>
                                 <span className="text-success-text">Gross: <strong className="font-mono">฿{fc(summary?.total_gross)}</strong></span>
-                                <span className="text-danger-text">Tax: <strong className="font-mono">{fc(summary?.total_tax)}</strong></span>
+                                <span className="text-accent">Tax: <strong className="font-mono">{fc(summary?.total_tax)}</strong></span>
                                 <span className="text-main font-extrabold font-mono text-[15px]">Net: ฿{fc(summary?.total_net)}</span>
                             </div>
                         </>

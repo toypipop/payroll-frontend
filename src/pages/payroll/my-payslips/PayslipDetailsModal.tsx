@@ -3,6 +3,7 @@ import Modal from "../../../components/common/Modal";
 import Table from "../../../components/common/Table";
 import Badge from "../../../components/common/Badge";
 import type { MySlip, PayrollTransactionDetail, TableColumn } from "../../../types/api";
+import { payslipDetailAmountClass } from "./payslipDetailStyle";
 
 const formatCurrency = (value: number | string | null | undefined) =>
     Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -25,7 +26,7 @@ const detailColumns: TableColumn<PayrollTransactionDetail>[] = [
         sortKey: "amount",
         sortValue: (row) => Number(row.amount) || 0,
         render: (row) => (
-            <span className="font-mono font-semibold">฿{formatCurrency(row.amount)}</span>
+            <span className={payslipDetailAmountClass(row)}>฿{formatCurrency(row.amount)}</span>
         ),
     },
 ];
