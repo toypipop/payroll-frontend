@@ -72,7 +72,11 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
                 onCategoryCreated(catRes.data);
             }
 
-            const payload = { ...data, category_id: Number(categoryId) };
+            const payload = {
+                ...data,
+                companies_id: Number(data.companies_id),
+                category_id: Number(categoryId),
+            };
             if (editing) {
                 await api.put(`/departments/${editing.id}`, payload);
             } else {
