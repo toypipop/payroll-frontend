@@ -1,23 +1,31 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React, { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import type { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
-import api from "../../api/axiosInstance";
+import { NavLink, useLocation } from "react-router-dom";
 import type { AppModule } from "../../types/api";
+import { useModules } from "../../hooks/useModules";
 
 // Every sidebar link shares this shape; only the active colours and the indent differ.
 const NAV_LINK =
     "mb-0.5 flex items-center rounded-[10px] px-3 py-[9px] text-[13px] font-medium no-underline transition-all duration-150";
 
-const Sidebar = () => {
-    type SidebarModule = AppModule & {
-        parent_id?: string | number | null;
-        order?: number;
-        icon?: string;
-    };
+// Temporary text-only navigation review. Keep the backend icon mapping intact
+// so module icons can be restored by changing this one flag.
+const SHOW_SIDEBAR_ICONS = false;
 
-    const [menuItems, setMenuItems] = useState<SidebarModule[]>([]);
-    const [loading, setLoading] = useState(true);
+const Sidebar = () => {
+    const [expandedCategoryID, setExpandedCategoryID] = useState<string | null>(null);
+    const location = useLocation();
+    const { modules, loading } = useModules();
+    const menuItems = useMemo(() => modules
+        .filter((module) => !module.parent_id)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((parent) => ({
+            ...parent,
+            children: (parent.children?.length ? parent.children : modules
+                .filter((child) => child.parent_id === parent.id))
+                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+        })), [modules]);
 
     // Every icon takes the stroke colour the link is currently drawn in.
     const Icons: Record<string, (color: string) => ReactNode> = {
@@ -121,41 +129,54 @@ const Sidebar = () => {
         Default: (color: string) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
     };
 
-    useEffect(() => {
-        const fetchModules = async () => {
-            try {
-                const response = await api.get<SidebarModule[]>("/modules/mine");
-                const allModules = response.data;
+    const activeCategoryID = useMemo(() => {
+        const activeCategory = menuItems.find((item) =>
+            item.route_path === location.pathname || item.children?.some((child) => child.route_path === location.pathname),
+        );
+        return activeCategory?.is_category ? String(activeCategory.id) : null;
+    }, [location.pathname, menuItems]);
 
-                const tree = allModules
-                    .filter(m => !m.parent_id)
-                    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                    .map(parent => ({
-                        ...parent,
-                        children: allModules
-                            .filter(child => child.parent_id === parent.id)
-                            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                    }));
-
-                setMenuItems(tree);
-            } catch (error) {
-                console.error("Failed to load sidebar", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchModules();
-    }, []);
-
-    const renderMenuItem = (item: SidebarModule, isSub = false): ReactNode => {
+    const renderMenuItem = (item: AppModule, isSub = false): ReactNode => {
         const IconComponent = (item.icon && Icons[item.icon]) || Icons.Default;
 
         if (item.is_category && !isSub) {
             if (!item.children || item.children.length === 0) return null;
+            const categoryID = String(item.id);
+            const isExpanded = expandedCategoryID === null
+                ? activeCategoryID === categoryID
+                : expandedCategoryID === categoryID;
             return (
-                <div key={item.id} className="mb-[16px]">
-                    <div className="px-3 pb-1.5 pt-3.5 text-[10px] font-bold uppercase tracking-[0.11em] text-[rgba(255,255,255,0.45)]">{item.module_name}</div>
-                    {item.children.map(child => renderMenuItem(child, true))}
+                <div key={item.id} className="mb-3">
+                    <button
+                        type="button"
+                        aria-expanded={isExpanded}
+                        onClick={() => setExpandedCategoryID(isExpanded ? "" : categoryID)}
+                        className={twMerge(
+                            "flex w-full items-center justify-between rounded-lg border px-3.5 py-3 text-left text-xs font-extrabold uppercase tracking-[0.08em] transition-colors",
+                            isExpanded ? "border-sidebar-line bg-sidebar-active text-sidebar-on" : "border-transparent text-[rgba(255,255,255,0.58)] hover:border-sidebar-line hover:bg-sidebar-active hover:text-sidebar-on",
+                        )}
+                    >
+                        <span>{item.module_name}</span>
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={`shrink-0 transition-transform duration-150 ${isExpanded ? "rotate-180" : "rotate-0"}`}
+                            aria-hidden="true"
+                        >
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    {isExpanded && (
+                        <div className="ml-4 mt-1.5 border-l border-sidebar-line pl-2">
+                            {item.children.map(child => renderMenuItem(child, true))}
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -167,16 +188,16 @@ const Sidebar = () => {
                 className={({ isActive }) =>
                     twMerge(
                         NAV_LINK,
-                        isSub && "pl-5",
+                        isSub && "mb-0.5 px-3 py-2 text-[12px]",
                         isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
                     )
                 }
             >
                 {({ isActive }) => (
                     <>
-                        <div className="mr-[12px] flex items-center">
+                        {SHOW_SIDEBAR_ICONS && <div className="mr-[12px] flex items-center">
                             {IconComponent(isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.75)")}
-                        </div>
+                        </div>}
                         <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
                             {item.module_name}
                         </span>
@@ -194,57 +215,7 @@ const Sidebar = () => {
             </div>
 
             <nav className="grow overflow-y-auto">
-                {loading ? <div>Loading...</div> : (() => {
-                    const help = menuItems.filter(m => m.module_key === 'HelpPage');
-                    const others = menuItems.filter(m => m.module_key !== 'HelpPage');
-                    return (
-                        <>
-                            <NavLink
-                                to="/my-payslips"
-                                className={({ isActive }) =>
-                                    twMerge(
-                                        NAV_LINK,
-                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
-                                    )
-                                }
-                            >
-                                {({ isActive }) => (
-                                    <>
-                                        <div className="mr-[12px] flex items-center">
-                                            {Icons.ReceiptLong(isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.75)")}
-                                        </div>
-                                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
-                                            My Payslips
-                                        </span>
-                                    </>
-                                )}
-                            </NavLink>
-                            {/* Dashboard is not a permission module but the universal landing page, so the link is always drawn. */}
-                            <NavLink
-                                to="/dashboard"
-                                className={({ isActive }) =>
-                                    twMerge(
-                                        NAV_LINK,
-                                        isActive ? "bg-sidebar-active text-sidebar-on" : "bg-transparent text-sidebar-text",
-                                    )
-                                }
-                            >
-                                {({ isActive }) => (
-                                    <>
-                                        <div className="mr-[12px] flex items-center">
-                                            {Icons.Dashboard(isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.75)")}
-                                        </div>
-                                        <span className={`whitespace-nowrap ${isActive ? "font-semibold" : "font-normal"}`}>
-                                            Dashboard
-                                        </span>
-                                    </>
-                                )}
-                            </NavLink>
-                            {help.map(item => renderMenuItem(item))}
-                            {others.map(item => renderMenuItem(item))}
-                        </>
-                    );
-                })()}
+                {loading ? <div>Loading...</div> : menuItems.map(item => renderMenuItem(item))}
             </nav>
         </div>
     );

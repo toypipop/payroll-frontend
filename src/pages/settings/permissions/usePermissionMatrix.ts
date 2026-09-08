@@ -3,6 +3,7 @@ import api from "../../../api/axiosInstance";
 import type { AppModule, ApiId } from "../../../types/api";
 import type { Role } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
+import { hasPermissionChanges } from "./permissionState";
 
 // One editable row of the matrix: what the module allows, and what this role currently holds on it.
 export interface PermissionRow {
@@ -56,8 +57,12 @@ export const usePermissionMatrix = () => {
     const [roles, setRoles] = useState<Role[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<Role | null>(null);
     const [permissions, setPermissions] = useState<PermissionRow[]>([]);
+    const [savedPermissions, setSavedPermissions] = useState<PermissionRow[]>([]);
     const [moduleTree, setModuleTree] = useState<AppModule[]>([]);
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+    const [notice, setNotice] = useState("");
 
     // Fetch module tree once — same source as the Sidebar
     useEffect(() => {
@@ -80,6 +85,8 @@ export const usePermissionMatrix = () => {
         if (!role) return;
         setSelectedRoles(role);
         setLoading(true);
+        setError("");
+        setNotice("");
         try {
             const res = await api.get<PermissionResponse>(`/permissions/${role.id}`);
             const matrixData: PermissionRow[] = res.data.modules.map((m) => {
@@ -105,8 +112,11 @@ export const usePermissionMatrix = () => {
                 };
             });
             setPermissions(matrixData);
+            setSavedPermissions(matrixData);
         } catch (err) {
-            console.error("Load Permissions Error", err);
+            setPermissions([]);
+            setSavedPermissions([]);
+            setError(apiErrorMessage(err, "Unable to load permissions."));
         } finally {
             setLoading(false);
         }
@@ -120,7 +130,7 @@ export const usePermissionMatrix = () => {
                 selectRole(res.data[0]);
             }
         } catch (err) {
-            console.error("Load Roles Error", err);
+            setError(apiErrorMessage(err, "Unable to load roles."));
         }
     }, [selectRole]);
 
@@ -142,9 +152,12 @@ export const usePermissionMatrix = () => {
         });
     };
 
-    const save = async () => {
-        if (!selectedRoles) return;
+    const save = async (): Promise<boolean> => {
+        if (!selectedRoles || saving || !hasPermissionChanges(savedPermissions, permissions)) return false;
         try {
+            setSaving(true);
+            setError("");
+            setNotice("");
             // The handler binds six fields; the rest of the row is capability the server sent us in the
             // first place. Categories are dropped because they carry no permission row — and every
             // remaining module is sent whether or not it is ticked, since the server replaces the role's
@@ -160,10 +173,22 @@ export const usePermissionMatrix = () => {
                     data_scope,
                 }));
             await api.post(`/permissions/${selectedRoles.id}`, payload);
-            alert("Permissions saved successfully!");
+            // Reload the persisted matrix because the backend clamps unsupported
+            // actions and scopes to the module capability contract.
+            await selectRole(selectedRoles);
+            setNotice("Permissions saved.");
+            return true;
         } catch (err) {
-            alert(apiErrorMessage(err, "Save error"));
+            setError(apiErrorMessage(err, "Unable to save permissions."));
+            return false;
+        } finally {
+            setSaving(false);
         }
+    };
+
+    const discardChanges = () => {
+        setPermissions(savedPermissions);
+        setNotice("");
     };
 
     // Group permissions by sidebar category order
@@ -191,7 +216,9 @@ export const usePermissionMatrix = () => {
         return groups;
     }, [moduleTree, permissions]);
 
-    return { roles, selectedRoles, permissions, groupedPermissions, loading, selectRole, updateLocal, save };
+    const isDirty = hasPermissionChanges(savedPermissions, permissions);
+
+    return { roles, selectedRoles, permissions, groupedPermissions, loading, saving, isDirty, error, notice, selectRole, updateLocal, save, discardChanges };
 };
 
 export default usePermissionMatrix;

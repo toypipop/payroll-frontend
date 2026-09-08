@@ -10,6 +10,7 @@ import InputField from "../../../components/common/InputField";
 import DateField from "../../../components/common/DateField";
 import SelectField from "../../../components/common/SelectField";
 import { apiErrorMessage } from "../../../utils/apiError";
+import { endOfBangkokMonth } from "../../../utils/bangkokTime";
 import type { Company } from "../../../types/domain";
 
 const cycleSchema = z.object({
@@ -34,7 +35,7 @@ interface CycleFormModalProps {
 }
 
 const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: CycleFormModalProps) => {
-    const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm({
         resolver: zodResolver(cycleSchema),
         defaultValues: { companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" },
     });
@@ -102,7 +103,10 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: 
                         <DateField
                             label="Start Date"
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(startDate) => {
+                                field.onChange(startDate);
+                                setValue("end_date", endOfBangkokMonth(startDate), { shouldDirty: true, shouldValidate: true });
+                            }}
                             error={errors.start_date?.message}
                             required
                         />

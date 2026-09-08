@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -7,7 +7,7 @@ import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
-import { apiErrorMessage } from "../../../utils/apiError";
+import { apiErrorMessage, isCompanyInactiveError } from "../../../utils/apiError";
 import type { Company } from "../../../types/domain";
 
 const companiesSchema = z.object({
@@ -37,11 +37,13 @@ interface CompanyFormModalProps {
 }
 
 const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }: CompanyFormModalProps) => {
+    const [saveError, setSaveError] = useState("");
+    const [inactive, setInactive] = useState(false);
     const {
         register,
         handleSubmit,
         reset,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(companiesSchema),
         defaultValues: EMPTY,
@@ -50,12 +52,18 @@ const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }: CompanyFormModa
     // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
     useEffect(() => {
         if (!isOpen) return;
+        // Reset modal feedback together with the selected record.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSaveError("");
+        setInactive(editing?.is_active === false);
         reset(editing
             ? { name: editing.name, tax_id: editing.tax_id, address: editing.address, phone: editing.phone }
             : EMPTY);
     }, [isOpen, editing, reset]);
 
     const onSubmit = async (data: CompanyFormValues) => {
+        if (inactive || editing?.is_active === false) return;
+        setSaveError("");
         try {
             if (editing) {
                 await api.put(`/companies/${editing.id}`, data);
@@ -65,26 +73,32 @@ const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }: CompanyFormModa
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setSaveError(apiErrorMessage(err, "Save Failed"));
+            if (isCompanyInactiveError(err)) {
+                setInactive(true);
+                onSaved();
+            }
         }
     };
 
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={() => { if (!isSubmitting) onClose(); }}
             title={editing ? "Edit Companies" : "Add New Companies"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose}>
+                    <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)}>
-                        {editing ? "Update" : "Save"}
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting || inactive || editing?.is_active === false}>
+                        {isSubmitting ? "Saving..." : editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
+            {saveError && <p role="alert" className="mb-4 text-sm text-danger">{saveError}</p>}
+            <fieldset disabled={isSubmitting || inactive || editing?.is_active === false}>
             <InputField
                 label="Companies Name"
                 {...register("name")}
@@ -109,6 +123,7 @@ const CompanyFormModal = ({ isOpen, onClose, onSaved, editing }: CompanyFormModa
                 error={errors.phone?.message}
                 required
             />
+            </fieldset>
         </Modal>
     );
 };

@@ -2,6 +2,7 @@ import { AxiosError } from "axios";
 
 // The error body the API returns on every failure: `{ "error": "..." }`, plus the `reason` a delete guard adds.
 export interface ApiErrorBody {
+    code?: string;
     error?: string;
     reason?: string;
     message?: string;
@@ -18,6 +19,9 @@ export const apiErrorBody = (err: unknown): ApiErrorBody | null => asApiError(er
 
 // apiErrorStatus is the HTTP status, or null when the request never got a response.
 export const apiErrorStatus = (err: unknown): number | null => asApiError(err)?.response?.status ?? null;
+
+export const isCompanyInactiveError = (err: unknown): boolean =>
+    apiErrorStatus(err) === 409 && apiErrorBody(err)?.code === "COMPANY_INACTIVE";
 
 // apiErrorMessage is what to show the user: the server's message when there is one, otherwise the caller's fallback.
 // `reason` is appended because the delete guard uses it to name what still references the row.

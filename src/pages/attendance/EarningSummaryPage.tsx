@@ -4,12 +4,14 @@ import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
 import DateField from "../../components/common/DateField";
 import useAttendanceSummary from "./summaries/useAttendanceSummary";
+import { useMonthEndDateRange } from "./summaries/useMonthEndDateRange";
 import type { TableColumn } from "../../types/api";
 import type { EarningSummaryRow } from "../../types/domain";
 
 const EarningSummaryPage = () => {
     const { summary, loading, fromDate, setFromDate, toDate, setToDate, meta, fetchSummary } =
         useAttendanceSummary<EarningSummaryRow>("/earning/summary", "Failed to load earning summary");
+    const { handleFromDateChange, handleToDateChange } = useMonthEndDateRange({ setFromDate, toDate, setToDate });
 
     const totalOtMins = summary.reduce((s, r) => s + r.total_overtime_minutes, 0);
     const totalExtraDays = summary.reduce((s, r) => s + r.total_extra_days, 0);
@@ -86,14 +88,14 @@ const EarningSummaryPage = () => {
                         <DateField
                             label="From Date"
                             value={fromDate}
-                            onChange={setFromDate}
+                            onChange={handleFromDateChange}
                         />
                     </div>
                     <div className="flex-1 min-w-[160px]">
                         <DateField
                             label="To Date"
                             value={toDate}
-                            onChange={setToDate}
+                            onChange={handleToDateChange}
                         />
                     </div>
                     <div className="mt-[16px] mb-[20px]">

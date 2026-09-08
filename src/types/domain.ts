@@ -11,6 +11,7 @@ import type { ApiId } from "./api";
 
 export interface Company {
     id?: ApiId;
+    is_active?: boolean;
     name?: string;
     tax_id?: string;
     address?: string;
@@ -302,6 +303,15 @@ export interface LeaveRequest {
     quota_max_days?: number;
     quota_used_days?: number;
     quota_exceeded?: boolean;
+    quota_years?: LeaveQuotaYear[];
+}
+
+export interface LeaveQuotaYear {
+    year: number;
+    max_days: number;
+    used_days: number;
+    requested_days: number;
+    exceeded: boolean;
 }
 
 // The two attendance summary endpoints answer with the same envelope over a different row.

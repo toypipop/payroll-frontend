@@ -7,6 +7,16 @@ import useLeaveApprovals from "./leave-approvals/useLeaveApprovals";
 import type { TableColumn } from "../../types/api";
 import type { LeaveRequest } from "../../types/domain";
 
+const quotaWarningTitle = (row: LeaveRequest) => {
+    const affectedYears = row.quota_years?.filter((quota) => quota.exceeded) ?? [];
+    if (affectedYears.length > 0) {
+        return affectedYears
+            .map((quota) => `${quota.year}: ${quota.used_days} used + ${quota.requested_days} requested / ${quota.max_days} days`)
+            .join("; ");
+    }
+    return `Used ${row.quota_used_days} of ${row.quota_max_days} days this year`;
+};
+
 const LeaveApprovedPage = () => {
     const { user } = useAuth();
     const { pendingRequests, loading, decide } = useLeaveApprovals(user?.id);
@@ -61,12 +71,12 @@ const LeaveApprovedPage = () => {
                 <div className="whitespace-nowrap">
                     {row.total_days}
                     {row.quota_exceeded && (
-                        <div
-                            className="text-[11px] text-danger-text font-semibold"
-                            title={`Used ${row.quota_used_days} of ${row.quota_max_days} days this year`}
+                        <span
+                            className="ml-1.5 text-[11px] font-semibold text-danger-text"
+                            title={quotaWarningTitle(row)}
                         >
-                            ⚠ Over quota ({row.quota_used_days}/{row.quota_max_days})
-                        </div>
+                            ⚠ Over quota
+                        </span>
                     )}
                 </div>
             ),
@@ -94,6 +104,8 @@ const LeaveApprovedPage = () => {
                     <Button
                         onClick={() => decide(row, "Approved")}
                         className={`${actionBtn} bg-success text-white`}
+                        disabled={row.quota_exceeded}
+                        title={row.quota_exceeded ? "This request exceeds the leave type's annual limit" : undefined}
                     >
                         Approve
                     </Button>

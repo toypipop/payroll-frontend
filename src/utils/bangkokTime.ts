@@ -81,3 +81,19 @@ export const isoToBangkokLocal = (timeValue: TimeInput) => {
     const { hours, minutes } = toBangkokHM(timeValue instanceof Date ? timeValue : new Date(timeValue));
     return `${key}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 };
+
+// endOfBangkokMonth works only with a calendar date key, avoiding the viewer's local timezone entirely.
+export const endOfBangkokMonth = (dateKey: string) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
+    if (!match) return "";
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (month < 1 || month > 12 || day < 1) return "";
+
+    const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+    if (day > daysInMonth) return "";
+    return `${match[1]}-${match[2]}-${String(daysInMonth).padStart(2, "0")}`;
+};

@@ -11,6 +11,7 @@ import MasterDataWarning from "../../../components/common/MasterDataWarning";
 import { WEEKDAY_OPTIONS, formatHHMM, parseTimeFromConfig } from "./scheduleHelpers";
 import { warningBox, warningLink, successBox, dangerBox } from "./warningStyles";
 import { apiErrorMessage } from "../../../utils/apiError";
+import { endOfBangkokMonth } from "../../../utils/bangkokTime";
 import type { OptionRow, ScheduleConfig } from "../../../types/domain";
 
 // What POST /timelogs/bulk answers with: how many logs it wrote, and the dates it left alone.
@@ -53,6 +54,7 @@ const BulkCreateModal = ({
         const [bulkWorkLocationId, setBulkWorkLocationId] = useState("");
         const [bulkStartDate, setBulkStartDate] = useState("");
         const [bulkEndDate, setBulkEndDate] = useState("");
+        const [bulkEndDateIsAutoFilled, setBulkEndDateIsAutoFilled] = useState(false);
         const [bulkWeekdays, setBulkWeekdays] = useState([1, 2, 3, 4, 5]);
         const [bulkCheckInTime, setBulkCheckInTime] = useState("09:00");
         const [bulkCheckOutTime, setBulkCheckOutTime] = useState("18:00");
@@ -114,6 +116,7 @@ const BulkCreateModal = ({
             setBulkWorkLocationId("");
             setBulkStartDate("");
             setBulkEndDate("");
+            setBulkEndDateIsAutoFilled(false);
             setBulkWeekdays([1, 2, 3, 4, 5]);
             setBulkCheckInTime("09:00");
             setBulkCheckOutTime("18:00");
@@ -264,7 +267,18 @@ const BulkCreateModal = ({
                                     <DateField
                                         label="From"
                                         value={bulkStartDate}
-                                        onChange={setBulkStartDate}
+                                        onChange={(startDate) => {
+                                            setBulkStartDate(startDate);
+                                            if (!startDate) {
+                                                if (bulkEndDateIsAutoFilled) setBulkEndDate("");
+                                                setBulkEndDateIsAutoFilled(false);
+                                                return;
+                                            }
+                                            if (!bulkEndDate || bulkEndDateIsAutoFilled) {
+                                                setBulkEndDate(endOfBangkokMonth(startDate));
+                                                setBulkEndDateIsAutoFilled(true);
+                                            }
+                                        }}
                                         required
                                     />
                                 </div>
@@ -272,7 +286,10 @@ const BulkCreateModal = ({
                                     <DateField
                                         label="To"
                                         value={bulkEndDate}
-                                        onChange={setBulkEndDate}
+                                        onChange={(endDate) => {
+                                            setBulkEndDate(endDate);
+                                            setBulkEndDateIsAutoFilled(false);
+                                        }}
                                         required
                                     />
                                 </div>

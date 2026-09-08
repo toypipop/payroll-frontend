@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { Company, DayOff, Employee, OptionRow, ScheduleConfig, TimeLog } from "../../../types/domain";
-import type { AppModule } from "../../../types/api";
 import { apiErrorMessage } from "../../../utils/apiError";
 import type { ApiId } from "../../../types/api";
+import { useModulePermission } from "../../../hooks/useModulePermission";
 
 // useTimelogs owns the page's server data: the logs plus every master list the form and the bulk modal read.
 export const useTimelogs = () => {
@@ -17,7 +17,7 @@ export const useTimelogs = () => {
     const [employeeData, setEmployeeData] = useState<Record<string, Employee>>({});
     const [attendanceConfigs, setAttendanceConfigs] = useState<Record<string, ScheduleConfig>>({});
     const [dayOffWeekdaysByCompany, setDayOffWeekdaysByCompany] = useState<Record<string, number[]>>({});
-    const [canManageAttendanceSettings, setCanManageAttendanceSettings] = useState(false);
+    const canManageAttendanceSettings = useModulePermission("AttendanceSettingsPage");
 
     const fetchTimeLogs = async () => {
         try {
@@ -35,12 +35,11 @@ export const useTimelogs = () => {
         const fetchMasterData = async () => {
             try {
                 // Fetch employees to show in dropdown
-                const [empRes, locRes, schedRes, companyRes, modulesRes, dayOffRes] = await Promise.all([
+                const [empRes, locRes, schedRes, companyRes, dayOffRes] = await Promise.all([
                     api.get("/employees"),
                     api.get("/master/work-locations/options").catch(() => ({ data: [] })),
                     api.get("/timelogs/schedule-config").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
-                    api.get("/modules/mine").catch(() => ({ data: [] })),
                     api.get("/master/day-offs/options").catch(() => ({ data: [] })),
                 ]);
                 setMasterCompanies((companyRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
@@ -80,15 +79,6 @@ export const useTimelogs = () => {
                 });
                 setDayOffWeekdaysByCompany(dayOffMap);
 
-                const moduleKeys: string[] = [];
-                const collectKeys = (items?: AppModule[]) => {
-                    (items || []).forEach((m) => {
-                        if (m.module_key) moduleKeys.push(m.module_key);
-                        if (m.children) collectKeys(m.children);
-                    });
-                };
-                collectKeys(modulesRes.data);
-                setCanManageAttendanceSettings(moduleKeys.includes("AttendanceSettingsPage"));
             } catch (err) {
                 console.error("Master Data Load Error", err);
             }

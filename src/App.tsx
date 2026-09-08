@@ -1,13 +1,13 @@
-import React, { useEffect, useState, Suspense, lazy } from "react";
+import React, { useEffect, useState, Suspense, lazy, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import api from "./api/axiosInstance";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ModuleProvider } from "./contexts/ModuleContext";
 import MainLayout from "./components/layouts/MainLayout";
-import type { AppModule, AuthMeResponse, UserProfile } from "./types/api";
+import type { AuthMeResponse, UserProfile } from "./types/api";
+import { flattenModulePages } from "./contexts/moduleTree";
+import { useModules } from "./hooks/useModules";
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
-const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
-const MyPayslipsPage = lazy(() => import("./pages/payroll/MyPayslipsPage"));
-const HelpPage = lazy(() => import("./pages/help/HelpPage"));
 
 const pages = import.meta.glob<{ default: React.ComponentType }>("./pages/**/*.tsx");
 
@@ -21,9 +21,51 @@ const ProtectedRoute = ({ isAuthenticated, children }: ProtectedRouteProps) => {
 };
 
 
+const ApplicationRoutes = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
+    const { modules, loading } = useModules();
+    const routes = useMemo(() => flattenModulePages(modules), [modules]);
+
+    if (loading) return null;
+
+    return (
+        <Suspense fallback={null}>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                {routes.map((m) => {
+                    const importFunc = Object.entries(pages).find(
+                        ([path]) => path.endsWith(`/${m.module_key}.tsx`)
+                    )?.[1];
+
+                    if (!importFunc) {
+                        console.warn(`Route skipped: missing page file for module_key "${m.module_key}" in src/pages`);
+                        return null;
+                    }
+
+                    const Page = lazy(importFunc);
+
+                    return (
+                        <Route
+                            key={m.id}
+                            path={m.route_path ?? undefined}
+                            element={
+                                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                                    <MainLayout pageTitle={m.module_name}>
+                                        <Page />
+                                    </MainLayout>
+                                </ProtectedRoute>
+                            }
+                        />
+                    );
+                })}
+
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+                <Route path="*" element={<Navigate to="/login" />} />
+            </Routes>
+        </Suspense>
+    );
+};
+
 function App() {
-    const [routes, setRoutes] = useState<AppModule[]>([]);
-    const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState<UserProfile | null>(null);
@@ -49,103 +91,18 @@ function App() {
             }
         };
 
-        const fetchRoutes = async () => {
-            try {
-                const res = await api.get<AppModule[]>("/modules/mine");
-                const flatList: AppModule[] = [];
-                const extract = (items: AppModule[]) => {
-                    if (!Array.isArray(items)) return;
-                    items.forEach((item) => {
-                        if (item.route_path && !item.is_category) {
-                            flatList.push(item);
-                        }
-                        if (item.children && item.children.length > 0) extract(item.children);
-                    });
-                };
-                extract(res.data);
-                setRoutes(flatList);
-            } catch (err) {
-                console.error("Fetch routes error:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
         verifySession();
-        fetchRoutes();
     }, []);
 
-    if (loading || authLoading) return null;
+    if (authLoading) return null;
 
     return (
         <AuthProvider user={user}>
-        <Router>
-            <Suspense fallback={null}>
-                <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route
-                        path="/dashboard"
-                        element={
-                            <ProtectedRoute isAuthenticated={isAuthenticated}>
-                                <MainLayout pageTitle="Dashboard">
-                                    <DashboardPage />
-                                </MainLayout>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/my-payslips"
-                        element={
-                            <ProtectedRoute isAuthenticated={isAuthenticated}>
-                                <MainLayout pageTitle="My Payslips">
-                                    <MyPayslipsPage />
-                                </MainLayout>
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route
-                        path="/help"
-                        element={
-                            <ProtectedRoute isAuthenticated={isAuthenticated}>
-                                <MainLayout pageTitle="Help Center">
-                                    <HelpPage />
-                                </MainLayout>
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    {routes.map((m) => {
-                        const importFunc = Object.entries(pages).find(
-                            ([path]) => path.endsWith(`/${m.module_key}.tsx`)
-                        )?.[1];
-
-                        if (!importFunc) {
-                            console.warn(`Route skipped: missing page file for module_key "${m.module_key}" in src/pages`);
-                            return null;
-                        }
-
-                        const Page = lazy(importFunc);
-
-                        return (
-                            <Route
-                                key={m.id}
-                                path={m.route_path ?? undefined}
-                                element={
-                                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                                        <MainLayout pageTitle={m.module_name}>
-                                            <Page />
-                                        </MainLayout>
-                                    </ProtectedRoute>
-                                }
-                            />
-                        );
-                    })}
-
-                    <Route path="/" element={<Navigate to="/dashboard" />} />
-                    <Route path="*" element={<Navigate to="/login" />} />
-                </Routes>
-            </Suspense>
-        </Router>
+            <ModuleProvider key={String(user?.id ?? "anonymous")} user={user}>
+                <Router>
+                    <ApplicationRoutes isAuthenticated={isAuthenticated} />
+                </Router>
+            </ModuleProvider>
         </AuthProvider>
     );
 }

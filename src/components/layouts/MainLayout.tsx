@@ -2,6 +2,7 @@ import React from 'react';
 import type { ReactNode } from 'react';
 import Sidebar from '../common/Sidebar';
 import Navbar from '../common/Navbar';
+import CompanyAccessBoundary from './CompanyAccessBoundary';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ const MainLayout = ({ children, pageTitle }: MainLayoutProps) => {
         <Navbar pageTitle={pageTitle} />
         <main className="grow px-[clamp(16px,3vw,34px)] pt-6 pb-[30px]">
           <div className="mx-auto w-full max-w-[1280px] rounded-[18px] border border-[rgba(219,229,227,0.95)] bg-[rgba(255,255,255,0.72)] p-[clamp(12px,1.8vw,20px)] shadow-(--shadow-card) backdrop-blur-[2px]">
-            {children}
+            <CompanyAccessBoundary>{children}</CompanyAccessBoundary>
           </div>
         </main>
       </div>

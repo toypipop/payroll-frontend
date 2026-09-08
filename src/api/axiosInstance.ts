@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { apiErrorMessage, isCompanyInactiveError } from "../utils/apiError";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "/api/v1",
@@ -19,6 +20,14 @@ api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
         const { response } = error;
+
+        // Companies settings owns its inline edit/status errors. Other modules
+        // must discard already-rendered data after the company becomes inactive.
+        if (isCompanyInactiveError(error) && !/^\/companies(?:\/|$)/.test(error.config?.url ?? "")) {
+            window.dispatchEvent(new CustomEvent("company-inactive", {
+                detail: apiErrorMessage(error, "This company is inactive. Its records are unavailable."),
+            }));
+        }
 
         if (response && response.status === 401) {
 	            // Prevent infinite redirect loop on login page

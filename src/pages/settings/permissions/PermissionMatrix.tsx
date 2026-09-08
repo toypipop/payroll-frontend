@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { ComponentProps, CSSProperties } from "react";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
 import Table from "../../../components/common/Table";
@@ -32,6 +32,12 @@ const fixedScopeHintStyle: CSSProperties = {
     fontSize: "11px",
     color: "var(--text-subtle)",
 };
+
+const ActionCheckbox = (props: ComponentProps<typeof CheckboxField>) => (
+    <div className="flex justify-center">
+        <CheckboxField {...props} />
+    </div>
+);
 
 const categoryRowStyle = {
     padding: "8px 20px",
@@ -71,7 +77,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             render: (item) => item.module_name,
         },
         {
-            label: "View",
+            label: "Access",
             headerStyle: { textAlign: "center", width: "7%" },
             cellStyle: { textAlign: "center" },
             render: (item) => {
@@ -81,7 +87,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
                     const fields = (item.allowed_actions || []).map((a) => ACTION_FIELD[a]).filter(Boolean);
                     const allGranted = fields.length > 0 && fields.every((f) => row?.[f]);
                     return (
-                        <CheckboxField
+                        <ActionCheckbox
                             checked={allGranted}
                             onChange={(e) =>
                                 handleUpdateLocal(
@@ -94,7 +100,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
                 }
                 if (!allowsAction(item, "VIEW")) return null;
                 return (
-                    <CheckboxField
+                    <ActionCheckbox
                         checked={row?.can_view || false}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "can_view", e.target.checked)}
                     />
@@ -108,7 +114,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             render: (item) => {
                 if (item.actions_atomic || !allowsAction(item, "CREATE")) return null;
                 return (
-                    <CheckboxField
+                    <ActionCheckbox
                         checked={permissions[item._flatIdx]?.can_create || false}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "can_create", e.target.checked)}
                     />
@@ -122,7 +128,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             render: (item) => {
                 if (item.actions_atomic || !allowsAction(item, "EDIT")) return null;
                 return (
-                    <CheckboxField
+                    <ActionCheckbox
                         checked={permissions[item._flatIdx]?.can_edit || false}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "can_edit", e.target.checked)}
                     />
@@ -136,7 +142,7 @@ const PermissionMatrix = ({ permissions, groupedPermissions, dataScopeOptions, h
             render: (item) => {
                 if (item.actions_atomic || !allowsAction(item, "DELETE")) return null;
                 return (
-                    <CheckboxField
+                    <ActionCheckbox
                         checked={permissions[item._flatIdx]?.can_delete || false}
                         onChange={(e) => handleUpdateLocal(item._flatIdx, "can_delete", e.target.checked)}
                     />

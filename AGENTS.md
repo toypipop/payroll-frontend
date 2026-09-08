@@ -78,3 +78,12 @@ npm run build
 
 - Coordinate frontend-facing API changes with `../payroll-backend`.
 - Do not deploy or reset infrastructure unless the user explicitly asks. Backend deployment is manual and deploys both repositories from the same branch.
+
+## Engineering standards for every change
+
+- Refactor within the touched domain: keep responsibilities separated, reuse existing abstractions, and remove newly introduced duplication. Do not combine an unrelated rewrite with a feature or fix.
+- Preserve data and transaction integrity. Validate at the UI and API boundaries, keep multi-record writes atomic, make retryable mutations idempotent where the contract requires it, and handle concurrency conflicts explicitly.
+- Treat security as part of the feature: retain server-enforced authentication and authorization, never bypass company or permission scoping, validate and safely render untrusted input, and never expose or log credentials, tokens, cookies, or other sensitive data.
+- Avoid unnecessary client work and network traffic. Reuse scoped endpoints, prevent duplicate fetches and broad refreshes, and keep rendering and state updates proportional to the data being shown.
+- Add useful observability without noise. Surface actionable, safe client errors; include relevant non-sensitive context in logs when logging is warranted; use appropriate severity and do not log personal or secret data.
+- Apply these standards to the active product work, including System Permissions, leave-type annual limits, permission-save refresh behavior, and paired date inputs.

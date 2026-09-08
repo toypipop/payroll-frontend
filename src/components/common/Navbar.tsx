@@ -1,42 +1,21 @@
-import React, { useEffect, useState } from 'react';
+﻿import React from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../../api/axiosInstance';
-import type { AppModule, UserProfile } from '../../types/api';
 import { useAuth } from '../../hooks/useAuth';
+import { useModules } from '../../hooks/useModules';
 
 const Navbar = ({ pageTitle = 'Dashboard' }: { pageTitle?: string }) => {
   const location = useLocation();
-  const [categoryName, setCategoryName] = useState('System');
-
-  useEffect(() => {
-    const fetchCategory = async () => {
-      try {
-        const res = await api.get<AppModule[]>('/modules/mine');
-        const findParent = (items: AppModule[]): AppModule | null => {
-          for (const item of items) {
-            if (item.route_path === location.pathname) {
-              return item;
-            }
-            if (item.children?.length) {
-              const found = findParent(item.children);
-              if (found) return found;
-            }
-          }
-          return null;
-        };
-        const currentModule = findParent(res.data);
-        if (currentModule?.parent_id) {
-          const parent = res.data.find(m => m.id === currentModule.parent_id);
-          if (parent) setCategoryName(parent.module_name);
-        } else if (pageTitle === 'Dashboard') {
-          setCategoryName('System');
-        }
-      } catch (err) {
-        console.error('Failed to fetch category', err);
+  const { modules } = useModules();
+  const categoryName = (() => {
+    for (const category of modules) {
+      if (category.route_path === location.pathname) return category.module_name;
+      if (category.children?.some((child) => child.route_path === location.pathname)) {
+        return category.module_name;
       }
-    };
-    fetchCategory();
-  }, [location.pathname, pageTitle]);
+    }
+    return pageTitle === 'Dashboard' ? 'System' : 'System';
+  })();
 
   const { user: storedUser } = useAuth();
   const displayName = storedUser?.fullName || 'Admin';
