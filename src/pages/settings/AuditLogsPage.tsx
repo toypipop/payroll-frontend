@@ -19,6 +19,8 @@ interface AuditLogRow {
     reason: string;
 }
 
+const SHARED_DATA_OPTION = { id: "shared", name: "Shared Data" };
+
 const formatOccurredAt = (value: string) => `${bangkokDateKey(value)} ${formatDisplayTime(value)}`;
 
 const AuditLogsPage = () => {
@@ -29,7 +31,10 @@ const AuditLogsPage = () => {
 
     useEffect(() => {
         let active = true;
-        api.get<AuditLogRow[]>("/audit-logs", { params: companyID ? { companies_id: companyID } : undefined })
+        const params = companyID === SHARED_DATA_OPTION.id
+            ? { scope: "shared" }
+            : companyID ? { companies_id: companyID } : undefined;
+        api.get<AuditLogRow[]>("/audit-logs", { params })
             .then((response) => { if (active) setRows(response.data); })
             .finally(() => { if (active) setLoading(false); });
         return () => { active = false; };
@@ -58,7 +63,7 @@ const AuditLogsPage = () => {
             <SelectField
                 label="Company"
                 value={companyID}
-                options={companies}
+                options={[SHARED_DATA_OPTION, ...companies]}
                 onChange={(event) => setCompanyID(event.target.value)}
             />
         </div>
