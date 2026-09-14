@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import api from "../../api/axiosInstance";
+import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
 import PageHeader from "../../components/common/PageHeader";
 import SelectField from "../../components/common/SelectField";
@@ -8,16 +9,7 @@ import Table from "../../components/common/Table";
 import type { TableColumn } from "../../types/api";
 import type { Company } from "../../types/domain";
 import { bangkokDateKey, formatDisplayTime } from "../../utils/bangkokTime";
-
-interface AuditLogRow {
-    id: number;
-    occurred_at: string;
-    actor_name_snapshot: string;
-    event_type: string;
-    entity_type: string;
-    summary: string;
-    reason: string;
-}
+import AuditLogDetailsModal, { type AuditLogRow } from "./AuditLogDetailsModal";
 
 const SHARED_DATA_OPTION = { id: "shared", name: "Shared Data" };
 
@@ -28,6 +20,7 @@ const AuditLogsPage = () => {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [companyID, setCompanyID] = useState("");
     const [loading, setLoading] = useState(true);
+    const [selectedEntry, setSelectedEntry] = useState<AuditLogRow | null>(null);
 
     useEffect(() => {
         let active = true;
@@ -54,6 +47,11 @@ const AuditLogsPage = () => {
         { label: "When", key: "occurred_at", render: (row) => formatOccurredAt(row.occurred_at) },
         { label: "Event", key: "summary" },
         { label: "Actor", key: "actor_name_snapshot" },
+        {
+            label: "Actions",
+            searchable: false,
+            render: (row) => <Button variant="ghost" className="px-3 py-1.5 text-xs" onClick={() => setSelectedEntry(row)}>Details</Button>,
+        },
         { label: "Reason", key: "reason", render: (row) => row.reason || "—" },
     ];
 
@@ -71,6 +69,7 @@ const AuditLogsPage = () => {
             {loading ? <div className="p-10 text-center">Loading audit logs…</div> :
                 <Table columns={columns} data={rows} getRowKey={(row) => row.id} emptyMessage="No audit events in your permitted companies." />}
         </Card>
+        {selectedEntry && <AuditLogDetailsModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />}
     </>;
 };
 
