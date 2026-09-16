@@ -5,7 +5,7 @@ React 19 + Vite frontend. It runs on `http://localhost:5174` and proxies `/api` 
 ## Setup
 
 ```powershell
-Copy-Item .env.example .env
+Copy-Item .env.local.example .env
 npm install
 npm run dev
 ```
@@ -21,4 +21,4 @@ npm test
 npm run build
 ```
 
-`.env` is ignored by Git. Copy `.env.example` after every fresh clone; never commit real credentials or environment values.
+`.env` is ignored by Git. Copy `.env.local.example` for local work, or `.env.uat.example` when running Vite against UAT; never commit real credentials or environment values. Docker-based UAT uses `/api/v1` behind nginx and receives deployment configuration separately.
