@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -66,14 +66,12 @@ interface TimeLogFormModalProps {
 
 // TimeLogFormModal owns the manual entry form: the cascade, the schedule auto-fill, and the save call.
 const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterWorkLocations, employeeData, attendanceConfigs, dayOffWeekdaysByCompany, canManageAttendanceSettings }: TimeLogFormModalProps) => {
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
     const {
         register,
         handleSubmit,
         reset,
         setValue,
         getValues,
-        watch,
         control,
         formState: { errors },
     } = useForm({
@@ -93,11 +91,9 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
     useEffect(() => {
         if (!isOpen) return;
         if (!editing) {
-            setSelectedEmployeeId("");
             reset({ companies_id: homeCompanyId, employees_id: "", check_in: "", check_out: "", work_location_id: "", remark: "" });
             return;
         }
-        setSelectedEmployeeId(editing.employees_id?.toString() ?? "");
         reset({
             companies_id: editing.companies_id?.toString() || editing.employees?.companies_id?.toString() || "",
             employees_id: editing.employees_id?.toString(),
@@ -108,7 +104,8 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
         });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const selectedCompanyId = watch("companies_id");
+    const selectedCompanyId = useWatch({ control, name: "companies_id" });
+    const selectedEmployeeId = useWatch({ control, name: "employees_id" }) ?? "";
     const filteredEmployees = selectedCompanyId
         ? masterEmployees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId))
         : [];
@@ -208,7 +205,6 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
 
     const handleEmployeeChange = (e: { target: { value: string } }) => {
         const empId = e.target.value;
-        setSelectedEmployeeId(empId);
         setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
         setValue("work_location_id", "", { shouldValidate: true, shouldDirty: true });
         fillScheduleTimesForEmployee(empId);
@@ -217,7 +213,6 @@ const TimeLogFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, ma
     const handleCompanyChange = (e: { target: { value: string } }) => {
         setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
         setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
-        setSelectedEmployeeId("");
         setValue("work_location_id", "", { shouldValidate: true, shouldDirty: true });
         setValue("check_in", "", { shouldValidate: true, shouldDirty: true });
         setValue("check_out", "", { shouldValidate: true, shouldDirty: true });

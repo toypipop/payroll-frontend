@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -35,7 +35,7 @@ interface SalaryRecordEditModalProps {
 // main salary form is addressed by date, so it can only ever reach the record already sitting on the date typed
 // into it, and correcting a date typed wrong would otherwise mean deleting the record and entering it again.
 const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditModalProps) => {
-    const { handleSubmit, reset, control, watch, formState: { errors } } = useForm<SalaryRecordEditValues>({
+    const { handleSubmit, reset, control, formState: { errors } } = useForm<SalaryRecordEditValues>({
         resolver: zodResolver(schema),
         defaultValues: { effective_date: "", base_salaries: "", reason: "" },
     });
@@ -43,7 +43,8 @@ const SalaryRecordEditModal = ({ record, onClose, onSaved }: SalaryRecordEditMod
     // Moving a record into a closed period is one of the three things the server refuses; it is also the only
     // one that can be seen coming, so the form says it before the user spends a save on it.
     const cycles = useClosedCycles(!!record);
-    const closedCycle = closedCycleFor(watch("effective_date"), record?.companies_id, cycles);
+    const effectiveDate = useWatch({ control, name: "effective_date" });
+    const closedCycle = closedCycleFor(effectiveDate, record?.companies_id, cycles);
 
     useEffect(() => {
         if (!record) return;

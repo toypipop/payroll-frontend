@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -37,19 +37,23 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
         register,
         handleSubmit,
         reset,
-        watch,
+        control,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(departmentSchema),
         defaultValues: { dept_name: "", companies_id: homeCompanyId, category_id: "" },
     });
 
-    const watchedCategoryId = watch("category_id");
+    const watchedCategoryId = useWatch({ control, name: "category_id" });
+
+    const handleClose = () => {
+        setNewCategoryName("");
+        onClose();
+    };
 
     // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
     useEffect(() => {
         if (!isOpen) return;
-        setNewCategoryName("");
         reset(editing
             ? {
                 dept_name: editing.dept_name,
@@ -83,7 +87,7 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
                 await api.post("/departments", payload);
             }
             onSaved();
-            onClose();
+            handleClose();
         } catch (err) {
             alert(apiErrorMessage(err, "Save Failed"));
         }
@@ -92,11 +96,11 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
             title={editing ? "Edit Department" : "Add New Department"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose}>
+                    <Button variant="ghost" onClick={handleClose}>
                         Cancel
                     </Button>
                     <Button onClick={handleSubmit(onSubmit)}>

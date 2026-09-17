@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -39,13 +39,13 @@ interface CycleEarningFormModalProps {
 }
 
 const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanyId, defaultCycleId, companies, cycles, employees, earningTypes }: CycleEarningFormModalProps) => {
-    const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: defaultCompanyId, cycle_id: "", employees_id: "", earning_type_id: "", amount: "" },
     });
 
-    const watchedCompanyId = watch("companies_id");
-    const watchedCycleId = watch("cycle_id");
+    const watchedCompanyId = useWatch({ control, name: "companies_id" });
+    const watchedCycleId = useWatch({ control, name: "cycle_id" });
 
     const filteredCycles = watchedCompanyId
         ? cycles.filter((c) => String(c.companies_id) === String(watchedCompanyId) && !c.is_closed)

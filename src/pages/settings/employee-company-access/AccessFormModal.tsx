@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -45,7 +45,6 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
         handleSubmit,
         register,
         reset,
-        watch,
         setValue,
         formState: { errors },
     } = useForm({
@@ -53,9 +52,9 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
         defaultValues: EMPTY_FORM,
     });
 
-    const selectedCompanyId = watch("company_id");
-    const selectedEmployeeId = watch("employee_id");
-    const selectedRoleId = watch("role_id");
+    const selectedCompanyId = useWatch({ control, name: "company_id" });
+    const selectedEmployeeId = useWatch({ control, name: "employee_id" });
+    const selectedRoleId = useWatch({ control, name: "role_id" });
 
     const filteredRoles = useMemo(() => {
         if (!selectedCompanyId) return [];
@@ -137,7 +136,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
                 label="Employee"
                 options={employees}
                 {...register("employee_id")}
-                value={watch("employee_id")}
+                value={selectedEmployeeId}
                 error={errors.employee_id?.message}
                 onChange={(e) => {
                     setValue("employee_id", e.target.value, { shouldValidate: true, shouldDirty: true });
@@ -159,7 +158,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
                 label="Company"
                 options={companies}
                 {...register("company_id")}
-                value={watch("company_id")}
+                value={selectedCompanyId}
                 error={errors.company_id?.message}
                 onChange={(e) => {
                     setValue("company_id", e.target.value, { shouldValidate: true, shouldDirty: true });
@@ -173,7 +172,7 @@ const AccessFormModal = ({ isOpen, onClose, onSaved, editing, employees, compani
                 label="Role"
                 options={filteredRoles}
                 {...register("role_id")}
-                value={watch("role_id")}
+                value={selectedRoleId}
                 error={errors.role_id?.message}
                 onChange={(e) => {
                     setValue("role_id", e.target.value, { shouldValidate: true, shouldDirty: true });

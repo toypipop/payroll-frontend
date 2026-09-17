@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -35,13 +35,13 @@ interface EmployeeEarningFormModalProps {
 }
 
 const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies, employees, earningTypes }: EmployeeEarningFormModalProps) => {
-    const { register, handleSubmit, reset, watch, setValue, control, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, employees_id: "", earning_type_id: "", amount: "" },
     });
 
-    const selectedCompanyId = watch("companies_id");
-    const selectedEmployeeId = watch("employees_id");
+    const selectedCompanyId = useWatch({ control, name: "companies_id" });
+    const selectedEmployeeId = useWatch({ control, name: "employees_id" });
 
     const filteredEmployees = useMemo(
         () => selectedCompanyId ? employees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId)) : [],

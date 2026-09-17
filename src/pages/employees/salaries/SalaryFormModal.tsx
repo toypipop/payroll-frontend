@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -69,7 +69,6 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
         handleSubmit,
         reset,
         control,
-        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(salariesSchema),
@@ -79,7 +78,8 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
     // Saying which closed period a date lands in costs one request, and saves the user a round trip that
     // would only come back as a 409.
     const cycles = useClosedCycles(isOpen);
-    const closedCycle = closedCycleFor(watch("effective_date"), employee?.companies_id, cycles);
+    const effectiveDate = useWatch({ control, name: "effective_date" });
+    const closedCycle = closedCycleFor(effectiveDate, employee?.companies_id, cycles);
 
     // The version of the record this form was seeded from, sent back on save so a stale screen is refused.
     const seededVersion = Number(

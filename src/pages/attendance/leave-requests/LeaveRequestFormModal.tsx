@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -59,13 +59,11 @@ interface LeaveRequestFormModalProps {
 
 // LeaveRequestFormModal owns the cascading company to employee to leave-type form and the save call.
 const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterLeaveTypes, employeeData }: LeaveRequestFormModalProps) => {
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
     const {
         register,
         handleSubmit,
         reset,
         setValue,
-        watch,
         control,
         formState: { errors },
     } = useForm({
@@ -77,11 +75,9 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
     useEffect(() => {
         if (!isOpen) return;
         if (!editing) {
-            setSelectedEmployeeId("");
             reset(emptyForm(homeCompanyId));
             return;
         }
-        setSelectedEmployeeId(editing.employees_id?.toString() || "");
         reset({
             companies_id: editing.companies_id?.toString() || editing.employees?.companies_id?.toString() || "",
             employees_id: editing.employees_id?.toString() || "",
@@ -92,7 +88,8 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
         });
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    const selectedCompanyId = watch("companies_id");
+    const selectedCompanyId = useWatch({ control, name: "companies_id" });
+    const selectedEmployeeId = useWatch({ control, name: "employees_id" }) ?? "";
     const filteredEmployees = selectedCompanyId
         ? masterEmployees.filter((emp) => String(emp.companies_id) === String(selectedCompanyId))
         : [];
@@ -111,7 +108,6 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
 
     const handleEmployeeChange = (e: { target: { value: string } }) => {
         const empId = e.target.value;
-        setSelectedEmployeeId(empId);
         setValue("employees_id", empId, { shouldValidate: true, shouldDirty: true });
         setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
     };
@@ -121,7 +117,6 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
     const handleCompanyChange = (e: { target: { value: string } }) => {
         setValue("companies_id", e.target.value, { shouldValidate: true, shouldDirty: true });
         setValue("employees_id", "", { shouldValidate: true, shouldDirty: true });
-        setSelectedEmployeeId("");
         setValue("leave_type_id", "", { shouldValidate: true, shouldDirty: true });
     };
 

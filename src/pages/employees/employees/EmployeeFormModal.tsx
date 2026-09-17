@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -94,7 +94,6 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
         handleSubmit,
         reset,
         setValue,
-        watch,
         control,
         formState: { errors },
     } = useForm<EmployeeFormValues>({
@@ -102,8 +101,11 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
         defaultValues: makeEmptyEmployeeForm(homeCompanyId),
     });
 
-    // Watch selected company to drive cascading filter
-    const selectedCompaniesId = watch("companies_id");
+    // Subscribe to the fields rendered or used by the company cascade.
+    const [selectedCompaniesId, selectedDepartmentId, selectedPositionId, selectedRoleId, selectedEmploymentTypeId, selectedBankId, accountNumber] = useWatch({
+        control,
+        name: ["companies_id", "dept_id", "pos_id", "roles_id", "employment_type_id", "bank_id", "account_no"],
+    });
 
     // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
     useEffect(() => {
@@ -213,7 +215,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                     label="Companies"
                     options={masterCompanies}
                     {...register("companies_id")}
-                    value={watch("companies_id")}
+                    value={selectedCompaniesId}
                     error={errors.companies_id?.message}
                     disabled={!!editing}
                     required
@@ -261,7 +263,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 label="Department"
                 options={filteredDepts}
                 {...register("dept_id")}
-                value={watch("dept_id")}
+                value={selectedDepartmentId}
                 error={errors.dept_id?.message}
                 disabled={!selectedCompaniesId}
                 required
@@ -278,7 +280,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 label="Position"
                 options={filteredPos}
                 {...register("pos_id")}
-                value={watch("pos_id")}
+                value={selectedPositionId}
                 error={errors.pos_id?.message}
                 disabled={!selectedCompaniesId}
                 required
@@ -295,7 +297,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 label="System Roles"
                 options={filteredRoles}
                 {...register("roles_id")}
-                value={watch("roles_id")}
+                value={selectedRoleId}
                 error={errors.roles_id?.message}
                 disabled={!selectedCompaniesId}
                 required
@@ -313,7 +315,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                     label="Employment Type"
                     options={filteredEmploymentTypes}
                     {...register("employment_type_id")}
-                    value={watch("employment_type_id")}
+                    value={selectedEmploymentTypeId}
                     error={errors.employment_type_id?.message}
                     disabled={!selectedCompaniesId}
                 />
@@ -342,7 +344,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                     label="Bank"
                     options={masterBanks}
                     {...register("bank_id")}
-                    value={watch("bank_id")}
+                    value={selectedBankId}
                 />
                 <InputField
                     label="Account Name"
@@ -350,7 +352,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 />
                 <NumberField
                     label="Account No."
-                    value={watch("account_no") ?? ""}
+                    value={accountNumber ?? ""}
                     onChange={(e) => setValue("account_no", e.target.value, { shouldDirty: true })}
                     onBlur={() => {}}
                 />
