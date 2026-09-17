@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { apiErrorMessage, isCompanyInactiveError } from "../utils/apiError";
+import { apiErrorMessage, apiErrorRequestID, isCompanyInactiveError } from "../utils/apiError";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "/api/v1",
@@ -26,6 +26,15 @@ api.interceptors.response.use(
         if (isCompanyInactiveError(error) && !/^\/companies(?:\/|$)/.test(error.config?.url ?? "")) {
             window.dispatchEvent(new CustomEvent("company-inactive", {
                 detail: apiErrorMessage(error, "This company is inactive. Its records are unavailable."),
+            }));
+        }
+
+        if (!response || response.status >= 500) {
+            window.dispatchEvent(new CustomEvent("api-error", {
+                detail: {
+                    message: apiErrorMessage(error, "Unable to reach the server. Please try again."),
+                    requestID: apiErrorRequestID(error),
+                },
             }));
         }
 

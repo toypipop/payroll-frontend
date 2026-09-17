@@ -20,6 +20,13 @@ export const apiErrorBody = (err: unknown): ApiErrorBody | null => asApiError(er
 // apiErrorStatus is the HTTP status, or null when the request never got a response.
 export const apiErrorStatus = (err: unknown): number | null => asApiError(err)?.response?.status ?? null;
 
+// apiErrorRequestID lets support correlate a client-visible failure with the backend's structured logs.
+export const apiErrorRequestID = (err: unknown): string | null => {
+    const headers = asApiError(err)?.response?.headers;
+    const requestID = headers?.["x-request-id"] ?? headers?.["X-Request-ID"];
+    return typeof requestID === "string" && requestID.length > 0 ? requestID : null;
+};
+
 export const isCompanyInactiveError = (err: unknown): boolean =>
     apiErrorStatus(err) === 409 && apiErrorBody(err)?.code === "COMPANY_INACTIVE";
 

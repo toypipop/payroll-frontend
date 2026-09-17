@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import api from "./api/axiosInstance";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ModuleProvider } from "./contexts/ModuleContext";
+import { NotificationProvider } from "./contexts/NotificationProvider";
 import MainLayout from "./components/layouts/MainLayout";
 import type { AuthMeResponse, UserProfile } from "./types/api";
 import { flattenModulePages } from "./contexts/moduleTree";
@@ -97,13 +98,15 @@ function App() {
     if (authLoading) return null;
 
     return (
-        <AuthProvider user={user}>
-            <ModuleProvider key={String(user?.id ?? "anonymous")} user={user}>
-                <Router>
-                    <ApplicationRoutes isAuthenticated={isAuthenticated} />
-                </Router>
-            </ModuleProvider>
-        </AuthProvider>
+        <NotificationProvider>
+            <AuthProvider user={user}>
+                <ModuleProvider key={String(user?.id ?? "anonymous")} user={user}>
+                    <Router>
+                        <ApplicationRoutes isAuthenticated={isAuthenticated} />
+                    </Router>
+                </ModuleProvider>
+            </AuthProvider>
+        </NotificationProvider>
     );
 }
 
