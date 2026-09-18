@@ -9,8 +9,9 @@ import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import SelectField from "../../../components/common/SelectField";
 import MasterDataWarning from "../../../components/common/MasterDataWarning";
-import { apiErrorMessage } from "../../../utils/apiError";
-import type { Company, CycleEarning, EarningType, Employee } from "../../../types/domain";
+import { apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
+import type { Company, CycleEarning, EarningType } from "../../../types/domain";
+import useCycleEmployeeOptions from "../cycle-adjustments/useCycleEmployeeOptions";
 import type { PayrollCycle } from "../../../types/api";
 
 const schema = z.object({
@@ -34,34 +35,35 @@ interface CycleEarningFormModalProps {
     defaultCycleId: string;
     companies: Company[];
     cycles: PayrollCycle[];
-    employees: Employee[];
     earningTypes: EarningType[];
 }
 
-const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanyId, defaultCycleId, companies, cycles, employees, earningTypes }: CycleEarningFormModalProps) => {
-    const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm({
+const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanyId, defaultCycleId, companies, cycles, earningTypes }: CycleEarningFormModalProps) => {
+    const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: defaultCompanyId, cycle_id: "", employees_id: "", earning_type_id: "", amount: "" },
     });
 
     const watchedCompanyId = useWatch({ control, name: "companies_id" });
     const watchedCycleId = useWatch({ control, name: "cycle_id" });
+    const watchedEmployeeId = useWatch({ control, name: "employees_id" });
+    const { employees: filteredEmployees, loading: employeesLoading, error: employeesError, reload: reloadEmployees } =
+        useCycleEmployeeOptions(String(watchedCycleId ?? ""), isOpen);
+    const employeeEligible = filteredEmployees.some((e) => String(e.id) === String(watchedEmployeeId));
 
     const filteredCycles = watchedCompanyId
         ? cycles.filter((c) => String(c.companies_id) === String(watchedCompanyId) && !c.is_closed)
         : [];
     const cycleCompanyId = cycles.find((c) => String(c.id) === String(watchedCycleId))?.companies_id || watchedCompanyId;
 
-    const filteredEmployees = cycleCompanyId
-        ? employees.filter((e) => String(e.companies_id) === String(cycleCompanyId))
-        : [];
-
     const filteredEarningTypes = cycleCompanyId
         ? earningTypes.filter((et) => String(et.companies_id) === String(cycleCompanyId))
         : [];
 
     const showNoEarningTypesWarning = !!watchedCycleId && filteredEarningTypes.length === 0;
-    const showNoEmployeesWarning = !!watchedCycleId && filteredEmployees.length === 0;
+    const showNoEmployeesWarning = !!watchedCycleId && !employeesLoading && !employeesError && filteredEmployees.length === 0;
+    const editingEmployeeUnavailable = !!editing && !!watchedCycleId && !employeesLoading && !employeesError &&
+        !filteredEmployees.some((e) => String(e.id) === String(editing.employees_id));
 
     const cycleField = register("cycle_id");
     const employeeField = register("employees_id");
@@ -93,8 +95,8 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
 
     const onSubmit = async (data: CycleEarningFormValues) => {
         try {
-            if (filteredEmployees.length === 0) {
-                alert("This company has no employees. Please add one before saving.");
+            if (employeesLoading || employeesError || !filteredEmployees.some((e) => String(e.id) === String(data.employees_id))) {
+                alert("Select an employee with an enabled salary effective in this payroll cycle.");
                 return;
             }
             if (data.id) {
@@ -105,6 +107,7 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
             await onSaved();
             onClose();
         } catch (err) {
+            if (apiErrorStatus(err) === 409) reloadEmployees();
             alert(apiErrorMessage(err, "Operation failed"));
         }
     };
@@ -118,9 +121,9 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
                 <>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
                     <Button
-                        onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
+                        onClick={handleSubmit(onSubmit)}
                         className="w-auto"
-                        disabled={showNoEarningTypesWarning || showNoEmployeesWarning}
+                        disabled={isSubmitting || showNoEarningTypesWarning || employeesLoading || !!employeesError || !employeeEligible}
                     >
                         {editing ? "Update" : "Save"}
                     </Button>
@@ -161,6 +164,7 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
                 <SelectField
                     label="Employee"
                     {...employeeField}
+                    value={watchedEmployeeId}
                     error={errors.employees_id?.message}
                     onChange={(e) => {
                         setValue("employees_id", e.target.value, { shouldValidate: true, shouldDirty: true });
@@ -169,15 +173,29 @@ const CycleEarningFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompa
                         id: e.id,
                         name: `${e.employees_code} — ${e.first_name} ${e.last_name}`,
                     }))}
-                    disabled={!watchedCycleId}
+                    disabled={!watchedCycleId || employeesLoading || !!employeesError}
+                    placeholder={employeesLoading ? "Loading employees..." : "Select Employee"}
                     required
                 />
                 {showNoEmployeesWarning && (
                     <MasterDataWarning
-                        message="This company has no employees yet."
-                        routePath="/employees"
-                        moduleKey="EmployeesListPage"
+                        message="No employees have an enabled salary effective in this payroll cycle."
+                        routePath="/salaries"
+                        moduleKey="SalariesStructurePage"
                     />
+                )}
+                {employeesError && (
+                    <div role="alert" className="text-danger-text">
+                        <p>{employeesError}</p>
+                        <Button variant="ghost" onClick={reloadEmployees}>Retry</Button>
+                    </div>
+                )}
+                {editingEmployeeUnavailable && (
+                    <p role="status" className="text-subtle">
+                        Original employee: {editing.employees?.first_name} {editing.employees?.last_name}
+                        {" ("}{editing.employees?.employees_code || editing.employees_id}{"). "}
+                        This employee is no longer available for this cycle. Select an eligible employee to save changes.
+                    </p>
                 )}
                 <SelectField
                     label="Earning Type"

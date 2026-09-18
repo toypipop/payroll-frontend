@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
-import type { Company, CycleDeduction, DeductionType, Employee } from "../../../types/domain";
+import type { Company, CycleDeduction, DeductionType } from "../../../types/domain";
 import type { ApiId, PayrollCycle } from "../../../types/api";
 
 // useCycleDeductions owns the page's server data: the master lists, plus the rows of whichever cycle is selected.
@@ -8,7 +8,6 @@ export const useCycleDeductions = (selectedCycleId?: ApiId) => {
     const [items, setItems] = useState<CycleDeduction[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [cycles, setCycles] = useState<PayrollCycle[]>([]);
-    const [employees, setEmployees] = useState<Employee[]>([]);
     // Only variable (non-permanent) deduction types
     const [deductionTypes, setDeductionTypes] = useState<DeductionType[]>([]);
     const [loading, setLoading] = useState(false);
@@ -17,15 +16,13 @@ export const useCycleDeductions = (selectedCycleId?: ApiId) => {
     useEffect(() => {
         const fetchMaster = async () => {
             try {
-                const [companyRes, cycleRes, empRes, etRes] = await Promise.all([
+                const [companyRes, cycleRes, etRes] = await Promise.all([
                     api.get("/companies/options"),
-                    api.get("/payroll/cycles"),
-                    api.get("/employees"),
+                    api.get("/payroll/cycles/options"),
                     api.get("/deduction-types/options").catch(() => ({ data: [] })),
                 ]);
                 setCompanies(companyRes.data);
                 setCycles(cycleRes.data);
-                setEmployees(empRes.data);
                 setDeductionTypes(etRes.data);
             } catch (err) {
                 console.error("Master data fetch error:", err);
@@ -70,7 +67,7 @@ export const useCycleDeductions = (selectedCycleId?: ApiId) => {
         }
     };
 
-    return { items, companies, cycles, employees, deductionTypes, loading, refreshItems, remove };
+    return { items, companies, cycles, deductionTypes, loading, refreshItems, remove };
 };
 
 export default useCycleDeductions;

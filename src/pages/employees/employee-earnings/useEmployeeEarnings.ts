@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { EmployeeOption } from "../../../types/api";
 import type { Company, EarningType, Employee , EmployeeEarning } from "../../../types/domain";
 import type { ApiId } from "../../../types/api";
 
@@ -21,7 +22,7 @@ export const useEmployeeEarnings = () => {
             setLoading(true);
             const [itemsRes, empRes, etRes, companyRes] = await Promise.all([
                 api.get("/employee-earnings"),
-                api.get("/employees"),
+                    api.get<EmployeeOption[]>("/employees/options"),
                 api.get("/earning-types/options").catch(() => ({ data: [] })),
                 api.get("/companies/options"),
             ]);

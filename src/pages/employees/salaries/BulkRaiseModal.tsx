@@ -43,7 +43,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, rows, companies }: BulkRai
     const { preview, busy, error, runPreview, apply, clear } = useBulkRaise();
 
     const candidates = useMemo(
-        () => rows.filter((row) => !companyID || String(row.companies_id) === companyID),
+        () => rows.filter((row) => row.is_active === true && (!companyID || String(row.companies_id) === companyID)),
         [rows, companyID],
     );
     const selected = candidates.filter((row) => picked[Number(getEmployeeId(row))]);

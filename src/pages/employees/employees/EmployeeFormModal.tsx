@@ -326,7 +326,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 control={control}
                 render={({ field }) => (
                     <CheckboxField
-                        label="Account Active"
+                        label="Employee Active (login and new transactions)"
                         id="is_active"
                         checked={field.value}
                         onChange={(e) => field.onChange(e.target.checked)}

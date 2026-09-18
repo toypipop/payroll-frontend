@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { EmployeeOption } from "../../../types/api";
 import type { Company, Employee, LeaveRequest, LeaveTypeSetting, OptionRow } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
 import type { ApiId } from "../../../types/api";
@@ -30,7 +31,7 @@ export const useLeaveRequests = () => {
         const fetchMasterData = async () => {
             try {
                 const [empRes, ltRes, companyRes] = await Promise.all([
-                    api.get("/employees"),
+                    api.get<EmployeeOption[]>("/employees/options"),
                     api.get("/master/leave-types/options").catch(() => ({ data: [] })),
                     api.get("/companies/options"),
                 ]);

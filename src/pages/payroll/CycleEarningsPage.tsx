@@ -24,7 +24,7 @@ const CycleEarningsPage = () => {
     const { homeCompanyId } = useAuth();
     const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const { items, companies, cycles, employees, earningTypes, loading, refreshItems, remove } = useCycleEarnings(selectedCycleId);
+    const { items, companies, cycles, earningTypes, loading, refreshItems, remove } = useCycleEarnings(selectedCycleId);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<CycleEarning | null>(null);
 
@@ -158,7 +158,6 @@ const CycleEarningsPage = () => {
                 defaultCycleId={selectedCycleId}
                 companies={companies}
                 cycles={cycles}
-                employees={employees}
                 earningTypes={earningTypes}
             />
         </>

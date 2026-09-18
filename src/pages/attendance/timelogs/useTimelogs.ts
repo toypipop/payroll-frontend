@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
+import type { EmployeeOption } from "../../../types/api";
 import type { Company, DayOff, Employee, OptionRow, ScheduleConfig, TimeLog } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
 import type { ApiId } from "../../../types/api";
@@ -36,7 +37,7 @@ export const useTimelogs = () => {
             try {
                 // Fetch employees to show in dropdown
                 const [empRes, locRes, schedRes, companyRes, dayOffRes] = await Promise.all([
-                    api.get("/employees"),
+                    api.get<EmployeeOption[]>("/employees/options"),
                     api.get("/master/work-locations/options").catch(() => ({ data: [] })),
                     api.get("/timelogs/schedule-config").catch(() => ({ data: [] })),
                     api.get("/companies/options"),

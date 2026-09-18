@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
-import type { Company, CycleEarning, EarningType, Employee } from "../../../types/domain";
+import type { Company, CycleEarning, EarningType } from "../../../types/domain";
 import type { ApiId, PayrollCycle } from "../../../types/api";
 
 // useCycleEarnings owns the page's server data: the master lists, plus the rows of whichever cycle is selected.
@@ -8,7 +8,6 @@ export const useCycleEarnings = (selectedCycleId?: ApiId) => {
     const [items, setItems] = useState<CycleEarning[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [cycles, setCycles] = useState<PayrollCycle[]>([]);
-    const [employees, setEmployees] = useState<Employee[]>([]);
     // Only variable (non-permanent) earning types
     const [earningTypes, setEarningTypes] = useState<EarningType[]>([]);
     const [loading, setLoading] = useState(false);
@@ -17,15 +16,13 @@ export const useCycleEarnings = (selectedCycleId?: ApiId) => {
     useEffect(() => {
         const fetchMaster = async () => {
             try {
-                const [companyRes, cycleRes, empRes, etRes] = await Promise.all([
+                const [companyRes, cycleRes, etRes] = await Promise.all([
                     api.get("/companies/options"),
-                    api.get("/payroll/cycles"),
-                    api.get("/employees"),
+                    api.get("/payroll/cycles/options"),
                     api.get("/earning-types/options").catch(() => ({ data: [] })),
                 ]);
                 setCompanies(companyRes.data);
                 setCycles(cycleRes.data);
-                setEmployees(empRes.data);
                 setEarningTypes(etRes.data);
             } catch (err) {
                 console.error("Master data fetch error:", err);
@@ -70,7 +67,7 @@ export const useCycleEarnings = (selectedCycleId?: ApiId) => {
         }
     };
 
-    return { items, companies, cycles, employees, earningTypes, loading, refreshItems, remove };
+    return { items, companies, cycles, earningTypes, loading, refreshItems, remove };
 };
 
 export default useCycleEarnings;

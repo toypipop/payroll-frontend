@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { Company, Employee, EmployeeCompanyAccess, OptionRow, Role } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
-import type { ApiId } from "../../../types/api";
+import type { ApiId, EmployeeOption } from "../../../types/api";
 
 // useEmployeeCompanyAccess owns the page's server data: the access rows plus the three option lists the form picks from.
 export const useEmployeeCompanyAccess = () => {
@@ -22,7 +22,7 @@ export const useEmployeeCompanyAccess = () => {
             setLoading(true);
             const [accessRes, employeesRes, companiesRes, rolesRes] = await Promise.all([
                 api.get("/employee-company-access"),
-                api.get("/employees"),
+                api.get<EmployeeOption[]>("/employees/options"),
                 api.get("/companies/options"),
                 api.get("/roles/options").catch(() => ({ data: [] })),
             ]);

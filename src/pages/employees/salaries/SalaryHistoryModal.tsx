@@ -84,6 +84,8 @@ const SalaryHistoryModal = ({ isOpen, onClose, employee, rows, loading, onDelete
                                                 <Button
                                                     variant="ghost"
                                                     onClick={() => onEdit(rec)}
+                                                    disabled={employee?.is_active !== true}
+                                                    title={employee?.is_active !== true ? "Reactivate this employee before editing salary." : undefined}
                                                     className="w-auto px-2.5 py-1 text-xs"
                                                 >
                                                     Edit

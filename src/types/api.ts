@@ -2,6 +2,23 @@ import type { CSSProperties, ReactNode } from "react";
 
 export type ApiId = number | string;
 
+export interface EmployeeOption {
+    id: ApiId;
+    companies_id: ApiId;
+    employees_code: string;
+    first_name: string;
+    last_name: string;
+    is_active: boolean;
+}
+
+export interface CycleEmployeeOption {
+    id: ApiId;
+    companies_id: ApiId;
+    employees_code: string;
+    first_name: string;
+    last_name: string;
+}
+
 export interface UserProfile {
     id: ApiId;
     fullName: string;

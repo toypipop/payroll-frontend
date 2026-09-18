@@ -53,6 +53,7 @@ const SalariesStructurePage = () => {
     const [isBulkOpen, setIsBulkOpen] = useState(false);
 
     const openEdit = (emp: SalaryRow) => {
+        if (emp.is_active !== true) return;
         if (!getEmployeeId(emp)) {
             alert("Unable to find employee id for this row.");
             return;
@@ -140,7 +141,7 @@ const SalariesStructurePage = () => {
             sortable: false,
             render: (row) => (
                 <div className="flex gap-[6px]">
-                    <Button variant="ghost" onClick={() => openEdit(row)} className="px-3 py-1.5 text-xs">
+                    <Button variant="ghost" disabled={row.is_active !== true} title={row.is_active !== true ? "Reactivate this employee before updating salary." : undefined} onClick={() => openEdit(row)} className="px-3 py-1.5 text-xs">
                         Update Salaries
                     </Button>
                     <Button variant="ghost" onClick={() => openHistory(row)} className="px-3 py-1.5 text-xs">

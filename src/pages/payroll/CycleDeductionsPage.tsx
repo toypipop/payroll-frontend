@@ -24,7 +24,7 @@ const CycleDeductionsPage = () => {
     const { homeCompanyId } = useAuth();
     const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const { items, companies, cycles, employees, deductionTypes, loading, refreshItems, remove } = useCycleDeductions(selectedCycleId);
+    const { items, companies, cycles, deductionTypes, loading, refreshItems, remove } = useCycleDeductions(selectedCycleId);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<CycleDeduction | null>(null);
 
@@ -158,7 +158,6 @@ const CycleDeductionsPage = () => {
                 defaultCycleId={selectedCycleId}
                 companies={companies}
                 cycles={cycles}
-                employees={employees}
                 deductionTypes={deductionTypes}
             />
         </>
