@@ -74,8 +74,6 @@ interface EmployeeFormModalProps {
 }
 
 const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterDepts, masterPos, masterRoles, masterCompanies, masterBanks, masterEmploymentTypes }: EmployeeFormModalProps) => {
-    // Ref to skip cascade-reset during edit initialization
-    const isEditLoading = useRef(false);
     // Refs for dynamic resolver
     const editingIdRef = useRef<ApiId | null>(null);
     const requireCompanyRef = useRef(false);
@@ -115,7 +113,6 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             reset(makeEmptyEmployeeForm(homeCompanyId));
             return;
         }
-        isEditLoading.current = true;
         reset({
             employees_code: editing.employees_code || "",
             first_name: editing.first_name || "",
@@ -131,19 +128,10 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             account_name: editing.account_name || "",
             account_no: editing.account_no || "",
         });
-        setTimeout(() => { isEditLoading.current = false; }, 0);
     }, [isOpen, editing, homeCompanyId, reset]);
 
-    // Clear dependent fields on company change
-    useEffect(() => {
-        if (isEditLoading.current) return;
-        if (masterCompanies.length > 0 && selectedCompaniesId) {
-            setValue("dept_id", "");
-            setValue("pos_id", "");
-            setValue("roles_id", "");
-            setValue("employment_type_id", "");
-        }
-    }, [selectedCompaniesId]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Cascade only on user selection, never on an asynchronous edit reset.
+    const companyField = register("companies_id");
 
     // Apply filters for super-admin only
     const filteredDepts = masterCompanies.length > 0 && selectedCompaniesId
@@ -214,7 +202,15 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 <SelectField
                     label="Companies"
                     options={masterCompanies}
-                    {...register("companies_id")}
+                    {...companyField}
+                    onChange={(event) => {
+                        void companyField.onChange(event);
+                        if (event.target.value === selectedCompaniesId) return;
+                        setValue("dept_id", "", { shouldDirty: true });
+                        setValue("pos_id", "", { shouldDirty: true });
+                        setValue("roles_id", "", { shouldDirty: true });
+                        setValue("employment_type_id", "", { shouldDirty: true });
+                    }}
                     value={selectedCompaniesId}
                     error={errors.companies_id?.message}
                     disabled={!!editing}
