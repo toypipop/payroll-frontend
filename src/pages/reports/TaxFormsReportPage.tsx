@@ -221,32 +221,12 @@ const TaxFormsReportPage = () => {
         { label: "Companies", render: (r) => r.companies_name || "—" },
     ];
 
-    // PND1 has employees via transaction API returns EmployeesCode not ID Fetch transaction list, store IDs by code
-    // employees_code -> transaction id, so a row can open that employee's certificate.
-    const [txMap, setTxMap] = useState<Record<string, ApiId>>({});
-
-    useEffect(() => {
-        if (!selectedCycleId) return;
-        (async () => {
-            try {
-                const res = await api.get(`/reports/tax-forms/transactions/${selectedCycleId}`);
-                const map: Record<string, ApiId> = {};
-                (res.data?.transactions || []).forEach((tx: PayrollTransaction) => {
-                    if (tx.employees?.employees_code) {
-                        map[String(tx.employees.employees_code)] = tx.id as ApiId;
-                    }
-                });
-                setTxMap(map);
-            } catch { setTxMap({}); }
-        })();
-    }, [selectedCycleId]);
-
     const enrichedColumns: TableColumn<PND1Row>[] = [
         ...columns.slice(0, 5),
         {
             label: "",
             render: (r) => {
-                const txId = txMap[r.employees_code ?? ""];
+                const txId = r.transaction_id;
                 if (!txId) return null;
                 return (
                     <Button variant="ghost" onClick={() => handleView50Tawi(txId)} className="text-xs px-3 py-1.5 w-auto">

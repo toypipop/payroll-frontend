@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import useTransactionsData from "../../hooks/useTransactionsData";
@@ -54,7 +54,7 @@ const TransactionsPage = () => {
         cycleInfo,
         filteredTransactions,
         loadingCycles,
-        loadingTransactions,
+        table, summary,
     } = useTransactionsData(cycleFromQuery);
 
     const {
@@ -84,24 +84,8 @@ const TransactionsPage = () => {
     // When these figures were last computed. This page reads what the last run stored and never recalculates, so
     // on a cycle that is still open the numbers can be older than the salary and attendance data behind them —
     // saying when they were produced is what lets the reader tell.
-    const calculatedAt = useMemo(() => {
-        const stamps = filteredTransactions
-            .map((tx) => (tx.updated_at ? new Date(tx.updated_at).getTime() : 0))
-            .filter((time) => time > 0);
-        return stamps.length > 0 ? new Date(Math.max(...stamps)) : null;
-    }, [filteredTransactions]);
-
-    const totals = useMemo(() => {
-        return filteredTransactions.reduce<{ net: number; earning: number; deduction: number }>(
-            (acc, tx) => {
-                acc.net += tx.net_pay || 0;
-                acc.earning += tx.total_earning || 0;
-                acc.deduction += tx.total_deduction || 0;
-                return acc;
-            },
-            { net: 0, earning: 0, deduction: 0 },
-        );
-    }, [filteredTransactions]);
+    const calculatedAt = summary?.calculated_at ? new Date(summary.calculated_at) : null;
+    const totals = { net: summary?.net_pay ?? 0, earning: summary?.total_earning ?? 0, deduction: summary?.total_deduction ?? 0 };
 
     const columns: TableColumn<PayrollTransaction>[] = [
         {
@@ -218,7 +202,7 @@ const TransactionsPage = () => {
 
             {selectedCycleId && (
                 <div className="flex gap-[14px] mb-[16px] flex-wrap">
-                    <StatCard label="Transactions"   value={filteredTransactions.length} />
+                    <StatCard label="Transactions"   value={summary?.employee_count ?? 0} />
                     <StatCard label="Total Earning"  value={`฿${formatCurrency(totals.earning)}`}   tone="success" />
                     <StatCard label="Total Deduction" value={`฿${formatCurrency(totals.deduction)}`} tone="danger" />
                     <StatCard label="Total Net Pay"  value={`฿${formatCurrency(totals.net)}`}        tone="neutral" />
@@ -226,19 +210,9 @@ const TransactionsPage = () => {
             )}
 
             <Card className="p-0">
-                {loadingCycles || loadingTransactions ? (
-                    <div className="p-[40px] text-center text-subtle">Loading transactions...</div>
-                ) : !selectedCycleId ? (
-                    <div className="p-[40px] text-center text-subtle">
-                        Select a closed payroll cycle to view immutable transactions.
-                    </div>
-                ) : filteredTransactions.length === 0 ? (
-                    <div className="p-[40px] text-center text-subtle">
-                        No transaction records found for this cycle.
-                    </div>
-                ) : (
-                    <Table columns={columns} data={filteredTransactions} onRowClick={openDetails} defaultSort={{ key: "net_pay", order: "desc" }} />
-                )}
+                {loadingCycles ? <div className="p-10 text-center text-subtle">Loading cycles...</div> :
+                    <Table columns={columns} data={filteredTransactions} server={table} onRowClick={openDetails} emptyMessage={selectedCycleId ? "No matching transactions." : "Select a closed payroll cycle."} />}
+
             </Card>
 
             <TransactionDetailsModal

@@ -2,6 +2,32 @@ import type { CSSProperties, ReactNode } from "react";
 
 export type ApiId = number | string;
 
+export interface Pagination {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+}
+
+export interface PageResponse<T> {
+    items: T[];
+    pagination: Pagination;
+}
+
+export interface ServerTableState {
+    page: number;
+    pageSize: number;
+    total: number;
+    search: string;
+    sort: SortState;
+    loading: boolean;
+    error: string | null;
+    onPageChange: (page: number) => void;
+    onSearchChange: (search: string) => void;
+    onSortChange: (sort: SortState) => void;
+    onRetry: () => void;
+}
+
 export interface EmployeeOption {
     id: ApiId;
     companies_id: ApiId;
@@ -131,8 +157,16 @@ export interface PayrollTransactionDetail {
 }
 
 export interface PayrollTransactionsResponse {
-    transactions?: PayrollTransaction[];
-    cycle?: PayrollCycle | null;
+    transactions: PayrollTransaction[];
+    cycle: PayrollCycle;
+    pagination: Pagination;
+    summary: {
+        employee_count: number;
+        total_earning: number;
+        total_deduction: number;
+        net_pay: number;
+        calculated_at: string | null;
+    };
 }
 
 // POST /payroll/calculate/:cycle_id — what the run covered.

@@ -37,6 +37,7 @@ export interface BankTransferReport extends ReportEnvelope {
 
 // GET /reports/tax-forms/pnd1/:cycle_id
 export interface PND1Row {
+    transaction_id?: ApiId;
     employees_code?: string;
     first_name?: string;
     last_name?: string;

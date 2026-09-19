@@ -15,7 +15,7 @@ import type { Employee } from "../../types/domain";
 const EmployeesListPage = () => {
     const { homeCompanyId } = useAuth();
     const {
-        employees, loading, fetchEmployees, remove,
+        employees, table, fetchEmployees, remove,
         masterDepts, masterPos, masterRoles, masterCompanies, masterBanks, masterEmploymentTypes,
     } = useEmployees();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,13 +94,7 @@ const EmployeesListPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">
-                        Loading...
-                    </div>
-                ) : (
-                    <Table columns={columns} data={employees} />
-                )}
+                <Table columns={columns} data={employees} server={table} />
             </Card>
 
             <EmployeeFormModal

@@ -1,3 +1,5 @@
+import { usePagedResource } from "../../hooks/usePagedResource";
+import type { PayrollTransactionsResponse } from "../../types/api";
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import api from "../../api/axiosInstance";
@@ -184,10 +186,10 @@ const A4Payslip = ({ slip, cycle, company }: { slip: PayrollTransaction | null; 
 const PayslipsReportPage = () => {
     const [cycles, setCycles] = useState<PayrollCycle[]>([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const [selectedCycle, setSelectedCycle] = useState<PayrollCycle | null>(null);
-    const [transactions, setTransactions] = useState<PayrollTransaction[]>([]);
+    const { data: transactionPage, table } = usePagedResource<PayrollTransactionsResponse>(selectedCycleId ? `/reports/payslips/transactions/${selectedCycleId}` : null);
+    const selectedCycle = transactionPage?.cycle;
+    const transactions = transactionPage?.transactions ?? [];
     const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingTx, setLoadingTx] = useState(false);
     const [slip, setSlip] = useState<PayslipReport | null>(null);
     const [isSlipOpen, setIsSlipOpen] = useState(false);
     const [loadingSlip, setLoadingSlip] = useState(false);
@@ -206,23 +208,7 @@ const PayslipsReportPage = () => {
         }
     };
 
-    const fetchTransactions = async (cycleId?: ApiId) => {
-        if (!cycleId) return;
-        try {
-            setLoadingTx(true);
-            const res = await api.get(`/reports/payslips/transactions/${cycleId}`);
-            setSelectedCycle(res.data.cycle);
-            setTransactions(res.data.transactions || []);
-            } catch (err) {
-            setTransactions([]);
-            setSelectedCycle(null);
-        } finally {
-            setLoadingTx(false);
-        }
-    };
-
     useEffect(() => { fetchCycles(); }, []);
-    useEffect(() => { fetchTransactions(selectedCycleId); }, [selectedCycleId]);
 
     useA4Preview(isSlipOpen, () => {
         setIsSlipOpen(false);
@@ -258,6 +244,7 @@ const PayslipsReportPage = () => {
     const columns: TableColumn<PayrollTransaction>[] = [
         {
             label: "Employee",
+            sortKey: "employee_name",
             render: (row) => (
                 <div>
                     <div className="font-semibold text-strong">
@@ -272,18 +259,21 @@ const PayslipsReportPage = () => {
         {
 
             label: "Department",
+            sortKey: "department",
             render: (row) => (
-                <span className="text-[13px]">{row.employees?.department?.dept_name || "—"}</span>
+                <span className="text-[13px]">{row.department_name || "—"}</span>
             ),
         },
         {
             label: "Position",
+            sortKey: "position",
             render: (row) => (
-                <span className="text-[13px]">{row.employees?.position?.pos_name || "—"}</span>
+                <span className="text-[13px]">{row.position_name || "—"}</span>
             ),
         },
         {
             label: "Gross Earnings",
+            sortKey: "total_earning",
             render: (row) => (
                 <span className="font-mono text-success-text font-semibold">
                     —{formatCurrency(row.total_earning)}
@@ -292,6 +282,7 @@ const PayslipsReportPage = () => {
         },
         {
             label: "Net Pay",
+            sortKey: "net_pay",
             render: (row) => (
                 <span className="font-mono font-bold text-main text-[14px]">
                     —{formatCurrency(row.net_pay)}
@@ -300,6 +291,7 @@ const PayslipsReportPage = () => {
         },
         {
             label: "Companies",
+            sortKey: "companies_name",
             render: (row) => row.employees?.companies?.name || "-",
         },
         {
@@ -396,17 +388,7 @@ const PayslipsReportPage = () => {
 
             {/* Transactions table */}
             <Card className="p-0">
-                {loadingTx ? (
-                    <div className="p-[40px] text-center text-subtle">Loading...</div>
-                ) : transactions.length === 0 ? (
-                    <div className="p-[40px] text-center text-subtle">
-                        {selectedCycleId
-                            ? "No payroll records found for this cycle. Run payroll before closing the cycle."
-                            : "Select a closed cycle above to view payslips."}
-                    </div>
-                ) : (
-                    <Table columns={columns} data={transactions} />
-                )}
+                <Table columns={columns} data={transactions} server={table} emptyMessage={selectedCycleId ? "No matching payroll records." : "Select a closed cycle above to view payslips."} />
             </Card>
 
             {payslipPreview && createPortal(payslipPreview, document.body)}

@@ -1,9 +1,11 @@
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PayrollTransactionsResponse } from "../../../types/api";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { Company } from "../../../types/domain";
-import type { ApiId, CycleDiff, PayrollCycle, PayrollRunResult, PayrollTransaction, PreCheckIssue } from "../../../types/api";
+import type { CycleDiff, PayrollCycle, PayrollRunResult, PreCheckIssue } from "../../../types/api";
 import type { PayrollConfig } from "../../../types/domain";
-import { apiErrorBody, apiErrorStatus } from "../../../utils/apiError";
+import { apiErrorBody } from "../../../utils/apiError";
 import { apiErrorMessage } from "../../../utils/apiError";
 
 // useRunPayroll owns the whole run: which cycle is selected, its config, the pre-check, the calculation and the diff that follows it.
@@ -13,10 +15,15 @@ export const useRunPayroll = (homeCompanyId: string) => {
     const [cycles, setCycles] = useState<PayrollCycle[]>([]);
     const [selectedCycleId, setSelectedCycleId] = useState("");
     const [selectedCycle, setSelectedCycle] = useState<PayrollCycle | null>(null); // Track cycle object
-    const [transactions, setTransactions] = useState<PayrollTransaction[]>([]);
+    const [calculatedCycleId, setCalculatedCycleId] = useState("");
+    const { data: transactionPage, table, refresh: refreshTransactions } = usePagedResource<PayrollTransactionsResponse>(
+        calculatedCycleId && calculatedCycleId === selectedCycleId ? `/payroll/run/transactions/${selectedCycleId}` : null, "net_pay", "desc",
+    );
+    const transactions = transactionPage?.transactions ?? [];
+    const summary = transactionPage?.summary;
+    const loadingTx = table.loading;
     const [payrollConfig, setPayrollConfig] = useState<PayrollConfig | null>(null);
     const [loadingCycles, setLoadingCycles] = useState(true);
-    const [loadingTx, setLoadingTx] = useState(false);
     const [loadingConfig, setLoadingConfig] = useState(false);
     const [calculating, setCalculating] = useState(false);
     const [calcResult, setCalcResult] = useState<PayrollRunResult | null>(null);
@@ -34,21 +41,6 @@ export const useRunPayroll = (homeCompanyId: string) => {
             console.error(err);
         } finally {
             setLoadingCycles(false);
-        }
-    };
-
-    const fetchTransactions = async (cycleId?: ApiId) => {
-        if (!cycleId) return;
-        try {
-            setLoadingTx(true);
-            const res = await api.get(`/payroll/run/transactions/${cycleId}`);
-            // Trigger React re-render via immutability
-            setTransactions([...(res.data.transactions || [])]);
-        } catch (err) {
-            setTransactions([]);
-            if (apiErrorStatus(err) !== 404) console.error(err);
-        } finally {
-            setLoadingTx(false);
         }
     };
 
@@ -97,7 +89,7 @@ export const useRunPayroll = (homeCompanyId: string) => {
         setSelectedCompanyId(companyId);
         setSelectedCycleId("");
         setSelectedCycle(null);
-        setTransactions([]);
+        setCalculatedCycleId("");
         setPayrollConfig(null);
         setCalcResult(null);
         setDiffData(null);
@@ -140,11 +132,12 @@ export const useRunPayroll = (homeCompanyId: string) => {
             setCalculating(true);
             setCalcResult(null);
             setDiffData(null);
-            setTransactions([]);
+            setCalculatedCycleId("");
             await fetchPayrollConfigForCycle(selectedCycle);
             const res = await api.post(`/payroll/calculate/${selectedCycleId}`);
             setCalcResult(res.data);
-            await fetchTransactions(selectedCycleId);
+            setCalculatedCycleId(selectedCycleId);
+            refreshTransactions();
             const diffRes = await api.get(`/payroll/diff/${selectedCycleId}`);
             setDiffData(diffRes.data);
         } catch (err) {
@@ -179,7 +172,7 @@ export const useRunPayroll = (homeCompanyId: string) => {
     }, [selectedCycle?.id]);
 
     return {
-        companies, cycles: filteredCycles, transactions, payrollConfig,
+        companies, cycles: filteredCycles, transactions, payrollConfig, table, summary,
         selectedCompanyId, selectedCycleId, selectedCycle, selectCycle, changeCompany, dismissPreCheck,
         loadingCycles, loadingTx, loadingConfig, calculating,
         calcResult, diffData, preCheckIssues, pendingCalculate,

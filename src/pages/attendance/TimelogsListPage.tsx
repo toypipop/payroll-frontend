@@ -15,7 +15,7 @@ import type { TimeLog } from "../../types/domain";
 const TimelogsListPage = () => {
     const { homeCompanyId } = useAuth();
     const {
-        timeLogs, loading, fetchTimeLogs, remove,
+        timeLogs, table, fetchTimeLogs, remove,
         masterCompanies, masterEmployees, masterWorkLocations, employeeData,
         attendanceConfigs, dayOffWeekdaysByCompany, canManageAttendanceSettings,
     } = useTimelogs();
@@ -113,13 +113,7 @@ const TimelogsListPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">
-                        Loading...
-                    </div>
-                ) : (
-                    <Table columns={columns} data={timeLogs} />
-                )}
+                <Table columns={columns} data={timeLogs} server={table} />
             </Card>
 
             <TimeLogFormModal

@@ -24,9 +24,9 @@ const formatCurrency = (val: number | string | null | undefined) =>
 const RunPayrollPage = () => {
     const { homeCompanyId } = useAuth();
     const {
-        companies, cycles: filteredCycles, transactions, payrollConfig,
+        companies, cycles: filteredCycles, transactions, payrollConfig, table, summary,
         selectedCompanyId, selectedCycleId, selectedCycle, selectCycle, changeCompany, dismissPreCheck,
-        loadingCycles, loadingTx, loadingConfig, calculating,
+        loadingCycles, loadingConfig, calculating,
         calcResult, diffData, preCheckIssues, pendingCalculate,
         calculate, runCalculate,
     } = useRunPayroll(homeCompanyId);
@@ -43,7 +43,7 @@ const RunPayrollPage = () => {
                         {row.employees?.first_name} {row.employees?.last_name}
                     </div>
                     <div className="text-[11px] text-subtle mt-[2px]">
-                        {row.employees?.employees_code} · {row.employees?.department?.dept_name || "—"}
+                        {row.employees?.employees_code} · {row.department_name || "—"}
                     </div>
                 </div>
             ),
@@ -60,7 +60,7 @@ const RunPayrollPage = () => {
             searchableKeys: ["employees.position.pos_name"],
             render: (row) => (
                 <span className="text-[13px] text-body">
-                    {row.employees?.position?.pos_name || "—"}
+                    {row.position_name || "—"}
                 </span>
             ),
         },
@@ -122,8 +122,8 @@ const RunPayrollPage = () => {
         },
     ];
 
-    const totalNetPay = transactions.reduce((sum, t) => sum + (t.net_pay || 0), 0);
-    const totalEarning = transactions.reduce((sum, t) => sum + (t.total_earning || 0), 0);
+    const totalNetPay = summary?.net_pay ?? 0;
+    const totalEarning = summary?.total_earning ?? 0;
 
     return (
         <>
@@ -252,10 +252,10 @@ const RunPayrollPage = () => {
             <CycleDiffCard diffData={diffData} />
 
             {/* Summary strip */}
-            {transactions.length > 0 && (
+            {summary && (
                 <div className="flex gap-[16px] mb-[20px] flex-wrap">
                     {[
-                        { label: "Employees", value: transactions.length, tone: "brand" as const },
+                        { label: "Employees", value: summary.employee_count, tone: "brand" as const },
                         { label: "Total Earning", value: `฿${formatCurrency(totalEarning)}`, tone: "success" as const },
                         { label: "Total Net Pay", value: `฿${formatCurrency(totalNetPay)}`, tone: "neutral" as const },
                     ].map((stat) => (
@@ -273,15 +273,7 @@ const RunPayrollPage = () => {
 
             {/* Transactions table */}
             <Card className="p-0">
-                {loadingTx ? (
-                    <div className="p-[40px] text-center text-subtle">Loading results...</div>
-                ) : transactions.length === 0 ? (
-                    <div className="p-[40px] text-center text-subtle">
-                        No payroll results yet. Select a cycle and click <strong>Run Calculation</strong>.
-                    </div>
-                ) : (
-                    <Table columns={columns} data={transactions} defaultSort={{ key: "net_pay", order: "desc" }} />
-                )}
+                <Table columns={columns} data={transactions} server={table} emptyMessage={selectedCycleId ? "No payroll records found. Calculate this cycle to refresh." : "Select a payroll cycle."} />
             </Card>
         </>
     );

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 import type { ChangeEvent, Key, MouseEvent, ReactElement, ReactNode } from "react";
-import type { SortState, TableColumn, TableRow } from "../../types/api";
+import type { ServerTableState, SortState, TableColumn, TableRow } from "../../types/api";
 
 interface TableProps<T extends object = TableRow> {
     columns: TableColumn<T>[];
+    server?: ServerTableState;
     data?: T[];
     onRowClick?: (row: T) => void;
     hideHeader?: boolean;
@@ -122,6 +123,7 @@ const normalizeSortValue = (value: unknown) => {
 
 const Table = <T extends object = TableRow>({
     columns,
+    server,
     data = [],
     onRowClick,
     hideHeader = false,
@@ -136,9 +138,13 @@ const Table = <T extends object = TableRow>({
     defaultSort = null,
     emptyMessage = "No data available",
 }: TableProps<T>) => {
-    const [sortState, setSortState] = useState<SortState>(defaultSort || { key: null, order: null });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [localSort, setSortState] = useState<SortState>(defaultSort || { key: null, order: null });
+    const [currentPage, setLocalPage] = useState(1);
+    const [localSearch, setSearchQuery] = useState("");
+
+    const sortState = server?.sort ?? localSort;
+    const searchQuery = server?.search ?? localSearch;
+    const setCurrentPage = (page: number) => server ? server.onPageChange(page) : setLocalPage(page);
 
     const isCompact = density === "compact";
     // A document table has to share the width it has, so its headers wrap instead of setting a minimum the sheet cannot afford.
@@ -153,24 +159,15 @@ const Table = <T extends object = TableRow>({
         const nextKey = getSortableKey(col);
         if (sortable === false || !nextKey) return;
 
-        setCurrentPage(1);
-
-        setSortState((prev) => {
-            if (prev.key !== nextKey) {
-                return { key: nextKey, order: "asc" };
-            }
-            if (prev.order === "asc") {
-                return { key: prev.key, order: "desc" };
-            }
-            if (prev.order === "desc") {
-                return { key: null, order: null };
-            }
-            return { key: null, order: null };
-        });
+        const next: SortState = sortState.key !== nextKey
+            ? { key: nextKey, order: "asc" }
+            : sortState.order === "asc" ? { key: nextKey, order: "desc" } : { key: null, order: null };
+        if (server) server.onSortChange(next);
+        else { setCurrentPage(1); setSortState(next); }
     };
 
     const sortedData = useMemo(() => {
-        if (!sortState.key || !sortState.order) {
+        if (server || !sortState.key || !sortState.order) {
             return data;
         }
 
@@ -195,10 +192,10 @@ const Table = <T extends object = TableRow>({
             if (strA > strB) return sortState.order === "asc" ? 1 : -1;
             return 0;
         });
-    }, [data, sortState, columns]);
+    }, [data, sortState, columns, server]);
 
     const filteredData = useMemo(() => {
-        if (!searchQuery.trim()) return sortedData;
+        if (server || !searchQuery.trim()) return sortedData;
         
         const normalizedQuery = normalizeSearchValue(searchQuery);
 
@@ -250,19 +247,20 @@ const Table = <T extends object = TableRow>({
                 return false;
             });
         });
-    }, [sortedData, searchQuery, columns]);
+    }, [sortedData, searchQuery, columns, server]);
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
+        if (server) server.onSearchChange(e.target.value);
+        else { setSearchQuery(e.target.value); setCurrentPage(1); }
     };
 
     const safeData = filteredData || [];
-    const safeRowsPerPage = Math.max(1, Number(rowsPerPage) || 10);
-    const totalPages = Math.max(1, Math.ceil(safeData.length / safeRowsPerPage));
-    const page = Math.min(currentPage, totalPages);
+    const safeRowsPerPage = Math.max(1, Number(server?.pageSize ?? rowsPerPage) || 10);
+    const totalRows = server?.total ?? safeData.length;
+    const totalPages = Math.max(1, Math.ceil(totalRows / safeRowsPerPage));
+    const page = Math.min(server?.page ?? currentPage, totalPages);
     const startIndex = (page - 1) * safeRowsPerPage;
-    const paginatedData = safeData.slice(startIndex, startIndex + safeRowsPerPage);
+    const paginatedData = server ? safeData : safeData.slice(startIndex, startIndex + safeRowsPerPage);
 
     const pageButtons = useMemo(() => {
         if (totalPages <= 5) {
@@ -292,6 +290,8 @@ const Table = <T extends object = TableRow>({
                             type="text"
                             placeholder="Search..."
                             value={searchQuery}
+                            aria-label="Search records"
+                            maxLength={server ? 200 : undefined}
                             onChange={handleSearchChange}
                             className="w-full rounded-lg border border-line-muted bg-card py-2.5 pl-[38px] pr-3 text-sm font-medium text-main shadow-[0_1px_2px_rgba(0,0,0,0.03)] outline-none transition-all duration-200"
                             onFocus={(e) => {
@@ -336,7 +336,11 @@ const Table = <T extends object = TableRow>({
                         </thead>
                     )}
                     <tbody>
-                        {safeData.length > 0 ? (
+                        {server?.loading || server?.error ? (
+                            <tr><td colSpan={columns.length} className={twMerge(tdClass, "p-10 text-center text-subtle")} role="status">
+                                {server.error ? <>{server.error} <button type="button" className="underline" onClick={server.onRetry}>Retry</button></> : "Loading..."}
+                            </td></tr>
+                        ) : safeData.length > 0 ? (
                             paginatedData.map((row, rowIndex) => {
                                 const absoluteRowIndex = startIndex + rowIndex;
                                 const isLastRow = rowIndex === paginatedData.length - 1;
@@ -389,19 +393,19 @@ const Table = <T extends object = TableRow>({
                     </tbody>
                 </table>
             </div>
-            {safeData.length > 0 && totalPages > 1 && (
+            {totalRows > 0 && (
                 <div className={`flex flex-wrap items-center justify-between gap-3 rounded-[10px] px-1 py-2 text-[13px] ${paginationChrome}`}>
                     <div className="flex flex-wrap items-center gap-2.5">
                         <span className="inline-flex items-center rounded-full border border-primary-subtle bg-control-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.03em] text-control">Page {page} / {totalPages}</span>
                         <span>
-                            Showing {startIndex + 1}-{Math.min(startIndex + safeRowsPerPage, safeData.length)} of {safeData.length}
+                            Showing {startIndex + 1}-{Math.min(startIndex + safeRowsPerPage, totalRows)} of {totalRows}
                         </span>
                     </div>
                     <div className="flex flex-wrap items-center justify-end gap-1.5">
                         <button
                             type="button"
                             className={twMerge(pageButtonClass, page === 1 && "cursor-not-allowed opacity-40")}
-                            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                            onClick={() => setCurrentPage(Math.max(1, page - 1))}
                             disabled={page === 1}
                         >
                             <span aria-hidden="true">&larr;</span> Prev
@@ -425,7 +429,7 @@ const Table = <T extends object = TableRow>({
                         <button
                             type="button"
                             className={twMerge(pageButtonClass, page === totalPages && "cursor-not-allowed opacity-40")}
-                            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                            onClick={() => setCurrentPage(Math.min(totalPages, page + 1))}
                             disabled={page === totalPages}
                         >
                             Next <span aria-hidden="true">&rarr;</span>

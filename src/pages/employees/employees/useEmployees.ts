@@ -1,3 +1,5 @@
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { Bank, Company, Department, Employee, EmploymentType, OptionRow, Position, Role } from "../../../types/domain";
@@ -6,26 +8,15 @@ import type { ApiId } from "../../../types/api";
 
 // useEmployees owns the page's server data: the employee rows plus every master list the form cascades through.
 export const useEmployees = () => {
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data, table, refresh: fetchEmployees } = usePagedResource<PageResponse<Employee>>("/employees");
+    const employees = data?.items ?? [];
+    const loading = table.loading;
     const [masterDepts, setMasterDepts] = useState<OptionRow[]>([]);
     const [masterPos, setMasterPos] = useState<OptionRow[]>([]);
     const [masterRoles, setMasterRoles] = useState<OptionRow[]>([]);
     const [masterCompanies, setMasterCompanies] = useState<OptionRow[]>([]);
     const [masterBanks, setMasterBanks] = useState<OptionRow[]>([]);
     const [masterEmploymentTypes, setMasterEmploymentTypes] = useState<OptionRow[]>([]);
-
-    const fetchEmployees = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get("/employees");
-            setEmployees(response.data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         const fetchMasterData = async () => {
@@ -76,7 +67,6 @@ export const useEmployees = () => {
             }
         };
         fetchMasterData();
-        fetchEmployees();
     }, []);
 
     const remove = async (id?: ApiId) => {
@@ -90,7 +80,7 @@ export const useEmployees = () => {
     };
 
     return {
-        employees, loading, fetchEmployees, remove,
+        employees, loading, fetchEmployees, remove, table,
         masterDepts, masterPos, masterRoles, masterCompanies, masterBanks, masterEmploymentTypes,
     };
 };

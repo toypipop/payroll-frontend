@@ -1,3 +1,5 @@
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { EmployeeOption } from "../../../types/api";
@@ -8,8 +10,9 @@ import { useModulePermission } from "../../../hooks/useModulePermission";
 
 // useTimelogs owns the page's server data: the logs plus every master list the form and the bulk modal read.
 export const useTimelogs = () => {
-    const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data, table, refresh: fetchTimeLogs } = usePagedResource<PageResponse<TimeLog>>("/timelogs");
+    const timeLogs = data?.items ?? [];
+    const loading = table.loading;
     // The three master lists are dropdown options this hook builds, not the API's full records.
     const [masterCompanies, setMasterCompanies] = useState<OptionRow[]>([]);
     const [masterEmployees, setMasterEmployees] = useState<OptionRow[]>([]);
@@ -19,18 +22,6 @@ export const useTimelogs = () => {
     const [attendanceConfigs, setAttendanceConfigs] = useState<Record<string, ScheduleConfig>>({});
     const [dayOffWeekdaysByCompany, setDayOffWeekdaysByCompany] = useState<Record<string, number[]>>({});
     const canManageAttendanceSettings = useModulePermission("AttendanceSettingsPage");
-
-    const fetchTimeLogs = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get<TimeLog[]>("/timelogs");
-            setTimeLogs(response.data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         const fetchMasterData = async () => {
@@ -85,7 +76,6 @@ export const useTimelogs = () => {
             }
         };
         fetchMasterData();
-        fetchTimeLogs();
     }, []);
 
     const remove = async (id?: ApiId) => {
@@ -99,7 +89,7 @@ export const useTimelogs = () => {
     };
 
     return {
-        timeLogs, loading, fetchTimeLogs, remove,
+        timeLogs, loading, fetchTimeLogs, remove, table,
         masterCompanies, masterEmployees, masterWorkLocations, employeeData,
         attendanceConfigs, dayOffWeekdaysByCompany, canManageAttendanceSettings,
     };

@@ -19,6 +19,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
+        if (axios.isCancel(error)) return Promise.reject(error);
         const { response } = error;
 
         // Companies settings owns its inline edit/status errors. Other modules
