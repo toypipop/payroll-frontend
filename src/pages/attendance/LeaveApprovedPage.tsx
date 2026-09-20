@@ -19,7 +19,7 @@ const quotaWarningTitle = (row: LeaveRequest) => {
 
 const LeaveApprovedPage = () => {
     const { user } = useAuth();
-    const { pendingRequests, loading, decide } = useLeaveApprovals(user?.id);
+    const { pendingRequests, table, decide } = useLeaveApprovals(user?.id);
 
     const columns: TableColumn<LeaveRequest>[] = [
         {
@@ -52,7 +52,7 @@ const LeaveApprovedPage = () => {
                 const formatDT = (d?: string) => {
                     if (!d) return "—";
                     return new Date(d).toLocaleString('en-GB', {
-                        day: '2-digit', month: '2-digit', year: '2-digit',
+                        timeZone: 'Asia/Bangkok', day: '2-digit', month: '2-digit', year: '2-digit',
                         hour: '2-digit', minute: '2-digit'
                     });
                 };
@@ -125,15 +125,7 @@ const LeaveApprovedPage = () => {
         <>
             <PageHeader title="Leave Approval Center" />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading pending requests...</div>
-                ) : (
-                    <Table
-                        columns={columns}
-                        data={pendingRequests}
-                        emptyMessage="No pending leave requests found."
-                    />
-                )}
+                <Table columns={columns} data={pendingRequests} server={table} />
             </Card>
         </>
     );

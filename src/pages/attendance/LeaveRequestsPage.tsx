@@ -14,7 +14,7 @@ import type { LeaveRequest } from "../../types/domain";
 
 const LeaveRequestsPage = () => {
     const { homeCompanyId } = useAuth();
-    const { requests, loading, fetchRequests, remove, masterCompanies, masterEmployees, masterLeaveTypes, employeeData } = useLeaveRequests();
+    const { requests, table, fetchRequests, remove, masterCompanies, masterEmployees, masterLeaveTypes, employeeData } = useLeaveRequests();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<LeaveRequest | null>(null);
 
@@ -129,11 +129,7 @@ const LeaveRequestsPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table columns={columns} data={requests} />
-                )}
+                <Table columns={columns} data={requests} server={table} />
             </Card>
 
             <LeaveRequestFormModal

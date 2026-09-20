@@ -1,31 +1,20 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
-import type { EmployeeOption } from "../../../types/api";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { EmployeeOption, PageResponse } from "../../../types/api";
 import type { Company, Employee, LeaveRequest, LeaveTypeSetting, OptionRow } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
 import type { ApiId } from "../../../types/api";
 
 // useLeaveRequests owns the page's server data: the requests plus the master lists the form cascades through.
 export const useLeaveRequests = () => {
-    const [requests, setRequests] = useState<LeaveRequest[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data, table, refresh: fetchRequests } = usePagedResource<PageResponse<LeaveRequest>>("/leaves/requests");
+    const requests = data?.items ?? [];
     // The three master lists are dropdown options this hook builds, not the API's full records.
     const [masterCompanies, setMasterCompanies] = useState<OptionRow[]>([]);
     const [masterEmployees, setMasterEmployees] = useState<OptionRow[]>([]);
     const [masterLeaveTypes, setMasterLeaveTypes] = useState<OptionRow[]>([]);
     const [employeeData, setEmployeeData] = useState<Record<string, Employee>>({});
-
-    const fetchRequests = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get<LeaveRequest[]>("/leaves/requests");
-            setRequests(response.data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         const fetchMasterData = async () => {
@@ -60,7 +49,6 @@ export const useLeaveRequests = () => {
             }
         };
         fetchMasterData();
-        fetchRequests();
     }, []);
 
     const remove = async (id?: ApiId) => {
@@ -73,7 +61,7 @@ export const useLeaveRequests = () => {
         }
     };
 
-    return { requests, loading, fetchRequests, remove, masterCompanies, masterEmployees, masterLeaveTypes, employeeData };
+    return { requests, table, fetchRequests, remove, masterCompanies, masterEmployees, masterLeaveTypes, employeeData };
 };
 
 export default useLeaveRequests;
