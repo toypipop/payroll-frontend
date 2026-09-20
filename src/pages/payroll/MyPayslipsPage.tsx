@@ -17,7 +17,7 @@ const formatDate = (value: number | string | null | undefined) => {
 };
 
 const MyPayslipsPage = () => {
-    const { slips, loading } = useMyPayslips();
+    const { slips, table } = useMyPayslips();
     const [selected, setSelected] = useState<MySlip | null>(null);
 
     const columns: TableColumn<MySlip>[] = [
@@ -75,20 +75,12 @@ const MyPayslipsPage = () => {
             <PageHeader title="My Payslips" />
 
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center text-subtle">Loading...</div>
-                ) : slips.length === 0 ? (
-                    <div className="p-[40px] text-center text-subtle">
-                        No payslips available yet.
-                    </div>
-                ) : (
-                    <Table
-                        columns={columns}
-                        data={slips}
-                        onRowClick={(row) => setSelected(row)}
-                        defaultSort={{ key: "start_date", order: "desc" }}
-                    />
-                )}
+                <Table
+                    columns={columns}
+                    data={slips}
+                    server={table}
+                    onRowClick={(row) => setSelected(row)}
+                />
             </Card>
 
             <PayslipDetailsModal slip={selected} onClose={() => setSelected(null)} />

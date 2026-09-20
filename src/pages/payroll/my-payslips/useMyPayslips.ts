@@ -1,19 +1,10 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { MySlip, PageResponse } from "../../../types/api";
 
-// useMyPayslips owns the caller's own closed payslips. This route has no permission gate: everyone can read their own.
+// Identity comes from the session cookie; this request never accepts an employee ID.
 export const useMyPayslips = () => {
-    const [slips, setSlips] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        api.get("/payroll/my-slips")
-            .then((res) => setSlips(res.data || []))
-            .catch(() => setSlips([]))
-            .finally(() => setLoading(false));
-    }, []);
-
-    return { slips, loading };
+    const { data, table } = usePagedResource<PageResponse<MySlip>>("/payroll/my-slips", "start_date", "desc");
+    return { slips: data?.items ?? [], table };
 };
 
 export default useMyPayslips;
