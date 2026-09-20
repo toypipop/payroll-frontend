@@ -12,7 +12,7 @@ import type { EmployeeDeduction } from "../../types/domain";
 
 const EmployeeDeductionsPage = () => {
     const { homeCompanyId } = useAuth();
-    const { items, companies, employees, deductionTypes, loading, fetchItems, remove } = useEmployeeDeductions();
+    const { items, companies, employees, deductionTypes, table, fetchItems, remove } = useEmployeeDeductions();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<EmployeeDeduction | null>(null);
 
@@ -84,11 +84,7 @@ const EmployeeDeductionsPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table columns={columns} data={items} />
-                )}
+                <Table columns={columns} data={items} server={table} />
             </Card>
 
             <EmployeeDeductionFormModal
