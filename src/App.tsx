@@ -1,6 +1,7 @@
 import React, { useEffect, useState, Suspense, lazy, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import api from "./api/axiosInstance";
+import { SESSION_EXPIRED_EVENT } from "./api/sessionEvents";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ModuleProvider } from "./contexts/ModuleContext";
 import { NotificationProvider } from "./contexts/NotificationProvider";
@@ -60,7 +61,7 @@ const ApplicationRoutes = ({ isAuthenticated }: { isAuthenticated: boolean }) =>
                 })}
 
                 <Route path="/" element={<Navigate to="/dashboard" />} />
-                <Route path="*" element={<Navigate to="/login" />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </Suspense>
     );
@@ -72,9 +73,22 @@ function App() {
     const [user, setUser] = useState<UserProfile | null>(null);
 
     useEffect(() => {
+        let active = true;
+        let expired = false;
+        const controller = new AbortController();
+        const expireSession = () => {
+            expired = true;
+            setUser(null);
+            setIsAuthenticated(false);
+            setAuthLoading(false);
+        };
+        window.addEventListener(SESSION_EXPIRED_EVENT, expireSession);
+
         const verifySession = async () => {
             try {
-                const res = await api.get<AuthMeResponse>("/auth/me");
+                const res = await api.get<AuthMeResponse>("/auth/me", { signal: controller.signal });
+                // A late response must not restore a session already rejected by another request.
+                if (!active || expired) return;
                 const userPayload: UserProfile = {
                     id: res.data.id,
                     fullName: res.data.full_name,
@@ -85,14 +99,20 @@ function App() {
                 setUser(userPayload);
                 setIsAuthenticated(true);
             } catch {
+                if (!active) return;
                 setUser(null);
                 setIsAuthenticated(false);
             } finally {
-                setAuthLoading(false);
+                if (active) setAuthLoading(false);
             }
         };
 
-        verifySession();
+        void verifySession();
+        return () => {
+            active = false;
+            controller.abort();
+            window.removeEventListener(SESSION_EXPIRED_EVENT, expireSession);
+        };
     }, []);
 
     if (authLoading) return null;

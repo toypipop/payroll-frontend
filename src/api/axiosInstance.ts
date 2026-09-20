@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { SESSION_EXPIRED_EVENT } from "./sessionEvents";
 import { apiErrorMessage, apiErrorRequestID, isCompanyInactiveError } from "../utils/apiError";
 
 const api = axios.create({
@@ -39,13 +40,8 @@ api.interceptors.response.use(
             }));
         }
 
-        if (response && response.status === 401) {
-	            // Prevent infinite redirect loop on login page
-            const isLoginPage = window.location.pathname === "/login";
-
-            if (!isLoginPage) {
-                window.location.href = "/login";
-            }
+        if (response?.status === 401 && error.config?.url !== "/auth/login") {
+            window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
         }
         return Promise.reject(error);
     }
