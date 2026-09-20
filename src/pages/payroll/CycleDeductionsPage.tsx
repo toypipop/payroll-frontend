@@ -24,7 +24,7 @@ const CycleDeductionsPage = () => {
     const { homeCompanyId } = useAuth();
     const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const { items, companies, cycles, deductionTypes, loading, refreshItems, remove } = useCycleDeductions(selectedCycleId);
+    const { items, companies, cycles, deductionTypes, table, refreshItems, remove } = useCycleDeductions(selectedCycleId);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<CycleDeduction | null>(null);
 
@@ -68,7 +68,7 @@ const CycleDeductionsPage = () => {
         },
         {
             label: "Companies",
-            sortKey: "companies_name",
+            sortKey: "employees.companies.name",
             sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
             searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
@@ -142,10 +142,8 @@ const CycleDeductionsPage = () => {
                     <div className="p-[40px] text-center text-subtle">
                         Select a payroll cycle to view or add variable deductions.
                     </div>
-                ) : loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
-                    <Table columns={columns} data={items} defaultSort={{ key: "amount", order: "desc" }} />
+                    <Table columns={columns} data={items} server={table} />
                 )}
             </Card>
 

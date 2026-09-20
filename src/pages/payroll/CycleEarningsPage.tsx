@@ -24,7 +24,7 @@ const CycleEarningsPage = () => {
     const { homeCompanyId } = useAuth();
     const [selectedCompanyId, setSelectedCompanyId] = useState(homeCompanyId);
     const [selectedCycleId, setSelectedCycleId] = useState("");
-    const { items, companies, cycles, earningTypes, loading, refreshItems, remove } = useCycleEarnings(selectedCycleId);
+    const { items, companies, cycles, earningTypes, table, refreshItems, remove } = useCycleEarnings(selectedCycleId);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<CycleEarning | null>(null);
 
@@ -68,7 +68,7 @@ const CycleEarningsPage = () => {
         },
         {
             label: "Companies",
-            sortKey: "companies_name",
+            sortKey: "employees.companies.name",
             sortValue: (row) => row.employees?.companies?.name?.toLowerCase() || "",
             searchableKeys: ["employees.companies.name"],
             render: (row) => row.employees?.companies?.name || "-",
@@ -142,10 +142,8 @@ const CycleEarningsPage = () => {
                     <div className="p-[40px] text-center text-subtle">
                         Select a payroll cycle to view or add variable earnings.
                     </div>
-                ) : loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
                 ) : (
-                    <Table columns={columns} data={items} defaultSort={{ key: "amount", order: "desc" }} />
+                    <Table columns={columns} data={items} server={table} />
                 )}
             </Card>
 
