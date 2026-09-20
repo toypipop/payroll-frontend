@@ -108,6 +108,7 @@ const LeaveRequestsPage = () => {
                     </Button>
                     <Button
                         variant="danger"
+                        disabled={row.status === "Approved"}
                         onClick={() => remove(row.id)}
                         className={smallBtn}
                     >

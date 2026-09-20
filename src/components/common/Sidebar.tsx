@@ -137,6 +137,8 @@ const Sidebar = () => {
     }, [location.pathname, menuItems]);
 
     const renderMenuItem = (item: AppModule, isSub = false): ReactNode => {
+        // These authenticated pages have permanent links below, independent of modules.
+        if (item.route_path === "/dashboard" || item.route_path === "/my-payslips") return null;
         const IconComponent = (item.icon && Icons[item.icon]) || Icons.Default;
 
         if (item.is_category && !isSub) {
@@ -215,6 +217,8 @@ const Sidebar = () => {
             </div>
 
             <nav className="grow overflow-y-auto">
+                <NavLink to="/dashboard" className={({ isActive }) => twMerge(NAV_LINK, isActive ? "bg-sidebar-active text-sidebar-on" : "text-sidebar-text")}>Dashboard</NavLink>
+                <NavLink to="/my-payslips" className={({ isActive }) => twMerge(NAV_LINK, isActive ? "bg-sidebar-active text-sidebar-on" : "text-sidebar-text")}>My Payslips</NavLink>
                 {loading ? <div>Loading...</div> : menuItems.map(item => renderMenuItem(item))}
             </nav>
         </div>

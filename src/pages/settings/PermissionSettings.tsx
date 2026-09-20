@@ -15,7 +15,6 @@ const emptyState = "flex min-h-[300px] flex-col items-center justify-center p-10
 const PermissionSettings = () => {
     const { roles, selectedRoles, permissions, groupedPermissions, loading, saving, isDirty, error, notice, selectRole, updateLocal, save, discardChanges } = usePermissionMatrix();
     const { refreshModules } = useModules();
-    const [companyFilter, setCompanyFilter] = useState("all");
     const [pendingRoleID, setPendingRoleID] = useState<string | null>(null);
     const companies = useMemo(() => {
         const seen = new Set<string>();
@@ -27,6 +26,7 @@ const PermissionSettings = () => {
             return [{ id: String(id), name }];
         });
     }, [roles]);
+    const companyFilter = String(selectedRoles?.companies_id ?? companies[0]?.id ?? "");
     const filteredRoles = rolesForCompany(roles, companyFilter);
     const pendingRole = roles.find((role) => String(role.id) === pendingRoleID) ?? null;
     const enabledModules = permissions.filter((row) => !row.is_category && (row.can_view || row.can_create || row.can_edit || row.can_delete)).length;
@@ -63,7 +63,7 @@ const PermissionSettings = () => {
             {notice && <p role="status" className="mb-4 text-success">{notice}</p>}
             <div className="grid grid-cols-[300px_1fr] items-start gap-6">
                 <Card title="Available Roles" className="sticky top-6 flex max-h-[calc(100vh-180px)] flex-col self-start">
-                    <SelectField label="Company" value={companyFilter} onChange={(event) => setCompanyFilter(event.target.value)} options={[{ id: "all", name: "All companies" }, ...companies]} />
+                    <SelectField label="Company" value={companyFilter} onChange={(event) => requestRole(roles.find((role) => String(role.companies_id) === event.target.value)?.id?.toString())} options={companies} />
                     <div className="min-h-0 flex-1 overflow-y-auto pr-1">
                         <div className="flex flex-col gap-2">
                         {filteredRoles.length > 0 ? filteredRoles.map((role) => (
