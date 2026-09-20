@@ -10,6 +10,8 @@ import type { AuthMeResponse, UserProfile } from "./types/api";
 import { flattenModulePages } from "./contexts/moduleTree";
 import { useModules } from "./hooks/useModules";
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const DashboardPage = lazy(() => import("./pages/dashboard/DashboardPage"));
+const MyPayslipsPage = lazy(() => import("./pages/payroll/MyPayslipsPage"));
 
 const pages = import.meta.glob<{ default: React.ComponentType }>("./pages/**/*.tsx");
 
@@ -25,7 +27,9 @@ const ProtectedRoute = ({ isAuthenticated, children }: ProtectedRouteProps) => {
 
 const ApplicationRoutes = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     const { modules, loading } = useModules();
-    const routes = useMemo(() => flattenModulePages(modules), [modules]);
+    const routes = useMemo(() => flattenModulePages(modules).filter(
+        (module) => module.route_path !== "/dashboard" && module.route_path !== "/my-payslips",
+    ), [modules]);
 
     if (loading) return null;
 
@@ -33,6 +37,16 @@ const ApplicationRoutes = ({ isAuthenticated }: { isAuthenticated: boolean }) =>
         <Suspense fallback={null}>
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/dashboard" element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <MainLayout pageTitle="Dashboard"><DashboardPage /></MainLayout>
+                    </ProtectedRoute>
+                } />
+                <Route path="/my-payslips" element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <MainLayout pageTitle="My Payslips"><MyPayslipsPage /></MainLayout>
+                    </ProtectedRoute>
+                } />
                 {routes.map((m) => {
                     const importFunc = Object.entries(pages).find(
                         ([path]) => path.endsWith(`/${m.module_key}.tsx`)
