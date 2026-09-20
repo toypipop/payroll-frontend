@@ -12,7 +12,7 @@ import type { Department } from "../../types/domain";
 
 const DepartmentSettings = () => {
     const { homeCompanyId } = useAuth();
-    const { departments, companies, categories, setCategories, loading, fetchData, remove } = useDepartments();
+    const { departments, companies, categories, setCategories, table, fetchData, remove } = useDepartments();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<Department | null>(null);
 
@@ -62,13 +62,7 @@ const DepartmentSettings = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">
-                        Loading...
-                    </div>
-                ) : (
-                    <Table columns={columns} data={departments} />
-                )}
+                <Table columns={columns} data={departments} server={table} />
             </Card>
 
             <DepartmentFormModal

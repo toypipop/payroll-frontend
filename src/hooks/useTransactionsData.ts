@@ -13,7 +13,7 @@ export default function useTransactionsData(initialCycleId = "") {
     const fetchCycles = useCallback(async () => {
         try {
             setLoadingCycles(true);
-            const res = await api.get<PayrollCycle[]>("/payroll/cycles");
+            const res = await api.get<PayrollCycle[]>("/payroll/cycles/options");
             const closed = res.data.filter((cycle) => cycle.is_closed);
             setCycles(closed);
             setSelectedCycleId((current) => current || String(closed[0]?.id ?? ""));

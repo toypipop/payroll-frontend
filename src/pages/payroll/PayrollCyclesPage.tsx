@@ -18,7 +18,7 @@ const formatDate = (d?: string) =>
 const PayrollCyclesPage = () => {
     const { homeCompanyId } = useAuth();
     const navigate = useNavigate();
-    const { cycles, companies, loading, fetchCycles, closeCycle } = usePayrollCycles();
+    const { cycles, companies, table, fetchCycles, closeCycle } = usePayrollCycles();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const columns: TableColumn<PayrollCycle>[] = [
@@ -105,15 +105,7 @@ const PayrollCyclesPage = () => {
             />
 
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center text-subtle">Loading cycles...</div>
-                ) : cycles.length === 0 ? (
-                    <div className="p-[40px] text-center text-subtle">
-                        No payroll cycles yet. Create your first cycle to get started.
-                    </div>
-                ) : (
-                    <Table columns={columns} data={cycles} defaultSort={{ key: "created_at", order: "desc" }} />
-                )}
+                <Table columns={columns} data={cycles} server={table} />
             </Card>
 
             <CycleFormModal

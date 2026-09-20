@@ -1,32 +1,15 @@
-import { useEffect, useState } from "react";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
+import type { Company, EmploymentType } from "../../../types/domain";
 import api from "../../../api/axiosInstance";
-import type { Company } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// useEmploymentTypes owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useEmploymentTypes = () => {
-    const [items, setItems] = useState([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [typesRes, companiesRes] = await Promise.all([
-                api.get("/master/employment-types"),
-                api.get("/companies/options"),
-            ]);
-            setItems(typesRes.data || []);
-            setCompanies(companiesRes.data || []);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchData(); }, []);
+    const { data, table, refresh: fetchData } = usePagedResource<PageResponse<EmploymentType>>("/master/employment-types");
+    const items = data?.items ?? [];
+    const { options: companies } = useOptions<Company>("/companies/options");
 
     const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this employment type?")) return;
@@ -38,7 +21,7 @@ export const useEmploymentTypes = () => {
         }
     };
 
-    return { items, companies, loading, fetchData, remove };
+    return { items, table, fetchData, companies, remove };
 };
 
 export default useEmploymentTypes;

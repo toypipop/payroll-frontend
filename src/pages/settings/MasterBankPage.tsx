@@ -10,7 +10,7 @@ import type { TableColumn } from "../../types/api";
 import type { Bank } from "../../types/domain";
 
 const MasterBankPage = () => {
-    const { banks, loading, fetchData, remove } = useBanks();
+    const { banks, table, fetchData, remove } = useBanks();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<Bank | null>(null);
 
@@ -52,7 +52,7 @@ const MasterBankPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={banks} />}
+                <Table columns={columns} data={banks} server={table} />
             </Card>
 
             <BankFormModal

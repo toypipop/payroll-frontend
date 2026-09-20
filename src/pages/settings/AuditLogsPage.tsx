@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { usePagedResource } from "../../hooks/usePagedResource";
+import type { PageResponse } from "../../types/api";
 import api from "../../api/axiosInstance";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
@@ -16,22 +18,15 @@ const SHARED_DATA_OPTION = { id: "shared", name: "Shared Data" };
 const formatOccurredAt = (value: string) => `${bangkokDateKey(value)} ${formatDisplayTime(value)}`;
 
 const AuditLogsPage = () => {
-    const [rows, setRows] = useState<AuditLogRow[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [companyID, setCompanyID] = useState("");
-    const [loading, setLoading] = useState(true);
     const [selectedEntry, setSelectedEntry] = useState<AuditLogRow | null>(null);
 
-    useEffect(() => {
-        let active = true;
-        const params = companyID === SHARED_DATA_OPTION.id
-            ? { scope: "shared" }
-            : companyID ? { companies_id: companyID } : undefined;
-        api.get<AuditLogRow[]>("/audit-logs", { params })
-            .then((response) => { if (active) setRows(response.data); })
-            .finally(() => { if (active) setLoading(false); });
-        return () => { active = false; };
-    }, [companyID]);
+    const endpoint = companyID === SHARED_DATA_OPTION.id
+        ? "/audit-logs?scope=shared"
+        : "/audit-logs" + (companyID ? `?companies_id=${encodeURIComponent(companyID)}` : "");
+    const { data, table } = usePagedResource<PageResponse<AuditLogRow>>(endpoint, "occurred_at", "desc");
+    const rows = data?.items ?? [];
 
     useEffect(() => {
         api.get<Company[]>("/companies/options")
@@ -66,8 +61,7 @@ const AuditLogsPage = () => {
             />
         </div>
         <Card className="p-0">
-            {loading ? <div className="p-10 text-center">Loading audit logs…</div> :
-                <Table columns={columns} data={rows} getRowKey={(row) => row.id} emptyMessage="No audit events in your permitted companies." />}
+            <Table columns={columns} data={rows} server={table} getRowKey={(row) => row.id} emptyMessage="No audit events in your permitted companies." />
         </Card>
         {selectedEntry && <AuditLogDetailsModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />}
     </>;

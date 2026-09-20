@@ -13,7 +13,7 @@ import type { EarningType } from "../../types/domain";
 
 const EarningTypesPage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
-    const { earnings, companies, loading, fetchEarnings, remove } = useEarningTypes();
+    const { earnings, companies, table, fetchEarnings, remove } = useEarningTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<EarningType | null>(null);
 
@@ -71,7 +71,7 @@ const EarningTypesPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={earnings} />}
+                <Table columns={columns} data={earnings} server={table} />
             </Card>
 
             <EarningTypeFormModal

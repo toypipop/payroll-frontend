@@ -13,8 +13,8 @@ import type { TableColumn } from "../../types/api";
 import type { Company } from "../../types/domain";
 
 const CompaniesPage = () => {
-    const { companies, loading, error, fetchCompanies } = useCompanies();
     const [statusFilter, setStatusFilter] = useState("active");
+    const { companies, table, fetchCompanies } = useCompanies(statusFilter);
     const [statusCompany, setStatusCompany] = useState<Company | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<Company | null>(null);
@@ -61,15 +61,8 @@ const CompaniesPage = () => {
             />
             <SelectField label="Status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}
                 options={[{ id: "all", name: "All statuses" }, { id: "active", name: "Active" }, { id: "inactive", name: "Inactive" }]} />
-            {error && <p role="alert" className="mb-4 text-danger">{error} <Button variant="ghost" onClick={fetchCompanies}>Retry</Button></p>}
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">
-                        Loading...
-                    </div>
-                ) : (
-                    <Table columns={columns} data={companies.filter((company) => statusFilter === "all" || (statusFilter === "active" ? company.is_active === true : company.is_active === false))} />
-                )}
+                <Table columns={columns} data={companies} server={table} />
             </Card>
 
             <CompanyFormModal

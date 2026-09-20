@@ -10,7 +10,7 @@ import type { TableColumn } from "../../types/api";
 import type { Company } from "../../types/domain";
 
 const PayrollGlobalSettingsPage = () => {
-    const { configs, loading, fetchConfigs } = usePayrollConfigs();
+    const { configs, table, fetchConfigs } = usePayrollConfigs();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCompanie, setSelectedCompanie] = useState<Company | null>(null);
 
@@ -47,11 +47,7 @@ const PayrollGlobalSettingsPage = () => {
         <>
             <PageHeader title="Global Payroll Settings" />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table columns={columns} data={configs} />
-                )}
+                <Table columns={columns} data={configs} server={table} />
             </Card>
 
             <PayrollConfigModal

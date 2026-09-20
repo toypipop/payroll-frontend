@@ -1,34 +1,15 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
 import type { Company, Position } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// usePositions owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const usePositions = () => {
-    const [positions, setPositions] = useState<Position[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [posRes, compRes] = await Promise.all([
-                api.get("/positions"),
-                api.get("/companies/options"),
-            ]);
-            setPositions(posRes.data || []);
-            setCompanies(compRes.data || []);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const { data, table, refresh: fetchData } = usePagedResource<PageResponse<Position>>("/positions");
+    const positions = data?.items ?? [];
+    const { options: companies } = useOptions<Company>("/companies/options");
 
     const remove = async (id?: ApiId) => {
         if (!id) return;
@@ -41,7 +22,7 @@ export const usePositions = () => {
         }
     };
 
-    return { positions, companies, loading, fetchData, remove };
+    return { positions, table, fetchData, companies, remove };
 };
 
 export default usePositions;

@@ -34,7 +34,7 @@ export const useRunPayroll = (homeCompanyId: string) => {
     const fetchCycles = async () => {
         try {
             setLoadingCycles(true);
-            const res = await api.get("/payroll/cycles");
+            const res = await api.get("/payroll/cycles/options");
             const open = ((res.data || []) as PayrollCycle[]).filter((c) => !c.is_closed);
             setCycles(open);
         } catch (err) {

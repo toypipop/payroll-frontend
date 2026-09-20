@@ -1,35 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { useEffect } from "react";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
 import type { Company } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
 
-// useCompanies owns the page's server data: the list it renders, the loading flag, and the calls that change them.
-export const useCompanies = () => {
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
-    const fetchCompanies = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError("");
-            const response = await api.get<Company[]>("/companies/all");
-            setCompanies(response.data);
-        } catch (err) {
-            setCompanies([]);
-            setError(apiErrorMessage(err, "Unable to load companies."));
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
+export const useCompanies = (status: string) => {
+    const endpoint = "/companies/all" + (status === "all" ? "" : `?is_active=${status === "active"}`);
+    const { data, table, refresh: fetchCompanies } = usePagedResource<PageResponse<Company>>(endpoint, "id", "desc");
     useEffect(() => {
-        fetchCompanies();
         window.addEventListener("focus", fetchCompanies);
         return () => window.removeEventListener("focus", fetchCompanies);
     }, [fetchCompanies]);
-
-    return { companies, loading, error, fetchCompanies };
+    return { companies: data?.items ?? [], table, fetchCompanies };
 };
-
 export default useCompanies;

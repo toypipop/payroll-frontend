@@ -12,7 +12,7 @@ import type { WorkLocation } from "../../types/domain";
 
 const WorkLocationPage = () => {
     const { homeCompanyId } = useAuth();
-    const { items, companyOptions, loading, fetchData, remove } = useWorkLocations();
+    const { items, companyOptions, table, fetchData, remove } = useWorkLocations();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<WorkLocation | null>(null);
 
@@ -53,7 +53,7 @@ const WorkLocationPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
+                <Table columns={columns} data={items} server={table} />
             </Card>
 
             <WorkLocationFormModal

@@ -12,7 +12,7 @@ import type { EmploymentType } from "../../types/domain";
 
 const EmploymentTypePage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
-    const { items, companies, loading, fetchData, remove } = useEmploymentTypes();
+    const { items, companies, table, fetchData, remove } = useEmploymentTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<EmploymentType | null>(null);
 
@@ -60,7 +60,7 @@ const EmploymentTypePage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
+                <Table columns={columns} data={items} server={table} />
             </Card>
 
             <EmploymentTypeFormModal

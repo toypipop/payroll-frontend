@@ -197,7 +197,7 @@ const PayslipsReportPage = () => {
     const fetchCycles = async () => {
         try {
             setLoadingCycles(true);
-            const res = await api.get("/payroll/cycles");
+            const res = await api.get("/payroll/cycles/options");
             const closed = ((res.data || []) as PayrollCycle[]).filter((c) => c.is_closed);
             setCycles(closed);
             if (closed.length > 0) setSelectedCycleId(String(closed[0].id));

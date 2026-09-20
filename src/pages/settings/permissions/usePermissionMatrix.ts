@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { AppModule, ApiId } from "../../../types/api";
-import type { Role } from "../../../types/domain";
+import type { Role, OptionRow, Company } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
 import { hasPermissionChanges } from "./permissionState";
 
@@ -124,11 +124,15 @@ export const usePermissionMatrix = () => {
 
     const fetchRoles = useCallback(async () => {
         try {
-            const res = await api.get<Role[]>("/roles");
-            setRoles(res.data);
-            if (res.data.length > 0) {
-                selectRole(res.data[0]);
-            }
+            const [res, companies] = await Promise.all([
+                api.get<OptionRow[]>("/roles/options"), api.get<Company[]>("/companies/options"),
+            ]);
+            const rows: Role[] = res.data.map((option) => ({
+                id: option.id, roles_name: option.name, companies_id: option.companies_id,
+                companies: companies.data.find((company) => String(company.id) === String(option.companies_id)),
+            }));
+            setRoles(rows);
+            if (rows.length > 0) void selectRole(rows[0]);
         } catch (err) {
             setError(apiErrorMessage(err, "Unable to load roles."));
         }

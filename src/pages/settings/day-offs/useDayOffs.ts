@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
 import type { Company, DayOff } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
 export const weekdayOptions = [
     { id: "0", name: "Sunday" },
@@ -16,29 +18,10 @@ export const weekdayOptions = [
 
 export const weekdayName = (value: unknown) => weekdayOptions.find((o) => String(o.id) === String(value))?.name || "-";
 
-// useDayOffs owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useDayOffs = () => {
-    const [items, setItems] = useState<DayOff[]>([]);
-    const [companyOptions, setCompanyOptions] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [res, companiesRes] = await Promise.all([
-                api.get("/master/day-offs"),
-                api.get("/master/day-offs/companies").catch(() => ({ data: [] })),
-            ]);
-            setItems(res.data || []);
-            setCompanyOptions((companiesRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchData(); }, []);
+    const { data, table, refresh: fetchData } = usePagedResource<PageResponse<DayOff>>("/master/day-offs");
+    const items = data?.items ?? [];
+    const { options: companyOptions } = useOptions<Company>("/master/day-offs/companies");
 
     const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this day off?")) return;
@@ -50,7 +33,7 @@ export const useDayOffs = () => {
         }
     };
 
-    return { items, companyOptions, loading, fetchData, remove };
+    return { items, table, fetchData, companyOptions, remove };
 };
 
 export default useDayOffs;

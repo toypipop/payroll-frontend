@@ -12,7 +12,7 @@ import type { Position } from "../../types/domain";
 
 const PositionSettings = () => {
     const { homeCompanyId } = useAuth();
-    const { positions, companies, loading, fetchData, remove } = usePositions();
+    const { positions, companies, table, fetchData, remove } = usePositions();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<Position | null>(null);
 
@@ -61,13 +61,7 @@ const PositionSettings = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">
-                        Loading...
-                    </div>
-                ) : (
-                    <Table columns={columns} data={positions} />
-                )}
+                <Table columns={columns} data={positions} server={table} />
             </Card>
 
             <PositionFormModal

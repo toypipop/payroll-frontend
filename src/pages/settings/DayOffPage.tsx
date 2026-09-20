@@ -12,7 +12,7 @@ import type { DayOff } from "../../types/domain";
 
 const DayOffPage = () => {
     const { homeCompanyId } = useAuth();
-    const { items, companyOptions, loading, fetchData, remove } = useDayOffs();
+    const { items, companyOptions, table, fetchData, remove } = useDayOffs();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<DayOff | null>(null);
 
@@ -61,7 +61,7 @@ const DayOffPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
+                <Table columns={columns} data={items} server={table} />
             </Card>
 
             <DayOffFormModal

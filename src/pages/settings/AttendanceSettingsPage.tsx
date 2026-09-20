@@ -19,7 +19,7 @@ const flag = (enabled?: boolean) => {
 };
 
 const AttendanceSettingsPage = () => {
-    const { configs, loading, fetchConfigs } = useAttendanceConfigs();
+    const { configs, table, fetchConfigs } = useAttendanceConfigs();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCompanie, setSelectedCompanie] = useState<Company | null>(null);
 
@@ -60,11 +60,7 @@ const AttendanceSettingsPage = () => {
         <>
             <PageHeader title="Attendance Settings" />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table columns={columns} data={configs} />
-                )}
+                <Table columns={columns} data={configs} server={table} />
             </Card>
 
             <AttendanceConfigModal

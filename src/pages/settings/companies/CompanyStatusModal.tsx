@@ -8,7 +8,7 @@ import { apiErrorMessage } from "../../../utils/apiError";
 interface Props {
     company: Company;
     onClose: () => void;
-    onSaved: () => Promise<void>;
+    onSaved: () => void | Promise<void>;
 }
 
 export default function CompanyStatusModal({ company, onClose, onSaved }: Props) {

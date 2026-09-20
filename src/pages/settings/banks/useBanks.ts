@@ -1,27 +1,13 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
 import type { Bank } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// useBanks owns the page's server data: the list it renders, the loading flag, and the calls that change them.
 export const useBanks = () => {
-    const [banks, setBanks] = useState<Bank[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const res = await api.get("/master/banks");
-            setBanks(res.data || []);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchData(); }, []);
+    const { data, table, refresh: fetchData } = usePagedResource<PageResponse<Bank>>("/master/banks");
+    const banks = data?.items ?? [];
 
     const remove = async (id?: ApiId) => {
         if (!id) return;
@@ -34,7 +20,7 @@ export const useBanks = () => {
         }
     };
 
-    return { banks, loading, fetchData, remove };
+    return { banks, table, fetchData, remove };
 };
 
 export default useBanks;

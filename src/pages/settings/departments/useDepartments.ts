@@ -1,37 +1,16 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
 import type { Company, Department, DepartmentCategory } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// useDepartments owns the page's server data: the three lists it renders, the loading flag, and the two calls that change them.
 export const useDepartments = () => {
-    const [departments, setDepartments] = useState<Department[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [categories, setCategories] = useState<DepartmentCategory[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [deptRes, compRes, catRes] = await Promise.all([
-                api.get("/departments"),
-                api.get("/companies/options"),
-                api.get("/department-categories"),
-            ]);
-            setDepartments(deptRes.data || []);
-            setCompanies(compRes.data || []);
-            setCategories(catRes.data || []);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const { data, table, refresh: fetchData } = usePagedResource<PageResponse<Department>>("/departments");
+    const departments = data?.items ?? [];
+    const { options: companies } = useOptions<Company>("/companies/options");
+    const { options: categories, setOptions: setCategories } = useOptions<DepartmentCategory>("/department-categories");
 
     const remove = async (id?: ApiId) => {
         if (!id) return;
@@ -44,7 +23,7 @@ export const useDepartments = () => {
         }
     };
 
-    return { departments, companies, categories, setCategories, loading, fetchData, remove };
+    return { departments, table, fetchData, companies, categories, setCategories, remove };
 };
 
 export default useDepartments;

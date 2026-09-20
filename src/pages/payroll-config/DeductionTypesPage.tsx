@@ -13,7 +13,7 @@ import type { DeductionType } from "../../types/domain";
 
 const DeductionTypesPage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
-    const { deductions, companies, loading, fetchDeductions, remove } = useDeductionTypes();
+    const { deductions, companies, table, fetchDeductions, remove } = useDeductionTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<DeductionType | null>(null);
 
@@ -71,7 +71,7 @@ const DeductionTypesPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={deductions} />}
+                <Table columns={columns} data={deductions} server={table} />
             </Card>
 
             <DeductionTypeFormModal

@@ -19,19 +19,21 @@ export const useDashboardStats = () => {
     useEffect(() => {
         const load = async () => {
             // allSettled, not all: the dashboard reads from two modules the viewer may not both have.
-            const [empRes, cycleRes] = await Promise.allSettled([
+            const [empRes, cycleRes, closedRes] = await Promise.allSettled([
                 api.get<PageResponse<Employee>>('/employees', { params: { page_size: 1 } }),
-                api.get('/payroll/cycles'),
+                api.get<PageResponse<PayrollCycle>>('/payroll/cycles', { params: { page_size: 1 } }),
+                api.get<PageResponse<PayrollCycle>>('/payroll/cycles', { params: { page_size: 1, is_closed: true } }),
             ]);
 
             const employeeCount = empRes.status === 'fulfilled' ? empRes.value.data.pagination.total : 0;
-            const cycles: PayrollCycle[] = cycleRes.status === 'fulfilled' ? (cycleRes.value.data || []) : [];
+            const total = cycleRes.status === 'fulfilled' ? cycleRes.value.data.pagination.total : 0;
+            const closed = closedRes.status === 'fulfilled' ? closedRes.value.data.pagination.total : 0;
 
             setStats({
                 employees:    employeeCount,
-                totalCycles:  cycles.length,
-                activeCycles: cycles.filter(c => !c.is_closed).length,
-                closedCycles: cycles.filter(c =>  c.is_closed).length,
+                totalCycles:  total,
+                activeCycles: Math.max(0, total - closed),
+                closedCycles: closed,
             });
             setLoading(false);
         };

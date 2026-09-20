@@ -1,36 +1,14 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
 import type { Company, Role } from "../../../types/domain";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
 
-// useRoles owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useRoles = () => {
-    const [roles, setRoles] = useState<Role[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchRoles = async () => {
-        const res = await api.get("/roles");
-        setRoles(res.data);
-    };
-
-    const fetchInitialData = async () => {
-        try {
-            setLoading(true);
-            const [rolesRes, companiesRes] = await Promise.all([
-                api.get("/roles"),
-                api.get("/companies/options")
-            ]);
-            setRoles(rolesRes.data);
-            setCompanies(companiesRes.data);
-        } catch {
-            console.error("Initial load failed");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchInitialData(); }, []);
+    const { data, table, refresh: fetchRoles } = usePagedResource<PageResponse<Role>>("/roles");
+    const roles = data?.items ?? [];
+    const { options: companies } = useOptions<Company>("/companies/options");
 
     const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure you want to delete this role?")) return;
@@ -42,7 +20,7 @@ export const useRoles = () => {
         }
     };
 
-    return { roles, companies, loading, fetchRoles, remove };
+    return { roles, table, fetchRoles, companies, remove };
 };
 
 export default useRoles;

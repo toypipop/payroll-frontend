@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Modal from "../../../components/common/Modal";
 import Button from "../../../components/common/Button";
 import InputField from "../../../components/common/InputField";
@@ -10,14 +10,17 @@ import { getEmployeeId, getSalaryBaseAmount, getLatestSalaryStructure } from "./
 import { money, newSalaryFor, raiseSummary } from "./bulkRaise";
 import type { BulkRaiseMode } from "./bulkRaise";
 import { useBulkRaise } from "./useBulkRaise";
-import type { SalaryRow } from "./useSalaries";
+import { salaryRows } from "./salaryRows";
+import type { SalaryRow } from "./salaryRows";
+import type { SalaryPayload } from "./salaryShape";
+import api from "../../../api/axiosInstance";
+import { apiErrorMessage } from "../../../utils/apiError";
 import type { OptionRow } from "../../../types/domain";
 
 interface BulkRaiseModalProps {
     isOpen: boolean;
     onClose: () => void;
     onApplied: () => void;
-    rows: SalaryRow[];
     companies: OptionRow[];
 }
 
@@ -30,7 +33,18 @@ const MODES: { id: BulkRaiseMode; name: string }[] = [
 // BulkRaiseModal runs an annual adjustment: pick a company, tick the people, say how much, look at what it
 // would do, then commit. The batch is all or nothing, so the preview is not a nicety — it is the only place
 // the operator finds out who would stop it.
-const BulkRaiseModal = ({ isOpen, onClose, onApplied, rows, companies }: BulkRaiseModalProps) => {
+const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModalProps) => {
+    const [rows, setRows] = useState<SalaryRow[]>([]);
+    const [targetError, setTargetError] = useState("");
+    const [loadingTargets, setLoadingTargets] = useState(true);
+    useEffect(() => {
+        const controller = new AbortController();
+        void api.get<SalaryPayload[]>("/salaries/options", { signal: controller.signal })
+            .then(({ data }) => { if (!controller.signal.aborted) setRows(salaryRows(data)); })
+            .catch((error: unknown) => { if (!controller.signal.aborted) setTargetError(apiErrorMessage(error, "Unable to load employees. Close and reopen to retry.")); })
+            .finally(() => { if (!controller.signal.aborted) setLoadingTargets(false); });
+        return () => controller.abort();
+    }, []);
     const [companyID, setCompanyID] = useState("");
     const [picked, setPicked] = useState<Record<number, boolean>>({});
     const [typed, setTyped] = useState<Record<number, string>>({});
@@ -63,7 +77,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, rows, companies }: BulkRai
     });
 
     const reasonMissing = touched && !reason.trim();
-    const canSubmit = selected.length > 0 && reason.trim().length > 0 && !busy;
+    const canSubmit = selected.length > 0 && reason.trim().length > 0 && !busy && !loadingTargets && !targetError;
 
     const onPreview = () => {
         setTouched(true);
@@ -153,6 +167,8 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, rows, companies }: BulkRai
                 required
             />
 
+            {loadingTargets && <p role="status">Loading employees?</p>}
+            {targetError && <p role="alert" className="text-danger">{targetError}</p>}
             {!preview ? (
                 <div className="mt-1 max-h-[300px] overflow-y-auto rounded-lg border border-line-muted">
                     <table className="w-full border-collapse text-[13px]">

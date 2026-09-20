@@ -11,7 +11,7 @@ import type { TableColumn } from "../../types/api";
 import type { EmployeeCompanyAccess } from "../../types/domain";
 
 const EmployeeCompanyAccessPage = () => {
-    const { accessRows, employees, companies, roles, loading, fetchAccessRows, remove } = useEmployeeCompanyAccess();
+    const { accessRows, employees, companies, roles, table, fetchAccessRows, remove } = useEmployeeCompanyAccess();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<EmployeeCompanyAccess | null>(null);
 
@@ -86,11 +86,7 @@ const EmployeeCompanyAccessPage = () => {
             />
 
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table columns={columns} data={accessRows} />
-                )}
+                <Table columns={columns} data={accessRows} server={table} />
             </Card>
 
             <AccessFormModal

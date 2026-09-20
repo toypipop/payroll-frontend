@@ -12,7 +12,7 @@ import type { Role } from "../../types/domain";
 
 const RolesPage = () => {
     const { homeCompanyId: defaultCompanieId } = useAuth();
-    const { roles, companies, loading, fetchRoles, remove } = useRoles();
+    const { roles, companies, table, fetchRoles, remove } = useRoles();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<Role | null>(null);
 
@@ -62,11 +62,7 @@ const RolesPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table columns={columns} data={roles} />
-                )}
+                <Table columns={columns} data={roles} server={table} />
             </Card>
 
             <RoleFormModal

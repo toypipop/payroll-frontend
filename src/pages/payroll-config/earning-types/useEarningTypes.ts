@@ -1,37 +1,15 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
 import type { Company, EmployeeEarning } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// useEarningTypes owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useEarningTypes = () => {
-    const [earnings, setEarnings] = useState<EmployeeEarning[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchEarnings = async () => {
-        const res = await api.get("/earning-types");
-        setEarnings(res.data);
-    };
-
-    const fetchInitialData = async () => {
-        try {
-            setLoading(true);
-            const [earningsRes, companiesRes] = await Promise.all([
-                api.get("/earning-types"),
-                api.get("/companies/options"),
-            ]);
-            setEarnings(earningsRes.data);
-            setCompanies(companiesRes.data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchInitialData(); }, []);
+    const { data, table, refresh: fetchEarnings } = usePagedResource<PageResponse<EmployeeEarning>>("/earning-types");
+    const earnings = data?.items ?? [];
+    const { options: companies } = useOptions<Company>("/companies/options");
 
     const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure?")) return;
@@ -43,7 +21,7 @@ export const useEarningTypes = () => {
         }
     };
 
-    return { earnings, companies, loading, fetchEarnings, remove };
+    return { earnings, table, fetchEarnings, companies, remove };
 };
 
 export default useEarningTypes;

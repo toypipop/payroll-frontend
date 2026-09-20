@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { bangkokDateKey } from "../../utils/bangkokTime";
 
 import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
@@ -27,11 +28,7 @@ import type { SalaryHistoryRow } from "../../types/domain";
 const formatDate = (date: string, fallback: string) => {
     if (!date || date.startsWith("0001")) return fallback;
     try {
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}/${month}/${day}`;
+        return bangkokDateKey(date).replaceAll("-", "/");
     } catch {
         return fallback;
     }
@@ -39,7 +36,7 @@ const formatDate = (date: string, fallback: string) => {
 
 const SalariesStructurePage = () => {
     const {
-        salariesData, loading, companyOptions, fetchSalaries,
+        salariesData, table, companyOptions, fetchSalaries,
         historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord,
     } = useSalaries();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -161,15 +158,7 @@ const SalariesStructurePage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? (
-                    <div className="p-[40px] text-center">Loading...</div>
-                ) : (
-                    <Table
-                        columns={columns}
-                        data={salariesData}
-                        defaultSort={{ key: "id", order: "asc" }}
-                    />
-                )}
+                <Table columns={columns} data={salariesData} server={table} />
             </Card>
 
             <SalaryFormModal
@@ -199,13 +188,12 @@ const SalariesStructurePage = () => {
                 }}
             />
 
-            <BulkRaiseModal
+            {isBulkOpen && <BulkRaiseModal
                 isOpen={isBulkOpen}
                 onClose={() => setIsBulkOpen(false)}
                 onApplied={fetchSalaries}
-                rows={salariesData}
                 companies={companyOptions}
-            />
+            />}
 
             <DeleteReasonModal
                 // Remounting per record is what clears the reason between deletes.

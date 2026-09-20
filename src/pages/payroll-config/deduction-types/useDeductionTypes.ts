@@ -1,37 +1,15 @@
-import { useEffect, useState } from "react";
-import api from "../../../api/axiosInstance";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
 import type { Company, EmployeeDeduction } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
+import api from "../../../api/axiosInstance";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// useDeductionTypes owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useDeductionTypes = () => {
-    const [deductions, setDeductions] = useState<EmployeeDeduction[]>([]);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchDeductions = async () => {
-        const res = await api.get("/deduction-types");
-        setDeductions(res.data);
-    };
-
-    const fetchInitialData = async () => {
-        try {
-            setLoading(true);
-            const [deductionsRes, companiesRes] = await Promise.all([
-                api.get("/deduction-types"),
-                api.get("/companies/options"),
-            ]);
-            setDeductions(deductionsRes.data);
-            setCompanies(companiesRes.data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchInitialData(); }, []);
+    const { data, table, refresh: fetchDeductions } = usePagedResource<PageResponse<EmployeeDeduction>>("/deduction-types");
+    const deductions = data?.items ?? [];
+    const { options: companies } = useOptions<Company>("/companies/options");
 
     const remove = async (id?: ApiId) => {
         if (!window.confirm("Are you sure?")) return;
@@ -43,7 +21,7 @@ export const useDeductionTypes = () => {
         }
     };
 
-    return { deductions, companies, loading, fetchDeductions, remove };
+    return { deductions, table, fetchDeductions, companies, remove };
 };
 
 export default useDeductionTypes;

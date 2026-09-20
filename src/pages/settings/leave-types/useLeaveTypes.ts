@@ -1,32 +1,15 @@
-import { useEffect, useState } from "react";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+import { useOptions } from "../../../hooks/useOptions";
+import type { Company, LeaveTypeSetting } from "../../../types/domain";
 import api from "../../../api/axiosInstance";
-import type { Company } from "../../../types/domain";
-import { apiErrorMessage } from "../../../utils/apiError";
 import type { ApiId } from "../../../types/api";
+import { apiErrorMessage } from "../../../utils/apiError";
 
-// useLeaveTypes owns the page's server data: the lists it renders, the loading flag, and the calls that change them.
 export const useLeaveTypes = () => {
-    const [items, setItems] = useState([]);
-    const [companyOptions, setCompanyOptions] = useState<Company[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [res, companiesRes] = await Promise.all([
-                api.get("/master/leave-types"),
-                api.get("/companies/options"),
-            ]);
-            setItems(res.data || []);
-            setCompanyOptions((companiesRes.data || []).map((c: Company) => ({ id: c.id, name: c.name })));
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { fetchData(); }, []);
+    const { data, table, refresh: fetchData } = usePagedResource<PageResponse<LeaveTypeSetting>>("/master/leave-types");
+    const items = data?.items ?? [];
+    const { options: companyOptions } = useOptions<Company>("/companies/options");
 
     const remove = async (id?: ApiId) => {
         if (!window.confirm("Delete this leave type?")) return;
@@ -38,7 +21,7 @@ export const useLeaveTypes = () => {
         }
     };
 
-    return { items, companyOptions, loading, fetchData, remove };
+    return { items, table, fetchData, companyOptions, remove };
 };
 
 export default useLeaveTypes;

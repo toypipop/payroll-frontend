@@ -1,57 +1,26 @@
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
-import { getLatestSalaryStructure, getSalaryRecordId } from "./salaryShape";
+import { salaryRows } from "./salaryRows";
+import { usePagedResource } from "../../../hooks/usePagedResource";
+import type { PageResponse } from "../../../types/api";
+export type { SalaryRow } from "./salaryRows";
 import type { SalaryPayload } from "./salaryShape";
 import type { ApiId } from "../../../types/api";
-import type { Employee, OptionRow, SalaryHistoryRow } from "../../../types/domain";
+import type { OptionRow, SalaryHistoryRow } from "../../../types/domain";
 import { apiErrorMessage } from "../../../utils/apiError";
 
 // One page row: the employee, plus the latest salary record resolved out of whatever shape the payload used.
 // The three underscored fields are the page's own, added here so the table can sort on them.
-export type SalaryRow = Employee & {
-    __salary: SalaryPayload;
-    __salary_id: number;
-    __recent_sort: number;
-};
-
 // useSalaries owns the page's server data: the employee rows with their latest salary attached, plus the history of one employee.
 export const useSalaries = () => {
-    const [salariesData, setSalariesData] = useState<SalaryRow[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data, table, refresh: fetchSalaries } = usePagedResource<PageResponse<SalaryPayload>>("/salaries", "id", "asc");
+    const salariesData = salaryRows(data?.items ?? []);
     const [historyRows, setHistoryRows] = useState<SalaryHistoryRow[]>([]);
     const [historyLoading, setHistoryLoading] = useState(false);
     // The bulk raise filters by company, so the page needs the same options every employee-linked form uses.
     const [companyOptions, setCompanyOptions] = useState<OptionRow[]>([]);
 
-    const fetchSalaries = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get("/salaries");
-            const rows: SalaryPayload[] = Array.isArray(response.data) ? response.data : [];
-            const normalized: SalaryRow[] = rows
-                .map((row) => {
-                    const latest = getLatestSalaryStructure(row);
-                    const latestBag = latest as Record<string, unknown> | null;
-                    const updatedAt = (latestBag?.updated_at || latestBag?.created_at || null) as string | null;
-                    const latestId = getSalaryRecordId(latest, row);
-                    const recentSort = updatedAt ? new Date(updatedAt).getTime() : latestId;
-                    return {
-                        ...(row as Employee),
-                        __salary: latest,
-                        __salary_id: latestId,
-                        __recent_sort: Number.isNaN(recentSort) ? latestId : recentSort,
-                    };
-                });
-            setSalariesData(normalized);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchSalaries();
         api.get<OptionRow[]>("/companies/options")
             .then((res) => setCompanyOptions(Array.isArray(res.data) ? res.data : []))
             .catch(() => setCompanyOptions([]));
@@ -83,7 +52,7 @@ export const useSalaries = () => {
         }
     };
 
-    return { salariesData, loading, companyOptions, fetchSalaries, historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord };
+    return { salariesData, table, companyOptions, fetchSalaries, historyRows, historyLoading, fetchHistory, clearHistory, deleteHistoryRecord };
 };
 
 export default useSalaries;

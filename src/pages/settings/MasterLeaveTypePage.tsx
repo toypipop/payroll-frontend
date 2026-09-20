@@ -12,7 +12,7 @@ import type { LeaveTypeSetting } from "../../types/domain";
 
 const MasterLeaveTypePage = () => {
     const { homeCompanyId } = useAuth();
-    const { items, companyOptions, loading, fetchData, remove } = useLeaveTypes();
+    const { items, companyOptions, table, fetchData, remove } = useLeaveTypes();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<LeaveTypeSetting | null>(null);
 
@@ -55,7 +55,7 @@ const MasterLeaveTypePage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
+                <Table columns={columns} data={items} server={table} />
             </Card>
 
             <LeaveTypeFormModal

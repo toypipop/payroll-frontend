@@ -12,7 +12,7 @@ import type { Holiday } from "../../types/domain";
 
 const HolidayCalendarPage = () => {
     const { homeCompanyId } = useAuth();
-    const { items, companyOptions, loading, fetchData, remove } = useHolidays();
+    const { items, companyOptions, table, fetchData, remove } = useHolidays();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editing, setEditing] = useState<Holiday | null>(null);
 
@@ -58,7 +58,7 @@ const HolidayCalendarPage = () => {
                 }
             />
             <Card className="p-0">
-                {loading ? <div className="p-[40px] text-center">Loading...</div> : <Table columns={columns} data={items} />}
+                <Table columns={columns} data={items} server={table} />
             </Card>
 
             <HolidayFormModal
