@@ -16,6 +16,11 @@ import type { Bank, Company, Department, Employee, EmploymentType, Position, Rol
 import type { Resolver } from "react-hook-form";
 import type { ApiId } from "../../../types/api";
 
+const employeePasswordSchema = z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .max(30, "Password must be at most 30 characters");
+
 // Validation schema for employee
 const createEmployeesSchema = (isEditing: boolean, requireCompany: boolean) => z.object({
     employees_code: z.string().min(2, "Employees code is required"),
@@ -31,8 +36,8 @@ const createEmployeesSchema = (isEditing: boolean, requireCompany: boolean) => z
         : z.string().optional(),
     is_active: z.boolean().default(true),
     password: isEditing
-        ? z.string().optional().or(z.literal(""))
-        : z.string().min(6, "Password must be at least 6 characters"),
+        ? employeePasswordSchema.optional().or(z.literal(""))
+        : employeePasswordSchema,
     bank_id: z.string().optional(),
     account_name: z.string().optional(),
     account_no: z.string().optional(),
@@ -252,7 +257,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 type="password"
                 {...register("password")}
                 error={errors.password?.message}
-                placeholder={editing ? "Leave blank to keep same" : "Required (min 6 chars)"}
+                placeholder={editing ? "Leave blank to keep same" : "Required (6-30 chars)"}
                 required={!editing}
             />
             <SelectField
