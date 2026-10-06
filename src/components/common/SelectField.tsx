@@ -66,7 +66,7 @@ const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
 
                 // Poll for changes from React Hook Form's setValue()
                 if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                pollIntervalRef.current = setInterval(() => {
+                pollIntervalRef.current = window.setInterval(() => {
                     if (hiddenRef.current) {
                         const currentRefVal = hiddenRef.current.value;
                         const nextValue = currentRefVal ?? "";
