@@ -10,12 +10,12 @@ import InputField from "../../../components/common/InputField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
 import { apiErrorMessage } from "../../../utils/apiError";
-import { leaveDaysPerYearSchema, MAX_LEAVE_DAYS_PER_YEAR } from "../../../utils/leaveTypeValidation";
+import { leaveDaysPerYearSchema, leaveTypeNameSchema, MAX_LEAVE_DAYS_PER_YEAR } from "../../../utils/leaveTypeValidation";
 import type { Company, LeaveTypeSetting } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
-    name: z.string().min(1, "Leave type name is required"),
+    name: leaveTypeNameSchema,
     is_paid: z.boolean().default(true),
     max_days_per_year: leaveDaysPerYearSchema,
 });
