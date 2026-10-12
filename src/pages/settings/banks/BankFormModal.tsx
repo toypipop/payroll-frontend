@@ -8,13 +8,8 @@ import Button from "../../../components/common/Button";
 import Modal from "../../../components/common/Modal";
 import InputField from "../../../components/common/InputField";
 import { apiErrorMessage } from "../../../utils/apiError";
+import { bankSchema } from "../../../utils/bankValidation";
 import type { Bank } from "../../../types/domain";
-
-const bankSchema = z.object({
-    bank_code: z.string().min(1, "Bank code is required").max(10, "Max 10 characters"),
-    bank_name: z.string().min(1, "Bank name is required"),
-    swift_code: z.string().optional(),
-});
 
 type BankFormValues = z.infer<typeof bankSchema>;
 
