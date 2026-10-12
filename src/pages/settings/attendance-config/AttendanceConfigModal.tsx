@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { configRateSchema, optionalConfigRateSchema } from "../../../utils/configValidation";
 
 import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
@@ -15,14 +16,14 @@ import type { Company } from "../../../types/domain";
 
 const attendanceConfigSchema = z.object({
     companies_id: z.number(),
-    late_rate_per_minute: z.preprocess((val) => parseFloat(String(val)), z.number().min(0, "Invalid rate")),
-    absent_rate_per_day: z.preprocess((val) => parseFloat(String(val)), z.number().min(0, "Invalid rate")),
+    late_rate_per_minute: configRateSchema,
+    absent_rate_per_day: configRateSchema,
     is_late_deduction_enabled: z.boolean(),
     is_absent_deduction_enabled: z.boolean(),
     work_start_time: z.string().optional(),
     work_end_time: z.string().optional(),
-    overtime_rate_per_minute: z.preprocess((val) => val ? parseFloat(String(val)) : null, z.number().nullable()),
-    extra_rate_per_day: z.preprocess((val) => val ? parseFloat(String(val)) : null, z.number().nullable()),
+    overtime_rate_per_minute: optionalConfigRateSchema,
+    extra_rate_per_day: optionalConfigRateSchema,
     is_overtime_earnings_enabled: z.boolean().default(false),
     is_extra_earnings_enabled: z.boolean().default(false),
 });

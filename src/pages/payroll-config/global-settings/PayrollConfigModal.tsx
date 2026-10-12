@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { configAmountSchema, ssoRateSchema, taxCalculationSchema } from "../../../utils/configValidation";
 
 import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
@@ -13,10 +14,10 @@ import type { Company } from "../../../types/domain";
 
 const payrollConfigSchema = z.object({
     companies_id: z.number(),
-    sso_rate: z.preprocess((val) => parseFloat(String(val)), z.number().min(0, "Invalid rate")),
-    sso_max_amount: z.preprocess((val) => parseFloat(String(val)), z.number().min(0, "Invalid amount")),
-    sso_min_salary: z.preprocess((val) => parseFloat(String(val)), z.number().min(0, "Invalid amount")),
-    tax_calculation: z.string().min(1, "Tax method is required"),
+    sso_rate: ssoRateSchema,
+    sso_max_amount: configAmountSchema,
+    sso_min_salary: configAmountSchema,
+    tax_calculation: taxCalculationSchema,
 });
 
 type PayrollConfigFormValues = z.infer<typeof payrollConfigSchema>;
@@ -46,10 +47,10 @@ const PayrollConfigModal = ({ isOpen, onClose, onSaved, company }: PayrollConfig
         if (!isOpen || !company) return;
         reset({
             companies_id: Number(company.id),
-            sso_rate: company.payroll_config?.sso_rate || 5.0,
-            sso_max_amount: company.payroll_config?.sso_max_amount || 750,
-            sso_min_salary: company.payroll_config?.sso_min_salary || 1650,
-            tax_calculation: company.payroll_config?.tax_calculation || "Progressive",
+            sso_rate: company.payroll_config?.sso_rate ?? 5.0,
+            sso_max_amount: company.payroll_config?.sso_max_amount ?? 750,
+            sso_min_salary: company.payroll_config?.sso_min_salary ?? 1650,
+            tax_calculation: company.payroll_config?.tax_calculation ?? "Progressive",
         });
     }, [isOpen, company, reset]);
 
