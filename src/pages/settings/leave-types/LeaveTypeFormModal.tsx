@@ -10,13 +10,14 @@ import InputField from "../../../components/common/InputField";
 import CheckboxField from "../../../components/common/CheckboxField";
 import SelectField from "../../../components/common/SelectField";
 import { apiErrorMessage } from "../../../utils/apiError";
+import { leaveDaysPerYearSchema, MAX_LEAVE_DAYS_PER_YEAR } from "../../../utils/leaveTypeValidation";
 import type { Company, LeaveTypeSetting } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
     name: z.string().min(1, "Leave type name is required"),
     is_paid: z.boolean().default(true),
-    max_days_per_year: z.coerce.number().min(0, "Must be 0 or more").default(0),
+    max_days_per_year: leaveDaysPerYearSchema,
 });
 
 type LeaveTypeFormValues = z.infer<typeof schema>;
@@ -45,7 +46,7 @@ const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, 
                 companies_id: editing.companies_id ? String(editing.companies_id) : "",
                 name: editing.name,
                 is_paid: editing.is_paid,
-                max_days_per_year: editing.max_days_per_year || 0,
+                max_days_per_year: editing.max_days_per_year ?? 0,
             }
             : { companies_id: homeCompanyId, name: "", is_paid: true, max_days_per_year: 0 });
     }, [isOpen, editing, homeCompanyId, reset]);
@@ -86,7 +87,7 @@ const LeaveTypeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, 
                 disabled={!!editing}
             />
             <InputField label="Leave Type Name" {...register("name")} error={errors.name?.message} required />
-            <InputField label="Max Days Per Year (0 = Unlimited)" type="number" {...register("max_days_per_year")} error={errors.max_days_per_year?.message} />
+            <InputField label="Max Days Per Year (0 = Unlimited)" type="number" min={0} max={MAX_LEAVE_DAYS_PER_YEAR} step="0.01" {...register("max_days_per_year")} error={errors.max_days_per_year?.message} />
             <CheckboxField label="Paid Leave" {...register("is_paid")} />
         </Modal>
     );
