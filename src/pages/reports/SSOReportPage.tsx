@@ -10,6 +10,7 @@ import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
 import type { SSOReport, SSORow } from "../../types/reports";
 import type { TableColumn } from "../../types/api";
+import { formatSSOText } from "./shared/ssoText";
 
 const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -107,32 +108,8 @@ const A4SSO = ({ data }: { data: SSOReport | null }) => {
 /* ── E-Filing Text Export ───────────────────────────────────────────────── */
 const exportEFiling = (data: SSOReport | null) => {
     if (!data?.rows?.length) return;
-    const { company, cycle, rows } = data;
-    // Fixed-width text format (common SSO e-filing layout)
-    const pad = (s: string | number, n: number) => String(s || "").padEnd(n).slice(0, n);
-    const padL = (s: string | number, n: number) => String(s || "").padStart(n).slice(-n);
-
-    const lines = rows.map((r, i) =>
-        [
-            pad(i + 1, 5),
-            pad(r.employees_code ?? "", 15),
-            pad(`${r.first_name} ${r.last_name}`, 40),
-            padL(Math.round(r.wages * 100), 12),
-            padL(Math.round(r.employee_sso * 100), 10),
-            padL(Math.round(r.employer_sso * 100), 10),
-        ].join("")
-    );
-
-    const header = [
-        pad("SSO E-FILING", 80),
-        pad(`COMPANY: ${company?.name}`, 80),
-        pad(`TAX ID: ${company?.tax_id}`, 80),
-        pad(`PERIOD: ${cycle?.cycle_name}`, 80),
-        pad("", 80),
-        pad("SEQ  EMP_CODE        EMPLOYEE_NAME                           WAGES        EMP_SSO   EMPR_SSO", 80),
-    ].join("\r\n");
-
-    const content = [header, ...lines].join("\r\n");
+    const { company, cycle } = data;
+    const content = formatSSOText(data);
     const blob = new Blob([content], { type: "text/plain;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
