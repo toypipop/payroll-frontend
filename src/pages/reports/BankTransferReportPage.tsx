@@ -10,6 +10,7 @@ import Badge from "../../components/common/Badge";
 import SelectField from "../../components/common/SelectField";
 import type { BankTransferReport, BankTransferRow, ReportCompany } from "../../types/reports";
 import type { PayrollCycle, TableColumn } from "../../types/api";
+import { csvDecimal, toSpreadsheetCsv } from "../../utils/csv";
 
 const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -31,13 +32,11 @@ const exportCSV = (rows: BankTransferRow[] | undefined, company: ReportCompany |
         r.bank_name || "(no account)",
         r.account_no || "",
         r.account_name || "",
-        r.net_pay.toFixed(2),
+        csvDecimal(r.net_pay),
     ]);
-    const csv = [header, ...lines]
-        .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
-        .join("\r\n");
+    const csv = toSpreadsheetCsv([header, ...lines]);
 
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

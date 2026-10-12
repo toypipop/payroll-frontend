@@ -10,6 +10,7 @@ import { TONE_TEXT_STRONG } from "../../components/common/tone";
 import { payrollDetailTone } from "../payroll/payrollDetailTone";
 import type { JournalEntry, PayrollAnalysisReport } from "../../types/reports";
 import type { ApiId, PayrollTransaction, TableColumn } from "../../types/api";
+import { csvDecimal, toSpreadsheetCsv } from "../../utils/csv";
 
 const fc = (v: number | string | null | undefined) =>
     Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -35,15 +36,15 @@ const exportExcel = (data: PayrollAnalysisReport | null) => {
         `${tx.employees?.first_name || ""} ${tx.employees?.last_name || ""}`,
         tx.employees?.department?.dept_name || "",
         tx.employees?.position?.pos_name || "",
-        tx.salaries_at_time?.toFixed(2) || "0.00",
-        tx.total_earning?.toFixed(2) || "0.00",
-        tx.total_deduction?.toFixed(2) || "0.00",
-        tx.sso_amount?.toFixed(2) || "0.00",
-        tx.tax_amount?.toFixed(2) || "0.00",
-        tx.net_pay?.toFixed(2) || "0.00",
+        csvDecimal(tx.salaries_at_time),
+        csvDecimal(tx.total_earning),
+        csvDecimal(tx.total_deduction),
+        csvDecimal(tx.sso_amount),
+        csvDecimal(tx.tax_amount),
+        csvDecimal(tx.net_pay),
     ]);
 
-    const total = (value?: number) => (value ?? 0).toFixed(2);
+    const total = csvDecimal;
     const totalsRow = [
         "TOTAL", "", "", "", "",
         "",
@@ -54,11 +55,9 @@ const exportExcel = (data: PayrollAnalysisReport | null) => {
         total(summary?.total_net),
     ];
 
-    const csv = [headers, ...rows, [""], totalsRow]
-        .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
-        .join("\r\n");
+    const csv = toSpreadsheetCsv([headers, ...rows, [""], totalsRow]);
 
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
