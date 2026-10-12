@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { adjustmentAmountSchema } from "../../../utils/adjustmentAmount";
 
 import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
@@ -17,7 +18,7 @@ const schema = z.object({
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
     employees_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select an employee")),
     deduction_type_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a deduction type")),
-    amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
+    amount: adjustmentAmountSchema,
 });
 
 type EmployeeDeductionFormValues = z.infer<typeof schema>;

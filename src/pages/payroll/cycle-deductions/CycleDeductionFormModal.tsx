@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { adjustmentAmountSchema, MAX_ADJUSTMENT_AMOUNT } from "../../../utils/adjustmentAmount";
 
 import api from "../../../api/axiosInstance";
 import Button from "../../../components/common/Button";
@@ -20,7 +21,7 @@ const schema = z.object({
     cycle_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a payroll cycle")),
     employees_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select an employee")),
     deduction_type_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a deduction type")),
-    amount: z.preprocess((val) => Number(val), z.number().min(0.01, "Amount must be greater than 0")),
+    amount: adjustmentAmountSchema,
 });
 
 type CycleDeductionFormValues = z.infer<typeof schema>;
@@ -216,7 +217,8 @@ const CycleDeductionFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
                     label="Amount (฿)"
                     type="number"
                     step="0.01"
-                    min="0"
+                    min="0.01"
+                    max={MAX_ADJUSTMENT_AMOUNT}
                     {...register("amount")}
                     error={errors.amount?.message}
                     required

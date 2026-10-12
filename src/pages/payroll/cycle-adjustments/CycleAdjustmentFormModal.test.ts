@@ -65,3 +65,23 @@ describe.each(forms)("$name salary eligibility", (form) => {
         expect(api.put).not.toHaveBeenCalled();
     });
 });
+
+
+describe.each(forms)("$name amount validation", (form) => {
+    it("keeps an oversized amount in the form, prevents the request and allows correction", async () => {
+        vi.mocked(api.get).mockResolvedValue({ data: [employee] });
+        form.render();
+        await waitFor(() => expect((screen.getByRole("button", { name: "Update" }) as HTMLButtonElement).disabled).toBe(false));
+        const amount = screen.getByRole("spinbutton") as HTMLInputElement;
+        fireEvent.change(amount, { target: { value: "10000000000000" } });
+        fireEvent.click(screen.getByRole("button", { name: "Update" }));
+        await screen.findByText("Amount must be at most 9,999,999,999,999.99");
+        expect(api.put).not.toHaveBeenCalled();
+        expect(sharedProps.onClose).not.toHaveBeenCalled();
+        expect(amount.value).toBe("10000000000000");
+        fireEvent.change(amount, { target: { value: "123.45" } });
+        fireEvent.click(screen.getByRole("button", { name: "Update" }));
+        await waitFor(() => expect(api.put).toHaveBeenCalledWith(form.endpoint, expect.objectContaining({ amount: 123.45, cycle_id: 4 })));
+        expect(sharedProps.onClose).toHaveBeenCalled();
+    });
+});
