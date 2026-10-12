@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +17,7 @@ import type { Company, DeductionType } from "../../../types/domain";
 const deductionSchema = z.object({
     id: z.number().optional(),
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
-    name: z.string().min(1, "Name is required"),
+    name: textField("Name", 1, 200),
     is_tax_deductible: z.boolean().default(false),
     is_sso_deductible: z.boolean().default(false),
 });
@@ -33,7 +35,7 @@ interface DeductionTypeFormModalProps {
 }
 
 const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: DeductionTypeFormModalProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(deductionSchema),
         defaultValues: {
             companies_id: defaultCompanieId,
@@ -71,7 +73,7 @@ const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultComp
             await onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Operation failed"));
+            setError("root", { message: apiErrorMessage(err, "Operation failed") });
         }
     };
 
@@ -82,9 +84,9 @@ const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultComp
             title={editing ? "Edit Deduction Type" : "Add Deduction Type"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button variant="ghost" disabled={isSubmitting} onClick={onClose}>Cancel</Button>
                     <Button
-                        onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
+                        onClick={handleSubmit(onSubmit)} disabled={isSubmitting}
                         className="w-auto"
                     >
                         {editing ? "Update" : "Save"}
@@ -92,6 +94,7 @@ const DeductionTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultComp
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Companies"

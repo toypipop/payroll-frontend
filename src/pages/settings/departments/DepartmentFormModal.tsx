@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +14,7 @@ import { apiErrorMessage } from "../../../utils/apiError";
 import type { Company, Department, DepartmentCategory } from "../../../types/domain";
 
 const departmentSchema = z.object({
-    dept_name: z.string().min(2, "Department name is required"),
+    dept_name: textField("Department name", 2, 255),
     companies_id: z.string().min(1, "Please select a company"),
     category_id: z.string().min(1, "Please select a category"),
 });
@@ -33,12 +35,14 @@ interface DepartmentFormModalProps {
 
 const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies, categories, onCategoryCreated }: DepartmentFormModalProps) => {
     const [newCategoryName, setNewCategoryName] = useState("");
+    const [categoryError, setCategoryError] = useState("");
     const {
+        setError,
         register,
         handleSubmit,
         reset,
         control,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(departmentSchema),
         defaultValues: { dept_name: "", companies_id: homeCompanyId, category_id: "" },
@@ -48,6 +52,7 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
 
     const handleClose = () => {
         setNewCategoryName("");
+        setCategoryError("");
         onClose();
     };
 
@@ -67,11 +72,10 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
         try {
             let categoryId = data.category_id;
             if (categoryId === "__new__") {
-                if (!newCategoryName.trim()) {
-                    alert("Please enter a name for the new category");
-                    return;
-                }
-                const catRes = await api.post("/department-categories", { name: newCategoryName.trim() });
+                const category = textField("Category name", 1, 100).safeParse(newCategoryName);
+                if (!category.success) { setCategoryError(category.error.issues[0].message); return; }
+                setCategoryError("");
+                const catRes = await api.post("/department-categories", { name: category.data });
                 categoryId = String(catRes.data.id);
                 onCategoryCreated(catRes.data);
             }
@@ -89,7 +93,7 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
             onSaved();
             handleClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setError("root", { message: apiErrorMessage(err, "Save Failed") });
         }
     };
 
@@ -103,12 +107,13 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
                     <Button variant="ghost" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)}>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <SelectField
                 label="Companies"
                 {...register("companies_id")}
@@ -140,6 +145,7 @@ const DepartmentFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId,
                 <InputField
                     label="New Category Name"
                     value={newCategoryName}
+                    error={categoryError}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                 />
             )}

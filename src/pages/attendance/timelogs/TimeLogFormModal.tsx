@@ -1,3 +1,4 @@
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useForm, Controller, useWatch } from "react-hook-form";
@@ -33,7 +34,7 @@ const timeLogSchema = z.object({
     check_in: z.string().min(1, "Check-in time is required"),
     check_out: z.string().optional().or(z.literal("")),
     work_location_id: z.coerce.number().min(1, "Please select a work location"),
-    remark: z.string().optional(),
+    remark: textField("Remark", 0, 255, false).optional(),
 }).refine((data) => {
     if (data.check_in && data.check_out) {
         return data.check_out > data.check_in;

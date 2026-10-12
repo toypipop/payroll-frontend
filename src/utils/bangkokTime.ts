@@ -97,3 +97,12 @@ export const endOfBangkokMonth = (dateKey: string) => {
     if (day > daysInMonth) return "";
     return `${match[1]}-${match[2]}-${String(daysInMonth).padStart(2, "0")}`;
 };
+
+// Inclusive span of two real Bangkok calendar dates; invalid input returns null.
+export const bangkokCalendarDays = (start: string, end: string): number | null => {
+    if (!endOfBangkokMonth(start) || !endOfBangkokMonth(end)) return null;
+    const startISO = bangkokLocalToISO(start + "T00:00");
+    const endISO = bangkokLocalToISO(end + "T00:00");
+    if (!startISO || !endISO) return null;
+    return (Date.parse(endISO) - Date.parse(startISO)) / 86400000 + 1;
+};

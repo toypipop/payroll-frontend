@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +18,7 @@ import type { Company, DayOff } from "../../../types/domain";
 const schema = z.object({
     companies_id: z.string().optional(),
     weekday: z.string().min(1, "Weekday is required"),
-    name: z.string().min(1, "Day off name is required"),
+    name: textField("Day off name", 1, 200),
     is_paid: z.boolean().default(true),
 });
 
@@ -33,7 +35,7 @@ interface DayOffFormModalProps {
 }
 
 const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }: DayOffFormModalProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, weekday: "", name: "", is_paid: true },
     });
@@ -67,7 +69,7 @@ const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, com
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setError("root", { message: apiErrorMessage(err, "Save Failed") });
         }
     };
 
@@ -79,10 +81,11 @@ const DayOffFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, com
             footer={
                 <>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)}>{editing ? "Update" : "Save"}</Button>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>{editing ? "Update" : "Save"}</Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <SelectField
                 label="Company"
                 options={companyOptions}

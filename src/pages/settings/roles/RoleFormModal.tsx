@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +16,7 @@ import type { Company, Role } from "../../../types/domain";
 const roleSchema = z.object({
     id: z.number().optional(),
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
-    roles_name: z.string().min(1, "Role name is required"),
+    roles_name: textField("Role name", 1, 255),
 });
 
 type RoleFormValues = z.infer<typeof roleSchema>;
@@ -30,7 +32,7 @@ interface RoleFormModalProps {
 }
 
 const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: RoleFormModalProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(roleSchema),
         defaultValues: {
             companies_id: defaultCompanieId,
@@ -56,7 +58,7 @@ const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, c
             await onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Operation failed"));
+            setError("root", { message: apiErrorMessage(err, "Operation failed") });
         }
     };
 
@@ -67,9 +69,9 @@ const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, c
             title={editing ? "Edit Role" : "Add Role"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button variant="ghost" disabled={isSubmitting} onClick={onClose}>Cancel</Button>
                     <Button
-                        onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
+                        onClick={handleSubmit(onSubmit)} disabled={isSubmitting}
                         className="w-auto"
                     >
                         {editing ? "Update" : "Save"}
@@ -77,6 +79,7 @@ const RoleFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, c
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Companies"

@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +14,7 @@ import { apiErrorMessage } from "../../../utils/apiError";
 import type { Company, Position } from "../../../types/domain";
 
 const positionSchema = z.object({
-    pos_name: z.string().min(1, "Position name is required"),
+    pos_name: textField("Position name", 1, 255),
     companies_id: z.coerce.number().min(1, "Please select a companies"),
 });
 
@@ -30,10 +32,11 @@ interface PositionFormModalProps {
 
 const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companies }: PositionFormModalProps) => {
     const {
+        setError,
         register,
         handleSubmit,
         reset,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(positionSchema),
         defaultValues: { pos_name: "", companies_id: homeCompanyId },
@@ -57,7 +60,7 @@ const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, c
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setError("root", { message: apiErrorMessage(err, "Save Failed") });
         }
     };
 
@@ -71,12 +74,13 @@ const PositionFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, c
                     <Button variant="ghost" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit(onSubmit)}>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <SelectField
                 label="Companies"
                 {...register("companies_id")}

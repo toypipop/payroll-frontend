@@ -15,6 +15,7 @@ import type { SalaryRow } from "./salaryRows";
 import type { SalaryPayload } from "./salaryShape";
 import api from "../../../api/axiosInstance";
 import { apiErrorMessage } from "../../../utils/apiError";
+import { validSalaryAmount } from "../../../utils/salaryValidation";
 import type { OptionRow } from "../../../types/domain";
 
 interface BulkRaiseModalProps {
@@ -77,7 +78,9 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
     });
 
     const reasonMissing = touched && !reason.trim();
-    const canSubmit = selected.length > 0 && reason.trim().length > 0 && !busy && !loadingTargets && !targetError;
+    const amountInvalid = mode !== "manual" && !validSalaryAmount(Number(value));
+    const invalidTargets = selected.some((row) => !validSalaryAmount(newSalaryFor(mode, Number(value), currentOf(row), Number(typed[Number(getEmployeeId(row))] ?? 0))));
+    const canSubmit = selected.length > 0 && reason.trim().length > 0 && !amountInvalid && !invalidTargets && !busy && !loadingTargets && !targetError;
 
     const onPreview = () => {
         setTouched(true);
@@ -138,6 +141,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
                         label={mode === "percent" ? "Percent" : "Amount added"}
                         decimals={2}
                         value={value}
+                        error={touched && amountInvalid ? "Enter a positive value within the supported range" : undefined}
                         onChange={(e) => {
                             setValue(e?.target?.value ?? "");
                             clear();
@@ -169,6 +173,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
 
             {loadingTargets && <p role="status">Loading employees?</p>}
             {targetError && <p role="alert" className="text-danger">{targetError}</p>}
+            {touched && invalidTargets && <p role="alert" className="text-danger">Each selected employee needs a new salary between 0.01 and 9,999,999,999,999.99.</p>}
             {!preview ? (
                 <div className="mt-1 max-h-[300px] overflow-y-auto rounded-lg border border-line-muted">
                     <table className="w-full border-collapse text-[13px]">
@@ -223,6 +228,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
                                                     placeholder="0.00"
                                                     containerClassName="mb-0"
                                                     value={typed[id] ?? ""}
+                                                    error={touched && isPicked && !validSalaryAmount(Number(typed[id])) ? "Enter a salary within the supported range" : undefined}
                                                     onChange={(e) => {
                                                         setTyped((prev) => ({ ...prev, [id]: e?.target?.value ?? "" }));
                                                         clear();

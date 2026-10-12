@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +17,7 @@ import type { Company, EarningType } from "../../../types/domain";
 const earningSchema = z.object({
     id: z.number().optional(),
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a companie")),
-    name: z.string().min(1, "Name is required"),
+    name: textField("Name", 1, 200),
     is_taxable: z.boolean().default(true),
     is_sso: z.boolean().default(true),
 });
@@ -33,7 +35,7 @@ interface EarningTypeFormModalProps {
 }
 
 const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: EarningTypeFormModalProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(earningSchema),
         defaultValues: {
             companies_id: defaultCompanieId,
@@ -71,7 +73,7 @@ const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompan
             await onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Operation failed"));
+            setError("root", { message: apiErrorMessage(err, "Operation failed") });
         }
     };
 
@@ -82,13 +84,14 @@ const EarningTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompan
             title={editing ? "Edit Earning Type" : "Add Earning Type"}
             footer={
                 <>
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))} className="w-auto">
+                    <Button variant="ghost" disabled={isSubmitting} onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting} className="w-auto">
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Companies"

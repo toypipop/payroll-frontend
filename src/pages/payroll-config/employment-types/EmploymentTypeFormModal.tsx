@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,8 +15,8 @@ import type { Company, EmploymentType } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.preprocess((val) => Number(val), z.number().min(1, "Please select a company")),
-    name: z.string().min(1, "Name is required"),
-    description: z.string().optional(),
+    name: textField("Name", 1, 100),
+    description: textField("Description", 0, 255).optional(),
 });
 
 type EmploymentTypeFormValues = z.infer<typeof schema>;
@@ -30,7 +32,7 @@ interface EmploymentTypeFormModalProps {
 }
 
 const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCompanieId, companies }: EmploymentTypeFormModalProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: defaultCompanieId, name: "", description: "" },
     });
@@ -53,7 +55,7 @@ const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setError("root", { message: apiErrorMessage(err, "Save Failed") });
         }
     };
 
@@ -65,10 +67,11 @@ const EmploymentTypeFormModal = ({ isOpen, onClose, onSaved, editing, defaultCom
             footer={
                 <>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)}>{editing ? "Update" : "Save"}</Button>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>{editing ? "Update" : "Save"}</Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <div className="flex flex-col gap-[16px]">
                 <SelectField
                     label="Companies"

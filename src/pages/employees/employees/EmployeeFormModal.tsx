@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField, emailField } from "../../../utils/fieldValidation";
 import { useCallback, useEffect, useRef } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,10 +25,10 @@ const employeePasswordSchema = z
 
 // Validation schema for employee
 const createEmployeesSchema = (isEditing: boolean, requireCompany: boolean) => z.object({
-    employees_code: z.string().min(2, "Employees code is required"),
-    first_name: z.string().min(1, "First name is required"),
-    last_name: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
+    employees_code: textField("Employees code", 2, 100),
+    first_name: textField("First name", 1),
+    last_name: textField("Last name", 1),
+    email: emailField,
     dept_id: z.string().min(1, "Please select a department"),
     pos_id: z.string().min(1, "Please select a position"),
     roles_id: z.string().min(1, "Please select a roles"),
@@ -39,8 +41,8 @@ const createEmployeesSchema = (isEditing: boolean, requireCompany: boolean) => z
         ? employeePasswordSchema.optional().or(z.literal(""))
         : employeePasswordSchema,
     bank_id: z.string().optional(),
-    account_name: z.string().optional(),
-    account_no: z.string().optional(),
+    account_name: textField("Account name", 0, 200).optional(),
+    account_no: textField("Account number", 0, 50).optional(),
 });
 
 // What the fields hold, which is the schema's *input*: every select carries a string until zod coerces it.
@@ -93,12 +95,13 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
     );
 
     const {
+        setError,
         register,
         handleSubmit,
         reset,
         setValue,
         control,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<EmployeeFormValues>({
         resolver: dynamicResolver,
         defaultValues: makeEmptyEmployeeForm(homeCompanyId),
@@ -179,7 +182,7 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setError("root", { message: apiErrorMessage(err, "Save Failed") });
         }
     };
 
@@ -195,13 +198,14 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
-                        disabled={hasMissingRequiredMaster}
+                        disabled={isSubmitting || hasMissingRequiredMaster}
                     >
                         {editing ? "Update" : "Save"}
                     </Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             {/* Companies — shown only for super-admin; drives cascade filter */}
             {masterCompanies.length > 0 && (
                 <SelectField

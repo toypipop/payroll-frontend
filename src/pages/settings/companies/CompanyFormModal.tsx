@@ -1,3 +1,4 @@
+import { textField, companyTaxIDField, companyPhoneField } from "../../../utils/fieldValidation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,17 +12,10 @@ import { apiErrorMessage, isCompanyInactiveError } from "../../../utils/apiError
 import type { Company } from "../../../types/domain";
 
 const companiesSchema = z.object({
-    name: z.string().min(1, "Companies name is required"),
-    tax_id: z
-        .string()
-        .length(13, "Tax ID must be exactly 13 digits")
-        .regex(/^\d+$/, "Tax ID must contain only numbers"),
-    address: z.string().min(5, "Address must be at least 5 characters"),
-    phone: z
-        .string()
-        .min(9, "Phone number is too short")
-        .max(10, "Phone number is too long")
-        .regex(/^\d+$/, "Phone must contain only numbers"),
+    name: textField("Company name", 1),
+    tax_id: companyTaxIDField,
+    address: textField("Address", 5),
+    phone: companyPhoneField,
 });
 
 type CompanyFormValues = z.infer<typeof companiesSchema>;

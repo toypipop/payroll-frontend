@@ -1,3 +1,4 @@
+import { salaryAmountSchema } from "../../../utils/salaryValidation";
 import { useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,10 +36,7 @@ const salariesSchema = z.object({
         (val) => Number(val),
         z.number().min(1, "Please select an employee")
     ),
-    base_salaries: z.preprocess(
-        (val) => Number(val),
-        z.number().min(0, "Salaries must be a positive number")
-    ),
+    base_salaries: salaryAmountSchema(0),
     effective_date: z.string().min(1, "Effective date is required").regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
     is_active: z.boolean().default(true),
     // Required, and trimmed before it is measured: a reason of spaces answers nothing the trail is kept for.

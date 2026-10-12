@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +15,7 @@ import type { Company, WorkLocation } from "../../../types/domain";
 
 const schema = z.object({
     companies_id: z.string().min(1, "Company is required"),
-    name: z.string().min(1, "Location name is required"),
+    name: textField("Location name", 1, 200),
 });
 
 type WorkLocationFormValues = z.infer<typeof schema>;
@@ -29,7 +31,7 @@ interface WorkLocationFormModalProps {
 }
 
 const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, companyOptions }: WorkLocationFormModalProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { companies_id: homeCompanyId, name: "" },
     });
@@ -53,7 +55,7 @@ const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Save Failed"));
+            setError("root", { message: apiErrorMessage(err, "Save Failed") });
         }
     };
 
@@ -65,10 +67,11 @@ const WorkLocationFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             footer={
                 <>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)}>{editing ? "Update" : "Save"}</Button>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>{editing ? "Update" : "Save"}</Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <SelectField
                 label="Company"
                 options={companyOptions}

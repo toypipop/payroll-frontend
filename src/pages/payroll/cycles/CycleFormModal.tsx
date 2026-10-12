@@ -1,3 +1,5 @@
+import FormError from "../../../components/common/FormError";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +16,7 @@ import { endOfBangkokMonth } from "../../../utils/bangkokTime";
 import type { Company } from "../../../types/domain";
 
 const cycleSchema = z.object({
-    cycle_name: z.string().min(1, "Cycle name is required"),
+    cycle_name: textField("Cycle name", 1, 255),
     start_date: z.string().min(1, "Start date is required"),
     end_date: z.string().min(1, "End date is required"),
     companies_id: z.string().min(1, "Company is required"),
@@ -35,7 +37,7 @@ interface CycleFormModalProps {
 }
 
 const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: CycleFormModalProps) => {
-    const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm({
+    const { setError, register, handleSubmit, control, reset, setValue, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(cycleSchema),
         defaultValues: { companies_id: homeCompanyId, cycle_name: "", start_date: "", end_date: "" },
     });
@@ -59,7 +61,7 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: 
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Failed to create cycle"));
+            setError("root", { message: apiErrorMessage(err, "Failed to create cycle") });
         }
     };
 
@@ -71,10 +73,11 @@ const CycleFormModal = ({ isOpen, onClose, onSaved, homeCompanyId, companies }: 
             footer={
                 <>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSubmit)}>Create Cycle</Button>
+                    <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>Create Cycle</Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <div className="flex flex-col gap-[4px]">
                 <Controller
                     name="companies_id"

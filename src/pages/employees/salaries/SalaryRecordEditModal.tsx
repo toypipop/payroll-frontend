@@ -1,3 +1,4 @@
+import { salaryAmountSchema } from "../../../utils/salaryValidation";
 import { useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +18,7 @@ import type { SalaryHistoryRow } from "../../../types/domain";
 
 const schema = z.object({
     effective_date: z.string().min(1, "Effective date is required"),
-    base_salaries: z.preprocess((val) => Number(val), z.number().min(0.01, "Base salary must be greater than 0")),
+    base_salaries: salaryAmountSchema(0.01),
     // Required, and trimmed before it is measured: a reason of spaces answers nothing the trail is kept for.
     reason: z.string().trim().min(1, "Say why this record is being moved"),
 });

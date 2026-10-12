@@ -1,3 +1,6 @@
+import FormError from "../../../components/common/FormError";
+import { bangkokCalendarDays, bangkokDateKey } from "../../../utils/bangkokTime";
+import { textField } from "../../../utils/fieldValidation";
 import { useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +24,7 @@ const leaveSchema = z.object({
     // Accept YYYY-MM-DD string from DateField
     start_date: z.string().min(1, "Start date is required"),
     end_date: z.string().min(1, "End date is required"),
-    reason: z.string().max(500, "Reason must be less than 500 characters").optional().or(z.literal("")),
+    reason: textField("Reason", 0, 500, false).optional(),
 }).refine((data) => {
     if (data.start_date && data.end_date) {
         // Same day is allowed (1 day leave)
@@ -31,7 +34,10 @@ const leaveSchema = z.object({
 }, {
     message: "End date must be on or after start date",
     path: ["end_date"],
-});
+}).refine((data) => {
+    const days = bangkokCalendarDays(data.start_date, data.end_date);
+    return days !== null && days >= 1 && days <= 999;
+}, { message: "Leave dates must be valid and cannot exceed 999 days", path: ["end_date"] });
 
 type LeaveRequestFormValues = z.infer<typeof leaveSchema>;
 
@@ -60,12 +66,13 @@ interface LeaveRequestFormModalProps {
 // LeaveRequestFormModal owns the cascading company to employee to leave-type form and the save call.
 const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, masterCompanies, masterEmployees, masterLeaveTypes, employeeData }: LeaveRequestFormModalProps) => {
     const {
+        setError,
         register,
         handleSubmit,
         reset,
         setValue,
         control,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(leaveSchema),
         defaultValues: emptyForm(homeCompanyId),
@@ -82,8 +89,8 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             companies_id: editing.companies_id?.toString() || editing.employees?.companies_id?.toString() || "",
             employees_id: editing.employees_id?.toString() || "",
             leave_type_id: editing.leave_type_id?.toString() || "",
-            start_date: editing.start_date ? editing.start_date.split("T")[0] : "",
-            end_date: editing.end_date ? editing.end_date.split("T")[0] : "",
+            start_date: editing.start_date ? bangkokDateKey(editing.start_date) : "",
+            end_date: editing.end_date ? bangkokDateKey(editing.end_date) : "",
             reason: editing.reason || "",
         });
     }, [isOpen, editing, homeCompanyId, reset]);
@@ -128,22 +135,22 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             const selectedLeaveType = masterLeaveTypes.find((lt) => String(lt.id) === String(data.leave_type_id));
 
             if (!Number.isFinite(employeeId) || employeeId <= 0) {
-                alert("Please select an employee");
+                setError("root", { message: "Please select an employee" });
                 return;
             }
 
             if (filteredEmployees.length === 0) {
-                alert("This company has no employees. Please add one before saving.");
+                setError("root", { message: "This company has no employees. Please add one before saving." });
                 return;
             }
 
             if (!Number.isFinite(leaveTypeId) || leaveTypeId <= 0) {
-                alert("Please select leave type");
+                setError("root", { message: "Please select leave type" });
                 return;
             }
 
             if (!selectedLeaveType?.name) {
-                alert("Please select a valid leave type");
+                setError("root", { message: "Please select a valid leave type" });
                 return;
             }
 
@@ -152,8 +159,8 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
                 employees_id: employeeId,
                 leave_type_id: leaveTypeId,
                 companies_id: companyId,
-                start_date: `${data.start_date}T00:00:00Z`,
-                end_date: `${data.end_date}T00:00:00Z`,
+                start_date: data.start_date,
+                end_date: data.end_date,
             };
 
             if (editing) {
@@ -164,7 +171,7 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
             onSaved();
             onClose();
         } catch (err) {
-            alert(apiErrorMessage(err, "Operation Failed"));
+            setError("root", { message: apiErrorMessage(err, "Operation Failed") });
         }
     };
 
@@ -180,13 +187,14 @@ const LeaveRequestFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyI
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
-                        disabled={showNoLeaveTypesWarning || showNoEmployeesWarning}
+                        disabled={isSubmitting || showNoLeaveTypesWarning || showNoEmployeesWarning}
                     >
                         {editing ? "Update" : "Submit"}
                     </Button>
                 </>
             }
         >
+            <FormError message={errors.root?.message} />
             <SelectField
                 label="Company"
                 options={masterCompanies}
