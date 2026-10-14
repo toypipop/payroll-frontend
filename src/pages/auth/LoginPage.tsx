@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../utils/apiDiagnostic";
 import axios from "axios";
 import { useState } from "react";
 import type { FormEvent } from "react";
@@ -39,7 +40,7 @@ const LoginPage = () => {
                 window.location.href = "/dashboard";
             }
         } catch (loginError) {
-            console.error("Login Error:", loginError);
+            logApiFailure("login", loginError);
 
             if (axios.isAxiosError<{ error?: string }>(loginError)) {
                 setError(

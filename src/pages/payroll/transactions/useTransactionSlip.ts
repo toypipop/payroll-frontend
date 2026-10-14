@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { Company } from "../../../types/domain";
@@ -19,7 +20,7 @@ export const useTransactionSlip = (homeCompanyId: string) => {
                 const res = await api.get("/companies/options");
                 setCompanies(res.data || []);
             } catch (err) {
-                console.error(err);
+                logApiFailure("transaction.slip", err);
             }
         };
         fetchCompanies();

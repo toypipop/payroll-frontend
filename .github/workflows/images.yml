@@ -1,0 +1,22 @@
+name: Image security
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - stage: runtime
+            pkg_types: os
+          - stage: build
+            pkg_types: os,library
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build patched image
+        run: docker build --pull --target "${{ matrix.stage }}" --tag security-check:ci .
+      - name: Scan offline and reject fixable high/critical vulnerabilities
+        run: bash .github/scripts/scan-image.sh security-check:ci "$RUNNER_TEMP/image-scan" "${{ matrix.pkg_types }}"

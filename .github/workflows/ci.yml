@@ -1,6 +1,5 @@
 name: CI
 
-# There are no tests yet, so this is the whole automated safety net: the types, the linter and a real build.
 on:
   push:
     branches: ["**"]
@@ -14,9 +13,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
+      - name: Prepare patched npm build tools
+        run: sh .github/scripts/prepare-npm.sh
       - run: npm ci
 
       - name: Nothing reads the user from localStorage
@@ -28,4 +29,5 @@ jobs:
 
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm test
       - run: npm run build

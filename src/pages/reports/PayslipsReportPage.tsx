@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../utils/apiDiagnostic";
 import { usePagedResource } from "../../hooks/usePagedResource";
 import type { PayrollTransactionsResponse } from "../../types/api";
 import React, { useState, useEffect } from "react";
@@ -202,7 +203,7 @@ const PayslipsReportPage = () => {
             setCycles(closed);
             if (closed.length > 0) setSelectedCycleId(String(closed[0].id));
         } catch (err) {
-            console.error(err);
+            logApiFailure("payslips.load", err);
         } finally {
             setLoadingCycles(false);
         }

@@ -53,7 +53,7 @@ const ApplicationRoutes = ({ isAuthenticated }: { isAuthenticated: boolean }) =>
                     )?.[1];
 
                     if (!importFunc) {
-                        console.warn(`Route skipped: missing page file for module_key "${m.module_key}" in src/pages`);
+                        console.warn("Route skipped: missing page file for a module");
                         return null;
                     }
 

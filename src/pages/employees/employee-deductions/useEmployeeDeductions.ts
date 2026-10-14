@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import { usePagedResource } from "../../../hooks/usePagedResource";
@@ -27,7 +28,7 @@ export const useEmployeeDeductions = () => {
                 setDeductionTypes(etRes.data);
                 setCompanies(companyRes.data);
             } catch (err) {
-                if (!controller.signal.aborted) console.error("Fetch error:", err);
+                if (!controller.signal.aborted) logApiFailure("employee.deductions.options", err);
             }
         };
 

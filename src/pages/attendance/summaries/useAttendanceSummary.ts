@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useCallback, useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import { monthToDate, toDateStr } from "./dateRange";
@@ -23,7 +24,7 @@ export const useAttendanceSummary = <T,>(endpoint: string, errorMessage: string)
             setSummary(res.data.summary || []);
             setMeta({ from: res.data.from, to: res.data.to });
         } catch (err) {
-            console.error("Fetch Error:", err);
+            logApiFailure("attendance.summary", err);
             alert(apiErrorMessage(err, errorMessage));
         } finally {
             setLoading(false);

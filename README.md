@@ -2,6 +2,8 @@
 
 React 19 + Vite 7 + TypeScript 6. Use Node.js 24 with npm (matching the Docker build).
 
+Docker builds use npm 12.2.0 and Nginx 1.30.5; only the pinned esbuild install script is approved in `package.json`.
+
 Requires the backend at `http://localhost:8000` for login and dynamic pages.
 
 ## Install and run

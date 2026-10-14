@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../../../api/axiosInstance";
 import type { AppModule, ApiId } from "../../../types/api";
@@ -78,7 +79,7 @@ export const usePermissionMatrix = () => {
                         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
                 }));
             setModuleTree(tree);
-        }).catch(err => console.error("Load Modules Error", err));
+        }).catch(err => logApiFailure("permissions.load", err));
     }, []);
 
     const selectRole = useCallback(async (role: Role | null) => {

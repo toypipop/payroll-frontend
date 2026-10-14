@@ -114,7 +114,7 @@ const EmployeeEarningFormModal = ({ isOpen, onClose, onSaved, editing, homeCompa
                 <>
                     <Button variant="ghost" onClick={onClose}>Cancel</Button>
                     <Button
-                        onClick={handleSubmit(onSubmit, (err) => console.log("Validation Errors:", err))}
+                        onClick={handleSubmit(onSubmit)}
                         className="w-auto"
                         disabled={showNoEarningTypesWarning || showNoEmployeesWarning}
                     >

@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import { usePagedResource } from "../../../hooks/usePagedResource";
@@ -45,7 +46,7 @@ export const useLeaveRequests = () => {
                     companies_id: lt.companies_id
                 })));
             } catch (err) {
-                console.error("Master Data Load Error", err);
+                logApiFailure("leave.options", err);
             }
         };
         fetchMasterData();

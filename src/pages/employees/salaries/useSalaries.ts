@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import { salaryRows } from "./salaryRows";
@@ -32,7 +33,7 @@ export const useSalaries = () => {
             const response = await api.get(`/salaries/history/${empId}`);
             setHistoryRows(Array.isArray(response.data) ? response.data : []);
         } catch (err) {
-            console.error("Fetch salary history failed:", err);
+            logApiFailure("salary.history", err);
             setHistoryRows([]);
         } finally {
             setHistoryLoading(false);

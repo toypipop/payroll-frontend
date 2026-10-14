@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { usePagedResource } from "../../../hooks/usePagedResource";
 import type { PayrollTransactionsResponse } from "../../../types/api";
 import { useEffect, useState } from "react";
@@ -5,7 +6,6 @@ import api from "../../../api/axiosInstance";
 import type { Company } from "../../../types/domain";
 import type { CycleDiff, PayrollCycle, PayrollRunResult, PreCheckIssue } from "../../../types/api";
 import type { PayrollConfig } from "../../../types/domain";
-import { apiErrorBody } from "../../../utils/apiError";
 import { apiErrorMessage } from "../../../utils/apiError";
 
 // useRunPayroll owns the whole run: which cycle is selected, its config, the pre-check, the calculation and the diff that follows it.
@@ -38,7 +38,7 @@ export const useRunPayroll = (homeCompanyId: string) => {
             const open = ((res.data || []) as PayrollCycle[]).filter((c) => !c.is_closed);
             setCycles(open);
         } catch (err) {
-            console.error(err);
+            logApiFailure("payroll.cycles", err);
         } finally {
             setLoadingCycles(false);
         }
@@ -47,7 +47,7 @@ export const useRunPayroll = (homeCompanyId: string) => {
     // Fetch config for selected cycle's company
     const fetchPayrollConfigForCycle = async (cycle: PayrollCycle | null) => {
         if (!cycle?.id) {
-            console.warn("Cannot fetch config: cycle object missing or invalid", cycle);
+            console.warn("Cannot fetch config: cycle object missing or invalid");
             setPayrollConfig(null);
             return;
         }
@@ -57,11 +57,11 @@ export const useRunPayroll = (homeCompanyId: string) => {
             if (res.data?.config) {
                 setPayrollConfig(res.data.config);
             } else {
-                console.warn("Config response missing config field:", res.data);
+                console.warn("Config response missing config field");
                 setPayrollConfig(null);
             }
         } catch (err) {
-            console.error("Failed to fetch payroll config:", apiErrorBody(err) ?? err);
+            logApiFailure("payroll.config", err);
             setPayrollConfig(null);
         } finally {
             setLoadingConfig(false);
@@ -74,7 +74,7 @@ export const useRunPayroll = (homeCompanyId: string) => {
                 const res = await api.get("/companies/options");
                 setCompanies(res.data || []);
             } catch (err) {
-                console.error(err);
+                logApiFailure("companies.options", err);
             }
         };
         fetchCompanies();

@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { usePagedResource } from "../../../hooks/usePagedResource";
 import type { PageResponse } from "../../../types/api";
 import { useEffect, useState } from "react";
@@ -72,7 +73,7 @@ export const useTimelogs = () => {
                 setDayOffWeekdaysByCompany(dayOffMap);
 
             } catch (err) {
-                console.error("Master Data Load Error", err);
+                logApiFailure("timelog.options", err);
             }
         };
         fetchMasterData();

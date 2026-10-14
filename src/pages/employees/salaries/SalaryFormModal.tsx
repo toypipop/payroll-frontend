@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { salaryAmountSchema } from "../../../utils/salaryValidation";
 import { useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
@@ -24,7 +25,7 @@ import MasterDataWarning from "../../../components/common/MasterDataWarning";
 import { closedCycleFor } from "./closedCycles";
 import { useClosedCycles } from "./useClosedCycles";
 import type { ApiId } from "../../../types/api";
-import { apiErrorBody, apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
+import { apiErrorMessage, apiErrorStatus } from "../../../utils/apiError";
 
 /* --- 1. Validation Schema (English Comment) --- */
 const salariesSchema = z.object({
@@ -141,7 +142,7 @@ const SalaryFormModal = ({ isOpen, onClose, onSaved, employee }: SalaryFormModal
             onSaved();
             onClose();
         } catch (err) {
-            console.error("Save salary failed:", apiErrorBody(err) ?? err);
+            logApiFailure("salary.save", err);
             // 412 means the record moved since this form was seeded: the screen is stale, so reload it.
             // Everything else — including a 409 over the effective date — leaves the form open to be corrected.
             if (apiErrorStatus(err) === 412) {

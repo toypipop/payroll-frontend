@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { usePagedResource } from "../../../hooks/usePagedResource";
 import type { PageResponse } from "../../../types/api";
 import { useEffect, useState } from "react";
@@ -63,7 +64,7 @@ export const useEmployees = () => {
                     })),
                 );
             } catch (err) {
-                console.error("Master data fetch error:", err);
+                logApiFailure("employees.options", err);
             }
         };
         fetchMasterData();

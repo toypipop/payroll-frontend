@@ -1,3 +1,4 @@
+import { logApiFailure } from "../../../utils/apiDiagnostic";
 import { useEffect, useState } from "react";
 import api from "../../../api/axiosInstance";
 import { usePagedResource } from "../../../hooks/usePagedResource";
@@ -29,7 +30,7 @@ export const useCycleDeductions = (selectedCycleId?: ApiId) => {
                 setCycles(cycleRes.data);
                 setDeductionTypes(etRes.data);
             } catch (err) {
-                if (!controller.signal.aborted) console.error("Master data fetch error:", err);
+                if (!controller.signal.aborted) logApiFailure("cycle.deductions.options", err);
             }
         };
         void fetchMaster();
