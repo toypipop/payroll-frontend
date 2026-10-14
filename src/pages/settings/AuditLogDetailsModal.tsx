@@ -2,6 +2,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import { bangkokDateKey, formatDisplayTime } from "../../utils/bangkokTime";
 import { auditSnapshotTarget, formatAuditSnapshot, type AuditSnapshot } from "./audit-log-details";
+import PermissionAuditDetails from "./PermissionAuditDetails";
 
 export interface AuditLogRow {
     id: number;
@@ -72,10 +73,12 @@ const AuditLogDetailsModal = ({ entry, onClose }: AuditLogDetailsModalProps) => 
                     <div className="sm:col-span-2"><dt className="text-subtle">Reason</dt><dd className="mt-0.5 font-medium text-main">{entry.reason || "No reason provided."}</dd></div>
                 </dl>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                {entry.event_type === "permission.updated" ? (
+                    <PermissionAuditDetails before={entry.before_data} after={entry.after_data} />
+                ) : <div className="grid gap-4 md:grid-cols-2">
                     <SnapshotSection title="Changed from" snapshot={entry.before_data} />
                     <SnapshotSection title="Changed to" snapshot={entry.after_data} />
-                </div>
+                </div>}
             </div>
         </Modal>
     );

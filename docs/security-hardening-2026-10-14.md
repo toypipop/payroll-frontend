@@ -32,7 +32,7 @@ PostgreSQL has 313 OS package/advisory records: 138 low, 109 medium, 61 high, 4 
 
 The frontend build finding is CVE-2026-93748 in npm's bundled http-cache-semantics 4.2.0, with no fixed version reported. The build stage is not shipped in the runtime image.
 
-CI rejects fixable high/critical OS findings; frontend build also checks libraries. Full reports retain unfixed findings. Upstream follow-up remains in TASKS.md.
+CI rejects fixable high/critical OS findings; frontend build also checks libraries. Full reports retain unfixed findings. No ongoing upstream-update task is tracked; the scan findings above remain unresolved.
 
 Nginx access logs are sanitized. Native Nginx error logs retain standard diagnostics and can include request details on errors; access-log tests do not prove every native error path is redacted. Avoid credentials in URLs and restrict operational log access.
 

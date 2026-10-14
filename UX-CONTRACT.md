@@ -9,3 +9,10 @@
 - `SelectField`, `DateField` and `Modal` remain the canonical controls. This validation task does not replace their interaction implementations or change permission/company scoping.
 
 Legacy flows outside the audited modals may still use older feedback patterns; this contract does not claim they have been migrated.
+
+## Audit details
+
+- `AuditLogDetailsModal` owns the read-only audit dialog through the shared `Modal` and `Button` primitives. Scalar event snapshots keep their existing before/after layout.
+- `PermissionAuditDetails` compares stored permission snapshots by module ID and shows only changed action/scope values. It never fetches current permissions or current names to reconstruct historical facts. Existing snapshots contain module IDs, so labels use `Module #ID`.
+- Configured-module counts include rows with all actions disabled. Missing legacy detail, malformed detail, an explicitly empty list and an absent module grant are distinct states; none is silently interpreted as permission denial or no change.
+- Comparison tables use semantic captions and row/column headers, existing tokens and wrapping cells. The shared modal owns vertical scrolling; no additional fetch/loading state is introduced.
