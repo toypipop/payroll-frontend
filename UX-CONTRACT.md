@@ -1,4 +1,4 @@
-# Validation workflows
+﻿# Validation workflows
 
 - Zod schemas own client validation; React Hook Form owns draft values, field errors and submission state. Feature modals reseed from `editing` when opened.
 - `src/utils/fieldValidation.ts` owns Unicode text counting and common profile constraints. Maximum lengths match backend validation and the corresponding PostgreSQL columns. Count code points rather than UTF-16 units or bytes.
@@ -12,7 +12,8 @@ Legacy flows outside the audited modals may still use older feedback patterns; t
 
 ## Audit details
 
-- `AuditLogDetailsModal` owns the read-only audit dialog through the shared `Modal` and `Button` primitives. Scalar event snapshots keep their existing before/after layout.
-- `PermissionAuditDetails` compares stored permission snapshots by module ID and shows only changed action/scope values. It never fetches current permissions or current names to reconstruct historical facts. Existing snapshots contain module IDs, so labels use `Module #ID`.
-- Configured-module counts include rows with all actions disabled. Missing legacy detail, malformed detail, an explicitly empty list and an absent module grant are distinct states; none is silently interpreted as permission denial or no change.
-- Comparison tables use semantic captions and row/column headers, existing tokens and wrapping cells. The shared modal owns vertical scrolling; no additional fetch/loading state is introduced.
+- All events use the same snapshot renderer in AuditLogDetailsModal; no event/module-specific display branches.
+- Show stored before_data and after_data as indented JSON, including nested objects/arrays, false, zero, null and empty strings. Missing snapshots show an explicit message; an empty object remains {}.
+- Render JSON as React text, never HTML. Preserve original keys, IDs and timestamp strings; do not fetch live records to reconstruct historical values.
+- Backend services own explicit allowed-field snapshots; the existing recursive sensitive-field guard rejects known credential fields before persistence. The UI is not the secrecy boundary.
+- Reuse Modal and Button, existing tokens, wrapping monospace text and the modal's vertical scroller. Stack before/after on narrow screens.

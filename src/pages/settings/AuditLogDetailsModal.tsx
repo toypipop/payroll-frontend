@@ -1,8 +1,7 @@
 import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import { bangkokDateKey, formatDisplayTime } from "../../utils/bangkokTime";
-import { auditSnapshotTarget, formatAuditSnapshot, type AuditSnapshot } from "./audit-log-details";
-import PermissionAuditDetails from "./PermissionAuditDetails";
+import { auditSnapshotTarget, type AuditSnapshot } from "./audit-log-details";
 
 export interface AuditLogRow {
     id: number;
@@ -28,19 +27,13 @@ const humanize = (value: string) => value.split(/[._]/).filter(Boolean)
 const occurredAt = (value: string) => `${bangkokDateKey(value)} ${formatDisplayTime(value)}`;
 
 const SnapshotSection = ({ title, snapshot }: { title: string; snapshot: AuditSnapshot }) => {
-    const fields = formatAuditSnapshot(snapshot);
     return (
-        <section className="rounded-xl border border-line-muted bg-surface p-4">
+        <section className="min-w-0 rounded-xl border border-line-muted bg-surface p-4">
             <h4 className="text-sm font-semibold text-main">{title}</h4>
-            {fields.length === 0 ? <p className="mt-2 text-sm text-subtle">No values recorded.</p> : (
-                <dl className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-x-4 gap-y-2 text-sm">
-                    {fields.map((field) => (
-                        <div key={field.label} className="contents">
-                            <dt className="text-muted">{field.label}</dt>
-                            <dd className="break-words text-right font-medium text-main">{field.value}</dd>
-                        </div>
-                    ))}
-                </dl>
+            {snapshot == null ? <p className="mt-2 text-sm text-subtle">No snapshot recorded.</p> : (
+                <pre aria-label={`${title} JSON`} className="mt-3 whitespace-pre-wrap break-all font-mono text-xs leading-relaxed text-main">
+                    {JSON.stringify(snapshot, null, 2)}
+                </pre>
             )}
         </section>
     );
@@ -73,12 +66,10 @@ const AuditLogDetailsModal = ({ entry, onClose }: AuditLogDetailsModalProps) => 
                     <div className="sm:col-span-2"><dt className="text-subtle">Reason</dt><dd className="mt-0.5 font-medium text-main">{entry.reason || "No reason provided."}</dd></div>
                 </dl>
 
-                {entry.event_type === "permission.updated" ? (
-                    <PermissionAuditDetails before={entry.before_data} after={entry.after_data} />
-                ) : <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                     <SnapshotSection title="Changed from" snapshot={entry.before_data} />
                     <SnapshotSection title="Changed to" snapshot={entry.after_data} />
-                </div>}
+                </div>
             </div>
         </Modal>
     );
