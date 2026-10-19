@@ -26,6 +26,28 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
+it.each([
+    { name: "account_name", label: "Account name", limit: 200, value: "ก" },
+    { name: "account_no", label: "Account number", limit: 50, value: "0" },
+])("shows $name length errors and keeps the draft without saving", async ({ name, label, limit, value }) => {
+    render(createElement(EmployeeFormModal, props));
+    const input = name === "account_name"
+        ? document.querySelector<HTMLInputElement>('input[name="account_name"]')!
+        : screen.getByPlaceholderText<HTMLInputElement>("Enter Account No.");
+    const draft = value.repeat(limit + 1);
+    fireEvent.change(input, { target: { value: draft } });
+    fireEvent.click(screen.getByRole("button", { name: "Update" }));
+    expect(await screen.findByText(`${label} must have at most ${limit} characters`)).toBeTruthy();
+    expect(input.value).toBe(draft);
+    expect(api.put).not.toHaveBeenCalled();
+    expect(api.post).not.toHaveBeenCalled();
+
+    fireEvent.change(input, { target: { value: value.repeat(limit) } });
+    fireEvent.click(screen.getByRole("button", { name: "Update" }));
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith("/employees/9",
+        expect.objectContaining({ [name]: value.repeat(limit) })));
+});
+
 async function expectDefaultsAndSave() {
     for (const name of ["Engineering", "Developer", "Staff", "Full Time"]) {
         await screen.findByRole("button", { name });

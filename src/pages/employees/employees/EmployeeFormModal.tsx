@@ -354,12 +354,14 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                 <InputField
                     label="Account Name"
                     {...register("account_name")}
+                    error={errors.account_name?.message}
                 />
                 <NumberField
                     label="Account No."
                     value={accountNumber ?? ""}
                     onChange={(e) => setValue("account_no", e.target.value, { shouldDirty: true })}
                     onBlur={() => {}}
+                    error={errors.account_no?.message}
                 />
             </div>
         </Modal>
