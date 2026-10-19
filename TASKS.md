@@ -30,6 +30,9 @@ Primary repo: `payroll-frontend`. Related repos: `../payroll-backend`, `../infra
 - Corrective work: wired Account Name and Account Number schema errors into the existing field controls. Email behavior unchanged. Added two regression cases proving visible length errors, retained drafts, no API calls for invalid input, and successful save at the exact 200/50 limits. Both tests failed for missing messages before the fix and passed afterward. Full frontend suite passed: 30 files, 209 tests. No backend/API changes.
 - Verification: npm.cmd test passed (209 tests); npm.cmd run typecheck, npm.cmd run lint and npm.cmd run build passed. git diff --check passed. No live browser/UAT retest performed.
 - Delivery: user authorized committing the bank-field error display fix, regression tests and updated UAT tracking; included in this commit. Push and deployment are not performed.
+- Commit state: bank-field error display fix, regression tests and UAT tracking committed. The initial commit succeeded on retry without changing permissions/configuration; subsequent attempts to amend tracker status timed out twice, so reviewer reliability remains unresolved.
+- Account Number follow-up: user reports it does not revalidate while editing like Account Name. Reproduced: the existing setValue/no-op blur integration leaves errors stale after a failed submit. Replaced it with Controller forwarding value, change, blur, ref and name; removed the redundant account_no page-level watch. Validation timing now matches Account Name (first submit, then edits), retaining draft input and leading zeroes.
+- Regression: expanded both bank-field tests to correct an oversized value, require the error to clear before another submit, reintroduce the error while typing and recover at the exact limit. Account Number failed before the fix; full suite passed afterward (209 tests). Typecheck, lint, build and git diff --check passed for this follow-up. No live browser/UAT retest performed. User authorized committing this follow-up with its regression test and tracker update; included in this commit. Push/deployment not performed.
 - Awaiting: push/deployment instructions and UAT retest of bank-field errors; subsequent API/numeric/date checks remain pending. Company UI rejection alone does not establish all-module validation or database enforcement.
 
 ## Agreed Tasks
@@ -58,13 +61,10 @@ Primary repo: `payroll-frontend`. Related repos: `../payroll-backend`, `../infra
 
 - Next step: guide item 13 validation checks in small groups. Keep the unverified remainder of item 11 pending.
 
-### ENV-01: Restore Agent Commit Approval
+### ENV-01: Approval Reviewer Reliability
 
 - Category/status: Tooling / In progress.
-- Related repos: payroll-frontend (pending verified bank-field fix commit); local Codex environment.
-- Approved scope: diagnose why agent commits fail and restore the supported approval flow. Preserve repository changes; no manual-user commit workaround requested. Do not disable the sandbox or alter protected paths.
-- Evidence: session metadata identifies codex_vscode 0.162.0-alpha.17.2; effective approval_policy=on-request, approvals_reviewer=auto_review, sandbox_policy=workspace-write. User config.toml marks the repositories trusted and windows.sandbox=elevated but has no explicit approvals_reviewer/approval_policy/sandbox_mode override. The exact origin of auto_review remains unconfirmed.
-- Failure: escalated Git add/commit never executed because automatic approval review reports Selected model is at capacity. This is reviewer infrastructure failure, not an unsafe-action denial. Existing .git write protection explains the escalation requirement, not the reviewer outage.
-- Proposed recovery: use the client's supported permissions picker to select manual approval (Ask for approval/user reviewer), if available and allowed by managed policy, then retry the same narrowly scoped commit through the approval system. User must control approval-mode changes; no agent self-modification of safety configuration.
-- Verification: inspect effective next-turn permissions, perform requested commit through supported approval, verify commit and working tree. No claim of recovery until those succeed.
-- Awaiting: user selection/confirmation of available permissions mode; service capacity recovery is an alternative if the reviewer cannot be changed. No push/deploy authorized.
+- Approved scope: diagnose and restore reliable agent commit approval without disabling sandbox protections or requiring the user to run Git.
+- Evidence: effective session uses on-request with auto_review. Earlier review requests failed with model capacity errors. Commit 7ce196c succeeded through the same approval route without any config/permission changes; two later tracker-only amend requests timed out before execution.
+- Current state: application fix/tests are committed; tracker status updates remain uncommitted. Push/deployment not performed. No safety configuration or ACL changes made.
+- Next step: user-controlled supported permissions-mode review or service recovery; no further repeated escalation attempts in this turn after the permitted timeout retry.

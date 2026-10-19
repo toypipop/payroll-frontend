@@ -108,9 +108,9 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
     });
 
     // Subscribe to the fields rendered or used by the company cascade.
-    const [selectedCompaniesId, selectedDepartmentId, selectedPositionId, selectedRoleId, selectedEmploymentTypeId, selectedBankId, accountNumber] = useWatch({
+    const [selectedCompaniesId, selectedDepartmentId, selectedPositionId, selectedRoleId, selectedEmploymentTypeId, selectedBankId] = useWatch({
         control,
-        name: ["companies_id", "dept_id", "pos_id", "roles_id", "employment_type_id", "bank_id", "account_no"],
+        name: ["companies_id", "dept_id", "pos_id", "roles_id", "employment_type_id", "bank_id"],
     });
 
     // Re-seed the form whenever the page opens the modal, so Edit shows the row and Add shows an empty form.
@@ -356,12 +356,18 @@ const EmployeeFormModal = ({ isOpen, onClose, onSaved, editing, homeCompanyId, m
                     {...register("account_name")}
                     error={errors.account_name?.message}
                 />
-                <NumberField
-                    label="Account No."
-                    value={accountNumber ?? ""}
-                    onChange={(e) => setValue("account_no", e.target.value, { shouldDirty: true })}
-                    onBlur={() => {}}
-                    error={errors.account_no?.message}
+                <Controller
+                    name="account_no"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                        <NumberField
+                            {...field}
+                            label="Account No."
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value)}
+                            error={fieldState.error?.message}
+                        />
+                    )}
                 />
             </div>
         </Modal>

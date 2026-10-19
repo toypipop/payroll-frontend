@@ -43,6 +43,12 @@ it.each([
     expect(api.post).not.toHaveBeenCalled();
 
     fireEvent.change(input, { target: { value: value.repeat(limit) } });
+    await waitFor(() => expect(screen.queryByText(`${label} must have at most ${limit} characters`)).toBeNull());
+    fireEvent.change(input, { target: { value: draft } });
+    expect(await screen.findByText(`${label} must have at most ${limit} characters`)).toBeTruthy();
+    expect(api.put).not.toHaveBeenCalled();
+    fireEvent.change(input, { target: { value: value.repeat(limit) } });
+    await waitFor(() => expect(screen.queryByText(`${label} must have at most ${limit} characters`)).toBeNull());
     fireEvent.click(screen.getByRole("button", { name: "Update" }));
     await waitFor(() => expect(api.put).toHaveBeenCalledWith("/employees/9",
         expect.objectContaining({ [name]: value.repeat(limit) })));
