@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Modal from "../../../components/common/Modal";
+import FormError from "../../../components/common/FormError";
 import Button from "../../../components/common/Button";
 import InputField from "../../../components/common/InputField";
 import DecimalField from "../../../components/common/DecimalField";
@@ -118,7 +119,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
             <div className="grid grid-cols-2 gap-x-4">
                 <SelectField
                     label="Companies"
-                    options={companies}
+                    options={[{ id: "", name: "All companies" }, ...companies]}
                     value={companyID}
                     onChange={(e) => {
                         setCompanyID(e.target.value);
@@ -173,7 +174,8 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
 
             {loadingTargets && <p role="status">Loading employees?</p>}
             {targetError && <p role="alert" className="text-danger">{targetError}</p>}
-            {touched && invalidTargets && <p role="alert" className="text-danger">Each selected employee needs a new salary between 0.01 and 9,999,999,999,999.99.</p>}
+            {touched && invalidTargets && <p role="alert" className="text-danger">Each selected employee needs a new salary</p>}
+            <FormError message={touched && selected.length === 0 ? "Select at least one employee before previewing." : undefined} />
             {!preview ? (
                 <div className="mt-1 max-h-[300px] overflow-y-auto rounded-lg border border-line-muted">
                     <table className="w-full border-collapse text-[13px]">
@@ -228,7 +230,7 @@ const BulkRaiseModal = ({ isOpen, onClose, onApplied, companies }: BulkRaiseModa
                                                     placeholder="0.00"
                                                     containerClassName="mb-0"
                                                     value={typed[id] ?? ""}
-                                                    error={touched && isPicked && !validSalaryAmount(Number(typed[id])) ? "Enter a salary within the supported range" : undefined}
+                                                    error={touched && isPicked && !validSalaryAmount(Number(typed[id])) ? "Enter salary" : undefined}
                                                     onChange={(e) => {
                                                         setTyped((prev) => ({ ...prev, [id]: e?.target?.value ?? "" }));
                                                         clear();
