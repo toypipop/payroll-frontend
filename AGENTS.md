@@ -1,13 +1,15 @@
 # payroll-frontend — Codex instructions
 
-## Scope and project
+## Scope and Read First
 
 - This repository is the React 19 + Vite + TypeScript frontend of the payroll system. Dev server port: `5174`.
 - The companion API is in `../payroll-backend`; read `../payroll-backend/AGENTS.md` before making changes that cross the API boundary, then decide whether both repos need updates.
 - API base path is `/api/v1`. Keep `VITE_API_URL=/api/v1` in every environment; Vite/nginx proxies `/api` to the backend.
 - `.env` is local-only and gitignored. Never add secrets or real environment values to the repository.
 
-## 1. File Organization and Responsibilities
+Read [README.md](README.md) for setup and the [core business summary](README.md#core-business-logic). Consult [DESIGN.md](DESIGN.md) and [UX-CONTRACT.md](UX-CONTRACT.md) for established UI and recovery conventions; apply all ten global usability heuristics to relevant UI changes.
+
+## Repository Map and Change Conventions
 
 - Keep installation, tool versions, and run commands in README.md. Keep pending discussions/tasks in the project's task file, not here.
 - Follow existing file names and feature directories. Use PascalCase for React components/pages, use-prefixed names for hooks, and plain helper modules for non-React logic.
@@ -38,7 +40,7 @@
 - Inline styles are reserved for runtime geometric values such as portal placement; use classes for normal styling.
 - Reuse shared UI patterns: `MasterDataWarning` for missing setup data; settings links open in a new tab with `rel="noopener noreferrer"`; common controls belong in `components/common/`.
 
-## 2. Business Logic and API Contracts
+## Rules and Invariants
 
 ### Auth and API contracts
 
@@ -69,40 +71,34 @@
 - Send calendar dates to the API as bare `YYYY-MM-DD` strings.
 - Convert datetime-local input with `bangkokLocalToISO` outbound and `isoToBangkokLocal` inbound.
 
-## 3. Engineering Principles
+## Additional Engineering Constraints
 
-Apply all five principles to every change, including System Permissions, leave-type annual limits, permission-save refresh behavior, and paired date inputs.
+Apply the global engineering principles together with these repository-specific constraints.
 
-1. [Structure and Readability](#principle-1-structure-and-readability)
-2. [Data Integrity, Validation, and Transactions](#principle-2-data-integrity-validation-and-transactions)
-3. [Logging and HTTP Status](#principle-3-logging-and-http-status)
-4. [Performance](#principle-4-performance)
-5. [Security](#principle-5-security)
-
-## Principle 1: Structure and Readability
+### Structure and Readability
 
 - Prioritize readable code and clear responsibility boundaries. Apply OOP concepts such as encapsulation and interfaces where useful; do not force classes or inheritance into React.
 - Refactor within the touched domain, reuse existing abstractions, remove newly introduced duplication, and avoid unrelated rewrites.
 
-## Principle 2: Data Integrity, Validation, and Transactions
+### Data Integrity, Validation, and Transactions
 
 - Keep frontend schemas consistent with API validation and database constraints: required fields, lengths, ranges, types, references, decimal precision, and Bangkok dates/times.
 - Reuse src/utils/fieldValidation.ts and feature-specific validators. Derive form types from schemas; do not maintain competing validation rules in each page.
 - The server owns enforcement and ACID transactions. The UI must preserve versions, required reasons, preview/apply behavior, and all-or-nothing bulk contracts.
 - Keep draft input on correctable failures, explicitly handle concurrency conflicts, and make retryable mutations idempotent where the contract requires it.
 
-## Principle 3: Logging and HTTP Status
+### Logging and HTTP Status
 
 - Use src/utils/apiError.ts to map API failures to safe, actionable messages. Preserve 401/403/409/412 semantics; do not treat every failure as an unknown server error.
 - Surface relevant form errors without closing the form or discarding input. Log only when useful, with appropriate severity and non-sensitive context; avoid duplicate logging.
 - Never log credentials, tokens, cookies, personal data, or full request/response payloads. Do not invent client audit events in place of server audit records.
 
-## Principle 4: Performance
+### Performance
 
 - Avoid unnecessary client work, rerenders, network traffic, duplicate fetches, and broad refreshes. Reuse existing scoped endpoints and data hooks.
 - Keep rendering and state updates proportional to the data shown. Use pagination where appropriate and add memoization only for a demonstrated need.
 
-## Principle 5: Security
+### Security
 
 - Retain server-enforced authentication, authorization, company scope, and ownership. Permission UI is a convenience, not the enforcement boundary.
 - Keep credentials in the httpOnly auth_token cookie flow; retain withCredentials and X-Requested-With: XMLHttpRequest on mutations through the shared client.
@@ -119,3 +115,11 @@ Apply all five principles to every change, including System Permissions, leave-t
 - Backend proxy target defaults to http://localhost:8000. Without a running backend, login and dynamic routes fail as expected; protected dynamic routes depend on /modules.
 - For visual checks, use a headless browser screenshot after domcontentloaded plus a short settle delay. Avoid networkidle because of the Vite HMR websocket.
 - Coordinate frontend-facing API changes with ../payroll-backend. Do not deploy or reset infrastructure unless explicitly requested. Backend deployment is manual and deploys both repositories from the same branch.
+
+## Documentation Maintenance
+
+- Require only README.md and AGENTS.md as baseline documents. README owns purpose, verified versions, setup/run commands, and the primary business or infrastructure summary; AGENTS owns the repository map, change rules, verification, and safety.
+- Write new repository Markdown in English. Inspect code/configuration before documenting facts; distinguish pinned versions, supported ranges, and historical observations.
+- Preserve useful existing references. Do not create or migrate to docs/, an index, DESIGN.md, configs/, or scripts/ merely to satisfy a template.
+- Keep pending work in the existing [shared tracker](../payroll-frontend/TASKS.md). Do not create an empty tracker or copy task status into README/AGENTS. The tracker is working state, not a third required baseline document.
+- Update affected setup, version, and behavior summaries when implementation changes; check local links and anchors. Resolve missing or conflicting information before dependent changes.
