@@ -1,4 +1,4 @@
-﻿# Validation workflows
+# Validation workflows
 
 - Zod schemas own client validation; React Hook Form owns draft values, field errors and submission state. Feature modals reseed from `editing` when opened.
 - `src/utils/fieldValidation.ts` owns Unicode text counting and common profile constraints. Maximum lengths match backend validation and the corresponding PostgreSQL columns. Count code points rather than UTF-16 units or bytes.

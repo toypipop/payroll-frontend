@@ -154,3 +154,10 @@ skills-lock.json
 !.claude/skills/
 tmp/
 browser-tests/.artifacts/
+
+# Agent and repository documents (local only)
+/CLAUDE.md
+/AGENTS.md
+/README.md
+/WORK.md
+/TASKS.md
